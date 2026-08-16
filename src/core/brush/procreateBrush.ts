@@ -1,5 +1,9 @@
-import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
+import type {
+  BrushCompatibilityReport, BrushPreset, CoverageMap, LoadedBrush
+} from "../../contracts/brush";
 import { unzip } from "../archive/unzip";
+import { decodeKeyedArchiveRoot } from "../archive/keyedArchive";
+import { applyBrushArchiveSettings } from "./brushArchiveSettings";
 import { decodeCoverage } from "./decodeCoverage";
 
 function entryByBaseName(
@@ -8,11 +12,31 @@ function entryByBaseName(
 ): Uint8Array<ArrayBuffer> | undefined {
   const lowerWanted = wanted.toLowerCase();
   for (const [name, bytes] of entries) {
+    if (name.replace(/\\/g, "/").toLowerCase() === lowerWanted) return bytes;
+  }
+  for (const [name, bytes] of entries) {
     if (name.replace(/\\/g, "/").split("/").at(-1)?.toLowerCase() === lowerWanted) {
       return bytes;
     }
   }
   return undefined;
+}
+
+export const emptyBrushCompatibility = (): BrushCompatibilityReport => ({
+  archiveVersion: null, archiveName: null, supportedFields: [],
+  unsupportedActiveFields: [],
+  excludedSections: ["wet-mix", "color-dynamics", "materials"]
+});
+
+async function coverage(
+  bytes: Uint8Array<ArrayBuffer> | undefined,
+  maximumSide: number,
+  warning: string,
+  warnings: string[]
+): Promise<CoverageMap | null> {
+  if (!bytes) return null;
+  try { return await decodeCoverage(bytes, maximumSide); }
+  catch { warnings.push(warning); return null; }
 }
 
 export async function decodeProcreateBrush(
@@ -24,15 +48,31 @@ export async function decodeProcreateBrush(
     const entries = await unzip(bytes);
     const shapeBytes = entryByBaseName(entries, "shape.png");
     const grainBytes = entryByBaseName(entries, "grain.png");
-    const shapeMap = shapeBytes ? await decodeCoverage(shapeBytes) : null;
-    const grainMap = grainBytes ? await decodeCoverage(grainBytes, 256) : null;
+    let resolvedPreset = preset;
+    let compatibility = emptyBrushCompatibility();
+    const archiveBytes = entryByBaseName(entries, "Brush.archive");
+    if (archiveBytes) {
+      try {
+        const result = applyBrushArchiveSettings(preset,
+          decodeKeyedArchiveRoot(archiveBytes), Boolean(grainBytes));
+        resolvedPreset = result.preset;
+        compatibility = result.compatibility;
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : "unknown settings failure";
+        warnings.push(`archive-settings-fallback:${detail}`);
+      }
+    } else warnings.push("archive-settings-missing");
+    const shapeMap = await coverage(shapeBytes, 512, "shape-decode-fallback", warnings);
+    const grainMap = await coverage(grainBytes, 256, "grain-decode-fallback", warnings);
     if (!shapeMap) warnings.push("built-in-shape-fallback");
-    if (!grainMap && preset.grain.strength > 0) warnings.push("procedural-grain-fallback");
-    return { ...preset, shapeMap, grainMap, warnings };
+    if (!grainMap && resolvedPreset.grain.strength > 0) {
+      warnings.push("procedural-grain-fallback");
+    }
+    return { ...resolvedPreset, shapeMap, grainMap, compatibility, warnings };
   } catch (error) {
     const detail = error instanceof Error ? error.message : "unknown decode failure";
     return { ...preset, shapeMap: null, grainMap: null,
-      warnings: [`archive-fallback:${detail}`] };
+      compatibility: emptyBrushCompatibility(), warnings: [`archive-fallback:${detail}`] };
   }
 }
 

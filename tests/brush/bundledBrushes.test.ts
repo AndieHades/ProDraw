@@ -24,8 +24,33 @@ describe("bundled brush catalog", () => {
     ));
     const loaded = await decodeProcreateBrush(bytes, preset);
     expect(loaded.id).toBe("lineart");
+    expect(loaded.compatibility.archiveVersion).toBe(4);
+    expect(loaded.compatibility.archiveName).toBe("LINEART");
+    expect(loaded.stabilization.streamlineAmount).toBeCloseTo(0.6453877687);
+    expect(loaded.stabilization.stabilizationAmount).toBeCloseTo(0.0584949069);
     expect(loaded.warnings).toContain("built-in-shape-fallback");
     expect(loaded.warnings.every((warning) => !warning.startsWith("archive-fallback")))
       .toBe(true);
   });
+
+  it("decodes settings and compatibility independently for all archives", async () => {
+    const signatures = new Set<string>();
+    for (const preset of BUNDLED_BRUSHES) {
+      const filePath = path.join(process.cwd(), "src", "app-folders", "brushes",
+        "main", preset.fileName);
+      const source = await readFile(filePath);
+      const loaded = await decodeProcreateBrush(new Uint8Array(source.buffer.slice(
+        source.byteOffset, source.byteOffset + source.byteLength
+      )), preset);
+      expect(loaded.compatibility.archiveVersion, preset.name).toBe(4);
+      expect(loaded.compatibility.supportedFields.length, preset.name).toBeGreaterThan(10);
+      expect(loaded.warnings.some((warning) =>
+        warning.startsWith("archive-settings-fallback")), preset.name).toBe(false);
+      signatures.add(JSON.stringify({ path: loaded.strokePath,
+        stabilization: loaded.stabilization, taper: loaded.taper,
+        shape: loaded.shape, grain: loaded.grain, rendering: loaded.rendering,
+        dynamics: loaded.dynamics, properties: loaded.properties }));
+    }
+    expect(signatures.size).toBe(BUNDLED_BRUSHES.length);
+  }, 30_000);
 });

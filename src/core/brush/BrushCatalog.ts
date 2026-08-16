@@ -1,5 +1,5 @@
 import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
-import { fetchProcreateBrush } from "./procreateBrush";
+import { emptyBrushCompatibility, fetchProcreateBrush } from "./procreateBrush";
 
 export class BrushCatalog {
   readonly #loaded = new Map<string, Promise<LoadedBrush>>();
@@ -8,7 +8,12 @@ export class BrushCatalog {
     const key = `${preset.id}:${preset.revision}`;
     const cached = this.#loaded.get(key);
     if (cached) return cached;
-    const loading = fetchProcreateBrush(preset);
+    const loading = fetchProcreateBrush(preset).catch((error: unknown) => {
+      this.#loaded.delete(key);
+      const detail = error instanceof Error ? error.message : "unknown fetch failure";
+      return { ...preset, shapeMap: null, grainMap: null,
+        compatibility: emptyBrushCompatibility(), warnings: [`asset-fallback:${detail}`] };
+    });
     this.#loaded.set(key, loading);
     return loading;
   }

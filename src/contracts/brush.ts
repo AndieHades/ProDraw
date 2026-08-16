@@ -57,8 +57,17 @@ export interface BrushPreset {
   readonly properties: { readonly maximumSize: number; readonly minimumSize: number };
 }
 
+export interface BrushCompatibilityReport {
+  readonly archiveVersion: number | null;
+  readonly archiveName: string | null;
+  readonly supportedFields: readonly string[];
+  readonly unsupportedActiveFields: readonly string[];
+  readonly excludedSections: readonly ["wet-mix", "color-dynamics", "materials"];
+}
+
 export interface LoadedBrush extends BrushPreset {
   readonly shapeMap: CoverageMap | null;
   readonly grainMap: CoverageMap | null;
+  readonly compatibility: BrushCompatibilityReport;
   readonly warnings: readonly string[];
 }
