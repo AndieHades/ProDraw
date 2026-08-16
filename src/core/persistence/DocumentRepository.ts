@@ -1,19 +1,23 @@
 import { PERSISTENCE } from "../../config/persistence";
 import type {
   DocumentSessionSnapshot, RecoveryDocumentEntry, RecoveryIndexV1, RecoveryLoadResult,
-  SerializedDocument, StoredRecoveryGenerationV1
+  SerializedDocument, StoredRecoveryGeneration
 } from "../../contracts/persistence";
 import { restoreDocument } from "./documentSerialization";
+import { clearRecoveryDocument } from "./clearRecoveryDocument";
+import { createIncrementalRecovery, materializeRecovery, recoveryTileKeys } from
+  "./incrementalRecovery";
 import { requestResult, transactionComplete } from "./indexedDbPromises";
 import { emptyRecoveryIndex, nextRecoveryRecords, recoveryGenerationKey } from "./recoveryRecords";
 import { upgradeDocumentDatabase } from "./upgradeDocumentDatabase";
 
 function validGeneration(
-  value: StoredRecoveryGenerationV1 | undefined,
+  value: StoredRecoveryGeneration | undefined,
   documentId: string,
   generation: number
-): value is StoredRecoveryGenerationV1 {
-  return value?.format === "prodraw-recovery-generation" && value.version === 1 &&
+): value is StoredRecoveryGeneration {
+  return value?.format === "prodraw-recovery-generation" &&
+    (value.version === 1 || value.version === 2) &&
     value.documentId === documentId && value.generation === generation;
 }
 
@@ -35,9 +39,10 @@ export class DocumentRepository {
       const stored = await this.readGeneration(database, entry.id, generation);
       if (!validGeneration(stored, entry.id, generation)) continue;
       try {
-        restoreDocument(stored.document);
+        const document = await materializeRecovery(database, stored);
+        restoreDocument(document);
         return { status: position === 0 ? "current" : "previous",
-          document: stored.document, session: stored.session };
+          document, session: stored.session };
       } catch { /* Try the retained last-good generation. */ }
     }
     return { status: "corrupt", document: null, session: null };
@@ -60,13 +65,29 @@ export class DocumentRepository {
     const database = await this.#database;
     const index = await this.readIndex(database);
     const records = nextRecoveryRecords(index, document, session);
+    const existing = index.documents.find(({ id }) => id === document.descriptor.id);
+    const previous = existing ? await this.readGeneration(database, existing.id,
+      existing.latestGeneration) : undefined;
+    const obsolete = existing?.previousGeneration == null ? undefined :
+      await this.readGeneration(database, existing.id, existing.previousGeneration);
+    const incremental = await createIncrementalRecovery(database, document, session,
+      records.generation.generation, previous);
+    const retainedKeys = new Set([
+      ...recoveryTileKeys(incremental.record), ...recoveryTileKeys(previous)
+    ]);
     const transaction = database.transaction([
-      PERSISTENCE.recoveryGenerationStore, PERSISTENCE.recoverySessionStore
+      PERSISTENCE.recoveryGenerationStore, PERSISTENCE.recoverySessionStore,
+      PERSISTENCE.recoveryTileStore
     ], "readwrite");
     const generations = transaction.objectStore(PERSISTENCE.recoveryGenerationStore);
-    generations.put(records.generation, recoveryGenerationKey(
-      records.generation.documentId, records.generation.generation));
+    generations.put(incremental.record, recoveryGenerationKey(
+      incremental.record.documentId, incremental.record.generation));
     if (records.obsoleteKey) generations.delete(records.obsoleteKey);
+    const tiles = transaction.objectStore(PERSISTENCE.recoveryTileStore);
+    for (const [key, bytes] of incremental.changedTiles) tiles.put(bytes, key);
+    for (const key of recoveryTileKeys(obsolete)) {
+      if (!retainedKeys.has(key)) tiles.delete(key);
+    }
     transaction.objectStore(PERSISTENCE.recoverySessionStore)
       .put(records.index, PERSISTENCE.recoveryIndexKey);
     await transactionComplete(transaction);
@@ -95,18 +116,10 @@ export class DocumentRepository {
     const index = await this.readIndex(database);
     const entry = index.documents.find(({ id }) => id === index.currentDocumentId);
     if (!entry) return;
-    const transaction = database.transaction([
-      PERSISTENCE.recoveryGenerationStore, PERSISTENCE.recoverySessionStore
-    ], "readwrite");
-    const generations = transaction.objectStore(PERSISTENCE.recoveryGenerationStore);
-    generations.delete(recoveryGenerationKey(entry.id, entry.latestGeneration));
-    if (entry.previousGeneration !== null) {
-      generations.delete(recoveryGenerationKey(entry.id, entry.previousGeneration));
-    }
-    const documents = index.documents.filter(({ id }) => id !== entry.id);
-    transaction.objectStore(PERSISTENCE.recoverySessionStore).put({ ...index, documents,
-      currentDocumentId: documents.at(-1)?.id ?? null }, PERSISTENCE.recoveryIndexKey);
-    await transactionComplete(transaction);
+    const latest = await this.readGeneration(database, entry.id, entry.latestGeneration);
+    const previous = entry.previousGeneration === null ? undefined :
+      await this.readGeneration(database, entry.id, entry.previousGeneration);
+    await clearRecoveryDocument(database, index, entry, latest, previous);
   }
 
   private async readIndex(database: IDBDatabase): Promise<RecoveryIndexV1> {
@@ -120,7 +133,7 @@ export class DocumentRepository {
     const transaction = database.transaction(PERSISTENCE.recoveryGenerationStore, "readonly");
     const request = transaction.objectStore(PERSISTENCE.recoveryGenerationStore)
       .get(recoveryGenerationKey(id, generation)) as
-      IDBRequest<StoredRecoveryGenerationV1 | undefined>;
+      IDBRequest<StoredRecoveryGeneration | undefined>;
     return requestResult(request);
   }
 

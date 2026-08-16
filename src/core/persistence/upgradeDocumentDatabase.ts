@@ -14,6 +14,9 @@ export function upgradeDocumentDatabase(request: IDBOpenDBRequest, oldVersion: n
   if (!database.objectStoreNames.contains(PERSISTENCE.recoverySessionStore)) {
     database.createObjectStore(PERSISTENCE.recoverySessionStore);
   }
+  if (!database.objectStoreNames.contains(PERSISTENCE.recoveryTileStore)) {
+    database.createObjectStore(PERSISTENCE.recoveryTileStore);
+  }
   if (oldVersion >= 2) return;
   const transaction = request.transaction;
   if (!transaction) return;

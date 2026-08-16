@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createRasterDocument } from "../../src/core/document/createRasterDocument";
 import { DocumentRepository } from "../../src/core/persistence/DocumentRepository";
 import {
-  restoreDocument, serializeDocument
+  DocumentSerializer, restoreDocument, serializeDocument
 } from "../../src/core/persistence/documentSerialization";
 
 describe("raster document persistence", () => {
@@ -30,5 +30,21 @@ describe("raster document persistence", () => {
     expect((await repository.loadCurrent())?.descriptor.name).toBe("Saved");
     await repository.clearCurrent();
     expect(await repository.loadCurrent()).toBeNull();
+  });
+
+  it("copies only tiles whose surface revision changed", () => {
+    const document = createRasterDocument({ name: "Cached", width: 512, height: 256,
+      dpi: 72, layerName: "Paint" }, (() => { let id = 0; return () => `cache-${++id}`; })());
+    const serializer = new DocumentSerializer();
+    document.editableSurface().blendPixel(2, 2,
+      { red: 1, green: 2, blue: 3, alpha: 255 });
+    serializer.serialize(document);
+    expect(serializer.copiedTiles).toBe(1);
+    serializer.serialize(document);
+    expect(serializer.copiedTiles).toBe(1);
+    document.editableSurface().blendPixel(300, 2,
+      { red: 4, green: 5, blue: 6, alpha: 255 });
+    serializer.serialize(document);
+    expect(serializer.copiedTiles).toBe(2);
   });
 });

@@ -7,6 +7,7 @@ import { restoreDocument, serializeDocument } from "./documentSerialization";
 interface NativeTileV1 {
   readonly x: number;
   readonly y: number;
+  readonly revision?: number;
   readonly bytes: string;
 }
 
@@ -33,7 +34,7 @@ export function encodeNativeDocument(document: RasterDocument): Uint8Array<Array
     descriptor: serialized.descriptor, activeLayerId: serialized.activeLayerId,
     savedAt: serialized.savedAt,
     layers: serialized.layers.map((layer) => ({ descriptor: layer.descriptor,
-      tiles: layer.tiles.map((tile) => ({ x: tile.x, y: tile.y,
+      tiles: layer.tiles.map((tile) => ({ x: tile.x, y: tile.y, revision: tile.revision,
         bytes: bytesToBase64(new Uint8Array(tile.bytes)) })) })) };
   return encoder.encode(JSON.stringify(native));
 }
@@ -53,7 +54,8 @@ export function decodeNativeDocument(bytes: Uint8Array<ArrayBuffer>): RasterDocu
       tiles: layer.tiles.map((tile: NativeTileV1) => {
         if (!Number.isInteger(tile.x) || !Number.isInteger(tile.y) ||
             typeof tile.bytes !== "string") throw new Error("Corrupt ProDraw tile");
-        return { x: tile.x, y: tile.y, bytes: base64ToBytes(tile.bytes).buffer };
+        return { x: tile.x, y: tile.y, revision: tile.revision ?? 1,
+          bytes: base64ToBytes(tile.bytes).buffer };
       }) };
   });
   return restoreDocument({ version: 1, descriptor: parsed.descriptor,

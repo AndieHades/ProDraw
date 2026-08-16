@@ -15,7 +15,8 @@ export function createEditorView(
   const snapshot = document.snapshot();
   return {
     document: { ...document.descriptor },
-    history: { undoCount: history.undoCount, redoCount: history.redoCount },
+    history: { undoCount: history.undoCount, redoCount: history.redoCount,
+      undoBytes: history.undoBytes, redoBytes: history.redoBytes },
     layers: { activeLayerId: snapshot.activeLayerId,
       layers: snapshot.layers.map((layer) => ({ ...layer })) },
     view: { ...view },

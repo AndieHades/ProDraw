@@ -25,6 +25,28 @@ export function sourceOver(
   };
 }
 
+export function sourceOverBytes(
+  destination: Uint8ClampedArray,
+  source: Uint8ClampedArray,
+  opacity = 1
+): void {
+  const layerOpacity = Math.max(0, Math.min(1, opacity));
+  for (let offset = 0; offset < destination.length; offset += 4) {
+    const sourceAlpha = ((source[offset + 3] ?? 0) / 255) * layerOpacity;
+    if (sourceAlpha === 0) continue;
+    const destinationAlpha = (destination[offset + 3] ?? 0) / 255;
+    const outputAlpha = sourceAlpha + destinationAlpha * (1 - sourceAlpha);
+    const destinationWeight = destinationAlpha * (1 - sourceAlpha);
+    for (let channel = 0; channel < 3; channel += 1) {
+      destination[offset + channel] = Math.round(
+        ((source[offset + channel] ?? 0) * sourceAlpha +
+          (destination[offset + channel] ?? 0) * destinationWeight) / outputAlpha
+      );
+    }
+    destination[offset + 3] = Math.round(outputAlpha * 255);
+  }
+}
+
 export function eraseAlpha(destination: RgbaColor, opacity = 1): RgbaColor {
   const remaining = 1 - Math.max(0, Math.min(1, opacity));
   const alpha = byte(destination.alpha * remaining);

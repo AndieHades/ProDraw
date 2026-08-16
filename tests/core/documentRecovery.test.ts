@@ -1,7 +1,7 @@
 import { IDBFactory } from "fake-indexeddb";
 import { describe, expect, it } from "vitest";
 import { PERSISTENCE } from "../../src/config/persistence";
-import type { StoredRecoveryGenerationV1 } from "../../src/contracts/persistence";
+import type { StoredRecoveryGeneration } from "../../src/contracts/persistence";
 import { createRasterDocument } from "../../src/core/document/createRasterDocument";
 import { DocumentRepository } from "../../src/core/persistence/DocumentRepository";
 import { restoreDocument, serializeDocument } from
@@ -25,10 +25,22 @@ async function corruptLatest(factory: IDBFactory, id: string, generation: number
   const transaction = database.transaction(PERSISTENCE.recoveryGenerationStore, "readwrite");
   const store = transaction.objectStore(PERSISTENCE.recoveryGenerationStore);
   const key = `${id}:${generation}`;
-  const record = await requestResult(store.get(key) as IDBRequest<StoredRecoveryGenerationV1>);
-  store.put({ ...record, document: { ...record.document, layers: [] } }, key);
+  const record = await requestResult(store.get(key) as IDBRequest<StoredRecoveryGeneration>);
+  const corrupt = record.version === 1
+    ? { ...record, document: { ...record.document, layers: [] } }
+    : { ...record, manifest: { ...record.manifest, layers: [] } };
+  store.put(corrupt, key);
   await transactionComplete(transaction);
   database.close();
+}
+
+async function tileRecordCount(factory: IDBFactory): Promise<number> {
+  const database = await requestResult(
+    factory.open(PERSISTENCE.databaseName, PERSISTENCE.databaseVersion));
+  const transaction = database.transaction(PERSISTENCE.recoveryTileStore, "readonly");
+  const count = await requestResult(transaction.objectStore(PERSISTENCE.recoveryTileStore).count());
+  database.close();
+  return count;
 }
 
 describe("document recovery generations", () => {
@@ -87,5 +99,25 @@ describe("document recovery generations", () => {
     expect(recovered.status).toBe("current");
     if (!recovered.document) throw new Error("Migrated recovery is missing");
     expect(restoreDocument(recovered.document).compositePixel(1, 1).alpha).toBe(255);
+  });
+
+  it("reuses unchanged tile blobs and compacts unreferenced generations", async () => {
+    const factory = new IDBFactory();
+    const repository = new DocumentRepository(factory);
+    const document = artwork("Delta", "delta");
+    document.editableSurface().blendPixel(1, 1,
+      { red: 10, green: 20, blue: 30, alpha: 255 });
+    document.editableSurface().blendPixel(15, 15,
+      { red: 30, green: 20, blue: 10, alpha: 255 });
+    await repository.saveRecovery(serializeDocument(document), session(1));
+    const initialTiles = await tileRecordCount(factory);
+    await repository.saveRecovery(serializeDocument(document), session(2));
+    expect(await tileRecordCount(factory)).toBe(initialTiles);
+    document.editableSurface().blendPixel(2, 2,
+      { red: 200, green: 100, blue: 40, alpha: 255 });
+    await repository.saveRecovery(serializeDocument(document), session(3));
+    expect(await tileRecordCount(factory)).toBe(initialTiles + 1);
+    await repository.saveRecovery(serializeDocument(document), session(4));
+    expect(await tileRecordCount(factory)).toBe(initialTiles);
   });
 });

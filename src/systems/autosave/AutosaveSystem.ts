@@ -2,7 +2,7 @@ import { PERSISTENCE } from "../../config/persistence";
 import type { AutosaveStatus, DocumentSessionSnapshot } from "../../contracts/persistence";
 import type { RasterDocument } from "../../core/document/RasterDocument";
 import type { DocumentRepository } from "../../core/persistence/DocumentRepository";
-import { serializeDocument } from "../../core/persistence/documentSerialization";
+import { DocumentSerializer } from "../../core/persistence/documentSerialization";
 
 const fallbackSession = (): DocumentSessionSnapshot => ({
   revision: Date.now(), savedRevision: 0, nativeLocation: null
@@ -13,6 +13,7 @@ export class AutosaveSystem {
   readonly #getDocument: () => RasterDocument;
   readonly #getSession: () => DocumentSessionSnapshot;
   readonly #onStatus: (status: AutosaveStatus) => void;
+  readonly #serializer = new DocumentSerializer();
   #timer: ReturnType<typeof setTimeout> | null = null;
   #requested = false;
   #draining: Promise<void> | null = null;
@@ -54,7 +55,7 @@ export class AutosaveSystem {
       while (this.#requested) {
         this.#requested = false;
         await this.#repository.saveRecovery(
-          serializeDocument(this.#getDocument()), this.#getSession()
+          this.#serializer.serialize(this.#getDocument()), this.#getSession()
         );
       }
       this.#onStatus("saved");

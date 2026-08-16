@@ -38,7 +38,7 @@ export class RasterEditorApp {
       height: this.#workspace.canvas.clientHeight };
     this.#session = new RasterEditorSession(initial.document, brush, viewport, initial.session);
     this.#canvas = new CanvasPresenter(this.#workspace.canvas,
-      () => this.#session.canvasFrame(), () => this.#session.view);
+      (size) => this.#session.canvasFrame(size), () => this.#session.view);
     this.#documents = new DocumentWorkflow({ platform, repository, session: this.#session,
       viewport: () => this.#canvas.size,
       onChanged: () => this.changed(), onStatus: (key) => this.status(key) });

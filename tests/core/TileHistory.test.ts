@@ -50,4 +50,19 @@ describe("TileHistory", () => {
     history.record(second.commit());
     expect(history.redoCount).toBe(0);
   });
+
+  it("evicts old patches by retained byte budget", () => {
+    const surface = new RasterSurface("budget", 8, 4, 2);
+    const history = new TileHistory(100, 20);
+    for (const x of [0, 3]) {
+      const edit = history.begin(surface, "Budget stroke");
+      edit.blendPixel(x, 0, ink);
+      history.record(edit.commit());
+    }
+    expect(history.undoCount).toBe(1);
+    expect(history.undoBytes).toBe(16);
+    history.undo();
+    expect(history.undoBytes).toBe(0);
+    expect(history.redoBytes).toBe(16);
+  });
 });

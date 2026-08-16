@@ -1,9 +1,10 @@
 export const PERSISTENCE = Object.freeze({
   databaseName: "prodraw-documents",
-  databaseVersion: 2,
+  databaseVersion: 3,
   legacyDocumentStore: "documents",
   legacyCurrentDocumentKey: "current",
   recoveryGenerationStore: "document-generations",
+  recoveryTileStore: "document-tiles",
   recoverySessionStore: "document-session",
   recoveryIndexKey: "index-v1",
   retainedGenerations: 2,

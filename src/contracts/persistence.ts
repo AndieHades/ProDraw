@@ -11,6 +11,7 @@ export interface DocumentSessionSnapshot {
 export interface SerializedTile {
   readonly x: number;
   readonly y: number;
+  readonly revision: number;
   readonly bytes: ArrayBuffer;
 }
 
@@ -51,6 +52,35 @@ export interface StoredRecoveryGenerationV1 {
   readonly session: DocumentSessionSnapshot;
   readonly document: SerializedDocument;
 }
+
+export interface RecoveryTileReference {
+  readonly x: number;
+  readonly y: number;
+  readonly revision: number;
+  readonly key: string;
+}
+
+export interface RecoveryLayerManifest {
+  readonly descriptor: LayerDescriptor;
+  readonly tiles: readonly RecoveryTileReference[];
+}
+
+export interface StoredRecoveryGenerationV2 {
+  readonly format: "prodraw-recovery-generation";
+  readonly version: 2;
+  readonly documentId: string;
+  readonly generation: number;
+  readonly session: DocumentSessionSnapshot;
+  readonly manifest: {
+    readonly descriptor: DocumentDescriptor;
+    readonly activeLayerId: string;
+    readonly layers: readonly RecoveryLayerManifest[];
+    readonly savedAt: number;
+  };
+}
+
+export type StoredRecoveryGeneration =
+  StoredRecoveryGenerationV1 | StoredRecoveryGenerationV2;
 
 export interface RecoveryLoadResult {
   readonly status: "empty" | "current" | "previous" | "corrupt";

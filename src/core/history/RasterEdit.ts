@@ -49,12 +49,10 @@ export class RasterEdit {
     this.#closed = true;
     const patches: TilePatch[] = [];
     for (const touched of this.#touched.values()) {
-      const after = this.#surface.copyTile(touched.x, touched.y);
-      this.#surface.replaceTile(touched.x, touched.y, after);
-      const normalizedAfter = this.#surface.copyTile(touched.x, touched.y);
-      if (!tileBytesEqual(touched.before, normalizedAfter)) {
+      const after = this.#surface.compactTile(touched.x, touched.y);
+      if (!tileBytesEqual(touched.before, after)) {
         patches.push({ surfaceId: this.#surface.id, x: touched.x, y: touched.y,
-          before: touched.before, after: normalizedAfter });
+          before: touched.before, after });
       }
     }
     return patches.length ? { label: this.#label, patches } : null;

@@ -1,18 +1,22 @@
 import type { CanvasFrameViewModel } from "../../contracts/editorView";
-import type { PixelCoordinate } from "../../contracts/raster";
+import type { PixelCoordinate, RasterSize } from "../../contracts/raster";
 import type { ViewState, ViewportPort } from "../../contracts/view";
+import { RASTER_LIMITS } from "../../config/raster";
 import { screenToDocument } from "../../logic/view/viewTransform";
 
 export class CanvasPresenter implements ViewportPort {
   readonly #canvas: HTMLCanvasElement;
   readonly #context: CanvasRenderingContext2D;
-  readonly #getFrame: () => CanvasFrameViewModel;
+  readonly #getFrame: (viewport: RasterSize) => CanvasFrameViewModel;
   readonly #getView: () => ViewState;
+  readonly #tiles = new Map<string, { readonly canvas: HTMLCanvasElement;
+    readonly context: CanvasRenderingContext2D; revision: number; used: number }>();
   #frame = 0;
+  #use = 0;
 
   constructor(
     canvas: HTMLCanvasElement,
-    getFrame: () => CanvasFrameViewModel,
+    getFrame: (viewport: RasterSize) => CanvasFrameViewModel,
     getView: () => ViewState
   ) {
     const context = canvas.getContext("2d", { alpha: false });
@@ -42,7 +46,7 @@ export class CanvasPresenter implements ViewportPort {
   render(): void {
     this.resizeBackingStore();
     const context = this.#context;
-    const frame = this.#getFrame();
+    const frame = this.#getFrame(this.size);
     const view = this.#getView();
     const ratio = window.devicePixelRatio || 1;
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -66,16 +70,34 @@ export class CanvasPresenter implements ViewportPort {
 
   private drawTiles(frame: CanvasFrameViewModel, context: CanvasRenderingContext2D): void {
     for (const tileModel of frame.tiles) {
-      const tile = globalThis.document.createElement("canvas");
-      tile.width = frame.tileSize;
-      tile.height = frame.tileSize;
-      const tileContext = tile.getContext("2d");
-      if (!tileContext) continue;
-      tileContext.putImageData(
-        new ImageData(new Uint8ClampedArray(tileModel.bytes), frame.tileSize, frame.tileSize), 0, 0
-      );
-      context.drawImage(tile, tileModel.x * frame.tileSize, tileModel.y * frame.tileSize);
+      const key = `${tileModel.x}:${tileModel.y}`;
+      let presented = this.#tiles.get(key);
+      if (!presented) {
+        const canvas = globalThis.document.createElement("canvas");
+        canvas.width = frame.tileSize; canvas.height = frame.tileSize;
+        const tileContext = canvas.getContext("2d");
+        if (!tileContext) continue;
+        presented = { canvas, context: tileContext, revision: -1, used: 0 };
+        this.#tiles.set(key, presented);
+      }
+      if (presented.revision !== tileModel.revision) {
+        presented.context.putImageData(new ImageData(
+          new Uint8ClampedArray(tileModel.bytes), frame.tileSize, frame.tileSize), 0, 0);
+        presented.revision = tileModel.revision;
+      }
+      presented.used = ++this.#use;
+      context.drawImage(presented.canvas,
+        tileModel.x * frame.tileSize, tileModel.y * frame.tileSize);
     }
+    this.trimTileCache();
+  }
+
+  private trimTileCache(): void {
+    if (this.#tiles.size <= RASTER_LIMITS.maximumPresentationCacheTiles) return;
+    const oldest = [...this.#tiles.entries()].sort((left, right) =>
+      left[1].used - right[1].used).slice(0,
+      this.#tiles.size - RASTER_LIMITS.maximumPresentationCacheTiles);
+    for (const [key] of oldest) this.#tiles.delete(key);
   }
 
   private resizeBackingStore(): void {

@@ -4,6 +4,8 @@ import type { ViewState } from "./view";
 export interface HistoryViewModel {
   readonly undoCount: number;
   readonly redoCount: number;
+  readonly undoBytes: number;
+  readonly redoBytes: number;
 }
 
 export interface LayerListViewModel {
@@ -30,6 +32,7 @@ export interface EditorViewModel {
 export interface CanvasTileViewModel {
   readonly x: number;
   readonly y: number;
+  readonly revision: number;
   readonly bytes: Uint8ClampedArray<ArrayBuffer>;
 }
 

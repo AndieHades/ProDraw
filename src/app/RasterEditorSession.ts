@@ -8,7 +8,7 @@ import { VIEW_INPUT } from "../config/input";
 import { BrushCatalog } from "../core/brush/BrushCatalog";
 import { createRasterDocument } from "../core/document/createRasterDocument";
 import type { RasterDocument } from "../core/document/RasterDocument";
-import { createCanvasFrame } from "../core/editor/createCanvasFrame";
+import { DocumentCompositor } from "../core/editor/DocumentCompositor";
 import { createEditorView } from "../core/editor/createEditorView";
 import { TileHistory } from "../core/history/TileHistory";
 import { fitView, rotateViewAt } from "../logic/view/viewTransform";
@@ -16,6 +16,7 @@ import { fitView, rotateViewAt } from "../logic/view/viewTransform";
 export class RasterEditorSession {
   readonly #catalog = new BrushCatalog();
   readonly #history = new TileHistory();
+  readonly #compositor = new DocumentCompositor();
   #document: RasterDocument;
   #view: ViewState;
   #brush: BrushPreset | LoadedBrush;
@@ -60,6 +61,7 @@ export class RasterEditorSession {
     this.#document = document;
     this.#session = session;
     this.#history.reset();
+    this.#compositor.reset(document.descriptor.id);
     this.registerSurfaces();
     this.fit(viewport);
   }
@@ -101,7 +103,9 @@ export class RasterEditorSession {
       this.#session);
   }
 
-  canvasFrame(): CanvasFrameViewModel { return createCanvasFrame(this.#document); }
+  canvasFrame(viewport: RasterSize): CanvasFrameViewModel {
+    return this.#compositor.frame(this.#document, this.#view, viewport);
+  }
 
   private registerSurfaces(): void {
     for (const layer of this.#document.layers) this.#history.registerSurface(layer.surface);

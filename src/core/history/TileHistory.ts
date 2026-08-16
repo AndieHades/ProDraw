@@ -1,16 +1,21 @@
 import { RASTER_LIMITS } from "../../config/raster";
 import type { RasterSurface } from "../raster/RasterSurface";
 import { RasterEdit } from "./RasterEdit";
-import type { TileChangeSet, TilePatch } from "./tilePatch";
+import { changeSetBytes, type TileChangeSet, type TilePatch } from "./tilePatch";
 
 export class TileHistory {
   readonly #surfaces = new Map<string, RasterSurface>();
   readonly #undo: TileChangeSet[] = [];
   readonly #redo: TileChangeSet[] = [];
   readonly #limit: number;
+  readonly #byteLimit: number;
+  #undoBytes = 0;
+  #redoBytes = 0;
 
-  constructor(limit: number = RASTER_LIMITS.maximumHistoryEntries) {
+  constructor(limit: number = RASTER_LIMITS.maximumHistoryEntries,
+    byteLimit: number = RASTER_LIMITS.maximumHistoryBytes) {
     this.#limit = limit;
+    this.#byteLimit = byteLimit;
   }
 
   get undoCount(): number {
@@ -20,6 +25,8 @@ export class TileHistory {
   get redoCount(): number {
     return this.#redo.length;
   }
+  get undoBytes(): number { return this.#undoBytes; }
+  get redoBytes(): number { return this.#redoBytes; }
 
   registerSurface(surface: RasterSurface): void {
     this.#surfaces.set(surface.id, surface);
@@ -36,31 +43,47 @@ export class TileHistory {
 
   record(changeSet: TileChangeSet | null): boolean {
     if (!changeSet) return false;
-    this.#undo.push(changeSet);
-    if (this.#undo.length > this.#limit) this.#undo.shift();
+    const bytes = changeSetBytes(changeSet);
+    if (bytes <= this.#byteLimit) {
+      this.#undo.push(changeSet);
+      this.#undoBytes += bytes;
+      while (this.#undo.length > this.#limit || this.#undoBytes > this.#byteLimit) {
+        const removed = this.#undo.shift();
+        if (removed) this.#undoBytes -= changeSetBytes(removed);
+      }
+    }
     this.#redo.length = 0;
+    this.#redoBytes = 0;
     return true;
   }
 
   undo(): TileChangeSet | null {
     const changeSet = this.#undo.pop();
     if (!changeSet) return null;
+    const bytes = changeSetBytes(changeSet);
+    this.#undoBytes -= bytes;
     this.apply(changeSet.patches, "before");
     this.#redo.push(changeSet);
+    this.#redoBytes += bytes;
     return changeSet;
   }
 
   redo(): TileChangeSet | null {
     const changeSet = this.#redo.pop();
     if (!changeSet) return null;
+    const bytes = changeSetBytes(changeSet);
+    this.#redoBytes -= bytes;
     this.apply(changeSet.patches, "after");
     this.#undo.push(changeSet);
+    this.#undoBytes += bytes;
     return changeSet;
   }
 
   clear(): void {
     this.#undo.length = 0;
     this.#redo.length = 0;
+    this.#undoBytes = 0;
+    this.#redoBytes = 0;
   }
 
   reset(): void {
