@@ -1,0 +1,2 @@
+/* Совместимый вход: основные стили разложены по src/styles/app.css и src/styles/parts/. */
+@import './src/styles/app.css';

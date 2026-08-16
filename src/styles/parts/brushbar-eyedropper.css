@@ -1,0 +1,62 @@
+/* Левая полоса кисти, vertical sliders, режим пипетки и цветовые кнопки эффектов. */
+    /* ---- левая полоса кисти (как в Procreate) ---- */
+    #brushbar { position: fixed; left: max(6px, env(safe-area-inset-left, 0px)); top: 50%; transform: translateY(-50%);
+      z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 16px 6px 14px;
+      width: 54px; background: var(--panel);
+      backdrop-filter: blur(22px) saturate(1.25); -webkit-backdrop-filter: blur(22px) saturate(1.25);
+      border: 1px solid var(--line); border-radius: var(--r-3xl);
+      box-shadow: var(--win-shadow), inset 0 1px 0 rgba(255, 255, 255, .06); }
+    #bb-pick { width: 34px; height: 34px; flex: none; border: 2px solid var(--txt2);
+      border-radius: var(--r-lg); color: var(--txt); background: transparent; }
+    #bb-pick svg { width: 18px; height: 18px; }
+    #bb-pick.on { background: color-mix(in srgb, var(--accent) 92%, transparent); border-color: rgba(255, 255, 255, .86);
+      color: var(--on-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 24%, transparent); }
+    .vsl { position: relative; width: 44px; height: clamp(116px, 20vh, 218px);
+      touch-action: none; cursor: pointer; -webkit-user-select: none; user-select: none; flex: none; }
+    .vsl::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 38px; transform: translateX(-50%);
+      background: var(--vsl-track); border: 1px solid var(--line); border-radius: var(--r-3xl);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 -1px 4px rgba(0, 0, 0, .18); }
+    .vsl-fill { position: absolute; left: 50%; bottom: 0; width: 38px; height: 0; transform: translateX(-50%);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, transparent), color-mix(in srgb, var(--accent) 78%, transparent));
+      border-radius: var(--r-3xl); opacity: .42; }
+    .bb-size .vsl-fill { display: none; }
+    .vsl-knob { position: absolute; left: 50%; bottom: 0; width: 32px; height: 18px; border-radius: var(--r-pill);
+      background: rgba(244, 243, 255, .92);
+      box-shadow: var(--win-shadow), inset 0 0 0 1px rgba(255, 255, 255, .48);
+      transform: translateX(-50%); pointer-events: none; }
+    .vsl-knob::after { content: ""; position: absolute; left: 7px; right: 7px; top: 50%; height: 4px; transform: translateY(-50%);
+      border-radius: var(--r-pill); background: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 15%, transparent); }
+    .bb-op .vsl-knob::after { background: rgba(114, 116, 132, .58); box-shadow: none; }
+    .bb-sep { width: 22px; height: 1px; background: var(--line); flex: none; margin: -4px 0 0; }
+    #bb-undo, #bb-redo { width: 34px; height: 30px; flex: none; color: var(--txt2); border-radius: var(--r-lg); }
+    #bb-undo svg, #bb-redo svg { width: 22px; height: 22px; stroke-width: 2.2; }
+    #bb-val { position: fixed; z-index: 90; display: none; transform: translateY(-50%);
+      background: var(--panel-solid); border: 1px solid var(--line); color: var(--txt);
+      font: var(--type-label)/1 var(--font-mono); padding: 6px 10px; border-radius: var(--r-md); white-space: nowrap;
+      box-shadow: var(--win-shadow); pointer-events: none; }
+    #bb-val.on { display: block; }
+    @media (min-width: 768px) { .vsl { height: 22vh; max-height: 240px; } } /* чуть выше на планшете */
+    /* ---- режим пипетки очевиден ---- */
+    body.picking #cv { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M18.5 3.5l6 6-3 3-6-6zM16 7L6.5 16.5 4.5 23.5l7-2L21 12z' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M18.5 3.5l6 6-3 3-6-6zM16 7L6.5 16.5 4.5 23.5l7-2L21 12z' fill='none' stroke='%23111111' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") 5 23, crosshair; }
+    #pickflag { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 60px); transform: translateX(-50%);
+      z-index: 80; display: none; align-items: center; gap: 8px; background: var(--accent); color: var(--on-accent);
+      font-size: var(--type-label); font-weight: var(--fw-heading); padding: 7px 14px; border-radius: var(--r-pill); box-shadow: var(--win-shadow); pointer-events: none; }
+    body.picking #pickflag { display: flex; }
+    #pickflag svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    /* Eyedropper preview: окошко из двух квадратов (наведённый цвет + текущий активный), следует за курсором */
+    #eyedrop { position: fixed; left: 0; top: 0; z-index: 90; display: none; align-items: center; pointer-events: none;
+      background: var(--panel-solid); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 5px; box-shadow: var(--win-shadow); }
+    #eyedrop.on { display: flex; }
+    #eyedrop span { width: 26px; height: 26px; } /* два цвета вплотную, как свотчи палитры */
+    #eyedrop-found { border-radius: var(--r-sm) 0 0 var(--r-sm); box-shadow: inset 0 0 0 1px var(--line); }
+    #eyedrop-cur { border-radius: 0 var(--r-sm) var(--r-sm) 0; box-shadow: inset 0 0 0 1px var(--line); }
+    #eyedrop-found.empty { background-image: linear-gradient(45deg, var(--surface) 25%, transparent 25%, transparent 75%, var(--surface) 75%), linear-gradient(45deg, var(--surface) 25%, transparent 25%, transparent 75%, var(--surface) 75%); background-size: 10px 10px; background-position: 0 0, 5px 5px; }
+    #eyedrop b { font: var(--fw-heading) var(--type-caption)/1 var(--font-mono); color: var(--txt); margin: 0 4px 0 8px; }
+    .outcolwrap { position: relative; width: 42px; height: 32px; margin-left: auto; }
+    .outcolwrap input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; }
+    .outcolwrap span { display: block; width: 100%; height: 100%; border-radius: var(--r-md);
+      border: 1px solid rgba(255, 255, 255, .25); pointer-events: none; background: #ff7a18; }
+    .fx-colbtn { width: 42px; height: 32px; margin-left: auto; padding: 0; border-radius: var(--r-md);
+      border: 1px solid rgba(255, 255, 255, .25); background: #ff7a18; }
+
+

@@ -1,0 +1,33 @@
+/* ── Свайп-действия по строке (переиспользуемо: новый холст, слои) ── */
+.swipe-row { position: relative; overflow: hidden; }
+.swipe-front { position: relative; z-index: 1; transition: transform var(--anim-fast) var(--ease-out); will-change: transform; }
+.swipe-acts { position: absolute; top: 0; right: 0; height: 100%; display: flex; z-index: 0; }
+.swipe-act { height: 100%; padding: 0 18px; border: none; font-size: var(--type-body); font-weight: var(--fw-heading); color: var(--on-accent);
+  background: var(--txt2); cursor: pointer; }
+.swipe-act.danger { background: var(--danger); }
+.swipe-act.on { background: var(--accent); }
+.swipe-act.icon { padding: 0; width: 56px; }
+.swipe-act.icon svg { width: 22px; height: 22px; }
+
+/* ── Слои: свайп-строка (фронт несёт фон, кнопки выезжают из-под него) ── */
+.lrow.swipe-row { display: block; padding: 0; }
+.lrow .swipe-front { position: relative; display: flex; align-items: center; gap: 10px; padding: 6px 8px; background: var(--row); }
+.lrow.marked .swipe-front { background: color-mix(in srgb, var(--accent) 42%, var(--row)); }  /* выбранные — приглушённо */
+.lrow.on .swipe-front { background: var(--accent); }                                                 /* активный — ярко-синий */
+.lrow.swiping-right .swipe-front { box-shadow: inset 3px 0 0 var(--accent); }
+.lrow .swipe-acts { border-radius: 0; }
+/* кнопки действий — того же цвета, что строка слоя, чтобы не выбивались;
+   состояния (активно/удаление) остаются акцентом/красным, как в Procreate */
+.lrow .swipe-act { padding: 0 14px; font-size: var(--type-label); background: var(--row); color: var(--txt); }
+.lrow .swipe-act.on { background: var(--accent); color: var(--on-accent); }
+.lrow .swipe-act.danger { background: var(--danger); color: var(--on-accent); }
+.lrow .swipe-act + .swipe-act { box-shadow: inset 1px 0 0 var(--line); }  /* тонкий разделитель между кнопками */
+.lrow .swipe-act.icon { width: 56px; padding: 0; }
+/* обтравочная маска: сдвиг строки вправо + стрелка слева (работает и на десктопе) */
+.lrow.clip .swipe-front, .lrow.clip:not(.swipe-row) { padding-left: 30px; }
+.clip-arrow { position: absolute; left: 6px; top: 50%; width: 17px; height: 17px; transform: translateY(-50%); color: var(--txt2); }
+.clip-arrow svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+/* индикатор замка / альфа-замка */
+.lref { color: var(--accent); }
+.lrow.on .lsym, .lrow.on .eye { color: var(--on-accent); } /* на активном слое — белые иконки */
+

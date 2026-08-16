@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'C:\\Users\\AndieHades\\Documents\\GitHub\\pixelize-tool\\.codex\\hooks\\session-start.sh'",
+            "timeout": 300
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'C:\\Users\\AndieHades\\Documents\\GitHub\\pixelize-tool\\.codex\\hooks\\reload-claude-md.sh'"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'C:\\Users\\AndieHades\\Documents\\GitHub\\pixelize-tool\\.codex\\hooks\\fetch-main.sh'",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

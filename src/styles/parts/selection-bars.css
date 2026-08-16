@@ -1,0 +1,19 @@
+/* Панели выделения, поворота и SVG ants overlay. */
+    /* ---- панели действий (выделение, поворот) ---- */
+    #selbar, #rotbar { position: fixed; left: 50%; transform: translateX(-50%);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); z-index: 15; display: none; gap: 2px; padding: 5px;
+      background: var(--panel-solid); border: 1px solid var(--line); border-radius: var(--r-xl);
+      box-shadow: var(--win-shadow); cursor: grab; touch-action: none; }
+    #selbar:active, #rotbar:active { cursor: grabbing; }
+    #selbar.on, #rotbar.on { display: flex; }
+    #rot-ok { color: var(--ok); }
+
+    /* «бегущие муравьи» выделения — SVG поверх холста, анимация чистым CSS */
+    #sel-ants { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+    #sel-ants .bg { fill: none; stroke: var(--ants-bg); stroke-width: 1.5; }
+    #sel-ants .fg { fill: none; stroke: var(--ants-fg); stroke-width: 1.5; stroke-dasharray: 6 4;
+      animation: ants-run var(--ants-period) linear infinite; }
+    #sel-ants .handles circle { fill: var(--accent); stroke: var(--cv-fg); stroke-width: 1.6; }
+    @keyframes ants-run { to { stroke-dashoffset: -10; } }
+
+

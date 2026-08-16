@@ -1,0 +1,59 @@
+/* Менеджер палитр и Tint & Shade Generator. */
+    /* ---- менеджер палитр ---- */
+    #pal-menu svg { width: 18px; height: 18px; }
+    /* сохранённая палитра: имя сверху, ниже — вся палитра целиком как в #pal
+       (квадраты без обводки, отступов и скругления); клик по полосе — загрузить */
+    .prow { display: flex; flex-direction: column; gap: 5px; }
+    .prow + .prow { margin-top: 12px; }
+    .prow-top { display: flex; align-items: center; gap: 8px; }
+    .prow .pname { flex: 1; font-size: var(--type-label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .prow-del { width: 26px; height: 26px; border-radius: var(--r-sm); background: var(--row); color: var(--txt2); flex: none; }
+    .prow-del:hover { color: var(--txt); }
+    .prow-del svg { width: 14px; height: 14px; }
+    .pswatches { display: flex; flex-wrap: wrap; cursor: pointer; }
+    .pswatches i { width: 26px; height: 26px; display: block; }
+    /* ---- Tint & Shade Generator ---- */
+    #tsg-btn svg { width: 18px; height: 18px; }
+    #tsg-win { position: fixed; left: 50%; top: 14%; transform: translateX(-50%); z-index: 14;
+      width: 340px; height: auto; max-height: calc(100dvh - 24px); display: none; flex-direction: column; background: var(--panel-solid);
+      border: 1px solid var(--line); border-radius: var(--win-radius); box-shadow: var(--win-shadow); padding: 0 6px 6px; }
+    #tsg-win.on { display: flex; }
+    #tsg-grip { display: flex; align-items: center; height: 30px; cursor: grab; touch-action: none;
+      color: var(--txt2); font-size: var(--win-title); font-weight: var(--fw-heading); padding-left: 8px; flex: none; }
+    #tsg-grip span { flex: 1; } /* кнопки шапки — общий «призрачный» стиль выше */
+    #tsg-body { flex: 0 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 2px 4px 4px; scrollbar-width: thin; }
+    .tsg-base { display: flex; align-items: center; gap: 8px; padding-right: 7px; }
+    #tsg-baseprev { width: 28px; height: 28px; border-radius: var(--r-md); border: 1px solid var(--line); flex: none; }
+    #tsg-basehex { width: 82px; height: 28px; padding: 0 2px; border: 0; background: transparent;
+      color: var(--txt); font: var(--fw-heading) var(--type-label)/1 var(--font-mono); letter-spacing: 0; text-transform: uppercase; outline: none; }
+    #tsg-basehex:focus { box-shadow: inset 0 -1px 0 var(--accent); }
+    #tsg-basehex.bad { color: var(--danger); box-shadow: inset 0 -1px 0 var(--danger); }
+    .tsg-htitle { font-size: var(--type-caption); color: var(--txt2); margin-top: 2px; }
+    .tsg-scale .tsg-stitle { font-size: var(--type-micro); color: var(--txt2); margin: 4px 0 3px; }
+    .tsg-row { display: flex; gap: 4px; }
+    .tsg-cell { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+    .tsg-sw { width: 100%; height: 30px; border-radius: var(--r-sm); border: 1px solid rgba(255, 255, 255, .14); padding: 0; }
+    .tsg-sw.on { box-shadow: 0 0 0 2px var(--marker); border-color: transparent; }
+    .tsg-lab { font-size: var(--type-tiny); color: var(--txt2); }
+    .tsg-harm-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .tsg-harm-btns button { height: 34px; width: auto; padding: 0 6px; border-radius: var(--r-md); font-size: var(--type-caption);
+      background: rgba(255, 255, 255, .08); color: var(--txt); }
+    .tsg-harm-btns button.on { background: var(--accent); color: var(--on-accent); }
+    #tsg-harm { display: flex; flex-direction: column; gap: 8px; }
+    .tsg-block { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 6px; }
+    .tsg-bhead { display: flex; align-items: center; gap: 6px; font-size: var(--type-system); }
+    .tsg-dot { width: 16px; height: 16px; border-radius: var(--r-xs); border: 1px solid var(--line); flex: none; }
+    #tsg-selprev { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 4px; min-height: 22px; }
+    .tsg-chip { width: 20px; height: 20px; border-radius: var(--r-sm); border: 1px solid var(--line); }
+    .tsg-act { display: flex; gap: 6px; margin-top: 2px; flex: none; }
+    .tsg-act .txtbtn { flex: 1; min-width: 0; height: 36px; padding: 0 6px; font-size: var(--type-label);
+      background: rgba(255, 255, 255, .08); color: var(--txt); }
+    .tsg-check { width: 26px; height: 26px; margin-left: auto; border-radius: var(--r-sm); border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .05); color: var(--txt2); flex: none; display: grid; place-items: center; }
+    .tsg-check.on { background: var(--accent); border-color: transparent; color: var(--on-accent); }
+    .tsg-check svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    #tsg-rsz { position: absolute; right: 1px; bottom: 1px; width: 18px; height: 18px; cursor: nwse-resize;
+      touch-action: none; color: var(--txt2); display: grid; place-items: center; }
+    #tsg-rsz svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+
+

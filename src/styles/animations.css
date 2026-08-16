@@ -1,0 +1,46 @@
+/* Анимации интерфейса — отдельный файл, чтобы их легко менять/настраивать.
+   Все тайминги, кривые и масштабы берутся из токенов (tokens.css);
+   правь значения там, а сами движения — здесь. */
+
+/* Тактильное нажатие текстовых кнопок: слегка вдавливаются, пока нажаты. */
+.gal-actions button:not(.gal-round),
+.press { transition: transform var(--anim-fast) var(--ease-out); }
+.gal-actions button:not(.gal-round):active,
+.press:active { transform: scale(var(--press-scale)); }
+
+/* Единая отдача нажатия для всего перетаскиваемого/иконочного: круглые кнопки,
+   плитки галереи, строки слоёв. Сжать → вырасти и удержаться увеличенными,
+   пока нажато (ЛКМ/палец); отпустил — плавно к исходному. */
+@keyframes btn-recoil { 0% { transform: scale(1); } 40% { transform: scale(var(--press-scale)); } 100% { transform: scale(var(--lift-scale)); } }
+.gal-round, .gal-tile, #gal-back { transition: transform var(--anim-fast) var(--ease-out); }
+.gal-round:active, .gal-tile:not(.dragging):active, #gal-back:not(.lift):active { animation: btn-recoil var(--anim-pop) var(--ease-pop) forwards; }
+
+/* Появление чек-кружка при входе в режим выбора. */
+@keyframes pop-in { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+#gal-grid.selecting .gal-check { animation: pop-in var(--anim-pop) var(--ease-pop); }
+
+/* Отметка галочкой — лёгкий «отскок». */
+@keyframes check-bounce { 0% { transform: scale(.6); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.gal-check.on { animation: check-bounce var(--anim-pop) var(--ease-pop); }
+
+/* Кнопка Stack «загорается», когда выбрано 2+. */
+@keyframes lit-pulse { 0% { box-shadow: 0 0 0 0 var(--accent-soft); } 100% { box-shadow: 0 0 0 5px var(--accent-soft); } }
+.gal-actions button.lit { animation: lit-pulse var(--anim-pop) var(--ease-out); }
+
+/* Призрак перетаскивания (общий для плиток и слоёв): появляется из руки
+   и держится немного меньше оригинала, чтобы не перекрывать цель броска. */
+@keyframes ghost-in { 0% { transform: translate(-50%, -50%) scale(.88); } 55% { transform: translate(-50%, -50%) scale(1.01); } 100% { transform: translate(-50%, -50%) scale(.96); } }
+.drag-ghost { animation: ghost-in var(--anim-pop) var(--ease-pop); }
+
+/* Отклик плитки на нажатие: вся плитка (с подписями) чуть сжимается и сразу
+   возвращается; затем по удержанию увеличивается только картинка (.lifting). */
+/* медленный «клевок» всей плитки ВМЕСТЕ с подписью: уменьшение ~800мс (до 55%) на
+   10%, возврат ~650мс. Увеличивается потом только картинка (.lifting) — подпись нет. */
+@keyframes gal-press { 0% { transform: scale(1); } 55% { transform: scale(.9); } 100% { transform: scale(1); } }
+.gal-tile.pressing .gal-thumb { animation: gal-press 1800ms ease-in-out; }
+
+/* Десктоп: при наведении вся плитка (с подписями) чуть сжимается и сразу
+   возвращается — тот же «клевок», что при нажатии. */
+@media (hover: hover) {
+  .gal-tile:hover:not(.dragging) { animation: gal-press 450ms ease-in-out; }
+}

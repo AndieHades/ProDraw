@@ -1,0 +1,121 @@
+/* Панель слоёв: окно, строки слоёв/папок, действия, resize и drag slots. */
+    /* ---- панель слоёв ---- */
+    #lay-pop { position: fixed; right: max(10px, env(safe-area-inset-right, 0px));
+      top: calc(env(safe-area-inset-top, 0px) + 60px); z-index: 20; width: 272px;
+      min-height: 220px; box-sizing: border-box; flex-direction: column;
+      background: var(--panel-solid); border: 1px solid var(--line); border-radius: var(--win-radius);
+      box-shadow: var(--win-shadow); display: none; overflow: hidden; }
+    #lay-pop.on { display: flex; animation: pop .18s ease-out; }
+    @keyframes pop { from { opacity: 0; transform: translateY(-6px); } }
+    .pop-head { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 9px 8px 9px 16px; border-bottom: 1px solid var(--line); font-weight: var(--fw-heading);
+      cursor: grab; touch-action: none; }
+    .pop-title, .bp-title { flex: 1; font-size: var(--win-title); font-weight: var(--fw-heading); color: var(--txt2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pop-acts { display: flex; align-items: center; gap: 4px; flex: none; }
+    /* единые «призрачные» кнопки шапки любого окна (как Tint): новый слой, меню палитры, закрытие */
+    .pop-head button, .bp-head button, .pop-acts button, #pal-menu, #tsg-grip button, .win-x {
+      width: var(--win-btn); height: var(--win-btn); border-radius: var(--r-md); background: transparent; color: var(--txt2); flex: none; }
+    .pop-head button:hover, .bp-head button:hover, .pop-acts button:hover, #pal-menu:hover, #tsg-grip button:hover { color: var(--txt); }
+    .pop-head button svg, .bp-head button svg, .pop-acts button svg, #pal-menu svg, #tsg-grip button svg, .win-x svg { width: var(--win-ico); height: var(--win-ico); }
+    .win-x:hover { background: var(--accent); color: var(--on-accent); }
+    /* #tsg-btn — кнопка тулбара (не шапка окна): сохраняет залитый вид */
+    #tsg-btn { width: var(--btn-xs); height: var(--btn-xs); border-radius: var(--r-md); background: var(--row); color: var(--txt2); flex: none; }
+    #tsg-btn:hover { color: var(--txt); }
+    #tsg-btn svg { width: var(--ico-sm); height: var(--ico-sm); }
+    #lay-list { flex: 1 1 auto; min-height: 80px; max-height: 42vh; overflow-y: auto; padding: 6px; background: var(--surface); border-radius: var(--r-xl); }
+    .lrow { position: relative; display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: var(--r-lg); cursor: pointer;
+      margin-bottom: 3px; background: var(--row); /* светлее подложки списка — между строками тонкий тёмный зазор */
+      max-height: 100px; overflow: hidden;
+      transition: margin-top var(--anim-pop) var(--ease-out), max-height 180ms ease, padding 180ms ease, opacity 150ms; }
+    /* строки сами обрабатывают жесты (тап/удержание→драг/щипок/двойной тап); браузер их
+       не перехватывает под скролл/зум — иначе на тач подъём и pinch не срабатывают */
+    .lrow, .fxrow { touch-action: none; }
+    .lrow.lifting, .fxrow.lifting { transform: scale(1.03); box-shadow: var(--win-shadow); z-index: 2; } /* поднято удержанием */
+    .lrow.marked { background: color-mix(in srgb, var(--accent) 42%, var(--row)); }  /* выбранные — приглушённо */
+    .lrow.on { background: var(--accent); color: var(--on-accent); }                                     /* активный — ярко-синий */
+    .lrow.on .lname, .lrow.on .fcount, .lrow.on .eye, .lrow.on .caret { color: var(--on-accent); }
+    .lrow.on .clip-arrow { color: var(--on-accent); }
+    .lth { width: 40px; height: 40px; border-radius: var(--r-md); border: 1px solid var(--line); flex: none; }
+    .lname { flex: 1; font-size: var(--type-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lname.editing { overflow: visible; text-overflow: clip; outline: none; cursor: text; color: var(--txt);
+      background: var(--surface); border-radius: var(--r-sm); padding: 2px 6px; box-shadow: 0 0 0 2px var(--accent); -webkit-user-select: text; user-select: text; }
+    .fcount { flex: none; color: var(--txt2); font-size: var(--type-system); font-weight: var(--fw-ui); opacity: .9; }
+    .fcount::before { content: '· '; } /* декоративный разделитель счётчика слоёв папки — в стилях, не в JS */
+    .eye { width: 30px; height: 24px; color: var(--txt2); flex: none; }
+    .eye svg { width: var(--ico-lg); height: var(--ico-lg); }
+    .ltext b { font-size: var(--type-label); font-weight: var(--fw-heading); line-height: 1; }
+    .eye.off { opacity: .4; }
+    .eye .slash { display: none; }
+    .eye.off .slash { display: block; }
+    .symlock { width: var(--btn-xs); height: var(--btn-sm); color: var(--accent); flex: none; }
+    .symlock svg { width: var(--ico); height: var(--ico); }
+    .symlock .slash { display: none; }
+    .symlock.off { color: var(--txt2); opacity: .5; }
+    .symlock.off .slash { display: block; }
+    .lay-ops { display: grid; grid-template-columns: 46px minmax(64px, 1fr); align-items: center; gap: 10px; padding: 8px 16px; border-top: 1px solid var(--line); }
+    .lay-ops input { min-width: 0; width: 100%; }
+    .lay-ops b { min-width: 46px; color: var(--txt2); text-align: left; font-size: var(--type-system); font-variant-numeric: tabular-nums; }
+    .lay-act { display: flex; justify-content: space-around; padding: 6px 4px; border-top: 1px solid var(--line); }
+    .lay-act.lay-act-top { border-top: 0; border-bottom: 1px solid var(--line); }
+    .lay-act button { width: var(--btn-sm); height: var(--btn-sm); color: var(--txt2); }
+    .lay-act button svg { width: var(--ico); height: var(--ico); }
+    .lay-act button:active { color: var(--txt); }
+    .lay-act button.on { background: var(--accent); color: var(--on-accent); } /* активная — синий фон + белая иконка */
+    #lay-rsz { position: absolute; right: 2px; bottom: 2px; width: 12px; height: 12px; cursor: nwse-resize;
+      touch-action: none; color: var(--txt2); display: grid; place-items: center; z-index: 4; }
+    #lay-rsz svg { width: 12px; height: 12px; }
+    .fw-rsz-edge { position: absolute; z-index: 3; touch-action: none; }
+    .fw-rsz-n { left: 14px; right: 14px; top: 0; height: 4px; cursor: ns-resize; }
+    .fw-rsz-s { left: 14px; right: 14px; bottom: 0; height: 4px; cursor: ns-resize; }
+    .fw-rsz-e { top: 14px; right: 0; bottom: 14px; width: 4px; cursor: ew-resize; }
+    .fw-rsz-w { top: 14px; left: 0; bottom: 14px; width: 4px; cursor: ew-resize; }
+    .fw-rsz-nw, .fw-rsz-ne, .fw-rsz-sw { width: 12px; height: 12px; }
+    .fw-rsz-nw { left: 0; top: 0; cursor: nwse-resize; }
+    .fw-rsz-ne { right: 0; top: 0; cursor: nesw-resize; }
+    .fw-rsz-sw { left: 0; bottom: 0; cursor: nesw-resize; }
+    .lrow.inf { margin-left: 16px; }
+    .lchk { width: 21px; height: 21px; border-radius: 50%; border: 1.5px solid var(--txt2); flex: none; }
+    .lchk.on { background: var(--accent); border-color: var(--accent); }
+    .caret { width: 26px; height: 24px; color: var(--txt2); flex: none; }
+    .caret svg { width: 16px; height: 16px; transition: transform .15s; }
+    .caret.open svg { transform: rotate(90deg); }
+    .frow .lname { font-weight: var(--fw-heading); }
+    /* папка — чуть светлее обычной строки (жирное имя + каретка отличают её от слоя) */
+    .frow { gap: 6px; min-height: 0; height: 26px; padding-top: 0; padding-bottom: 0; } /* ровно 50% высоты обычного слоя */
+    .frow:not(.on):not(.marked):not(.drop-into):not(.has-active) { background: color-mix(in srgb, var(--txt) 7%, var(--row)); }
+    /* закрытая папка с активной строкой внутри — мягкая голубая подсветка (не яркая, как у активной) */
+    .frow.has-active { background: color-mix(in srgb, var(--accent) 30%, var(--row)); }
+
+    /* drop-into — только для папок, появляется по выдержке: насыщенный синий.
+       Физический gap при этом убирается, чтобы центр папки был зоной входа. */
+    .lrow.drop-into { background: var(--accent); color: var(--on-accent); outline: 2px solid var(--accent); outline-offset: -2px;
+      animation: into-pop 160ms var(--ease-out); }
+    .lrow.drop-into .lname, .lrow.drop-into .fcount, .lrow.drop-into .eye, .lrow.drop-into .caret { color: var(--on-accent); }
+    @keyframes into-pop { from { background: color-mix(in srgb, var(--accent) 30%, transparent); } to { background: var(--accent); } }
+    /* Перетаскиваемые строки «висят» на курсоре, а их слот в списке схлопывается —
+       место, откуда унесли слой, закрывается сразу (как у строк эффектов выше),
+       а не зияет дырой. Высота едет плавно (transition), opacity — мгновенно
+       (вне transition), иначе оригинал секунду виден рядом с призраком-клоном. */
+    .lrow.dragging { opacity: 0; max-height: 0; height: 0; padding-top: 0; padding-bottom: 0;
+      margin-top: 0; margin-bottom: 0; pointer-events: none;
+      transition: max-height 180ms ease, padding 180ms ease, margin 180ms ease; }
+    /* Приземление: строка «садится» на место */
+    .lrow.dropped { animation: lrow-drop-in var(--anim-pop) var(--ease-pop); transform-origin: top center; }
+    @keyframes lrow-drop-in { 0% { transform: scaleY(.2); opacity: 0; } 65% { transform: scaleY(1.04); } 100% { transform: scaleY(1); opacity: 1; } }
+    /* перестановка кнопок панелей (как цвета в палитре) */
+    .pbtn.reordering, .lay-action-btn.reordering { opacity: .3; }
+
+    /* Фон-слой Background: всегда внизу, отделён отступом и тонкой линией; свотч
+       вместо миниатюры (показывает цвет или прозрачность). Не перетаскивается,
+       отдельный класс (не .lrow) — не попадает в выборку/drag/ПКМ-протяжку. */
+    .bgrow { position: relative; display: flex; align-items: center; gap: 10px; padding: 6px 8px;
+      border-radius: var(--r-lg); cursor: pointer; background: var(--row); margin-top: 12px; }
+    .bgrow::before { content: ''; position: absolute; left: 8px; right: 8px; top: -7px; height: 1px; background: var(--line); }
+    .bgrow.on { background: var(--accent); color: var(--on-accent); }
+    .bgrow.on .lname, .bgrow.on .eye { color: var(--on-accent); }
+    .bg-sw { width: 40px; height: 40px; border-radius: var(--r-md); border: 1px solid var(--line); flex: none; }
+    .bg-sw.transparent { background-color: var(--surface);
+      background-image: linear-gradient(45deg, var(--line) 25%, transparent 0), linear-gradient(-45deg, var(--line) 25%, transparent 0), linear-gradient(45deg, transparent 75%, var(--line) 0), linear-gradient(-45deg, transparent 75%, var(--line) 0);
+      background-size: 12px 12px; background-position: 0 0, 0 6px, 6px -6px, -6px 0; }
+
+

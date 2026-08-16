@@ -1,0 +1,43 @@
+/* Кастомный HSV color picker, HEX-поле, история цветов и related controls. */
+    /* ---- кастомный HSV-пикер ---- */
+    #colpop { width: min(92vw, 332px); }
+    #col-disc { --col-hue: #ff0000; --col-gap: 5px; position: relative; width: min(100%, 286px); aspect-ratio: 1;
+      margin: 0 auto 12px; border-radius: 50%; touch-action: none; cursor: crosshair; flex: none; }
+    #col-wheel { position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14), 0 1px 3px rgba(0, 0, 0, .35); }
+    #col-wheel::after { content: ""; position: absolute; inset: 16.667%; border-radius: 50%;
+      background: var(--panel-solid); box-shadow: 0 0 0 var(--col-gap) var(--panel-solid), inset 0 0 0 1px rgba(255, 255, 255, .06); }
+    #col-svdisc { position: absolute; inset: 16.667%; border-radius: 50%; overflow: hidden;
+      background:
+        linear-gradient(to top, #000 0%, rgba(0, 0, 0, .88) 12%, rgba(0, 0, 0, .28) 42%, rgba(0, 0, 0, 0) 70%),
+        radial-gradient(circle at 19% 21%, var(--marker) 0%, rgba(255,255,255,.96) 12%, rgba(255,255,255,.42) 32%, rgba(255,255,255,0) 55%),
+        linear-gradient(110deg, color-mix(in srgb, var(--col-hue) 20%, var(--marker)) 0%, var(--col-hue) 58%, color-mix(in srgb, var(--col-hue) 82%, #000) 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18); }
+    #col-hmark, #col-svmark { position: absolute; width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--marker); box-shadow: 0 0 0 1px rgba(0, 0, 0, .45), 0 1px 4px rgba(0, 0, 0, .45);
+      transform: translate(-50%, -50%); pointer-events: none; }
+    #col-svmark.white { border-color: transparent; }
+    .col-row { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
+    #col-prev-sw, #col-sw { width: 34px; height: 34px; border-radius: var(--r-md); border: 1px solid rgba(255, 255, 255, .25); flex: none;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .16); }
+    #col-hex { flex: 1; width: auto; background: var(--surface); color: var(--txt); border: 1px solid var(--line);
+      border-radius: var(--r-lg); padding: 9px 10px; font: var(--type-body) var(--font-mono); text-transform: uppercase; min-width: 82px; }
+    #col-copy, #col-add, #col-commit { width: var(--btn-sm); height: var(--btn-sm); border-radius: var(--r-md); background: var(--row); color: var(--txt2); flex: none; }
+    #col-copy:hover, #col-add:hover, #col-commit:hover { background: var(--accent-soft); color: var(--txt); }
+    #col-copy svg, #col-add svg, #col-commit svg { width: var(--ico-sm); height: var(--ico-sm); }
+    #col-commit { color: var(--ok); }
+    #col-commit.hide { display: none; }
+    #colpop input[type=range] { height: 12px; border-radius: var(--r-sm); border: 1px solid var(--line); }
+    #colpop input[type=range].hue { background: linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); }
+    #colpop input[type=range]::-webkit-slider-runnable-track { height: 10px; background: transparent; }
+    #colpop input[type=range]::-moz-range-track { height: 10px; background: transparent; }
+    #colpop input[type=range]::-webkit-slider-thumb { width: 10px; height: 18px; border-radius: var(--r-xs); margin-top: -4px; border: 2px solid var(--marker); background: rgba(0,0,0,.25); box-shadow: 0 0 0 1px rgba(0,0,0,.5); }
+    #colpop input[type=range]::-moz-range-thumb { width: 9px; height: 17px; border-radius: var(--r-xs); border: 2px solid var(--marker); background: rgba(0,0,0,.25); }
+    .col-hist-head { display: flex; align-items: center; gap: 8px; margin-top: 9px; font-size: var(--type-system); font-weight: var(--fw-heading); color: var(--txt); }
+    .col-hist-head span { flex: 1; }
+    #col-hist-clear { height: 24px; min-width: 56px; padding: 0 10px; border-radius: var(--r-sm); font-size: var(--type-system); background: rgba(255, 255, 255, .08); }
+    #col-hist { display: flex; overflow: hidden; border-radius: var(--r-lg); margin-top: 6px; min-height: 30px; background: rgba(255, 255, 255, .04); }
+    #col-hist button { flex: 1 1 0; min-width: 0; height: 30px; border-radius: 0; box-shadow: inset 1px 0 0 rgba(255, 255, 255, .08); }
+    #col-hist button:first-child { box-shadow: none; }
+

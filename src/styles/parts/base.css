@@ -1,0 +1,27 @@
+/* База приложения: box sizing, body, canvas, общие кнопки и drag-scroll контейнеры. */
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--txt);
+      font: var(--type-body)/1.4 var(--font-ui);
+      touch-action: manipulation; overscroll-behavior: none;
+      -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+    #cv { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+    /* окно перетаскивается за любое свободное место (JS ставит .fw-win); прокрутка
+       внутренних списков сохраняется через touch-action: pan-y */
+    .fw-win { touch-action: none; }
+    .fw-win #lay-list, .fw-win #brush-list, .fw-win #gal-grid, .fw-win #tsg-body, .fw-win .new-scroll,
+    #lay-list, #brush-list, #gal-grid, #tsg-body, .new-scroll { touch-action: pan-y; }
+
+    /* ---- кнопки ---- */
+    button { background: transparent; border: 0; color: var(--txt); width: var(--btn); height: var(--btn);
+      border-radius: var(--r-lg); display: grid; place-items: center; padding: 0; cursor: pointer;
+      font: inherit; flex: none; transition: background .12s, transform .08s, color .12s; }
+    button:active { background: rgba(255, 255, 255, .1); transform: scale(.94); }
+    button.on { background: var(--accent); color: var(--on-accent); }
+    button svg { width: var(--ico-lg); height: var(--ico-lg); stroke: currentColor; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; display: block; }
+    .toolfill svg rect, .toolfill svg ellipse { fill: currentColor; } /* режим залитой фигуры (ПКМ по иконке) */
+    .txtbtn { width: auto; min-width: 44px; height: 44px; padding: 0 18px; border-radius: var(--r-xl);
+      background: rgba(255, 255, 255, .08); font-size: var(--type-action); font-weight: var(--fw-ui); }
+    .txtbtn.primary { background: var(--accent); color: var(--on-accent); }
+
+

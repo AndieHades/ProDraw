@@ -1,0 +1,9 @@
+/* Toast-уведомления поверх интерфейса. */
+    /* ---- тост ---- */
+    #toast { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 64px); left: 50%;
+      transform: translateX(-50%) translateY(-8px); z-index: 80; background: rgba(20, 20, 24, .94);
+      border: 1px solid var(--line); padding: 9px 18px; border-radius: var(--r-pill); font-size: var(--type-label);
+      opacity: 0; pointer-events: none; transition: opacity .22s, transform .22s; white-space: nowrap; }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+

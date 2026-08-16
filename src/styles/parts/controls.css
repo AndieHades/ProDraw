@@ -1,0 +1,22 @@
+/* Общие элементы управления: range-слайдеры и switch-тумблеры. */
+    /* ---- слайдеры ---- */
+    input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; height: 28px; background: transparent; }
+    input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: var(--r-xs); background: #3a3a40; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--marker); margin-top: -9px; box-shadow: var(--win-shadow); border: 0; }
+    input[type=range]::-moz-range-track { height: 4px; border-radius: var(--r-xs); background: #3a3a40; }
+    input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--marker); border: 0; }
+
+    /* ---- переключатели (iOS-стиль) ---- */
+    /* Единый тумблер (стиль iOS/Procreate). Цвета — токены --toggle-*. */
+    .switch { position: relative; width: 48px; height: 28px; flex: none; margin-left: auto; cursor: pointer; }
+    .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .switch span { position: absolute; inset: 0; border-radius: var(--r-pill); background: var(--toggle-off);
+      transition: background var(--anim-fast) var(--ease-out); }
+    .switch span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px;
+      border-radius: 50%; background: var(--toggle-knob); box-shadow: var(--win-shadow);
+      transition: transform var(--anim-fast) var(--ease-out); }
+    .switch input:checked + span { background: var(--toggle-on); }
+    .switch input:checked + span::after { transform: translateX(20px); }
+
+

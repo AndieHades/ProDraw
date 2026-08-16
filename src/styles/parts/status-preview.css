@@ -1,0 +1,29 @@
+/* Status/zoom labels и окно 1:1 preview. */
+    /* ---- статус-бар ---- */
+    #status, #zoom-status { position: fixed; left: max(8px, env(safe-area-inset-left, 0px)); z-index: 8;
+      font-size: var(--type-system); color: var(--txt2); background: var(--panel);
+      border: 1px solid var(--line); border-radius: var(--r-pill); padding: 4px 11px; pointer-events: none; }
+    #status { bottom: calc(env(safe-area-inset-bottom, 0px) + 8px); }
+    #zoom-status { bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); }
+
+    /* ---- окно 1:1 ---- */
+    #prevwin { position: fixed; right: max(12px, env(safe-area-inset-right, 0px));
+      top: calc(env(safe-area-inset-top, 0px) + 64px); z-index: 13; width: 220px; height: 220px;
+      display: none; flex-direction: column; background: var(--panel-solid); border: 1px solid var(--line);
+      border-radius: var(--win-radius); box-shadow: var(--win-shadow); padding: 0 6px 6px; }
+    #prevwin.on { display: flex; }
+    #prevgrip { display: flex; align-items: center; gap: 6px; height: 28px; flex: none;
+      cursor: grab; touch-action: none; color: var(--txt2); font-size: var(--win-title); padding-left: 6px; }
+    #prevgrip > span { flex: 1; }
+    #prevgrip button, #refgrip button { width: 24px; height: 24px; color: var(--txt2); flex: none; }
+    #prevgrip button svg, #refgrip button svg { width: 14px; height: 14px; }
+    #prev-1to1 { width: auto !important; padding: 0 8px; height: 22px !important; font-size: var(--type-caption); font-weight: var(--fw-heading);
+      background: rgba(255, 255, 255, .08) !important; border-radius: var(--r-sm); color: var(--txt) !important; }
+    #prevcv { flex: 1; min-height: 0; width: 100%; image-rendering: pixelated; border-radius: var(--r-sm);
+      touch-action: none; display: block; cursor: grab;
+      background: repeating-conic-gradient(#1d1d23 0% 25%, #26262c 0% 50%) 0 0 / 12px 12px; }
+    #prevrsz { position: absolute; right: 1px; bottom: 1px; width: 18px; height: 18px;
+      cursor: nwse-resize; touch-action: none; color: var(--txt2); display: grid; place-items: center; }
+    #prevrsz svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+
+

@@ -1,0 +1,62 @@
+/* ---- Системное разделение режимов галерея/эдитор ----
+   Помечай окно/оверлей контекстом — и оно ПО ПОСТРОЕНИЮ не покажется в чужом
+   режиме. Новый галерейный элемент = class="… gallery-only" (никаких списков id,
+   ничего не «упадёт» в эдитор). Новый редакторский = class="… editor-only". */
+body:not(.gallery-open) .gallery-only { display: none !important; }
+body.gallery-open .editor-only { display: none !important; }
+
+/* ---- режим галереи: редакторские окна прячутся, но их состояние сохраняется ---- */
+body.gallery-open #topbar,
+body.gallery-open #sidebar,
+body.gallery-open #brushbar,
+body.gallery-open #cropbar,
+body.gallery-open #rotbar,
+body.gallery-open #selbar,
+body.gallery-open #status,
+body.gallery-open #zoom-status,
+body.gallery-open #pickflag,
+body.gallery-open #eyedrop,
+body.gallery-open #bb-val,
+body.gallery-open #swtip,
+body.gallery-open #swdrop,
+body.gallery-open #paldrag,
+body.gallery-open #palbar,
+body.gallery-open #shade-pop,
+body.gallery-open #prevwin,
+body.gallery-open #refwin,
+body.gallery-open #tsg-win,
+body.gallery-open #lay-pop,
+body.gallery-open #brush-pop,
+body.gallery-open #brush-plus,
+body.gallery-open #brush-menu,
+body.gallery-open #brush-choice,
+body.gallery-open #brush-settings,
+body.gallery-open #fx-panel,
+body.gallery-open #fx-edit,
+body.gallery-open #bcpop,
+body.gallery-open #adjpop,
+body.gallery-open #lassopop,
+body.gallery-open #colpop,
+body.gallery-open #ctx,
+body.gallery-open #lctx,
+body.gallery-open #cctx,
+body.gallery-open #sctx,
+body.gallery-open #trctx,
+body.gallery-open #fxctx,
+body.gallery-open #impmenu,
+body.gallery-open #tctx,
+body.gallery-open #shape-choice,
+body.gallery-open #sym-choice,
+body.gallery-open #flip-choice,
+body.gallery-open #center-choice,
+body.gallery-open #zoom-choice,
+body.gallery-open #pal-new-choice,
+body.gallery-open #ovl,
+body.gallery-open #ren-ovl,
+body.gallery-open #tools-ovl,
+body.gallery-open #export-ovl,
+body.gallery-open #pal-ovl {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+

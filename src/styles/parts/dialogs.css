@@ -1,0 +1,62 @@
+/* Общие overlay/sheet диалоги, импорт/конвертер, export окно и preview dialog. */
+    /* ---- шторки/диалоги ---- */
+    .ovl { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); z-index: 60;
+      display: none; align-items: flex-end; justify-content: center; }
+    .ovl.on { display: flex; }
+    /* модальный диалог = перетаскиваемое окно (фикс. по центру, тащим за h3) */
+    .sheet { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0;
+      width: min(92vw, 520px); background: var(--panel-solid);
+      border: 1px solid var(--line); border-radius: var(--win-radius);
+      padding: 14px 18px calc(env(safe-area-inset-bottom, 0px) + 16px);
+      max-height: 88vh; overflow-y: auto; box-shadow: var(--win-shadow); animation: fadein .15s ease-out; }
+    @keyframes up { from { transform: translateY(48px); opacity: .5; } }
+    @keyframes fadein { from { opacity: 0; } }
+    .sheet h3 { margin: 0 0 14px; font-size: var(--type-dialog-title); font-weight: var(--fw-heading); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+    .sheet h3:active { cursor: grabbing; }
+    .library-sheet { padding-top: 0; }
+    .library-sheet .pop-head { margin: 0 calc(var(--dialog-pad-x) * -1) var(--dialog-head-gap);
+      padding: var(--dialog-head-pad-y) var(--dialog-head-pad-r) var(--dialog-head-pad-y) var(--dialog-pad-x);
+      border-radius: var(--win-radius) var(--win-radius) 0 0; }
+    .library-save-row input { flex: 1; }
+    .library-save-row .txtbtn { height: var(--dialog-action-h); }
+    /* конвертер — перетаскиваемое окно по центру (а не «шторка»), без закрытия по фону.
+       Всё помещается без прокрутки: превью гибкое и ужимается на низких экранах */
+    #imp-box { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: min(480px, 94vw); max-width: none; border-radius: var(--win-radius); animation: pop .18s ease-out;
+      display: flex; flex-direction: column; max-height: 94vh; overflow: hidden; }
+    #imp-box .irow { min-height: 40px; flex: none; }
+    #imp-box .iact { flex: none; }
+    #imp-grip { cursor: grab; touch-action: none; user-select: none; }
+    #imp-grip:active { cursor: grabbing; }
+    .irow { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+    .irow label:not(.switch) { color: var(--txt2); min-width: 104px; font-size: var(--type-label); }
+    .irow b { min-width: 30px; text-align: right; }
+    .irow input[type=number], .irow input[type=text] { width: 76px; background: var(--surface); color: var(--txt); border: 1px solid var(--line);
+      border-radius: var(--r-lg); padding: 9px 10px; font: inherit; -webkit-user-select: text; user-select: text; }
+    .hint { color: var(--txt2); font-size: var(--type-system); }
+    .iact { display: flex; gap: 10px; margin-top: 16px; }
+    .iact .txtbtn { flex: 1; }
+    .iact .primary { flex: 2; }
+    #imp-prev { width: 100%; flex: 1 1 auto; min-height: 120px; height: clamp(180px, 32vh, 340px); border-radius: var(--r-xl);
+      background: var(--surface); border: 1px solid var(--line); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 10px; }
+    .chips button { width: auto; min-width: 56px; height: 40px; padding: 0 14px;
+      background: rgba(255, 255, 255, .08); border-radius: var(--r-pill); font-size: var(--type-body); }
+    .chips button.on { background: var(--accent); }
+    /* окно Export — перетаскиваемое, как конвертер; параметры в виде сегментов (chips) */
+    #export-win { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: min(460px, 94vw); max-width: none; border-radius: var(--win-radius); animation: pop .18s ease-out;
+      display: flex; flex-direction: column; max-height: 94vh; overflow-y: auto; }
+    #export-grip { cursor: grab; touch-action: none; user-select: none; }
+    #export-grip:active { cursor: grabbing; }
+    .exrow { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 4px 0; }
+    .exrow > label { color: var(--txt2); min-width: 96px; font-size: var(--type-label); flex: none; padding-top: 9px; }
+    .exrow .chips { margin: 0; flex: 1; }
+    .chips button.disabled { opacity: .35; pointer-events: none; }
+    #ovlbox { text-align: center; }
+    #ovlbox p { color: var(--txt2); margin: 0 0 14px; font-size: var(--type-label); }
+    #ovlimg { width: min(64vmin, 380px); height: auto; image-rendering: pixelated;
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); }
+    #ovlclose { margin-top: 16px; width: 100%; }
+
+

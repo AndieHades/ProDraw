@@ -1,0 +1,20 @@
+/* Боковая колонка инструментов, её ручки перемещения и изменения размера. */
+
+    /* ---- боковая колонка (как в Procreate) ---- */
+    #sidebar { position: fixed; left: calc(max(8px, env(safe-area-inset-left, 0px)) + 64px); top: 50%;
+      transform: translateY(-50%); z-index: 30; width: 50px; display: flex; flex-wrap: wrap; align-content: flex-start;
+      justify-content: center; gap: 2px; padding: 14px 5px 10px;
+      background: var(--panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--line); border-radius: var(--r-xl); box-shadow: var(--win-shadow);
+      max-height: calc(100dvh - 130px); overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+    #sidebar::-webkit-scrollbar { display: none; }
+    #sidebar button { width: 38px; height: 38px; flex: none; }
+    #sb-grip { position: absolute; top: 0; left: 0; right: 0; height: 14px; cursor: grab; touch-action: none;
+      display: grid; place-items: center; color: var(--txt2); border-radius: var(--r-xl) var(--r-xl) 0 0; }
+    #sb-grip::before { content: ""; width: 22px; height: 3px; border-radius: var(--r-xs); background: var(--line); }
+    #sb-grip:active { cursor: grabbing; }
+    #sb-rsz { position: absolute; right: 1px; bottom: 1px; width: 18px; height: 18px; cursor: nwse-resize;
+      touch-action: none; color: var(--txt2); display: grid; place-items: center; }
+    #sb-rsz svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+    .sb-sep { display: none; }
+

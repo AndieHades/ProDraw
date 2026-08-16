@@ -1,0 +1,30 @@
+/* Главный CSS-агрегатор: порядок импортов сохраняет каскад бывшего style.css. */
+@import './parts/base.css';
+@import './parts/topbar.css';
+@import './parts/color-picker.css';
+@import './parts/sidebar.css';
+@import './parts/palette-window.css';
+@import './parts/layers-panel.css';
+@import './parts/controls.css';
+@import './parts/dialogs.css';
+@import './parts/toast.css';
+@import './parts/responsive-tablet.css';
+@import './parts/selection-bars.css';
+@import './parts/menus-drag.css';
+@import './parts/tool-popovers.css';
+@import './parts/brushbar-eyedropper.css';
+@import './parts/status-preview.css';
+@import './parts/shading-reference.css';
+@import './parts/palette-tools.css';
+@import './parts/responsive-phone.css';
+@import './parts/mode-shell.css';
+@import './parts/gallery.css';
+@import './parts/new-canvas.css';
+@import './parts/tilemap-dialog.css';
+@import './parts/swipe-rows.css';
+@import './parts/settings-effects.css';
+@import './parts/brush-library.css';
+@import './parts/font-library.css';
+@import './parts/tile-palette.css';
+@import './parts/animation.css';
+
