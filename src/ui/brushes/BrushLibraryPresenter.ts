@@ -1,10 +1,12 @@
 import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
 import type { BrushLibrarySnapshot } from "../../contracts/brushLibrary";
 import type { BrushLibraryPort } from "../../contracts/brushLibraryPort";
-import { t } from "../../i18n/raster/translate";
+import type { PlatformPort } from "../../contracts/platform";
+import { t, type MessageKey } from "../../i18n/raster/translate";
 import { requiredElement } from "../dom/query";
 import { BrushContextMenuPresenter } from "./BrushContextMenuPresenter";
 import { BrushLibraryDragPresenter } from "./BrushLibraryDragPresenter";
+import { BrushLibraryFilePresenter } from "./BrushLibraryFilePresenter";
 import { renderBrushPreview } from "./renderBrushPreview";
 import { BrushSetDialogPresenter } from "./BrushSetDialogPresenter";
 import { BrushSetContextMenuPresenter } from "./BrushSetContextMenuPresenter";
@@ -13,6 +15,7 @@ export interface BrushLibraryActions {
   readonly select: (brush: BrushPreset) => void;
   readonly edit: (brush: BrushPreset) => void;
   readonly load: (brush: BrushPreset) => Promise<LoadedBrush>;
+  readonly status: (key: MessageKey) => void;
 }
 type SmartCollection = "recent" | "favorites" | null;
 export class BrushLibraryPresenter {
@@ -26,7 +29,8 @@ export class BrushLibraryPresenter {
   #selectedId: string;
   #smart: SmartCollection = null;
 
-  constructor(library: BrushLibraryPort, selectedId: string, actions: BrushLibraryActions) {
+  constructor(library: BrushLibraryPort, selectedId: string, platform: PlatformPort,
+    actions: BrushLibraryActions) {
     this.#library = library;
     this.#snapshot = library.snapshot;
     this.#selectedId = selectedId;
@@ -48,15 +52,13 @@ export class BrushLibraryPresenter {
     const setDialog = new BrushSetDialogPresenter(library);
     new BrushSetContextMenuPresenter(library, setDialog);
     new BrushLibraryDragPresenter(library, (brush) => this.choose(brush));
+    new BrushLibraryFilePresenter(library, platform, { selected: () => this.selectedBrush(),
+      applySelection: (brush) => this.choose(brush), status: actions.status });
     requiredElement("#add-brush").addEventListener("click", () => void this.createBrush());
   }
 
-  open(): void {
-    this.#dialog.showModal(); }
-
-  select(id: string): void {
-    this.#selectedId = id; this.render();
-  }
+  open(): void { this.#dialog.showModal(); }
+  select(id: string): void { this.#selectedId = id; this.render(); }
   private render(): void {
     this.renderSets();
     this.#list.replaceChildren(...this.collectionBrushes().map((brush) =>
@@ -80,11 +82,9 @@ export class BrushLibraryPresenter {
 
   private setButton(name: string, selected: boolean, activate: () => void): HTMLButtonElement {
     const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = name;
+    button.type = "button"; button.textContent = name;
     button.classList.toggle("selected", selected);
-    button.addEventListener("click", activate);
-    return button;
+    button.addEventListener("click", activate); return button;
   }
 
   private collectionBrushes(): readonly BrushPreset[] {
@@ -99,14 +99,16 @@ export class BrushLibraryPresenter {
   private allBrushes(): BrushPreset[] {
     return this.#snapshot.sets.flatMap(({ brushes }) => brushes); }
 
+  private selectedBrush(): BrushPreset | null {
+    return this.allBrushes().find(({ id }) => id === this.#selectedId) ?? null; }
+
   private brushRow(brush: BrushPreset): HTMLButtonElement {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `brush-row${brush.id === this.#selectedId ? " selected" : ""}`;
     button.dataset.brushId = brush.id; button.dataset.brushSet = brush.setName;
     button.draggable = true;
-    const name = document.createElement("span");
-    name.textContent = brush.name;
+    const name = document.createElement("span"); name.textContent = brush.name;
     const preview = document.createElement("canvas");
     preview.className = "brush-preview";
     renderBrushPreview(preview, brush);
@@ -115,13 +117,10 @@ export class BrushLibraryPresenter {
     button.append(name, preview);
     button.addEventListener("click", () => this.choose(brush));
     button.addEventListener("dblclick", () => {
-      this.choose(brush);
-      this.#dialog.close();
-      this.#actions.edit(brush);
+      this.choose(brush); this.#dialog.close(); this.#actions.edit(brush);
     });
     button.addEventListener("contextmenu", (event) => {
-      this.choose(brush);
-      this.#context.open(event, brush);
+      this.choose(brush); this.#context.open(event, brush);
     });
     return button;
   }
@@ -144,7 +143,6 @@ export class BrushLibraryPresenter {
 
   private afterDelete(brush: BrushPreset): void {
     if (brush.id !== this.#selectedId) return;
-    const fallback = this.allBrushes()[0];
-    if (fallback) this.choose(fallback);
+    const fallback = this.allBrushes()[0]; if (fallback) this.choose(fallback);
   }
 }

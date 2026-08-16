@@ -29,7 +29,9 @@ describe("selectPlatform", () => {
         createSet: vi.fn(async () => undefined),
         renameSet: vi.fn(async () => undefined),
         moveFile: vi.fn(async () => undefined),
-        trashSet: vi.fn(async () => undefined),
+      trashSet: vi.fn(async () => undefined),
+      restoreTrash: vi.fn(async () => 0),
+      revealFolder: vi.fn(async () => undefined),
         readState: vi.fn(async () => null),
         writeState: vi.fn(async () => undefined)
       },

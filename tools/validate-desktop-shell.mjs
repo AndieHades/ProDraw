@@ -11,6 +11,9 @@ const required = [
   "desktop/atomic-file.mjs",
   "desktop/close-ipc.mjs",
   "desktop/brush-ipc.mjs",
+  "desktop/brush-seed.mjs",
+  "desktop/brush-storage-paths.mjs",
+  "desktop/brush-trash.mjs",
   "desktop/ipc-channels.cjs",
   "src/contracts/platform.ts",
   "src/platform/createDesktopPlatform.ts",
@@ -23,6 +26,8 @@ const pkg = JSON.parse(await readFile("package.json", "utf8"));
 const main = await readFile("desktop/electron-main.mjs", "utf8");
 const preload = await readFile("desktop/electron-preload.cjs", "utf8");
 const channels = await readFile("desktop/ipc-channels.cjs", "utf8");
+const brushSeed = await readFile("desktop/brush-seed.mjs", "utf8");
+const brushIpc = await readFile("desktop/brush-ipc.mjs", "utf8");
 const desktopSmoke = await readFile("desktop/desktop-smoke.mjs", "utf8");
 const rendererSmoke = await readFile("src/app/runRendererSmoke.ts", "utf8");
 const packageSmoke = await readFile("tools/smoke-packaged-desktop.mjs", "utf8");
@@ -64,6 +69,12 @@ for (const marker of ["brushStorage", "renderBrushDab", "saveCurrent", "loadCurr
 }
 if (!packageSmoke.includes("--user-data-dir=")) {
   errors.push("packaged smoke must isolate the user-data profile");
+}
+if (!brushSeed.includes('format: "prodraw-brush-seed", version: 2')) {
+  errors.push("brush seed must write a versioned manifest");
+}
+for (const marker of ["restoreBrushTrash", "shell.openPath"]) {
+  if (!brushIpc.includes(marker)) errors.push(`brush IPC capability missing: ${marker}`);
 }
 
 const atomicDirectory = await mkdtemp(path.join(tmpdir(), "prodraw-atomic-check-"));

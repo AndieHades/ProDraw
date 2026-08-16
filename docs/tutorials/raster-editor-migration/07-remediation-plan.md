@@ -143,9 +143,7 @@ regressions fail validation.
 **Completion:** `bab3c4c`, `6f9ec00`; frozen evidence and residual device limits are in [`performance-budgets.md`](../../project/performance-budgets.md).
 
 ## `F4` — truthful brush engine and library
-
 **Findings:** `BRH-01..05`, Studio-preview part of `BRH-02`.
-
 1. Inventory and parse supported `Brush.archive` fields; isolate unsupported
    fields in a visible per-brush compatibility report.
 2. Implement a deterministic dab/stroke plan for every exposed control: jitter,
@@ -156,6 +154,8 @@ regressions fail validation.
    last working brush. A missing asset cannot block application startup.
 5. Add Import/Export/Reset/Restore Trash/Reveal Folder, versioned seed manifests,
    arbitrary compatible `.brush` imports and persistent active brush.
+6. Add the screenshot-defined Shape/Grain Source Library from every live brush;
+   label sources, open via `Edit`, and embed coverage so deletion remains safe.
 
 **Acceptance:** golden hashes for all 12 bundled brushes are distinct and stable;
 changing each enabled parameter changes its expected metric; Studio and document

@@ -4,6 +4,7 @@ import type { CanvasFrameViewModel, EditorViewModel } from "../contracts/editorV
 import type { DocumentSessionSnapshot } from "../contracts/persistence";
 import type { RasterSize } from "../contracts/raster";
 import type { ViewState } from "../contracts/view";
+import type { BrushLibraryStoragePort } from "../contracts/brushStorage";
 import { VIEW_INPUT } from "../config/input";
 import { BrushCatalog } from "../core/brush/BrushCatalog";
 import { createRasterDocument } from "../core/document/createRasterDocument";
@@ -14,7 +15,7 @@ import { TileHistory } from "../core/history/TileHistory";
 import { fitView, rotateViewAt } from "../logic/view/viewTransform";
 
 export class RasterEditorSession {
-  readonly #catalog = new BrushCatalog();
+  readonly #catalog: BrushCatalog;
   readonly #history = new TileHistory();
   readonly #compositor = new DocumentCompositor();
   #document: RasterDocument;
@@ -23,10 +24,12 @@ export class RasterEditorSession {
   #session: DocumentSessionSnapshot;
 
   constructor(document: RasterDocument, brush: BrushPreset, viewport: RasterSize,
+    brushStorage: BrushLibraryStoragePort | null,
     session: DocumentSessionSnapshot = {
       revision: 0, savedRevision: 0, nativeLocation: null
     }) {
     this.#document = document;
+    this.#catalog = new BrushCatalog(brushStorage);
     this.#brush = brush;
     this.#view = fitView(document.descriptor, viewport);
     this.#session = session;

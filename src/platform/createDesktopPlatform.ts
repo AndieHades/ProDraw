@@ -18,6 +18,8 @@ export function createDesktopPlatform(bridge: DesktopBridge): PlatformPort {
       moveFile: (fromSet, toSet, fileName) =>
         bridge.brushStorage.moveFile(fromSet, toSet, fileName),
       trashSet: (setName) => bridge.brushStorage.trashSet(setName),
+      restoreTrash: () => bridge.brushStorage.restoreTrash(),
+      revealFolder: (setName) => bridge.brushStorage.revealFolder(setName),
       readState: () => bridge.brushStorage.readState(),
       writeState: (json) => bridge.brushStorage.writeState(json)
     },

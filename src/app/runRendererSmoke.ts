@@ -40,7 +40,7 @@ export async function runRendererSmoke(
   if (!mainSet || !brush) throw new Error("Bundled brush catalog is empty");
   const storedMain = (await platform.brushStorage.listSets())
     .find(({ name }) => name === "Main");
-  if (!storedMain?.seeded || storedMain.files.length < 12) {
+  if (!storedMain?.seeded || storedMain.seedVersion !== 2 || storedMain.files.length < 12) {
     throw new Error("Bundled brush seed did not complete");
   }
   const brushBytes = await platform.brushStorage.readFile("Main", brush.fileName);

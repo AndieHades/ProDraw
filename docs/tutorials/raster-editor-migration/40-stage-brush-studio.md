@@ -47,6 +47,10 @@ pressure/tilt produce smooth repeatable strokes on A4/4K documents.
   Smudge/Fill, its grip occupies no tool cell, and its clamped position persists.
 - `R3.18` Keep stabilization exclusively in each brush preset/Brush Studio and
   reject workspace-level Pixel Perfect or global stabilization toggles.
+- `R3.19` Add one shared Shape/Grain Source Library opened by `Edit` in those
+  sections. Populate it from all live brush files, label every card with its
+  brush provenance, embed a selected source into the target preset and remove
+  unowned resources automatically when brushes are deleted. Search is omitted.
 
 ## Failure cases
 

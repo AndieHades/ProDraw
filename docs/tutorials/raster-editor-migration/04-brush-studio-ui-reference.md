@@ -1,6 +1,6 @@
 # Brush Library and Studio UI Reference
 
-Source: thirteen user-provided Procreate screenshots, 2026-08-16. This chapter
+Source: sixteen user-provided Procreate screenshots, 2026-08-16. This chapter
 records the required information so implementation does not depend on chat or
 external image paths.
 
@@ -63,6 +63,22 @@ duplicating writes beside its source brush, so a smart Recent/Favorites view
 cannot accidentally change ownership. Moving a brush between sets moves its file; renaming a set
 renames its directory with collision/invalid-character handling. External file
 changes are reconciled explicitly and cannot silently orphan catalog records.
+
+## Shape and Grain Source Library
+
+- Shape and Grain each show the effective source preview and an `Edit` button
+  before their behavior controls.
+- `Edit` opens one compact Source Library with Shape Source and Grain Source
+  tabs; the invoking section is selected initially.
+- Every usable native shape/grain extracted from every live brush archive is a
+  card. The card label is the source brush name, not an opaque file/hash.
+- Imported and newly created brushes contribute their available resources
+  automatically. Deleting the last brush that owns an unused resource removes
+  it from the library; no separate resource-management workflow is required.
+- Selecting a resource embeds an owned copy in the target preset. A target
+  stroke therefore remains reproducible after the original brush is deleted.
+- Identical bytes may be deduplicated internally, but visible provenance must
+  remain understandable. No search control is required.
 
 ## Included navigation sections
 

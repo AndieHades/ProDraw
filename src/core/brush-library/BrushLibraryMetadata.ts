@@ -1,5 +1,5 @@
 import type {
-  BrushLibraryStoredStateV1, BrushSetModel
+  BrushLibraryStoredState, BrushLibraryStoredStateV2, BrushSetModel
 } from "../../contracts/brushLibrary";
 import type { BrushLibraryStoragePort } from "../../contracts/brushStorage";
 
@@ -14,11 +14,12 @@ function reordered(values: readonly string[], value: string, before: string | nu
   return output;
 }
 
-function parseState(json: string | null): Partial<BrushLibraryStoredStateV1> {
+function parseState(json: string | null): Partial<BrushLibraryStoredState> {
   if (!json) return {};
   try {
-    const value = JSON.parse(json) as Partial<BrushLibraryStoredStateV1>;
-    return value.format === "prodraw-brush-library" && value.version === 1 ? value : {};
+    const value = JSON.parse(json) as Partial<BrushLibraryStoredState>;
+    return value.format === "prodraw-brush-library" &&
+      (value.version === 1 || value.version === 2) ? value : {};
   } catch { return {}; }
 }
 
@@ -29,17 +30,19 @@ export class BrushLibraryMetadata {
   #brushOrder: Record<string, string[]>;
   #recent: string[];
   #favorites: string[];
+  #active: string | null;
   #saving: Promise<void> = Promise.resolve();
 
   private constructor(storage: BrushLibraryStoragePort | null,
     currentSetName: string, setOrder: string[], brushOrder: Record<string, string[]>,
-    recent: string[], favorites: string[]) {
+    recent: string[], favorites: string[], active: string | null) {
     this.#storage = storage;
     this.#currentSetName = currentSetName;
     this.#setOrder = setOrder;
     this.#brushOrder = brushOrder;
     this.#recent = recent;
     this.#favorites = favorites;
+    this.#active = active;
   }
 
   static async create(storage: BrushLibraryStoragePort | null, sets: readonly BrushSetModel[]) {
@@ -59,12 +62,15 @@ export class BrushLibraryMetadata {
     const current = setNames.has(preferred) ? preferred : setOrder[0] ?? "Main";
     return new BrushLibraryMetadata(storage, current, setOrder, brushOrder,
       uniqueStrings(raw.recentBrushIds, brushIds),
-      uniqueStrings(raw.favoriteBrushIds, brushIds));
+      uniqueStrings(raw.favoriteBrushIds, brushIds),
+      "activeBrushId" in raw && typeof raw.activeBrushId === "string" &&
+        brushIds.has(raw.activeBrushId) ? raw.activeBrushId : null);
   }
 
   get currentSetName(): string { return this.#currentSetName; }
   get recentBrushIds(): readonly string[] { return this.#recent; }
   get favoriteBrushIds(): readonly string[] { return this.#favorites; }
+  get activeBrushId(): string | null { return this.#active; }
 
   orderSets(sets: readonly BrushSetModel[]): BrushSetModel[] {
     const rank = new Map(this.#setOrder.map((name, index) => [name, index]));
@@ -78,6 +84,7 @@ export class BrushLibraryMetadata {
 
   selectSet(name: string): void { this.#currentSetName = name; this.save(); }
   markRecent(id: string): void {
+    this.#active = id;
     this.#recent = [id, ...this.#recent.filter((candidate) => candidate !== id)].slice(0, 24);
     this.save();
   }
@@ -126,14 +133,15 @@ export class BrushLibraryMetadata {
   private removeBrushReferences(id: string): void {
     this.#recent = this.#recent.filter((item) => item !== id);
     this.#favorites = this.#favorites.filter((item) => item !== id);
+    if (this.#active === id) this.#active = null;
   }
 
   private save(): void {
     if (!this.#storage) return;
-    const state: BrushLibraryStoredStateV1 = { format: "prodraw-brush-library", version: 1,
+    const state: BrushLibraryStoredStateV2 = { format: "prodraw-brush-library", version: 2,
       currentSetName: this.#currentSetName, setOrder: this.#setOrder,
       brushOrder: this.#brushOrder, recentBrushIds: this.#recent,
-      favoriteBrushIds: this.#favorites };
+      favoriteBrushIds: this.#favorites, activeBrushId: this.#active };
     this.#saving = this.#saving.catch(() => undefined).then(() =>
       this.#storage!.writeState(JSON.stringify(state)));
   }

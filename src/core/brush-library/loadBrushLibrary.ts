@@ -28,6 +28,7 @@ export async function loadBrushSets(
 ): Promise<readonly BrushSetModel[]> {
   const storedSets = await ensureBundledSeed(storage, bundled);
   const baseByFile = new Map(bundled.map((brush) => [brush.fileName, brush]));
+  const fallback = bundled[0];
   const output: BrushSetModel[] = [];
   for (const storedSet of storedSets) {
     const originals = storedSet.files.flatMap((file) => {
@@ -40,8 +41,12 @@ export async function loadBrushSets(
       try {
         const bytes = await storage.readFile(storedSet.name, file.fileName);
         const baseName = presetBaseFileName(bytes);
-        const base = baseName ? baseByFile.get(baseName) : undefined;
-        if (base) custom.push(parsePresetFile(bytes, storedSet.name, file.fileName, base));
+        const bundledBase = baseName ? baseByFile.get(baseName) : undefined;
+        const base = bundledBase ?? (baseName ? fallback : undefined);
+        if (base) {
+          const parsed = parsePresetFile(bytes, storedSet.name, file.fileName, base);
+          custom.push(bundledBase ? parsed : { ...parsed, sourceUrl: "" });
+        }
       }
       catch { /* One corrupt brush cannot block its set. */ }
     }

@@ -14,6 +14,8 @@ module.exports = Object.freeze({
   brushRenameSet: "prodraw:brush:rename-set",
   brushMove: "prodraw:brush:move",
   brushTrashSet: "prodraw:brush:trash-set",
+  brushRestoreTrash: "prodraw:brush:restore-trash",
+  brushRevealFolder: "prodraw:brush:reveal-folder",
   brushStateRead: "prodraw:brush:state-read",
   brushStateWrite: "prodraw:brush:state-write"
 });

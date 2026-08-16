@@ -32,11 +32,14 @@ export class RasterEditorApp {
 
   constructor(platform: PlatformPort, repository: DocumentRepository, initial: InitialEditorState,
     library: BrushLibraryPort) {
-    const brush = library.snapshot.sets.flatMap(({ brushes }) => brushes)[0];
+    const allBrushes = library.snapshot.sets.flatMap(({ brushes }) => brushes);
+    const brush = allBrushes.find(({ id }) => id === library.snapshot.activeBrushId) ??
+      allBrushes[0];
     if (!brush) throw new Error("Brush library is empty");
     const viewport = { width: this.#workspace.canvas.clientWidth,
       height: this.#workspace.canvas.clientHeight };
-    this.#session = new RasterEditorSession(initial.document, brush, viewport, initial.session);
+    this.#session = new RasterEditorSession(initial.document, brush, viewport,
+      platform.brushStorage, initial.session);
     this.#canvas = new CanvasPresenter(this.#workspace.canvas,
       (size) => this.#session.canvasFrame(size), () => this.#session.view);
     this.#documents = new DocumentWorkflow({ platform, repository, session: this.#session,
@@ -51,10 +54,11 @@ export class RasterEditorApp {
       this.selectBrush(applied);
       this.#brushes.select(applied.id);
     });
-    this.#brushes = new BrushLibraryPresenter(library, brush.id, {
+    this.#brushes = new BrushLibraryPresenter(library, brush.id, platform, {
       select: (selected) => this.selectBrush(selected),
       edit: (selected) => this.#studio.open(selected),
-      load: (selected) => this.#session.loadBrush(selected)
+      load: (selected) => this.#session.loadBrush(selected),
+      status: (key) => this.status(key)
     });
     this.#newDocument = new NewDocumentPresenter(this.dispatch);
     this.#events.subscribe((event) => event.type === "editor.changed"

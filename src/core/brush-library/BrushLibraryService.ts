@@ -2,26 +2,25 @@ import type { BrushPreset } from "../../contracts/brush";
 import type { BrushLibrarySnapshot, BrushSetModel } from "../../contracts/brushLibrary";
 import type { BrushLibraryPort } from "../../contracts/brushLibraryPort";
 import type { BrushLibraryStoragePort } from "../../contracts/brushStorage";
-import { brushFileName } from "../../logic/brush/brushFileName";
 import { uniqueBrushSetName } from "../../logic/brush/brushSetName";
-import { cloneBrushPreset } from "../../logic/brush/cloneBrushPreset";
 import { BrushLibraryMetadata } from "./BrushLibraryMetadata";
-import { presetFileBytes } from "./brushPresetFile";
+import { BrushLibraryFileActions } from "./BrushLibraryFileActions";
 import { loadBrushSets } from "./loadBrushLibrary";
-import { moveBrushFiles } from "./moveBrushFiles";
 
 type Listener = (snapshot: BrushLibrarySnapshot) => void;
 export class BrushLibraryService implements BrushLibraryPort {
   readonly #storage: BrushLibraryStoragePort | null;
   readonly #listeners = new Set<Listener>();
-  readonly #createId: () => string;
-  readonly #metadata: BrushLibraryMetadata;
+  readonly #files: BrushLibraryFileActions;
+  readonly #bundled: readonly BrushPreset[];
+  #metadata: BrushLibraryMetadata;
   #sets: BrushSetModel[];
 
   private constructor(storage: BrushLibraryStoragePort | null, sets: readonly BrushSetModel[],
-    metadata: BrushLibraryMetadata, createId: () => string) {
+    metadata: BrushLibraryMetadata, bundled: readonly BrushPreset[], createId: () => string) {
     this.#storage = storage; this.#sets = metadata.orderSets(sets);
-    this.#metadata = metadata; this.#createId = createId;
+    this.#metadata = metadata; this.#bundled = bundled;
+    this.#files = new BrushLibraryFileActions(storage, bundled, createId);
   }
 
   static async create(storage: BrushLibraryStoragePort | null, bundled: readonly BrushPreset[],
@@ -29,18 +28,18 @@ export class BrushLibraryService implements BrushLibraryPort {
     const sets = storage ? await loadBrushSets(storage, bundled) :
       [{ name: "Main", brushes: bundled }];
     const metadata = await BrushLibraryMetadata.create(storage, sets);
-    return new BrushLibraryService(storage, sets, metadata, createId);
+    return new BrushLibraryService(storage, sets, metadata, bundled, createId);
   }
 
   get snapshot(): BrushLibrarySnapshot {
     return { sets: this.#sets, currentSetName: this.#metadata.currentSetName,
+      activeBrushId: this.#metadata.activeBrushId,
       recentBrushIds: this.#metadata.recentBrushIds,
       favoriteBrushIds: this.#metadata.favoriteBrushIds };
   }
 
   subscribe(listener: Listener): () => void {
-    this.#listeners.add(listener); listener(this.snapshot);
-    return () => this.#listeners.delete(listener);
+    this.#listeners.add(listener); listener(this.snapshot); return () => this.#listeners.delete(listener);
   }
 
   selectSet(name: string): void {
@@ -76,39 +75,44 @@ export class BrushLibraryService implements BrushLibraryPort {
   }
 
   async create(source: BrushPreset, name: string): Promise<BrushPreset> {
-    return this.copy(source, name, this.#metadata.currentSetName);
+    return this.add(await this.#files.copy(source, name, this.#metadata.currentSetName));
   }
   async duplicate(source: BrushPreset, name: string): Promise<BrushPreset> {
-    return this.copy(source, name, source.setName);
+    return this.add(await this.#files.copy(source, name, source.setName));
   }
 
   async applyDraft(source: BrushPreset, draft: BrushPreset): Promise<BrushPreset> {
-    const revision = source.revision + 1;
-    const applied: BrushPreset = { ...cloneBrushPreset(draft), id: source.id, revision,
-      setName: source.setName, fileName: brushFileName(draft.name, source.id, revision),
-      replacesFileName: source.fileName.endsWith(".brush")
-        ? source.fileName : source.replacesFileName };
-    await this.write(applied);
-    if (this.#storage && source.fileName.endsWith(".prodraw-brush")) {
-      await this.#storage.trashFile(source.setName, source.fileName);
-    }
+    const applied = await this.#files.apply(source, draft);
     this.replace(source, applied); return applied;
   }
 
   async delete(brush: BrushPreset): Promise<void> {
-    if (this.#storage) {
-      await this.#storage.trashFile(brush.setName, brush.fileName);
-      if (brush.replacesFileName) await this.#storage.trashFile(brush.setName, brush.replacesFileName);
-    }
+    await this.#files.trash(brush);
     this.#sets = this.#sets.map((set) => set.name === brush.setName
       ? { ...set, brushes: set.brushes.filter(({ id }) => id !== brush.id) } : set);
     this.#metadata.removeBrush(brush.setName, brush.id); this.emit();
   }
 
+  async importFile(name: string, bytes: Uint8Array<ArrayBuffer>): Promise<BrushPreset> {
+    return this.add(await this.#files.importFile(this.#metadata.currentSetName, name, bytes));
+  }
+  exportFile(brush: BrushPreset) { return this.#files.exportFile(brush); }
+  async reset(brush: BrushPreset): Promise<BrushPreset> {
+    return this.applyDraft(brush, await this.#files.resetDraft(brush));
+  }
+  async restoreTrash(): Promise<number> {
+    const count = await this.#files.restoreTrash();
+    if (!count || !this.#storage) return count;
+    const sets = await loadBrushSets(this.#storage, this.#bundled);
+    this.#metadata = await BrushLibraryMetadata.create(this.#storage, sets);
+    this.#sets = this.#metadata.orderSets(sets); this.emit(); return count;
+  }
+  revealFolder(): Promise<void> { return this.#files.revealFolder(this.#metadata.currentSetName); }
+
   async move(brush: BrushPreset, toSet: string): Promise<BrushPreset> {
     this.requireSet(toSet);
     if (brush.setName === toSet) return brush;
-    await moveBrushFiles(this.#storage, brush, toSet);
+    await this.#files.move(brush, toSet);
     const result = { ...brush, setName: toSet };
     this.#sets = this.#sets.map((set) => set.name === brush.setName
       ? { ...set, brushes: set.brushes.filter(({ id }) => id !== brush.id) }
@@ -123,19 +127,11 @@ export class BrushLibraryService implements BrushLibraryPort {
     this.#metadata.reorderBrush(setName, id, before); this.#sets = this.#metadata.orderSets(this.#sets); this.emit();
   }
 
-  private async copy(source: BrushPreset, name: string, setName: string): Promise<BrushPreset> {
-    const id = this.#createId();
-    const brush: BrushPreset = { ...cloneBrushPreset(source), id, name, revision: 1, setName,
-      replacesFileName: null, fileName: brushFileName(name, id, 1) };
-    await this.write(brush);
+  private add(brush: BrushPreset): BrushPreset {
+    const setName = brush.setName;
     this.#sets = this.#sets.map((set) => set.name === setName
       ? { ...set, brushes: [...set.brushes, brush] } : set);
-    this.#metadata.addBrush(setName, id); this.emit(); return brush;
-  }
-
-  private write(brush: BrushPreset): Promise<void> {
-    return this.#storage?.writeFile(brush.setName, brush.fileName, presetFileBytes(brush)) ??
-      Promise.resolve();
+    this.#metadata.addBrush(setName, brush.id); this.emit(); return brush;
   }
   private replace(source: BrushPreset, applied: BrushPreset): void {
     this.#sets = this.#sets.map((set) => set.name === source.setName

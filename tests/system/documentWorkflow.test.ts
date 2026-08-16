@@ -33,7 +33,8 @@ describe("document workflow", () => {
       dpi: 144, layerName: "Paint" }, () => ids.shift() ?? "extra");
     const brush = BUNDLED_BRUSHES[0];
     if (!brush) throw new Error("Bundled brush fixture is unavailable");
-    const session = new RasterEditorSession(document, brush, { width: 800, height: 600 });
+    const session = new RasterEditorSession(document, brush,
+      { width: 800, height: 600 }, null);
     const statuses: string[] = [];
     const workflow = new DocumentWorkflow({ platform,
       repository: new DocumentRepository(new IDBFactory()), session,

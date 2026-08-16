@@ -1,6 +1,9 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
 import { BrushLibraryService } from "../../src/core/brush-library/BrushLibraryService";
+import { BrushCatalog } from "../../src/core/brush/BrushCatalog";
 import { MemoryBrushStorage } from "./MemoryBrushStorage";
 
 describe("BrushLibraryService", () => {
@@ -73,6 +76,7 @@ describe("BrushLibraryService", () => {
       .toEqual([second.id, first.id]);
     expect(reopened.snapshot.recentBrushIds).toEqual([first.id]);
     expect(reopened.snapshot.favoriteBrushIds).toEqual([second.id]);
+    expect(reopened.snapshot.activeBrushId).toBe(first.id);
   });
 
   it("renames, moves, and recoverably deletes user sets", async () => {
@@ -90,5 +94,45 @@ describe("BrushLibraryService", () => {
     expect(storage.trashed).toContain("Lines/");
     await expect(library.renameSet("Main", "Core")).rejects.toThrow();
     await expect(library.deleteSet("Main")).rejects.toThrow();
+  });
+
+  it("imports, exports, resets, and restores an arbitrary Procreate brush", async () => {
+    const storage = new MemoryBrushStorage();
+    const library = await BrushLibraryService.create(storage, BUNDLED_BRUSHES,
+      () => "imported-id");
+    const source = await readFile(path.join(process.cwd(), "src", "app-folders",
+      "brushes", "main", "texture.brush"));
+    const bytes = new Uint8Array(source.buffer.slice(
+      source.byteOffset, source.byteOffset + source.byteLength));
+    const imported = await library.importFile("My Texture.brush", bytes);
+    expect(imported.baseFileName).toBe("My Texture.brush");
+    expect(storage.files.has(`Main/${imported.fileName}`)).toBe(true);
+    expect((await library.exportFile(imported)).bytes.byteLength).toBeGreaterThan(0);
+    const catalog = new BrushCatalog(storage);
+    const loaded = await catalog.load(imported);
+    expect(loaded.compatibility.archiveVersion).toBe(4);
+    storage.files.set(`Main/${imported.baseFileName}`, Uint8Array.of(1, 2, 3));
+    catalog.clear(imported.id);
+    const fallback = await catalog.load({ ...imported, revision: imported.revision + 1 });
+    expect(fallback.warnings).toContain("last-working-fallback");
+    storage.files.set(`Main/${imported.baseFileName}`, bytes);
+
+    const edited = await library.applyDraft(imported, { ...imported,
+      rendering: { ...imported.rendering, flow: 0.11 } });
+    const reset = await library.reset(edited);
+    expect(reset.rendering.flow).not.toBe(0.11);
+    library.markRecent(reset.id); await library.whenStateSaved();
+    await library.delete(reset);
+    expect(await library.restoreTrash()).toBeGreaterThan(0);
+    expect(library.snapshot.sets[0]?.brushes.some(({ id }) => id === reset.id)).toBe(true);
+    expect(library.snapshot.activeBrushId).toBeNull();
+  });
+
+  it("rejects a corrupt imported brush without adding it", async () => {
+    const storage = new MemoryBrushStorage();
+    const library = await BrushLibraryService.create(storage, BUNDLED_BRUSHES);
+    await expect(library.importFile("broken.brush", Uint8Array.of(1, 2, 3)))
+      .rejects.toThrow("Incompatible .brush file");
+    expect(library.snapshot.sets[0]?.brushes).toHaveLength(BUNDLED_BRUSHES.length);
   });
 });

@@ -6,6 +6,7 @@ export class MemoryBrushStorage implements BrushLibraryStoragePort {
   readonly directories = new Set(["Main"]);
   readonly seeded = new Set(["Main"]);
   readonly trashed: string[] = [];
+  readonly trashBytes = new Map<string, Uint8Array<ArrayBuffer>>();
   state: string | null = null;
 
   constructor() {
@@ -17,6 +18,7 @@ export class MemoryBrushStorage implements BrushLibraryStoragePort {
   async ensureSeeded(setName: string): Promise<void> { this.seeded.add(setName); }
   async listSets() {
     return [...this.directories].map((name) => ({ name, seeded: this.seeded.has(name),
+      seedVersion: this.seeded.has(name) ? 2 : null,
       files: [...this.files.keys()].filter((key) => key.startsWith(`${name}/`))
         .map((key) => ({ fileName: key.slice(name.length + 1),
           byteLength: this.files.get(key)?.byteLength ?? 0, modifiedAt: 1 })) }));
@@ -33,7 +35,9 @@ export class MemoryBrushStorage implements BrushLibraryStoragePort {
   }
   async trashFile(setName: string, fileName: string) {
     const key = `${setName}/${fileName}`;
-    if (!this.files.delete(key)) throw new Error("missing file");
+    const bytes = this.files.get(key);
+    if (!bytes || !this.files.delete(key)) throw new Error("missing file");
+    this.trashBytes.set(key, bytes);
     this.trashed.push(key);
   }
   async createSet(setName: string) {
@@ -57,10 +61,21 @@ export class MemoryBrushStorage implements BrushLibraryStoragePort {
   async trashSet(setName: string) {
     if (!this.directories.delete(setName)) throw new Error("missing set");
     for (const key of [...this.files.keys()]) {
-      if (key.startsWith(`${setName}/`)) this.files.delete(key);
+      if (key.startsWith(`${setName}/`)) {
+        this.trashBytes.set(key, this.files.get(key)!); this.files.delete(key); }
     }
     this.trashed.push(`${setName}/`);
   }
+  async restoreTrash() {
+    let count = 0;
+    for (const [key, bytes] of [...this.trashBytes]) {
+      if (this.files.has(key)) continue;
+      this.directories.add(key.split("/")[0]!);
+      this.files.set(key, bytes); this.trashBytes.delete(key); count += 1;
+    }
+    return count;
+  }
+  async revealFolder(): Promise<void> { /* No shell in the memory fixture. */ }
   async readState() { return this.state; }
   async writeState(json: string) { this.state = json; }
 }

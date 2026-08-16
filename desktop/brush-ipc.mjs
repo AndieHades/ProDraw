@@ -1,49 +1,17 @@
-import { access, mkdir, readFile, readdir, rename, stat, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, stat, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { app, ipcMain } from "electron";
+import { ipcMain, shell } from "electron";
 import channels from "./ipc-channels.cjs";
-
-const allowedExtension = /\.(brush|prodraw-brush)$/i;
-
-function safeSegment(value, label) {
-  const segment = String(value).trim();
-  const reserved = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i;
-  if (!segment || segment.startsWith(".") || /[<>:"/\\|?*]/.test(segment) ||
-      /[. ]$/.test(segment) || reserved.test(segment) || path.basename(segment) !== segment) {
-    throw new Error(`Invalid ${label}`);
-  }
-  return segment;
-}
-
-function brushRoot() {
-  return path.join(app.getPath("userData"), "brushes");
-}
-
-function setPath(name) {
-  return path.join(brushRoot(), safeSegment(name, "brush set name"));
-}
-
-function filePath(setName, fileName) {
-  const safeFile = safeSegment(fileName, "brush file name");
-  if (!allowedExtension.test(safeFile)) throw new Error("Unsupported brush file extension");
-  return path.join(setPath(setName), safeFile);
-}
-
-async function exists(target) {
-  try { await access(target); return true; } catch { return false; }
-}
+import {
+  brushFilePath as filePath, brushRoot, brushSetPath as setPath,
+  isBrushFileName, pathExists as exists, safeBrushSegment as safeSegment
+} from "./brush-storage-paths.mjs";
+import { brushSetSeedVersion, seedBrushSet } from "./brush-seed.mjs";
+import { restoreBrushTrash } from "./brush-trash.mjs";
 
 async function seed(setName, files) {
-  const directory = setPath(setName);
-  const marker = path.join(directory, ".seeded-v1");
-  await mkdir(directory, { recursive: true });
-  if (await exists(marker)) return;
-  for (const file of files) {
-    const target = filePath(setName, file.fileName);
-    if (!(await exists(target))) await writeFile(target, Buffer.from(file.bytes), { flag: "wx" });
-  }
-  await writeFile(marker, new Date().toISOString(), { flag: "wx" });
+  await seedBrushSet(setName, files);
 }
 
 async function listSets() {
@@ -56,12 +24,13 @@ async function listSets() {
     const directory = setPath(entry.name);
     const files = [];
     for (const file of await readdir(directory, { withFileTypes: true })) {
-      if (!file.isFile() || !allowedExtension.test(file.name)) continue;
+      if (!file.isFile() || !isBrushFileName(file.name)) continue;
       const details = await stat(path.join(directory, file.name));
       files.push({ fileName: file.name, byteLength: details.size,
         modifiedAt: details.mtimeMs });
     }
-    sets.push({ name: entry.name, seeded: await exists(path.join(directory, ".seeded-v1")),
+    const seedVersion = await brushSetSeedVersion(directory);
+    sets.push({ name: entry.name, seeded: seedVersion !== null, seedVersion,
       files: files.sort((a, b) =>
       a.fileName.localeCompare(b.fileName)) });
   }
@@ -133,6 +102,13 @@ export function registerBrushIpc() {
     rename(filePath(request.fromSet, request.fileName),
       filePath(request.toSet, request.fileName)));
   ipcMain.handle(channels.brushTrashSet, (_event, setName) => trashSet(setName));
+  ipcMain.handle(channels.brushRestoreTrash, () => restoreBrushTrash());
+  ipcMain.handle(channels.brushRevealFolder, async (_event, setName) => {
+    const target = setName === null ? brushRoot() : setPath(setName);
+    await mkdir(target, { recursive: true });
+    const error = await shell.openPath(target);
+    if (error) throw new Error(error);
+  });
   ipcMain.handle(channels.brushStateRead, () => readState());
   ipcMain.handle(channels.brushStateWrite, (_event, json) => writeState(json));
 }

@@ -1,5 +1,10 @@
 import type { BrushPreset } from "./brush";
 
+export interface BrushExportFile {
+  readonly name: string;
+  readonly bytes: Uint8Array<ArrayBuffer>;
+}
+
 export type BrushPresetFileV1 = Omit<
   BrushPreset,
   "setName" | "fileName" | "sourceUrl"
@@ -13,6 +18,7 @@ export interface BrushSetModel {
 export interface BrushLibrarySnapshot {
   readonly sets: readonly BrushSetModel[];
   readonly currentSetName: string;
+  readonly activeBrushId: string | null;
   readonly recentBrushIds: readonly string[];
   readonly favoriteBrushIds: readonly string[];
 }
@@ -26,3 +32,13 @@ export interface BrushLibraryStoredStateV1 {
   readonly recentBrushIds: readonly string[];
   readonly favoriteBrushIds: readonly string[];
 }
+
+export interface BrushLibraryStoredStateV2 extends Omit<
+  BrushLibraryStoredStateV1, "version"
+> {
+  readonly version: 2;
+  readonly activeBrushId: string | null;
+}
+
+export type BrushLibraryStoredState = BrushLibraryStoredStateV1 |
+  BrushLibraryStoredStateV2;
