@@ -1,4 +1,5 @@
 import type { RgbaColor } from "../../contracts/raster";
+import type { DrawingTool } from "../../contracts/stroke";
 import type { ViewState } from "../../contracts/view";
 import type { RasterDocument } from "../../core/document/RasterDocument";
 import type { TileHistory } from "../../core/history/TileHistory";
@@ -10,7 +11,7 @@ export interface WorkspaceActions {
   readonly exportPng: () => void;
   readonly undo: () => void;
   readonly redo: () => void;
-  readonly selectTool: (tool: "brush" | "eraser") => void;
+  readonly selectTool: (tool: DrawingTool) => void;
   readonly fitView: () => void;
   readonly rotateView: (direction: -1 | 1) => void;
   readonly openBrushes: () => void;
@@ -26,7 +27,7 @@ export class WorkspacePresenter {
   readonly #documentStatus = requiredElement<HTMLSpanElement>("#document-status");
   readonly #viewStatus = requiredElement<HTMLSpanElement>("#view-status");
   readonly #toast = requiredElement<HTMLDivElement>("#toast");
-  #tool: "brush" | "eraser" = "brush";
+  #tool: DrawingTool = "brush";
   #toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
@@ -47,6 +48,7 @@ export class WorkspacePresenter {
     this.click("#open-brushes", actions.openBrushes);
     this.click("#add-layer", actions.addLayer);
     this.click("#tool-brush", () => actions.selectTool("brush"));
+    this.click("#tool-smudge", () => actions.selectTool("smudge"));
     this.click("#tool-eraser", () => actions.selectTool("eraser"));
   }
 
@@ -65,14 +67,17 @@ export class WorkspacePresenter {
       blue: Number.parseInt(value.slice(5, 7), 16), alpha: 255 };
   }
 
-  get tool(): "brush" | "eraser" {
+  get tool(): DrawingTool {
     return this.#tool;
   }
 
-  setTool(tool: "brush" | "eraser"): void {
+  setTool(tool: DrawingTool): void {
     this.#tool = tool;
     setSelected(requiredElement("#tool-brush"), tool === "brush");
+    setSelected(requiredElement("#tool-smudge"), tool === "smudge");
     setSelected(requiredElement("#tool-eraser"), tool === "eraser");
+    requiredElement("#brush-opacity-label").textContent =
+      t(tool === "smudge" ? "smudge.strength" : "brush.opacity");
   }
 
   setBrushName(name: string): void {

@@ -1,14 +1,17 @@
 import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
 import type { RgbaColor } from "../../contracts/raster";
-import type { StrokeSample } from "../../contracts/stroke";
+import type { DrawingTool, StrokeSample } from "../../contracts/stroke";
 import type { ViewportPort } from "../../contracts/view";
+import { SMUDGE_DEFAULTS } from "../../config/smudge";
 import type { RasterDocument } from "../../core/document/RasterDocument";
 import type { RasterEdit } from "../../core/history/RasterEdit";
 import type { TileHistory } from "../../core/history/TileHistory";
 import { renderBrushDab } from "../../core/brush/renderBrushDab";
-import {
-  interpolateStrokeSegment, normalizePointerPressure
-} from "../../logic/stroke/interpolateStroke";
+import { renderSmudgeDab, type SmudgeState } from "../../core/brush/renderSmudgeDab";
+import { actualPointerEvents } from "../../core/input/actualPointerEvents";
+import { normalizePointerPressure } from "../../logic/stroke/interpolateStroke";
+import { resolveStrokeTool } from "../../logic/stroke/resolveStrokeTool";
+import { StrokePipeline } from "../../logic/stroke/StrokePipeline";
 
 export interface DrawingSystemOptions {
   readonly canvas: HTMLCanvasElement;
@@ -19,7 +22,7 @@ export interface DrawingSystemOptions {
   readonly getColor: () => RgbaColor;
   readonly getSize: () => number;
   readonly getOpacity: () => number;
-  readonly getTool: () => "brush" | "eraser";
+  readonly getTool: () => DrawingTool;
   readonly canDraw: (event: PointerEvent) => boolean;
   readonly onCommit: () => void;
   readonly onBlocked: (message: string) => void;
@@ -29,8 +32,9 @@ export class DrawingSystem {
   readonly #options: DrawingSystemOptions;
   #pointerId: number | null = null;
   #edit: RasterEdit | null = null;
-  #last: StrokeSample | null = null;
-  #erase = false;
+  #pipeline: StrokePipeline | null = null;
+  #strokeTool: DrawingTool = "brush";
+  #smudge: SmudgeState | null = null;
 
   constructor(options: DrawingSystemOptions) {
     this.#options = options;
@@ -46,6 +50,7 @@ export class DrawingSystem {
 
   private readonly onPointerDown = (event: PointerEvent): void => {
     if (!this.#options.canDraw(event) || this.#pointerId !== null) return;
+    if (event.pointerType === "mouse" && event.button !== 0) return;
     let surface;
     try {
       surface = this.#options.getDocument().editableSurface();
@@ -54,27 +59,22 @@ export class DrawingSystem {
       return;
     }
     this.#pointerId = event.pointerId;
-    this.#erase = this.#options.getTool() === "eraser" ||
-      event.button === 5 || (event.buttons & 32) !== 0;
-    this.#edit = this.#options.history.begin(surface, this.#erase ? "Erase stroke" : "Brush stroke");
-    this.#last = this.sample(event);
-    this.drawSample(this.#last);
+    const brush = this.#options.getBrush();
+    this.#strokeTool = resolveStrokeTool(this.#options.getTool(), event, brush.stylus);
+    const label = this.#strokeTool === "brush" ? "Brush stroke" :
+      this.#strokeTool === "eraser" ? "Erase stroke" : "Smudge stroke";
+    this.#edit = this.#options.history.begin(surface, label);
+    this.#smudge = this.#strokeTool === "smudge" ? { carried: null } : null;
+    this.#pipeline = new StrokePipeline(brush, this.#options.getSize());
+    this.drawSamples(this.#pipeline.push(this.sample(event)));
     this.#options.canvas.setPointerCapture(event.pointerId);
     event.preventDefault();
   };
 
   private readonly onPointerMove = (event: PointerEvent): void => {
-    if (event.pointerId !== this.#pointerId || !this.#edit || !this.#last) return;
-    const coalesced = event.getCoalescedEvents?.() ?? [];
-    const samples = coalesced.length ? coalesced : [event];
-    for (const pointer of samples) {
-      const next = this.sample(pointer);
-      const brush = this.#options.getBrush();
-      const spacing = Math.max(0.25, this.#options.getSize() * brush.strokePath.spacing);
-      for (const sample of interpolateStrokeSegment(this.#last, next, spacing)) {
-        this.drawSample(sample);
-      }
-      this.#last = next;
+    if (event.pointerId !== this.#pointerId || !this.#edit || !this.#pipeline) return;
+    for (const pointer of actualPointerEvents(event)) {
+      this.drawSamples(this.#pipeline.push(this.sample(pointer)));
     }
     event.preventDefault();
   };
@@ -82,6 +82,7 @@ export class DrawingSystem {
   private readonly onPointerUp = (event: PointerEvent): void => {
     if (event.pointerId !== this.#pointerId || !this.#edit) return;
     this.onPointerMove(event);
+    this.drawSamples(this.#pipeline?.finish() ?? []);
     const changed = this.#options.history.record(this.#edit.commit());
     this.resetPointer(event.pointerId);
     if (changed) this.#options.onCommit();
@@ -103,10 +104,22 @@ export class DrawingSystem {
     const radius = scatter * (((Math.floor(sample.time * 100) * 2654435761) >>> 0) / 0xffffffff);
     const scattered = { ...sample, x: sample.x + Math.cos(angle) * radius,
       y: sample.y + Math.sin(angle) * radius };
+    if (this.#strokeTool === "smudge" && this.#smudge) {
+      renderSmudgeDab(this.#edit, brush, scattered,
+        { size: this.#options.getSize(), strength: this.#options.getOpacity(),
+          ...SMUDGE_DEFAULTS }, this.#smudge);
+      this.#options.viewport.requestRender();
+      return;
+    }
     renderBrushDab(this.#edit, brush, scattered,
-      { size: this.#options.getSize(), opacity: this.#options.getOpacity(), erase: this.#erase },
+      { size: this.#options.getSize(), opacity: this.#options.getOpacity(),
+        erase: this.#strokeTool === "eraser" },
       this.#options.getColor());
     this.#options.viewport.requestRender();
+  }
+
+  private drawSamples(samples: readonly StrokeSample[]): void {
+    for (const sample of samples) this.drawSample(sample);
   }
 
   private sample(event: PointerEvent): StrokeSample {
@@ -122,6 +135,7 @@ export class DrawingSystem {
     }
     this.#pointerId = null;
     this.#edit = null;
-    this.#last = null;
+    this.#pipeline = null;
+    this.#smudge = null;
   }
 }

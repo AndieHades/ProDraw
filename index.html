@@ -21,6 +21,7 @@
       </nav>
       <nav class="tool-actions" data-i18n-aria-label="group.tools">
         <button id="tool-brush" class="selected" data-i18n="tool.brush"></button>
+        <button id="tool-smudge" data-i18n="tool.smudge"></button>
         <button id="tool-eraser" data-i18n="tool.eraser"></button>
       </nav>
       <nav class="view-actions" data-i18n-aria-label="group.view">
@@ -37,7 +38,7 @@
       <label><span data-i18n="brush.size"></span><output id="brush-size-value"></output>
         <input id="brush-size" type="range" min="1" max="500" value="24" />
       </label>
-      <label><span data-i18n="brush.opacity"></span><output id="brush-opacity-value"></output>
+      <label><span id="brush-opacity-label" data-i18n="brush.opacity"></span><output id="brush-opacity-value"></output>
         <input id="brush-opacity" type="range" min="1" max="100" value="100" />
       </label>
       <label class="color-control"><span data-i18n="brush.color"></span>

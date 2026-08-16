@@ -1,24 +1,25 @@
 import type { BrushPreset } from "../../contracts/brush";
-import type { StrokeSample } from "../../contracts/stroke";
+import type { StrokeSample, StylusDiagnosticSample } from "../../contracts/stroke";
 import { renderBrushDab } from "../../core/brush/renderBrushDab";
 import { RasterEdit } from "../../core/history/RasterEdit";
+import { actualPointerEvents } from "../../core/input/actualPointerEvents";
 import { RasterSurface } from "../../core/raster/RasterSurface";
-import { interpolateStrokeSegment, normalizePointerPressure } from
-  "../../logic/stroke/interpolateStroke";
+import { normalizePointerPressure } from "../../logic/stroke/interpolateStroke";
+import { StrokePipeline } from "../../logic/stroke/StrokePipeline";
 
 export class BrushStudioPad {
   readonly #canvas: HTMLCanvasElement;
   readonly #getBrush: () => BrushPreset;
-  readonly #onSample: (sample: StrokeSample) => void;
+  readonly #onSample: (sample: StylusDiagnosticSample) => void;
   #surface = new RasterSurface("studio-pad", 640, 360);
   #edit: RasterEdit | null = null;
-  #last: StrokeSample | null = null;
+  #pipeline: StrokePipeline | null = null;
   #pointerId: number | null = null;
 
   constructor(
     canvas: HTMLCanvasElement,
     getBrush: () => BrushPreset,
-    onSample: (sample: StrokeSample) => void
+    onSample: (sample: StylusDiagnosticSample) => void
   ) {
     this.#canvas = canvas;
     this.#getBrush = getBrush;
@@ -50,25 +51,25 @@ export class BrushStudioPad {
     if (event.button !== 0 || this.#pointerId !== null) return;
     this.#pointerId = event.pointerId;
     this.#edit = new RasterEdit(this.#surface, "Studio stroke");
-    this.#last = this.sample(event);
-    this.draw(this.#last);
+    this.#pipeline = new StrokePipeline(this.#getBrush(), 34);
+    this.drawSamples(this.#pipeline.push(this.sample(event)));
     this.#canvas.setPointerCapture(event.pointerId);
   };
 
   private readonly onMove = (event: PointerEvent): void => {
-    if (event.pointerId !== this.#pointerId || !this.#last) return;
-    const next = this.sample(event);
-    const spacing = Math.max(0.5, 34 * this.#getBrush().strokePath.spacing);
-    for (const sample of interpolateStrokeSegment(this.#last, next, spacing)) this.draw(sample);
-    this.#last = next;
+    if (event.pointerId !== this.#pointerId || !this.#pipeline) return;
+    for (const pointer of actualPointerEvents(event)) {
+      this.drawSamples(this.#pipeline.push(this.sample(pointer)));
+    }
   };
 
   private readonly onUp = (event: PointerEvent): void => {
     if (event.pointerId !== this.#pointerId || !this.#edit) return;
     this.onMove(event);
+    this.drawSamples(this.#pipeline?.finish() ?? []);
     this.#edit.commit();
     this.#edit = null;
-    this.#last = null;
+    this.#pipeline = null;
     this.#pointerId = null;
   };
 
@@ -76,26 +77,32 @@ export class BrushStudioPad {
     if (event.pointerId !== this.#pointerId || !this.#edit) return;
     this.#edit.cancel();
     this.#edit = null;
-    this.#last = null;
+    this.#pipeline = null;
     this.#pointerId = null;
     this.render();
   };
 
   private draw(sample: StrokeSample): void {
     if (!this.#edit) return;
-    this.#onSample(sample);
     renderBrushDab(this.#edit, this.#getBrush(), sample,
       { size: 34, opacity: 1, erase: false },
       { red: 246, green: 246, blue: 249, alpha: 255 });
     this.render();
   }
 
+  private drawSamples(samples: readonly StrokeSample[]): void {
+    for (const sample of samples) this.draw(sample);
+  }
+
   private sample(event: PointerEvent): StrokeSample {
     const bounds = this.#canvas.getBoundingClientRect();
-    return { x: (event.clientX - bounds.left) * this.#canvas.width / bounds.width,
+    const sample = { x: (event.clientX - bounds.left) * this.#canvas.width / bounds.width,
       y: (event.clientY - bounds.top) * this.#canvas.height / bounds.height,
       pressure: normalizePointerPressure(event.pressure, event.pointerType),
       tiltX: event.tiltX, tiltY: event.tiltY, time: event.timeStamp };
+    this.#onSample({ ...sample, pointerType: event.pointerType,
+      button: event.button, buttons: event.buttons });
+    return sample;
   }
 
   private resizeSurface(): void {

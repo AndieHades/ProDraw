@@ -30,7 +30,8 @@ export class BrushStudioPresenter {
     this.#pad = new BrushStudioPad(requiredElement("#studio-pad"),
       () => this.requiredDraft(), (sample) => {
         this.#diagnostics.textContent = `${t("studio.pressure")} ${sample.pressure.toFixed(2)} · ` +
-          `${t("studio.tilt")} ${sample.tiltX}° / ${sample.tiltY}°`;
+          `${t("studio.tilt")} ${sample.tiltX}° / ${sample.tiltY}° · ` +
+          `${t("studio.buttons")} ${sample.buttons}`;
       });
     requiredElement("#studio-apply").addEventListener("click", () => void this.apply());
   }

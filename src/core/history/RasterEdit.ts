@@ -33,6 +33,17 @@ export class RasterEdit {
     return this.#surface.erasePixel(x, y, opacity);
   }
 
+  getPixel(x: number, y: number): RgbaColor {
+    this.assertOpen();
+    return this.#surface.getPixel(x, y);
+  }
+
+  setPixel(x: number, y: number, color: RgbaColor): boolean {
+    if (!this.#surface.containsPixel(x, y)) return false;
+    this.capturePixelTile(x, y);
+    return this.#surface.mutatePixel(x, y, () => color);
+  }
+
   commit(): TileChangeSet | null {
     this.assertOpen();
     this.#closed = true;

@@ -31,3 +31,10 @@ export function eraseAlpha(destination: RgbaColor, opacity = 1): RgbaColor {
   if (alpha === 0) return { red: 0, green: 0, blue: 0, alpha: 0 };
   return { ...destination, alpha };
 }
+
+export function mixColor(left: RgbaColor, right: RgbaColor, amount: number): RgbaColor {
+  const ratio = Math.max(0, Math.min(1, amount));
+  const channel = (start: number, end: number) => byte(start + (end - start) * ratio);
+  return { red: channel(left.red, right.red), green: channel(left.green, right.green),
+    blue: channel(left.blue, right.blue), alpha: channel(left.alpha, right.alpha) };
+}

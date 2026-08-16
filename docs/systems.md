@@ -28,4 +28,10 @@ platform port и presenters. Старый `src/app.js` вокруг глобал
 реализует allowlisted app-data операции: seed/list/read/atomic-write/trash и
 директорные create/rename/move. Renderer не получает произвольный filesystem API.
 
+`src/logic/stroke/StrokePipeline.ts` — единая чистая цепочка pressure response →
+stabilization → spacing для документа и Drawing Pad. `DrawingSystem` открывает
+одну `RasterEdit` на жест и направляет её либо в RGBA brush dab, либо в локальный
+Smudge renderer; pointer-up добавляет фактическую конечную точку, а cancel
+откатывает все затронутые tiles.
+
 После `R6` этот раздел заменяется сгенерированным индексом production systems.

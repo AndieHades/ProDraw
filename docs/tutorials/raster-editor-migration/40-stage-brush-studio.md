@@ -28,7 +28,8 @@ pressure/tilt produce smooth repeatable strokes on A4/4K documents.
 - `R3.9` Add screenshot-defined Stroke Path and Stabilization controls exactly;
   explicitly omit Wet Mix, Color Dynamics, Materials and Apple Pencil.
 - `R3.10` Add Smudge as a tool sharing brush selection/stabilization, with strength,
-  pickup, pull, dilution/flow and pressure dynamics over local RGBA samples.
+  pickup, pull, flow and pressure dynamics over local RGBA samples. This is a
+  Smudge contract, not the excluded Wet Mix brush section.
 - `R3.11` Add Huion pressure calibration/curve, tilt, eraser/barrel mapping and
   a live Windows Ink diagnostics pad behind the platform-neutral pointer contract.
 - `R3.12` Implement StreamLine, trajectory stabilization, motion filtering,
@@ -79,3 +80,21 @@ fixture without changing pixels outside dirty bounds and undoes in one step.
   `brushes/Main`; the desktop validator now rejects project-local `require()`
   from the sandboxed preload that would disable the bridge after packaging.
 - Commit: R3A folder-backed Brush Studio checkpoint (this commit).
+- R3B checkpoint: the production document and Drawing Pad now share a stateful
+  stabilization pipeline. StreamLine, trajectory stabilization and motion
+  filtering reduce short-scale variation; pressure has its own smoothing and
+  four-point Huion response; deliberate long-segment corners receive a retention
+  boost; `finish()` emits the exact actual endpoint so dots and tails are kept.
+- Smudge («Палец») uses the selected brush shape/grain/spacing and the same
+  stabilization, carries locally sampled RGBA pigment with strength/pickup/pull/
+  flow, respects editable-layer gating and commits one tile-patch undo entry.
+  Huion eraser and barrel bitfields resolve through the preset's Eraser/Smudge
+  mappings; the Studio pad reports actual pressure, tilt and button bitfield.
+- R3B evidence: 38 TypeScript tests plus 128 retained legacy logic tests; jitter,
+  corner, dot, endpoint, pressure curve, omitted-coalesced-endpoint, stylus mapping
+  and two-colour bounded Smudge fixtures; A4 browser red→blue directed-smear and
+  one-step Undo smoke; full validate and packaged Windows executable smoke passed.
+- Residual R3: real-device Huion trace/manual acceptance, predicted replaceable
+  preview and dirty-tile frame budgets; set metadata/reorder/rename/move,
+  import/export/reset and persistent Recent/Favorites.
+- Commit: R3B stabilized Huion brush and Smudge checkpoint (this commit).

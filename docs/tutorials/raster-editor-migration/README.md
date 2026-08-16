@@ -11,15 +11,15 @@ Canonical owner: this package.
 - Current stage: `R3 — professional brush studio`
 - Status: `in_progress`
 - Last completed stage: `R2`
-- Next action: commit the validated R3A folder-backed Brush Studio checkpoint,
-  then implement the pure recorded-trace stabilization pipeline and Smudge
+- Next action: commit the validated R3B stabilization/Smudge checkpoint, then
+  complete persistent library metadata and set rename/move/reorder operations
 - Blockers: none
 - Working paths: `src/contracts/brush*`, `src/platform`, `desktop/brush-ipc.mjs`,
   `src/core/brush-library`, `src/ui/brushes`, `tests/brush`
-- Last checks: full validate, 30 TS tests, 128 legacy logic tests, packaged
-  Windows executable smoke, and browser library/create/recent/favorite,
-  single/double/RMB, compact Studio draft Cancel/Apply smoke passed
-- Last updated: `2026-08-16, main@c89e78c + R3 working tree`
+- Last checks: full validate, 38 TS tests, 128 legacy logic tests, packaged
+  Windows executable smoke, prior library/Studio browser matrix, plus A4
+  red→blue Smudge and one-step Undo browser smoke passed
+- Last updated: `2026-08-16, main@ac18d56 + R3B working tree`
 
 ## Product Outcome
 
