@@ -94,7 +94,3 @@ export function presetBaseFileName(bytes: Uint8Array<ArrayBuffer>): string | nul
     return null;
   }
 }
-
-export function clonePreset(preset: BrushPreset): BrushPreset {
-  return structuredClone(preset);
-}

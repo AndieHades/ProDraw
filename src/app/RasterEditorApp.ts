@@ -1,15 +1,11 @@
-import type { BrushPreset, LoadedBrush } from "../contracts/brush";
-import type { ViewState } from "../contracts/view";
-import { VIEW_INPUT } from "../config/input";
-import { BrushCatalog } from "../core/brush/BrushCatalog";
-import type { BrushLibraryService } from "../core/brush-library/BrushLibraryService";
-import { createRasterDocument } from "../core/document/createRasterDocument";
+import type { BrushPreset } from "../contracts/brush";
+import type { BrushLibraryPort } from "../contracts/brushLibraryPort";
+import type { EditorCommand, EditorCommandDispatch } from "../contracts/editorCommands";
+import type { PlatformPort } from "../contracts/platform";
 import type { RasterDocument } from "../core/document/RasterDocument";
-import { TileHistory } from "../core/history/TileHistory";
+import { EditorEventBus } from "../core/events/EditorEventBus";
 import { DocumentRepository } from "../core/persistence/DocumentRepository";
 import { t, type MessageKey } from "../i18n/raster/translate";
-import { fitView, rotateViewAt } from "../logic/view/viewTransform";
-import type { PlatformPort } from "../contracts/platform";
 import { AutosaveSystem } from "../systems/autosave/AutosaveSystem";
 import { DrawingSystem } from "../systems/drawing/DrawingSystem";
 import { ExportSystem } from "../systems/export/ExportSystem";
@@ -17,134 +13,118 @@ import { ViewportSystem } from "../systems/viewport/ViewportSystem";
 import { BrushLibraryPresenter } from "../ui/brushes/BrushLibraryPresenter";
 import { BrushStudioPresenter } from "../ui/brushes/BrushStudioPresenter";
 import { CanvasPresenter } from "../ui/canvas/CanvasPresenter";
-import { NewDocumentPresenter, type NewDocumentValues } from "../ui/document/NewDocumentPresenter";
+import { NewDocumentPresenter } from "../ui/document/NewDocumentPresenter";
 import { LayerPresenter } from "../ui/layers/LayerPresenter";
 import { WorkspacePresenter } from "../ui/workspace/WorkspacePresenter";
+import { RasterEditorSession } from "./RasterEditorSession";
+
 export class RasterEditorApp {
   readonly #workspace = new WorkspacePresenter();
-  readonly #history = new TileHistory();
-  readonly #catalog = new BrushCatalog();
-  #document: RasterDocument;
-  #view: ViewState;
-  #brush: BrushPreset | LoadedBrush;
-  readonly #canvas: CanvasPresenter;
+  readonly #events = new EditorEventBus();
   readonly #layers = new LayerPresenter();
+  readonly #session: RasterEditorSession;
+  readonly #canvas: CanvasPresenter;
   readonly #autosave: AutosaveSystem;
+  readonly #exporter: ExportSystem;
   readonly #brushes: BrushLibraryPresenter;
   readonly #studio: BrushStudioPresenter;
   readonly #newDocument: NewDocumentPresenter;
 
   constructor(platform: PlatformPort, repository: DocumentRepository, document: RasterDocument,
-    library: BrushLibraryService) {
-    this.#document = document;
-    const initialBrush = library.snapshot.sets.flatMap(({ brushes }) => brushes)[0];
-    if (!initialBrush) throw new Error("Brush library is empty");
-    this.#brush = initialBrush;
-    this.registerSurfaces();
-    this.#view = fitView(document.descriptor, {
-      width: this.#workspace.canvas.clientWidth, height: this.#workspace.canvas.clientHeight
-    });
+    library: BrushLibraryPort) {
+    const brush = library.snapshot.sets.flatMap(({ brushes }) => brushes)[0];
+    if (!brush) throw new Error("Brush library is empty");
+    const viewport = { width: this.#workspace.canvas.clientWidth,
+      height: this.#workspace.canvas.clientHeight };
+    this.#session = new RasterEditorSession(document, brush, viewport);
     this.#canvas = new CanvasPresenter(this.#workspace.canvas,
-      () => this.#document, () => this.#view);
-    this.#autosave = new AutosaveSystem(repository, () => this.#document);
+      () => this.#session.canvasFrame(), () => this.#session.view);
+    this.#autosave = new AutosaveSystem(repository, () => this.#session.document,
+      (status) => this.status(`status.${status}` as MessageKey));
+    this.#exporter = new ExportSystem({ platform, getDocument: () => this.#session.document,
+      onStatus: (status) => this.status(`status.${status}` as MessageKey) });
     this.#studio = new BrushStudioPresenter(async (source, draft) => {
       const applied = await library.applyDraft(source, draft);
-      this.#catalog.clear(source.id);
+      this.#session.forgetBrush(source.id);
       this.selectBrush(applied);
       this.#brushes.select(applied.id);
     });
-    this.#brushes = new BrushLibraryPresenter(library, this.#brush.id, {
-      select: (brush) => this.selectBrush(brush),
-      edit: (brush) => this.#studio.open(brush)
+    this.#brushes = new BrushLibraryPresenter(library, brush.id, {
+      select: (selected) => this.selectBrush(selected),
+      edit: (selected) => this.#studio.open(selected)
     });
-    this.#newDocument = new NewDocumentPresenter((values) => this.createDocument(values));
-    this.mountSystems(platform);
+    this.#newDocument = new NewDocumentPresenter(this.dispatch);
+    this.#events.subscribe((event) => event.type === "editor.changed"
+      ? this.refreshUi() : this.#workspace.showStatus(event.key as MessageKey));
+    this.mountSystems();
+    this.#workspace.bind(this.dispatch);
     this.refreshUi();
   }
 
-  private mountSystems(platform: PlatformPort): void {
+  private readonly dispatch: EditorCommandDispatch = (command): void => {
+    this.handleCommand(command);
+  };
+
+  private handleCommand(command: EditorCommand): void {
+    switch (command.type) {
+      case "document.new": this.#newDocument.open(); return;
+      case "document.exportPng": void this.#exporter.exportPng(); return;
+      case "document.create":
+        this.#session.createDocument(command.request, t("layers.default"), this.#canvas.size);
+        this.changed(true); return;
+      case "history.undo": case "history.redo":
+        this.#session.historyStep(command.type === "history.undo" ? "undo" : "redo");
+        this.changed(true); return;
+      case "tool.select": this.#workspace.setTool(command.tool); return;
+      case "view.fit": this.#session.fit(this.#canvas.size); this.changed(); return;
+      case "view.rotate":
+        this.#session.rotate(command.direction, this.#canvas.size); this.changed(); return;
+      case "brush.library.open": this.#brushes.open(); return;
+      case "layer.add": this.addLayer(); return;
+      case "layer.select": this.#session.selectLayer(command.id); this.changed(); return;
+      case "layer.visibility":
+        this.#session.setLayerVisible(command.id, command.visible); this.changed(true); return;
+    }
+  }
+
+  private mountSystems(): void {
     const viewport = new ViewportSystem({ canvas: this.#workspace.canvas,
-      getView: () => this.#view, setView: (view) => { this.#view = view; },
+      getView: () => this.#session.view, setView: (view) => this.#session.setView(view),
       requestRender: () => this.#canvas.requestRender() });
     viewport.mount();
     new DrawingSystem({ canvas: this.#workspace.canvas, viewport: this.#canvas,
-      history: this.#history, getDocument: () => this.#document,
-      getBrush: () => this.#brush, getColor: () => this.#workspace.color,
+      history: this.#session.history, getDocument: () => this.#session.document,
+      getBrush: () => this.#session.brush, getColor: () => this.#workspace.color,
       getSize: () => this.#workspace.brushSize, getOpacity: () => this.#workspace.brushOpacity,
       getTool: () => this.#workspace.tool, canDraw: (event) => !viewport.isPanning(event),
-      onCommit: () => { this.#autosave.schedule(); this.refreshUi(); },
-      onBlocked: () => this.#workspace.showStatus("status.layerBlocked") }).mount();
-    const exporter = new ExportSystem({ platform, getDocument: () => this.#document,
-      onStatus: (status) => this.#workspace.showStatus(`status.${status}` as MessageKey) });
-    this.bindActions(exporter);
-  }
-
-  private bindActions(exporter: ExportSystem): void {
-    this.#workspace.bind({ newDocument: () => this.#newDocument.open(),
-      exportPng: () => void exporter.exportPng(), undo: () => this.historyStep("undo"),
-      redo: () => this.historyStep("redo"), selectTool: (tool) => this.#workspace.setTool(tool),
-      fitView: () => this.fit(), rotateView: (direction) => this.rotate(direction),
-      openBrushes: () => this.#brushes.open(), addLayer: () => this.addLayer() });
+      onCommit: () => this.changed(true), onBlocked: () => this.status("status.layerBlocked")
+    }).mount();
   }
 
   private selectBrush(brush: BrushPreset): void {
-    this.#brush = brush;
-    this.#workspace.setBrushName(brush.name);
-    void this.#catalog.load(brush).then((loaded) => {
-      if (this.#brush.id === loaded.id) this.#brush = loaded;
-    });
-  }
-
-  private createDocument(values: NewDocumentValues): void {
-    this.#document = createRasterDocument({ ...values, layerName: t("layers.default") });
-    this.#history.clear();
-    this.registerSurfaces();
-    this.fit();
-    this.#autosave.schedule();
-    this.refreshUi();
+    this.#session.selectBrush(brush);
+    this.changed();
   }
 
   private addLayer(): void {
-    const index = this.#document.layers.length + 1;
-    const layer = this.#document.addLayer({ id: crypto.randomUUID(),
-      name: `${t("layers.default")} ${index}`, visible: true, locked: false,
-      opacity: 1, blendMode: "normal" });
-    this.#history.registerSurface(layer.surface);
-    this.#autosave.schedule();
-    this.refreshUi();
+    const index = this.#session.document.layers.length + 1;
+    this.#session.addLayer(`${t("layers.default")} ${index}`);
+    this.changed(true);
   }
 
-  private historyStep(direction: "undo" | "redo"): void {
-    this.#history[direction]();
-    this.#autosave.schedule();
-    this.refreshUi();
+  private changed(save = false): void {
+    if (save) this.#autosave.schedule();
+    this.#events.emit({ type: "editor.changed" });
   }
 
-  private fit(): void {
-    this.#view = fitView(this.#document.descriptor, this.#canvas.size);
-    this.refreshUi();
-  }
-
-  private rotate(direction: -1 | 1): void {
-    const center = { x: this.#canvas.size.width / 2, y: this.#canvas.size.height / 2 };
-    this.#view = rotateViewAt(this.#view, center, direction * VIEW_INPUT.buttonRotationRadians);
-    this.refreshUi();
-  }
-
-  private registerSurfaces(): void {
-    for (const layer of this.#document.layers) this.#history.registerSurface(layer.surface);
+  private status(key: MessageKey): void {
+    this.#events.emit({ type: "editor.status", key });
   }
 
   private refreshUi(): void {
-    this.#workspace.setBrushName(this.#brush.name);
-    this.#workspace.updateDocument(this.#document);
-    this.#workspace.updateView(this.#view);
-    this.#workspace.updateHistory(this.#history);
-    this.#layers.render(this.#document, { select: (id) => {
-      this.#document.selectLayer(id); this.refreshUi();
-    }, toggleVisible: (id, visible) => {
-      this.#document.updateLayer(id, { visible }); this.#autosave.schedule(); this.refreshUi();
-    } });
+    const model = this.#session.viewModel();
+    this.#workspace.render(model);
+    this.#layers.render(model.layers, this.dispatch);
     this.#canvas.requestRender();
   }
 }

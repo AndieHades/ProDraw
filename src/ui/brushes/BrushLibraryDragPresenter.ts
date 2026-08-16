@@ -1,5 +1,5 @@
 import type { BrushPreset } from "../../contracts/brush";
-import type { BrushLibraryService } from "../../core/brush-library/BrushLibraryService";
+import type { BrushLibraryPort } from "../../contracts/brushLibraryPort";
 import { requiredElement } from "../dom/query";
 
 const transferType = "application/x-prodraw-brush-library";
@@ -17,10 +17,10 @@ function payload(event: DragEvent): Payload | null {
 export class BrushLibraryDragPresenter {
   readonly #sets = requiredElement<HTMLElement>("#brush-set-list");
   readonly #brushes = requiredElement<HTMLElement>("#brush-list");
-  readonly #library: BrushLibraryService;
+  readonly #library: BrushLibraryPort;
   readonly #moved: (brush: BrushPreset) => void;
 
-  constructor(library: BrushLibraryService, moved: (brush: BrushPreset) => void) {
+  constructor(library: BrushLibraryPort, moved: (brush: BrushPreset) => void) {
     this.#library = library; this.#moved = moved;
     for (const root of [this.#sets, this.#brushes]) {
       root.addEventListener("dragstart", this.onStart);

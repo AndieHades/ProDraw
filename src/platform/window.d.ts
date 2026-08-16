@@ -1,4 +1,4 @@
-import type { DesktopBridge } from "./platform";
+import type { DesktopBridge } from "../contracts/platform";
 
 declare global {
   interface Window {

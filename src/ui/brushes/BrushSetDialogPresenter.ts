@@ -1,4 +1,4 @@
-import type { BrushLibraryService } from "../../core/brush-library/BrushLibraryService";
+import type { BrushLibraryPort } from "../../contracts/brushLibraryPort";
 import { t } from "../../i18n/raster/translate";
 import { requiredElement } from "../dom/query";
 
@@ -6,10 +6,10 @@ export class BrushSetDialogPresenter {
   readonly #dialog = requiredElement<HTMLDialogElement>("#brush-set-dialog");
   readonly #input = requiredElement<HTMLInputElement>("#brush-set-name");
   readonly #error = requiredElement<HTMLElement>("#brush-set-error");
-  readonly #library: BrushLibraryService;
+  readonly #library: BrushLibraryPort;
   #renaming: string | null = null;
 
-  constructor(library: BrushLibraryService) {
+  constructor(library: BrushLibraryPort) {
     this.#library = library;
     requiredElement("#add-brush-set").addEventListener("click", () => this.openCreate());
     requiredElement("#create-brush-set").addEventListener("click", () => void this.submit());

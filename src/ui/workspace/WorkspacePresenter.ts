@@ -1,23 +1,10 @@
+import type { EditorCommandDispatch } from "../../contracts/editorCommands";
+import type { EditorViewModel } from "../../contracts/editorView";
 import type { RgbaColor } from "../../contracts/raster";
 import type { DrawingTool } from "../../contracts/stroke";
-import type { ViewState } from "../../contracts/view";
-import type { RasterDocument } from "../../core/document/RasterDocument";
-import type { TileHistory } from "../../core/history/TileHistory";
 import { applyTranslations, t, type MessageKey } from "../../i18n/raster/translate";
 import { requiredElement, setSelected } from "../dom/query";
 import { FloatingToolPanelPresenter } from "./FloatingToolPanelPresenter";
-
-export interface WorkspaceActions {
-  readonly newDocument: () => void;
-  readonly exportPng: () => void;
-  readonly undo: () => void;
-  readonly redo: () => void;
-  readonly selectTool: (tool: DrawingTool) => void;
-  readonly fitView: () => void;
-  readonly rotateView: (direction: -1 | 1) => void;
-  readonly openBrushes: () => void;
-  readonly addLayer: () => void;
-}
 
 export class WorkspacePresenter {
   readonly canvas = requiredElement<HTMLCanvasElement>("#paint-canvas");
@@ -39,19 +26,19 @@ export class WorkspacePresenter {
     this.#opacity.addEventListener("input", () => this.syncBrushControls());
   }
 
-  bind(actions: WorkspaceActions): void {
-    this.click("#new-document", actions.newDocument);
-    this.click("#export-png", actions.exportPng);
-    this.click("#undo", actions.undo);
-    this.click("#redo", actions.redo);
-    this.click("#view-fit", actions.fitView);
-    this.click("#view-rotate-left", () => actions.rotateView(-1));
-    this.click("#view-rotate-right", () => actions.rotateView(1));
-    this.click("#open-brushes", actions.openBrushes);
-    this.click("#add-layer", actions.addLayer);
-    this.click("#tool-brush", () => actions.selectTool("brush"));
-    this.click("#tool-smudge", () => actions.selectTool("smudge"));
-    this.click("#tool-eraser", () => actions.selectTool("eraser"));
+  bind(dispatch: EditorCommandDispatch): void {
+    this.click("#new-document", () => dispatch({ type: "document.new" }));
+    this.click("#export-png", () => dispatch({ type: "document.exportPng" }));
+    this.click("#undo", () => dispatch({ type: "history.undo" }));
+    this.click("#redo", () => dispatch({ type: "history.redo" }));
+    this.click("#view-fit", () => dispatch({ type: "view.fit" }));
+    this.click("#view-rotate-left", () => dispatch({ type: "view.rotate", direction: -1 }));
+    this.click("#view-rotate-right", () => dispatch({ type: "view.rotate", direction: 1 }));
+    this.click("#open-brushes", () => dispatch({ type: "brush.library.open" }));
+    this.click("#add-layer", () => dispatch({ type: "layer.add" }));
+    this.click("#tool-brush", () => dispatch({ type: "tool.select", tool: "brush" }));
+    this.click("#tool-smudge", () => dispatch({ type: "tool.select", tool: "smudge" }));
+    this.click("#tool-eraser", () => dispatch({ type: "tool.select", tool: "eraser" }));
   }
 
   get brushSize(): number {
@@ -82,24 +69,15 @@ export class WorkspacePresenter {
       t(tool === "smudge" ? "smudge.strength" : "brush.opacity");
   }
 
-  setBrushName(name: string): void {
-    this.#brushName.textContent = name;
-  }
-
-  updateDocument(document: RasterDocument): void {
-    const descriptor = document.descriptor;
+  render(model: EditorViewModel): void {
+    const descriptor = model.document;
+    this.#brushName.textContent = model.brushName;
     this.#documentStatus.textContent = `${descriptor.name} · ${descriptor.width} × ` +
       `${descriptor.height} px · ${descriptor.dpi} DPI`;
-  }
-
-  updateView(view: ViewState): void {
-    const degrees = Math.round(view.rotation * 180 / Math.PI);
-    this.#viewStatus.textContent = `${Math.round(view.scale * 100)}% · ${degrees}°`;
-  }
-
-  updateHistory(history: TileHistory): void {
-    requiredElement<HTMLButtonElement>("#undo").disabled = history.undoCount === 0;
-    requiredElement<HTMLButtonElement>("#redo").disabled = history.redoCount === 0;
+    const degrees = Math.round(model.view.rotation * 180 / Math.PI);
+    this.#viewStatus.textContent = `${Math.round(model.view.scale * 100)}% · ${degrees}°`;
+    requiredElement<HTMLButtonElement>("#undo").disabled = model.history.undoCount === 0;
+    requiredElement<HTMLButtonElement>("#redo").disabled = model.history.redoCount === 0;
   }
 
   showStatus(key: MessageKey): void {

@@ -11,6 +11,5 @@ export type ViewportSize = RasterSize;
 
 export interface ViewportPort {
   screenToDocument(point: PixelCoordinate): PixelCoordinate;
-  eventPoint(event: PointerEvent): PixelCoordinate;
   requestRender(): void;
 }

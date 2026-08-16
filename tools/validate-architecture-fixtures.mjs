@@ -11,6 +11,9 @@ const config = [{
     "architecture/no-platform-sdk-outside-platform": "error",
     "architecture/no-ui-in-core-runtime": "error",
     "architecture/no-legacy-js-in-typescript": "error",
+    "architecture/no-dom-in-contracts": "error",
+    "architecture/no-runtime-state-in-ui": "error",
+    "architecture/systems-compose-only-in-app": "error",
     "max-lines": ["error", { max: 150 }]
   }
 }];
@@ -39,6 +42,24 @@ const fixtures = [
     file: "src/core/new.ts",
     code: "import './old.js';",
     rule: "architecture/no-legacy-js-in-typescript"
+  },
+  {
+    name: "DOM type in serializable contract",
+    file: "src/contracts/input.ts",
+    code: "const event = PointerEvent;",
+    rule: "architecture/no-dom-in-contracts"
+  },
+  {
+    name: "runtime document imported by UI",
+    file: "src/ui/canvas/Presenter.ts",
+    code: "import '../../core/document/RasterDocument';",
+    rule: "architecture/no-runtime-state-in-ui"
+  },
+  {
+    name: "runtime system composed by UI",
+    file: "src/ui/workspace/Presenter.ts",
+    code: "import '../../systems/drawing/DrawingSystem';",
+    rule: "architecture/systems-compose-only-in-app"
   },
   {
     name: "line limit",

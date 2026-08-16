@@ -53,6 +53,9 @@ export default [
       "architecture/no-platform-sdk-outside-platform": "error",
       "architecture/no-ui-in-core-runtime": "error",
       "architecture/no-legacy-js-in-typescript": "error",
+      "architecture/no-dom-in-contracts": "error",
+      "architecture/no-runtime-state-in-ui": "error",
+      "architecture/systems-compose-only-in-app": "error",
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }]
     }

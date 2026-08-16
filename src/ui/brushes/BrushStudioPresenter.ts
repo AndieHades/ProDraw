@@ -2,7 +2,7 @@ import type { BrushPreset } from "../../contracts/brush";
 import {
   BRUSH_STUDIO_SECTIONS, type BrushStudioSectionId
 } from "../../config/brushStudio";
-import { clonePreset } from "../../core/brush-library/brushPresetFile";
+import { cloneBrushPreset } from "../../logic/brush/cloneBrushPreset";
 import { t, type MessageKey } from "../../i18n/raster/translate";
 import {
   updateBrushValue, type BrushScalarValue
@@ -38,7 +38,7 @@ export class BrushStudioPresenter {
 
   open(brush: BrushPreset): void {
     this.#source = brush;
-    this.#draft = clonePreset(brush);
+    this.#draft = cloneBrushPreset(brush);
     this.#section = "strokePath";
     this.#dialog.showModal();
     this.render();

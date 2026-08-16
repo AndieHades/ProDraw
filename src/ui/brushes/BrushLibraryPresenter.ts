@@ -1,6 +1,6 @@
 import type { BrushPreset } from "../../contracts/brush";
 import type { BrushLibrarySnapshot } from "../../contracts/brushLibrary";
-import type { BrushLibraryService } from "../../core/brush-library/BrushLibraryService";
+import type { BrushLibraryPort } from "../../contracts/brushLibraryPort";
 import { t } from "../../i18n/raster/translate";
 import { requiredElement } from "../dom/query";
 import { BrushContextMenuPresenter } from "./BrushContextMenuPresenter";
@@ -18,14 +18,14 @@ export class BrushLibraryPresenter {
   readonly #dialog = requiredElement<HTMLDialogElement>("#brush-library-dialog");
   readonly #setList = requiredElement<HTMLElement>("#brush-set-list");
   readonly #list = requiredElement<HTMLDivElement>("#brush-list");
-  readonly #library: BrushLibraryService;
+  readonly #library: BrushLibraryPort;
   readonly #actions: BrushLibraryActions;
   readonly #context: BrushContextMenuPresenter;
   #snapshot: BrushLibrarySnapshot;
   #selectedId: string;
   #smart: SmartCollection = null;
 
-  constructor(library: BrushLibraryService, selectedId: string, actions: BrushLibraryActions) {
+  constructor(library: BrushLibraryPort, selectedId: string, actions: BrushLibraryActions) {
     this.#library = library;
     this.#snapshot = library.snapshot;
     this.#selectedId = selectedId;

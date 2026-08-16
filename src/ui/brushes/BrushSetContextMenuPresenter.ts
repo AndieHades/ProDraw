@@ -1,4 +1,4 @@
-import type { BrushLibraryService } from "../../core/brush-library/BrushLibraryService";
+import type { BrushLibraryPort } from "../../contracts/brushLibraryPort";
 import { t } from "../../i18n/raster/translate";
 import { requiredElement } from "../dom/query";
 import type { BrushSetDialogPresenter } from "./BrushSetDialogPresenter";
@@ -6,11 +6,11 @@ import type { BrushSetDialogPresenter } from "./BrushSetDialogPresenter";
 export class BrushSetContextMenuPresenter {
   readonly #menu = requiredElement<HTMLElement>("#brush-set-context-menu");
   readonly #deleteDialog = requiredElement<HTMLDialogElement>("#delete-brush-set-dialog");
-  readonly #library: BrushLibraryService;
+  readonly #library: BrushLibraryPort;
   readonly #setDialog: BrushSetDialogPresenter;
   #setName: string | null = null;
 
-  constructor(library: BrushLibraryService, setDialog: BrushSetDialogPresenter) {
+  constructor(library: BrushLibraryPort, setDialog: BrushSetDialogPresenter) {
     this.#library = library; this.#setDialog = setDialog;
     requiredElement("#brush-set-list").addEventListener("contextmenu", (event) =>
       this.open(event as MouseEvent));

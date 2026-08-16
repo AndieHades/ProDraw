@@ -1,5 +1,7 @@
 import type { DocumentDescriptor, LayerDescriptor } from "./document";
 
+export type AutosaveStatus = "saving" | "saved" | "save-failed";
+
 export interface SerializedTile {
   readonly x: number;
   readonly y: number;

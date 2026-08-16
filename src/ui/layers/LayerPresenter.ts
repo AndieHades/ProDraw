@@ -1,29 +1,24 @@
-import type { RasterDocument } from "../../core/document/RasterDocument";
+import type { EditorCommandDispatch } from "../../contracts/editorCommands";
+import type { LayerListViewModel } from "../../contracts/editorView";
 import { requiredElement } from "../dom/query";
-
-export interface LayerPresenterActions {
-  readonly select: (id: string) => void;
-  readonly toggleVisible: (id: string, visible: boolean) => void;
-}
 
 export class LayerPresenter {
   readonly #host = requiredElement<HTMLDivElement>("#layer-list");
 
-  render(document: RasterDocument, actions: LayerPresenterActions): void {
-    const activeId = document.snapshot().activeLayerId;
-    const rows = [...document.layers].reverse().map((layer) => {
+  render(model: LayerListViewModel, dispatch: EditorCommandDispatch): void {
+    const rows = [...model.layers].reverse().map((layer) => {
       const row = documentElement("button", "layer-row");
       row.type = "button";
-      row.classList.toggle("selected", layer.descriptor.id === activeId);
+      row.classList.toggle("selected", layer.id === model.activeLayerId);
       const visibility = documentElement("span", "layer-visibility");
-      visibility.textContent = layer.descriptor.visible ? "●" : "○";
+      visibility.textContent = layer.visible ? "●" : "○";
       const name = documentElement("span", "layer-name");
-      name.textContent = layer.descriptor.name;
+      name.textContent = layer.name;
       row.append(visibility, name);
-      row.addEventListener("click", () => actions.select(layer.descriptor.id));
+      row.addEventListener("click", () => dispatch({ type: "layer.select", id: layer.id }));
       visibility.addEventListener("click", (event) => {
         event.stopPropagation();
-        actions.toggleVisible(layer.descriptor.id, !layer.descriptor.visible);
+        dispatch({ type: "layer.visibility", id: layer.id, visible: !layer.visible });
       });
       return row;
     });

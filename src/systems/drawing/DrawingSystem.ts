@@ -123,7 +123,10 @@ export class DrawingSystem {
   }
 
   private sample(event: PointerEvent): StrokeSample {
-    const point = this.#options.viewport.screenToDocument(this.#options.viewport.eventPoint(event));
+    const bounds = this.#options.canvas.getBoundingClientRect();
+    const point = this.#options.viewport.screenToDocument(
+      { x: event.clientX - bounds.left, y: event.clientY - bounds.top }
+    );
     return { x: point.x, y: point.y,
       pressure: normalizePointerPressure(event.pressure, event.pointerType),
       tiltX: event.tiltX, tiltY: event.tiltY, time: event.timeStamp };

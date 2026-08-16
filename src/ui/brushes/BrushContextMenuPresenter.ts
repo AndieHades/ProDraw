@@ -1,5 +1,5 @@
 import type { BrushPreset } from "../../contracts/brush";
-import type { BrushLibraryService } from "../../core/brush-library/BrushLibraryService";
+import type { BrushLibraryPort } from "../../contracts/brushLibraryPort";
 import { t } from "../../i18n/raster/translate";
 import { requiredElement } from "../dom/query";
 
@@ -11,11 +11,11 @@ export interface BrushContextActions {
 export class BrushContextMenuPresenter {
   readonly #menu = requiredElement<HTMLElement>("#brush-context-menu");
   readonly #deleteDialog = requiredElement<HTMLDialogElement>("#delete-brush-dialog");
-  readonly #library: BrushLibraryService;
+  readonly #library: BrushLibraryPort;
   readonly #actions: BrushContextActions;
   #brush: BrushPreset | null = null;
 
-  constructor(library: BrushLibraryService, actions: BrushContextActions) {
+  constructor(library: BrushLibraryPort, actions: BrushContextActions) {
     this.#library = library;
     this.#actions = actions;
     this.#menu.addEventListener("click", (event) => void this.run(event));

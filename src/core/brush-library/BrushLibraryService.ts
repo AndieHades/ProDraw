@@ -1,16 +1,17 @@
 import type { BrushPreset } from "../../contracts/brush";
 import type { BrushLibrarySnapshot, BrushSetModel } from "../../contracts/brushLibrary";
+import type { BrushLibraryPort } from "../../contracts/brushLibraryPort";
 import type { BrushLibraryStoragePort } from "../../contracts/brushStorage";
 import { brushFileName } from "../../logic/brush/brushFileName";
 import { uniqueBrushSetName } from "../../logic/brush/brushSetName";
+import { cloneBrushPreset } from "../../logic/brush/cloneBrushPreset";
 import { BrushLibraryMetadata } from "./BrushLibraryMetadata";
-import { clonePreset, presetFileBytes } from "./brushPresetFile";
+import { presetFileBytes } from "./brushPresetFile";
 import { loadBrushSets } from "./loadBrushLibrary";
 import { moveBrushFiles } from "./moveBrushFiles";
 
 type Listener = (snapshot: BrushLibrarySnapshot) => void;
-
-export class BrushLibraryService {
+export class BrushLibraryService implements BrushLibraryPort {
   readonly #storage: BrushLibraryStoragePort | null;
   readonly #listeners = new Set<Listener>();
   readonly #createId: () => string;
@@ -83,7 +84,7 @@ export class BrushLibraryService {
 
   async applyDraft(source: BrushPreset, draft: BrushPreset): Promise<BrushPreset> {
     const revision = source.revision + 1;
-    const applied: BrushPreset = { ...clonePreset(draft), id: source.id, revision,
+    const applied: BrushPreset = { ...cloneBrushPreset(draft), id: source.id, revision,
       setName: source.setName, fileName: brushFileName(draft.name, source.id, revision),
       replacesFileName: source.fileName.endsWith(".brush")
         ? source.fileName : source.replacesFileName };
@@ -124,7 +125,7 @@ export class BrushLibraryService {
 
   private async copy(source: BrushPreset, name: string, setName: string): Promise<BrushPreset> {
     const id = this.#createId();
-    const brush: BrushPreset = { ...clonePreset(source), id, name, revision: 1, setName,
+    const brush: BrushPreset = { ...cloneBrushPreset(source), id, name, revision: 1, setName,
       replacesFileName: null, fileName: brushFileName(name, id, 1) };
     await this.write(brush);
     this.#sets = this.#sets.map((set) => set.name === setName

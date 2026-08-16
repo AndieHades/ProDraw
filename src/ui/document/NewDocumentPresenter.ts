@@ -1,14 +1,8 @@
 import type { CanvasPreset } from "../../contracts/canvasPreset";
+import type { EditorCommandDispatch } from "../../contracts/editorCommands";
 import { CANVAS_PRESETS, validateCanvasSize } from "../../config/canvasPresets";
 import { t } from "../../i18n/raster/translate";
 import { requiredElement } from "../dom/query";
-
-export interface NewDocumentValues {
-  readonly name: string;
-  readonly width: number;
-  readonly height: number;
-  readonly dpi: number;
-}
 
 export class NewDocumentPresenter {
   readonly #dialog = requiredElement<HTMLDialogElement>("#new-document-dialog");
@@ -16,10 +10,10 @@ export class NewDocumentPresenter {
   readonly #height = requiredElement<HTMLInputElement>("#custom-height");
   readonly #dpi = requiredElement<HTMLInputElement>("#custom-dpi");
   readonly #error = requiredElement<HTMLParagraphElement>("#new-error");
-  readonly #onCreate: (values: NewDocumentValues) => void;
+  readonly #dispatch: EditorCommandDispatch;
 
-  constructor(onCreate: (values: NewDocumentValues) => void) {
-    this.#onCreate = onCreate;
+  constructor(dispatch: EditorCommandDispatch) {
+    this.#dispatch = dispatch;
     this.renderPresets();
     requiredElement<HTMLButtonElement>("#create-document")
       .addEventListener("click", this.onCreate);
@@ -64,6 +58,7 @@ export class NewDocumentPresenter {
       return;
     }
     this.#dialog.close();
-    this.#onCreate({ name: t("new.untitled"), width, height, dpi });
+    this.#dispatch({ type: "document.create",
+      request: { name: t("new.untitled"), width, height, dpi } });
   };
 }
