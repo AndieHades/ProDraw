@@ -8,5 +8,8 @@ module.exports = Object.freeze({
   brushTrash: "prodraw:brush:trash",
   brushCreateSet: "prodraw:brush:create-set",
   brushRenameSet: "prodraw:brush:rename-set",
-  brushMove: "prodraw:brush:move"
+  brushMove: "prodraw:brush:move",
+  brushTrashSet: "prodraw:brush:trash-set",
+  brushStateRead: "prodraw:brush:state-read",
+  brushStateWrite: "prodraw:brush:state-write"
 });

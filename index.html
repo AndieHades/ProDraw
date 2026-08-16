@@ -19,10 +19,11 @@
         <button id="undo" data-i18n-title="action.undo" class="icon-button">↶</button>
         <button id="redo" data-i18n-title="action.redo" class="icon-button">↷</button>
       </nav>
-      <nav class="tool-actions" data-i18n-aria-label="group.tools">
+      <nav id="drawing-tool-panel" class="tool-actions floating-tool-panel" data-i18n-aria-label="group.tools">
+        <button id="move-tool-panel" class="tool-panel-grip" data-i18n-title="panel.move">⠿</button>
         <button id="tool-brush" class="selected" data-i18n="tool.brush"></button>
-        <button id="tool-smudge" data-i18n="tool.smudge"></button>
         <button id="tool-eraser" data-i18n="tool.eraser"></button>
+        <button id="tool-smudge" data-i18n="tool.smudge"></button>
       </nav>
       <nav class="view-actions" data-i18n-aria-label="group.view">
         <button id="view-rotate-left" data-i18n-title="view.rotateLeft" class="icon-button">↺</button>
@@ -87,6 +88,10 @@
         <button type="button" data-action="duplicate" data-i18n="brush.duplicate"></button>
         <button type="button" data-action="delete" data-i18n="brush.delete"></button>
       </div>
+      <div id="brush-set-context-menu" class="context-menu" hidden>
+        <button type="button" data-action="rename" data-i18n="brush.rename"></button>
+        <button type="button" data-action="delete" data-i18n="brush.deleteSet"></button>
+      </div>
     </form>
   </dialog>
 
@@ -114,12 +119,20 @@
   </dialog>
 
   <dialog id="brush-set-dialog" class="modal confirm-dialog">
-    <form method="dialog"><h2 data-i18n="brush.newSetTitle"></h2>
+    <form method="dialog"><h2 id="brush-set-dialog-title" data-i18n="brush.newSetTitle"></h2>
       <label class="studio-control"><span data-i18n="brush.setName"></span>
         <input id="brush-set-name" type="text" maxlength="80" /></label>
       <p id="brush-set-error" class="dialog-error"></p><footer>
         <button value="cancel" data-i18n="action.cancel"></button>
         <button id="create-brush-set" type="button" class="primary" data-i18n="action.create"></button>
+      </footer></form>
+  </dialog>
+
+  <dialog id="delete-brush-set-dialog" class="modal confirm-dialog">
+    <form method="dialog"><h2 data-i18n="brush.deleteSetTitle"></h2>
+      <p id="delete-brush-set-message"></p><footer>
+        <button value="cancel" data-i18n="action.cancel"></button>
+        <button id="confirm-delete-brush-set" type="button" class="danger" data-i18n="brush.deleteSet"></button>
       </footer></form>
   </dialog>
 

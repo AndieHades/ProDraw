@@ -4,16 +4,16 @@ import type { BrushLibraryService } from "../../core/brush-library/BrushLibraryS
 import { t } from "../../i18n/raster/translate";
 import { requiredElement } from "../dom/query";
 import { BrushContextMenuPresenter } from "./BrushContextMenuPresenter";
+import { BrushLibraryDragPresenter } from "./BrushLibraryDragPresenter";
 import { renderBrushPreview } from "./renderBrushPreview";
 import { BrushSetDialogPresenter } from "./BrushSetDialogPresenter";
+import { BrushSetContextMenuPresenter } from "./BrushSetContextMenuPresenter";
 
 export interface BrushLibraryActions {
   readonly select: (brush: BrushPreset) => void;
   readonly edit: (brush: BrushPreset) => void;
 }
-
 type SmartCollection = "recent" | "favorites" | null;
-
 export class BrushLibraryPresenter {
   readonly #dialog = requiredElement<HTMLDialogElement>("#brush-library-dialog");
   readonly #setList = requiredElement<HTMLElement>("#brush-set-list");
@@ -34,8 +34,19 @@ export class BrushLibraryPresenter {
       selected: (brush) => this.choose(brush),
       deleted: (brush) => this.afterDelete(brush)
     });
-    library.subscribe((snapshot) => { this.#snapshot = snapshot; this.render(); });
-    new BrushSetDialogPresenter(library);
+    library.subscribe((snapshot) => {
+      const previous = this.allBrushes().find(({ id }) => id === this.#selectedId);
+      this.#snapshot = snapshot;
+      const selected = this.allBrushes().find(({ id }) => id === this.#selectedId);
+      if (!selected) { const fallback = this.allBrushes()[0];
+        if (fallback) this.choose(fallback); return; }
+      if (previous && (previous.setName !== selected.setName ||
+        previous.fileName !== selected.fileName)) this.#actions.select(selected);
+      this.render();
+    });
+    const setDialog = new BrushSetDialogPresenter(library);
+    new BrushSetContextMenuPresenter(library, setDialog);
+    new BrushLibraryDragPresenter(library, (brush) => this.choose(brush));
     requiredElement("#add-brush").addEventListener("click", () => void this.createBrush());
   }
 
@@ -47,23 +58,24 @@ export class BrushLibraryPresenter {
     this.#selectedId = id;
     this.render();
   }
-
   private render(): void {
     this.renderSets();
     this.#list.replaceChildren(...this.collectionBrushes().map((brush) =>
       this.brushRow(brush)));
   }
-
   private renderSets(): void {
     const smart = [{ name: t("brush.recent"), id: "recent" as const },
       { name: t("brush.favorites"), id: "favorites" as const }];
     const smartButtons = smart.map(({ name, id }) => this.setButton(name,
       this.#smart === id, () => { this.#smart = id; this.render(); }));
-    const setButtons = this.#snapshot.sets.map(({ name }) => this.setButton(name,
-      !this.#smart && name === this.#snapshot.currentSetName, () => {
+    const setButtons = this.#snapshot.sets.map(({ name }) => {
+      const button = this.setButton(name,
+        !this.#smart && name === this.#snapshot.currentSetName, () => {
         this.#smart = null;
         this.#library.selectSet(name);
-      }));
+      });
+      button.dataset.setName = name; button.draggable = true; return button;
+    });
     this.#setList.replaceChildren(...smartButtons, ...setButtons);
   }
 
@@ -93,6 +105,8 @@ export class BrushLibraryPresenter {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `brush-row${brush.id === this.#selectedId ? " selected" : ""}`;
+    button.dataset.brushId = brush.id; button.dataset.brushSet = brush.setName;
+    button.draggable = true;
     const name = document.createElement("span");
     name.textContent = brush.name;
     const preview = document.createElement("canvas");

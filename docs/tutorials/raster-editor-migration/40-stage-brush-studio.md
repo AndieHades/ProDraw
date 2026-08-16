@@ -42,6 +42,11 @@ pressure/tilt produce smooth repeatable strokes on A4/4K documents.
   its source brush in the corresponding app-data folder.
 - `R3.16` Reconcile set rename/move/delete with physical directories, atomic
   writes, collision handling and recoverable trash.
+- `R3.17` Establish the compact movable two-column tool panel from
+  `05-tool-panel-ui-reference.md`: the first cells are Brush/Eraser then
+  Smudge/Fill, its grip occupies no tool cell, and its clamped position persists.
+- `R3.18` Keep stabilization exclusively in each brush preset/Brush Studio and
+  reject workspace-level Pixel Perfect or global stabilization toggles.
 
 ## Failure cases
 
@@ -94,7 +99,24 @@ fixture without changing pixels outside dirty bounds and undoes in one step.
   corner, dot, endpoint, pressure curve, omitted-coalesced-endpoint, stylus mapping
   and two-colour bounded Smudge fixtures; A4 browser red→blue directed-smear and
   one-step Undo smoke; full validate and packaged Windows executable smoke passed.
+- R3C checkpoint: versioned library metadata now persists current set, set/brush
+  order, Recent and Favorites through atomic desktop state writes. User sets can
+  be created, renamed and recoverably deleted; drag/drop moves both native and
+  override files between physical set directories and reorders catalog entries.
+  Main remains protected. Active-brush selection follows a moved/renamed brush
+  and falls back safely when its owning set is deleted.
+- The movable panel now restores/clamps its Windows position and renders two tool
+  cells per row. Its first row is Brush/Eraser and the next starts with Smudge;
+  the exact future 16-command order, including Text near the end rather than the
+  first slot, is frozen in `05-tool-panel-ui-reference.md`. Pixel Perfect and a
+  global stabilization button are explicitly excluded.
+- R3C evidence: full validation with 41 TypeScript tests plus 128 retained legacy
+  logic tests; physical move/persistent metadata unit scenarios; browser folder
+  create/rename/delete plus drag/reload panel smoke; DOM integration proves the
+  drag-to-set command and physical move; desktop package and packaged Windows
+  executable smoke passed.
 - Residual R3: real-device Huion trace/manual acceptance, predicted replaceable
-  preview and dirty-tile frame budgets; set metadata/reorder/rename/move,
-  import/export/reset and persistent Recent/Favorites.
+  preview and dirty-tile frame budgets, plus brush import/export/reset. Remaining
+  panel commands activate in R4/R5 only with their raster/undo contracts.
 - Commit: R3B stabilized Huion brush and Smudge checkpoint (this commit).
+- Commit: R3C persistent brush sets and movable panel checkpoint (this commit).

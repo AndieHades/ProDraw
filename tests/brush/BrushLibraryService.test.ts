@@ -1,63 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
-import type { BrushLibraryStoragePort } from "../../src/contracts/brushStorage";
 import { BrushLibraryService } from "../../src/core/brush-library/BrushLibraryService";
-
-class MemoryBrushStorage implements BrushLibraryStoragePort {
-  readonly files = new Map<string, Uint8Array<ArrayBuffer>>();
-  readonly seeded = new Set(["Main"]);
-  readonly trashed: string[] = [];
-
-  constructor() {
-    for (const brush of BUNDLED_BRUSHES) {
-      this.files.set(`Main/${brush.fileName}`, new Uint8Array());
-    }
-  }
-
-  async ensureSeeded(setName: string): Promise<void> {
-    this.seeded.add(setName);
-  }
-
-  async listSets() {
-    const names = new Set([...this.files.keys()].map((key) => key.split("/")[0] ?? ""));
-    return [...names].filter(Boolean).map((name) => ({ name, seeded: this.seeded.has(name),
-      files: [...this.files.keys()].filter((key) => key.startsWith(`${name}/`))
-        .map((key) => ({ fileName: key.slice(name.length + 1),
-          byteLength: this.files.get(key)?.byteLength ?? 0, modifiedAt: 1 })) }));
-  }
-
-  async readFile(setName: string, fileName: string) {
-    const bytes = this.files.get(`${setName}/${fileName}`);
-    if (!bytes) throw new Error("missing file");
-    return bytes.slice();
-  }
-
-  async writeFile(setName: string, fileName: string, bytes: Uint8Array<ArrayBuffer>) {
-    const key = `${setName}/${fileName}`;
-    if (this.files.has(key)) throw new Error("duplicate file");
-    this.files.set(key, bytes.slice());
-  }
-
-  async trashFile(setName: string, fileName: string) {
-    const key = `${setName}/${fileName}`;
-    if (!this.files.delete(key)) throw new Error("missing file");
-    this.trashed.push(key);
-  }
-
-  async createSet(setName: string) { this.seeded.add(setName); }
-  async renameSet(from: string, to: string) {
-    for (const [key, bytes] of [...this.files]) {
-      if (!key.startsWith(`${from}/`)) continue;
-      this.files.delete(key);
-      this.files.set(`${to}/${key.slice(from.length + 1)}`, bytes);
-    }
-  }
-  async moveFile(fromSet: string, toSet: string, fileName: string) {
-    const bytes = await this.readFile(fromSet, fileName);
-    await this.writeFile(toSet, fileName, bytes);
-    this.files.delete(`${fromSet}/${fileName}`);
-  }
-}
+import { MemoryBrushStorage } from "./MemoryBrushStorage";
 
 describe("BrushLibraryService", () => {
   it("writes created brushes to the current set and duplicates beside their source", async () => {
@@ -78,7 +22,7 @@ describe("BrushLibraryService", () => {
     expect(storage.files.has(`Main/${applied.fileName}`)).toBe(true);
     expect(storage.trashed).toContain(`Main/${duplicate.fileName}`);
     const reopened = await BrushLibraryService.create(storage, BUNDLED_BRUSHES);
-    expect(reopened.snapshot.sets[0]?.brushes.some(({ id: brushId }) =>
+    expect(reopened.snapshot.sets.find(({ name }) => name === "Main")?.brushes.some(({ id: brushId }) =>
       brushId === duplicate.id)).toBe(true);
   });
 
@@ -108,5 +52,43 @@ describe("BrushLibraryService", () => {
     expect(library.snapshot.favoriteBrushIds).toEqual([brush.id]);
     library.toggleFavorite(brush.id);
     expect(library.snapshot.favoriteBrushIds).toEqual([]);
+  });
+
+  it("persists selected set, smart collections, and authored order", async () => {
+    const storage = new MemoryBrushStorage();
+    const library = await BrushLibraryService.create(storage, BUNDLED_BRUSHES);
+    const first = BUNDLED_BRUSHES[0]!;
+    const second = BUNDLED_BRUSHES[1]!;
+    await library.createSet("Inks");
+    library.markRecent(first.id);
+    library.toggleFavorite(second.id);
+    library.reorderSet("Inks", "Main");
+    library.reorderBrush("Main", second.id, first.id);
+    await library.whenStateSaved();
+
+    const reopened = await BrushLibraryService.create(storage, BUNDLED_BRUSHES);
+    expect(reopened.snapshot.currentSetName).toBe("Inks");
+    expect(reopened.snapshot.sets.map(({ name }) => name)).toEqual(["Inks", "Main"]);
+    expect(reopened.snapshot.sets[1]?.brushes.slice(0, 2).map(({ id }) => id))
+      .toEqual([second.id, first.id]);
+    expect(reopened.snapshot.recentBrushIds).toEqual([first.id]);
+    expect(reopened.snapshot.favoriteBrushIds).toEqual([second.id]);
+  });
+
+  it("renames, moves, and recoverably deletes user sets", async () => {
+    const storage = new MemoryBrushStorage();
+    const library = await BrushLibraryService.create(storage, BUNDLED_BRUSHES,
+      () => "custom-id");
+    await library.createSet("Inks");
+    const custom = await library.create(BUNDLED_BRUSHES[0]!, "Custom");
+    await library.renameSet("Inks", "Lines");
+    const renamed = library.snapshot.sets.find(({ name }) => name === "Lines")?.brushes[0];
+    const moved = await library.move(renamed!, "Main");
+    expect(moved.setName).toBe("Main");
+    expect(storage.files.has(`Main/${custom.fileName}`)).toBe(true);
+    await library.deleteSet("Lines");
+    expect(storage.trashed).toContain("Lines/");
+    await expect(library.renameSet("Main", "Core")).rejects.toThrow();
+    await expect(library.deleteSet("Main")).rejects.toThrow();
   });
 });

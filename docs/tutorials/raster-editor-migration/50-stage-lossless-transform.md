@@ -20,6 +20,9 @@ already-resampled pixels back into the next preview.
 - `R4.6` Render interactive preview at adaptive quality and Apply once at chosen
   final filter; keep one undo transaction.
 - `R4.7` Add compare/zoom inspection UI and memory/worker cancellation limits.
+- `R4.8` Activate the panel's Move, Crop (Canvas Size), Flip and Center commands.
+  View Flip is matrix-only; Move/Crop/Center preview immutable source pixels and
+  commit at most one raster/history transaction.
 
 ## Negative proof
 

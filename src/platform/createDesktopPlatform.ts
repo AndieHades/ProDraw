@@ -16,7 +16,10 @@ export function createDesktopPlatform(bridge: DesktopBridge): PlatformPort {
       createSet: (setName) => bridge.brushStorage.createSet(setName),
       renameSet: (from, to) => bridge.brushStorage.renameSet(from, to),
       moveFile: (fromSet, toSet, fileName) =>
-        bridge.brushStorage.moveFile(fromSet, toSet, fileName)
+        bridge.brushStorage.moveFile(fromSet, toSet, fileName),
+      trashSet: (setName) => bridge.brushStorage.trashSet(setName),
+      readState: () => bridge.brushStorage.readState(),
+      writeState: (json) => bridge.brushStorage.writeState(json)
     },
     async openBinary(filters) {
       const opened = await bridge.openBinary(filters);

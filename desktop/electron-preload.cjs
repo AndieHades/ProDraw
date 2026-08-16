@@ -10,7 +10,10 @@ const channels = {
   brushTrash: "prodraw:brush:trash",
   brushCreateSet: "prodraw:brush:create-set",
   brushRenameSet: "prodraw:brush:rename-set",
-  brushMove: "prodraw:brush:move"
+  brushMove: "prodraw:brush:move",
+  brushTrashSet: "prodraw:brush:trash-set",
+  brushStateRead: "prodraw:brush:state-read",
+  brushStateWrite: "prodraw:brush:state-write"
 };
 
 contextBridge.exposeInMainWorld("prodrawDesktop", {
@@ -47,6 +50,9 @@ contextBridge.exposeInMainWorld("prodrawDesktop", {
     createSet: (setName) => ipcRenderer.invoke(channels.brushCreateSet, setName),
     renameSet: (from, to) => ipcRenderer.invoke(channels.brushRenameSet, { from, to }),
     moveFile: (fromSet, toSet, fileName) =>
-      ipcRenderer.invoke(channels.brushMove, { fromSet, toSet, fileName })
+      ipcRenderer.invoke(channels.brushMove, { fromSet, toSet, fileName }),
+    trashSet: (setName) => ipcRenderer.invoke(channels.brushTrashSet, setName),
+    readState: () => ipcRenderer.invoke(channels.brushStateRead),
+    writeState: (json) => ipcRenderer.invoke(channels.brushStateWrite, json)
   }
 });

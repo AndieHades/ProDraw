@@ -87,6 +87,35 @@ async function trashFile(setName, fileName) {
     `${Date.now()}-${randomUUID()}-${path.basename(source)}`));
 }
 
+async function trashSet(setName) {
+  const name = safeSegment(setName, "brush set name");
+  const trash = path.join(brushRoot(), ".trash", "sets");
+  await mkdir(trash, { recursive: true });
+  await rename(setPath(name), path.join(trash, `${Date.now()}-${randomUUID()}-${name}`));
+}
+
+async function readState() {
+  try { return await readFile(path.join(brushRoot(), ".library-v1.json"), "utf8"); }
+  catch (error) {
+    if (error && error.code === "ENOENT") return null;
+    throw error;
+  }
+}
+
+async function writeState(json) {
+  if (typeof json !== "string" || json.length > 2_000_000) {
+    throw new Error("Invalid brush library state");
+  }
+  JSON.parse(json);
+  const root = brushRoot();
+  const target = path.join(root, ".library-v1.json");
+  const temporary = path.join(root, `.${randomUUID()}.library.tmp`);
+  await mkdir(root, { recursive: true });
+  await writeFile(temporary, json, { flag: "wx" });
+  try { await rename(temporary, target); }
+  catch (error) { await unlink(temporary).catch(() => undefined); throw error; }
+}
+
 export function registerBrushIpc() {
   ipcMain.handle(channels.brushSeed, (_event, request) => seed(request.setName, request.files));
   ipcMain.handle(channels.brushList, () => listSets());
@@ -103,4 +132,7 @@ export function registerBrushIpc() {
   ipcMain.handle(channels.brushMove, (_event, request) =>
     rename(filePath(request.fromSet, request.fileName),
       filePath(request.toSet, request.fileName)));
+  ipcMain.handle(channels.brushTrashSet, (_event, setName) => trashSet(setName));
+  ipcMain.handle(channels.brushStateRead, () => readState());
+  ipcMain.handle(channels.brushStateWrite, (_event, json) => writeState(json));
 }

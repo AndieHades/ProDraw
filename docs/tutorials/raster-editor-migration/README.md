@@ -11,15 +11,16 @@ Canonical owner: this package.
 - Current stage: `R3 — professional brush studio`
 - Status: `in_progress`
 - Last completed stage: `R2`
-- Next action: commit the validated R3B stabilization/Smudge checkpoint, then
-  complete persistent library metadata and set rename/move/reorder operations
+- Next action: commit the validated R3C brush-library/tool-panel checkpoint,
+  then finish brush import/export/reset and the remaining R3 performance proof
 - Blockers: none
 - Working paths: `src/contracts/brush*`, `src/platform`, `desktop/brush-ipc.mjs`,
   `src/core/brush-library`, `src/ui/brushes`, `tests/brush`
-- Last checks: full validate, 38 TS tests, 128 legacy logic tests, packaged
-  Windows executable smoke, prior library/Studio browser matrix, plus A4
-  red→blue Smudge and one-step Undo browser smoke passed
-- Last updated: `2026-08-16, main@ac18d56 + R3B working tree`
+- Last checks: full validation (41 TS plus 128 retained legacy tests), docs,
+  architecture, cycles, raster entry, desktop package and packaged smoke pass;
+  browser matrix passed folder create/rename/delete and movable-panel reload;
+  drag-to-set is covered by a DOM integration test and physical-storage fixture
+- Last updated: `2026-08-16, main@a59065a + validated R3C working tree`
 
 ## Product Outcome
 
@@ -43,6 +44,9 @@ Included:
   stabilization, motion filtering и pressure smoothing без потери точки/хвоста.
 - `SMG-01`: отдельный инструмент Smudge («Палец») смешивает локальный пигмент
   выбранной кистью с strength/pickup/pull/dilution и pressure dynamics.
+- `TLB-01`: перемещаемая панель имеет две кнопки в ряду и точный порядок из
+  `05-tool-panel-ui-reference.md`; Text перемещается вместе с панелью, а Pixel
+  Perfect и глобальной кнопки стабилизации нет.
 - `HUI-01`: Huion Stylus settings replace Apple Pencil with pressure calibration,
   tilt/button/eraser mapping and live Windows Ink diagnostics.
 - `CAN-01`: пресеты FHD/QHD/4K, A5/A4 300 DPI, Instagram и Reels плюс custom.
@@ -73,9 +77,9 @@ Excluded:
 | --- | --- | --- |
 | `ARC-01`, `OPS-01` | `R0`, `R1` | validators reject boundary/type/line violations |
 | `RST-01`, `BRH-01`, `CAN-01` | `R2` | pen stroke persists and exports at every preset |
-| `BRH-02..04`, `STB-01`, `SMG-01`, `HUI-01`, `DOC-01` performance | `R3` | reference-layout checks, library round trip, recorded-trace and smudge tests |
+| `BRH-02..04`, `STB-01`, `SMG-01`, `HUI-01`, `TLB-01` shell, `DOC-01` performance | `R3` | reference-layout checks, library round trip, recorded-trace and smudge tests |
 | `IMG-01` | `R4` | repeated preview equals one source-to-final resample |
-| `DOC-01`, `IO-01`, `EXP-01..02` | `R5` | document round trip and contextual canvas-save matrix preserve layers and pixels |
+| `DOC-01`, `IO-01`, `EXP-01..02`, full `TLB-01` | `R5` | document round trip, exact tool order and contextual canvas-save matrix preserve layers and pixels |
 | `CUT-01`, `UX-01`, `DSK-01` | `R1`, `R6` | packaged Windows smoke and legacy absence checks |
 
 ## Non-Negotiable Decisions
@@ -96,8 +100,9 @@ Excluded:
 2. [`02-target-contract.md`](02-target-contract.md)
 3. [`03-decisions-and-risks.md`](03-decisions-and-risks.md)
 4. [`04-brush-studio-ui-reference.md`](04-brush-studio-ui-reference.md)
-5. The current stage chapter
-6. [`90-verification.md`](90-verification.md)
+5. [`05-tool-panel-ui-reference.md`](05-tool-panel-ui-reference.md)
+6. The current stage chapter
+7. [`90-verification.md`](90-verification.md)
 
 ## Delivery Order
 

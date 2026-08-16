@@ -25,7 +25,10 @@ describe("selectPlatform", () => {
         trashFile: vi.fn(async () => undefined),
         createSet: vi.fn(async () => undefined),
         renameSet: vi.fn(async () => undefined),
-        moveFile: vi.fn(async () => undefined)
+        moveFile: vi.fn(async () => undefined),
+        trashSet: vi.fn(async () => undefined),
+        readState: vi.fn(async () => null),
+        writeState: vi.fn(async () => undefined)
       },
       openBinary: vi.fn(async () => ({
         name: "work.prodraw",

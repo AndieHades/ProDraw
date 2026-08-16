@@ -18,6 +18,12 @@ external image paths.
 - Selected brush becomes one blue rounded row containing both name and preview.
 - The workspace top rail keeps Brush, Smudge, Eraser, Layers and active colour
   visually distinct while the library is open.
+- Brush Studio owns per-brush stabilization; there is no duplicate global
+  stabilization button on the workspace panel.
+- Brush, Eraser and Smudge begin the compact movable two-column tool panel;
+  dragging its separate grip moves every tool together and the last position
+  survives restart. The complete order is owned by
+  [`05-tool-panel-ui-reference.md`](05-tool-panel-ui-reference.md).
 
 The target may adapt exact pixel dimensions for Windows, but must preserve this
 information hierarchy, quick scanning and one-click set/brush selection.

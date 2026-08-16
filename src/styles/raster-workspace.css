@@ -12,7 +12,16 @@
   display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px;
   background: linear-gradient(145deg, #3c9cff, #5d4bff); color: white;
 }
-.tool-actions { margin-left: auto; }
+.topbar .floating-tool-panel {
+  position: fixed; top: 7px; left: 50%; z-index: 12; transform: translateX(-50%);
+  display: grid; grid-template-columns: repeat(2, minmax(84px, 1fr)); gap: 2px;
+  align-items: center; padding: 17px 3px 3px; border: 1px solid var(--border);
+  border-radius: var(--radius-small); background: var(--bg-bar); box-shadow: var(--shadow);
+}
+.tool-panel-grip {
+  position: absolute; inset: 0 0 auto; width: 100%; height: 16px; padding: 0;
+  color: var(--text-muted); cursor: move; touch-action: none; line-height: 12px;
+}
 .view-actions { margin-left: auto; }
 .brush-controls, .layers-panel { z-index: 2; margin: var(--space-sm); border-radius: var(--radius-medium); }
 .brush-controls {
@@ -46,4 +55,5 @@
 @media (max-width: 900px) {
   .workspace { grid-template-columns: 176px 1fr 176px; }
   .brand span:last-child, .history-actions { display: none; }
+  .topbar .floating-tool-panel { top: calc(var(--topbar-height) + 6px); }
 }

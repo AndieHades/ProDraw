@@ -24,6 +24,9 @@ export interface BrushLibraryStoragePort {
   createSet(setName: string): Promise<void>;
   renameSet(from: string, to: string): Promise<void>;
   moveFile(fromSet: string, toSet: string, fileName: string): Promise<void>;
+  trashSet(setName: string): Promise<void>;
+  readState(): Promise<string | null>;
+  writeState(json: string): Promise<void>;
 }
 
 export interface DesktopBrushStorageBridge {
@@ -35,4 +38,7 @@ export interface DesktopBrushStorageBridge {
   createSet(setName: string): Promise<void>;
   renameSet(from: string, to: string): Promise<void>;
   moveFile(fromSet: string, toSet: string, fileName: string): Promise<void>;
+  trashSet(setName: string): Promise<void>;
+  readState(): Promise<string | null>;
+  writeState(json: string): Promise<void>;
 }

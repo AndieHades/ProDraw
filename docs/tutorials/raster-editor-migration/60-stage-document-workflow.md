@@ -2,7 +2,7 @@
 
 - Status: `planned`
 - Depends on: `R3`, `R4`
-- Requirements: full `DOC-01`, `IO-01`, `EXP-01`, `EXP-02`, `UX-01`
+- Requirements: full `DOC-01`, `IO-01`, `EXP-01`, `EXP-02`, `TLB-01`, `UX-01`
 - Planned commit: `feat: complete professional document workflow`
 
 ## Outcome
@@ -38,6 +38,12 @@ end-to-end workflow suitable for daily illustration and game-art use.
 - `R5.13` For several standalone outputs, ask for a destination directory once,
   preserve unique layer filenames, and write atomically. A group-as-document is
   one layered ProDraw file, not an unlabelled directory of flattened PNG files.
+- `R5.14` Activate Fill, rectangular Selection, freehand Lasso, Shapes (opening
+  with Rectangle), Brighten, raster Tile Mode, Text and Actual Size through typed
+  commands with selection/layer gating and one-step undo where pixels change.
+- `R5.15` Render the final 16-command panel exclusively from the ordered registry
+  in `05-tool-panel-ui-reference.md`; prove Text drags with the whole panel and
+  prevent Pixel Perfect/global stabilization commands from reappearing.
 
 ## Context menu contract
 

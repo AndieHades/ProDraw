@@ -5,6 +5,7 @@ import type { RasterDocument } from "../../core/document/RasterDocument";
 import type { TileHistory } from "../../core/history/TileHistory";
 import { applyTranslations, t, type MessageKey } from "../../i18n/raster/translate";
 import { requiredElement, setSelected } from "../dom/query";
+import { FloatingToolPanelPresenter } from "./FloatingToolPanelPresenter";
 
 export interface WorkspaceActions {
   readonly newDocument: () => void;
@@ -32,6 +33,7 @@ export class WorkspacePresenter {
 
   constructor() {
     applyTranslations();
+    new FloatingToolPanelPresenter();
     this.syncBrushControls();
     this.#size.addEventListener("input", () => this.syncBrushControls());
     this.#opacity.addEventListener("input", () => this.syncBrushControls());
