@@ -15,7 +15,7 @@ second product roadmap.
 | Slice | Existing stage | Outcome | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | `F0` | repair R0/R1 | truthful hooks, validators and desktop smoke | none | done |
-| `F1` | architecture foundation | commands/view models plus end-to-end harness | `F0` | planned |
+| `F1` | architecture foundation | commands/view models plus end-to-end harness | `F0` | done |
 | `F2` | pull forward R5 safety | crash-safe multi-document session | `F1` | planned |
 | `F3` | finish R3 performance | bounded render/history/autosave/export | `F1`, `F2` | planned |
 | `F4` | finish R3 brushes | truthful `.brush` engine and library workflow | `F1`, `F3` | planned |
@@ -91,6 +91,13 @@ brushes and an RGBA Undo/Redo/IndexedDB round trip (`alpha 255`).
 runs without importing legacy JS.
 
 **Commit:** `refactor: establish editor command and view model seams`.
+
+**Completion:** commit `8ca59f3`; UI dispatches serializable commands and renders
+copied editor/layer/canvas models; `RasterEditorSession` owns document, history,
+view and brush. Eight fixtures enforce DOM-free contracts, UI immutability and
+app-only composition. The pen scenario covers RGBA, frame request, Undo/Redo,
+cancel and autosave success/failure. `npm run validate` passed with 43 TS plus
+128 legacy tests; packaged smoke loaded renderer, IPC, 12 brushes and RGBA save.
 
 ## `F2` — crash-safe document sessions
 

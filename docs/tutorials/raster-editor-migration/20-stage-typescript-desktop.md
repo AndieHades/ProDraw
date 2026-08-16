@@ -42,3 +42,8 @@ fixture are rejected. Product UI remains the legacy entry until `R2`.
   unpacked directory only, as planned.
 - Residual: npm reports one high-severity dev-tool transitive advisory; packaged
   runtime has no npm production dependencies and `npm audit --omit=dev` is clean.
+- Audit repair F1: commit `8ca59f3` replaced direct UI access to mutable document,
+  history and concrete brush storage with serializable commands, copied view
+  models and ports. `RasterEditorSession` is the mutation owner; app composition
+  emits typed change/status events. Eight rejection fixtures and a real pen →
+  RGBA → history → frame → autosave success/cancel/failure test enforce the seam.

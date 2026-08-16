@@ -11,15 +11,16 @@ Canonical owner: this package.
 - Current stage: `R3 — professional brush studio`
 - Status: `in_progress`
 - Last completed stage: `R2`
-- Next action: execute repair slice `F1` from `07-remediation-plan.md`; establish
-  commands/view models and the pen-to-autosave end-to-end harness
+- Next action: execute repair slice `F2` from `07-remediation-plan.md`; introduce
+  versioned crash-safe multi-document sessions before further creative tools
 - Blockers: none
-- Working paths: `src/contracts`, `src/app`, `src/ui`, `src/systems`,
-  `tools/eslint-rules`, `tests`
-- Last checks: F0 full validate passed with 42 TS plus 128 retained legacy tests;
-  packaged smoke loaded `dist`, preload/IPC, 12 brushes and an RGBA Undo/Redo/
-  IndexedDB round trip. `npm audit --omit=dev` reports zero vulnerabilities.
-- Last updated: `2026-08-16, main@c9a0fb9`
+- Working paths: `src/contracts/persistence.ts`, `src/core/persistence`,
+  `src/systems/autosave`, `src/platform`, `desktop`, `tests/system`
+- Last checks: F1 full validate passed with 43 TS plus 128 retained legacy tests;
+  eight architecture rejection fixtures and the pen → RGBA → history → frame →
+  autosave success/cancel/failure scenario passed. Packaged renderer smoke loaded
+  `dist`, preload/IPC, 12 brushes and an RGBA IndexedDB round trip.
+- Last updated: `2026-08-16, main@8ca59f3`
 
 ## Product Outcome
 
