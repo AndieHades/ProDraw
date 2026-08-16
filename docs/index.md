@@ -7,7 +7,8 @@
 3. [Правила планирования](rule-packs/10-ai-workflow/planning.md)
 4. [Архитектурные слои](rule-packs/20-architecture/layers.md)
 5. [Политика проверок](project/validation-policy.md)
-6. [Roadmap](project/roadmap.md)
+6. [Бюджеты raster runtime](project/performance-budgets.md)
+7. [Roadmap](project/roadmap.md)
 
 ## Живые планы
 

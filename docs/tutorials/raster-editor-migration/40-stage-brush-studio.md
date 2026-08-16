@@ -129,3 +129,12 @@ fixture without changing pixels outside dirty bounds and undoes in one step.
   replaces it with a renderer-ready packaged smoke.
 - Commit: R3B stabilized Huion brush and Smudge checkpoint (`a59065a`).
 - Commit: R3C persistent brush sets and movable panel checkpoint (`a21584a`).
+- F3 performance repair: `bab3c4c` adds viewport-culling revision caches,
+  byte-bounded history, recovery tile deltas/compaction and cancellable guarded
+  PNG work. `6f9ec00` keeps chunked consistent autosave snapshots outside active
+  pen transactions and isolates the performance gate from functional workers.
+- F3 evidence: 67 TypeScript plus 128 retained legacy tests, exact scalar/batched
+  alpha equivalence, filled multi-layer FHD/A4/4K budgets, 240 Hz input→frame,
+  five-minute virtual memory plateau, full validation and packaged renderer
+  smoke. Reference numbers and non-device boundaries are recorded in
+  [`performance-budgets.md`](../../project/performance-budgets.md).

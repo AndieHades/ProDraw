@@ -29,5 +29,5 @@ Huion/touch/Smudge → `F6` R4 → `F7..F8` R5 → `F9` R6. Полные зав�
 проверки и commit boundaries находятся в
 [`07-remediation-plan.md`](../tutorials/raster-editor-migration/07-remediation-plan.md).
 
-Текущий repair checkpoint: `F2` завершён в `0410fdf`; следующий срез — `F3`
-с bounded dirty-tile rendering, history, autosave и большим export.
+Текущий repair checkpoint: `F3` завершён в `bab3c4c` и `6f9ec00`; следующий
+срез — `F4`: truthful `.brush` decode, параметры и единый renderer.

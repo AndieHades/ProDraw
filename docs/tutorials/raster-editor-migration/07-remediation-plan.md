@@ -17,7 +17,7 @@ second product roadmap.
 | `F0` | repair R0/R1 | truthful hooks, validators and desktop smoke | none | done |
 | `F1` | architecture foundation | commands/view models plus end-to-end harness | `F0` | done |
 | `F2` | pull forward R5 safety | crash-safe multi-document session | `F1` | done |
-| `F3` | finish R3 performance | bounded render/history/autosave/export | `F1`, `F2` | planned |
+| `F3` | finish R3 performance | bounded render/history/autosave/export | `F1`, `F2` | done |
 | `F4` | finish R3 brushes | truthful `.brush` engine and library workflow | `F1`, `F3` | planned |
 | `F5` | finish R3 tablet | robust Huion/touch/stabilizer/Smudge path | `F3`, `F4` | planned |
 | `F6` | R4 | immutable-source Transform and Liquify | `F3`, `F5` | planned |
@@ -140,7 +140,7 @@ UI appears before durable completion.
 does not block pen input, unchanged tiles are not recomposited and budget
 regressions fail validation.
 
-**Commit:** `perf: add bounded dirty-tile rendering and persistence`.
+**Completion:** `bab3c4c`, `6f9ec00`; frozen evidence and residual device limits are in [`performance-budgets.md`](../../project/performance-budgets.md).
 
 ## `F4` — truthful brush engine and library
 

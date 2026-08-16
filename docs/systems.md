@@ -37,8 +37,16 @@ Smudge renderer; pointer-up добавляет фактическую конеч
 
 `DocumentWorkflow` владеет New/Open/Save/Save As, dirty revision и close guard.
 `DocumentRepository` хранит несколько работ и две атомарные recovery-generation
-на работу; `AutosaveSystem` сериализует записи и coalesces новую ревизию. Native
-`.prodraw` проходит через `DocumentFileSystem` и атомарный Windows file adapter.
+на работу. Recovery v2 переиспользует неизменившиеся tile blobs и удаляет blobs
+старше двух generation. `AutosaveSystem` сериализует порциями вне активного pen
+edit, проверяет revision-consistency и coalesces новую ревизию. Native `.prodraw`
+проходит через `DocumentFileSystem` и атомарный Windows file adapter.
+
+`DocumentCompositor` владеет revision-aware LRU composite cache и вычисляет
+только tiles в текущих viewport bounds. `CanvasPresenter` повторно использует
+tile canvases до смены presentation revision. `TileHistory` ограничен числом
+операций и retained bytes. Измерения и CI ceilings принадлежат
+[`performance-budgets`](project/performance-budgets.md).
 
 Архитектурные фикстуры запрещают DOM-типы в `src/contracts`, импорт mutable
 document/persistence в UI и композицию runtime systems вне `src/app`. Старый

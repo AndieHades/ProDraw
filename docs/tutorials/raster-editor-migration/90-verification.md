@@ -51,7 +51,10 @@ Audit repair slices add gates rather than inheriting historical green labels:
 | `CUT-01` | production graph has no pixel runtime | legacy save import cannot reintroduce grid ownership |
 | `UX-01` | RU/EN and pen/touch/keyboard paths expose core actions | missing key/token fails validation |
 
-## Performance budgets to establish and freeze in F3
+## Performance budgets frozen in F3
+
+Exact CI ceilings, reference-host measurements and boundaries are owned by
+[`performance-budgets.md`](../../project/performance-budgets.md).
 
 - pointer handler does bounded work and coalesces samples without synchronous
   full-document presentation or persistence;

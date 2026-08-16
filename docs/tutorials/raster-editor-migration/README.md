@@ -10,17 +10,17 @@ Canonical owner: this package.
 
 - Current stage: `R3 — professional brush studio`
 - Status: `in_progress`
-- Last completed stage: `R2`
-- Next action: execute repair slice `F3` from `07-remediation-plan.md`; bound
-  dirty-tile composition, history memory, autosave work and large export
+- Last completed stage: repair slice `F3`
+- Next action: execute repair slice `F4` from `07-remediation-plan.md`; parse
+  supported `.brush` fields and make every exposed brush control truthful
 - Blockers: none
 - Working paths: `src/core/document`, `src/core/history`, `src/core/persistence`,
   `src/ui/canvas`, `src/systems/autosave`, `src/systems/export`, `tests/performance`
-- Last checks: F2 full validate passed with 49 TS plus 128 retained legacy tests;
-  multi-work generations, corrupt-latest fallback, v1 database migration,
-  autosave backpressure, native `.prodraw` round trip and Save-path reuse passed.
-  Packaged renderer smoke loaded `dist`, preload/IPC and all 12 brushes.
-- Last updated: `2026-08-16, main@0410fdf`
+- Last checks: F3 full validate passed with 67 TS plus 128 retained legacy tests;
+  isolated performance gate, active-pen autosave exclusion, incremental recovery,
+  bounded history/cache/export and five-minute virtual plateau passed. Packaged
+  renderer smoke loaded `dist`, preload/IPC and all 12 brushes.
+- Last updated: `2026-08-16, main@6f9ec00`
 
 ## Product Outcome
 
