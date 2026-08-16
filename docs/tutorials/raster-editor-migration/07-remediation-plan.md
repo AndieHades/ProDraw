@@ -16,7 +16,7 @@ second product roadmap.
 | --- | --- | --- | --- | --- |
 | `F0` | repair R0/R1 | truthful hooks, validators and desktop smoke | none | done |
 | `F1` | architecture foundation | commands/view models plus end-to-end harness | `F0` | done |
-| `F2` | pull forward R5 safety | crash-safe multi-document session | `F1` | planned |
+| `F2` | pull forward R5 safety | crash-safe multi-document session | `F1` | done |
 | `F3` | finish R3 performance | bounded render/history/autosave/export | `F1`, `F2` | planned |
 | `F4` | finish R3 brushes | truthful `.brush` engine and library workflow | `F1`, `F3` | planned |
 | `F5` | finish R3 tablet | robust Huion/touch/stabilizer/Smudge path | `F3`, `F4` | planned |
@@ -117,7 +117,7 @@ cancel and autosave success/failure. `npm run validate` passed with 43 TS plus
 latest revision and New Canvas scenarios restore the last good work. No success
 UI appears before durable completion.
 
-**Commit:** `feat: add crash-safe document sessions`.
+**Completion:** `0410fdf` (`feat: add crash-safe document sessions`); 49 TS + 128 legacy tests and packaged renderer smoke passed.
 
 ## `F3` — bounded raster performance and memory
 
@@ -202,12 +202,12 @@ Activate Move, Crop, Flip and Center only with undo/error contracts.
    preserving structure in both Whole Canvas and By Contour modes.
 3. Remember the last successful directory, derive safe names from source identity
    and use one directory choice for multi-file output. Cancel changes nothing.
-4. Transfer binary data without number-array amplification; parent and validate
-   desktop dialogs/IPC senders.
+4. Add flattened PNG plus layered PSD export with a truthful compatibility
+   matrix; transfer binary data without array amplification and validate IPC.
 
 **Acceptance:** the complete matrix in
 [`60-stage-document-workflow.md`](60-stage-document-workflow.md) round-trips
-pixels, DPI, names, nesting and both bounds modes across packaged restart.
+pixels, DPI, names, nesting, PSD and both bounds modes across packaged restart.
 
 **Commit:** `feat: complete layered save as canvas workflow`.
 

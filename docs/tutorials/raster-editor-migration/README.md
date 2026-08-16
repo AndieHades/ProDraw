@@ -11,16 +11,16 @@ Canonical owner: this package.
 - Current stage: `R3 — professional brush studio`
 - Status: `in_progress`
 - Last completed stage: `R2`
-- Next action: execute repair slice `F2` from `07-remediation-plan.md`; introduce
-  versioned crash-safe multi-document sessions before further creative tools
+- Next action: execute repair slice `F3` from `07-remediation-plan.md`; bound
+  dirty-tile composition, history memory, autosave work and large export
 - Blockers: none
-- Working paths: `src/contracts/persistence.ts`, `src/core/persistence`,
-  `src/systems/autosave`, `src/platform`, `desktop`, `tests/system`
-- Last checks: F1 full validate passed with 43 TS plus 128 retained legacy tests;
-  eight architecture rejection fixtures and the pen → RGBA → history → frame →
-  autosave success/cancel/failure scenario passed. Packaged renderer smoke loaded
-  `dist`, preload/IPC, 12 brushes and an RGBA IndexedDB round trip.
-- Last updated: `2026-08-16, main@8ca59f3`
+- Working paths: `src/core/document`, `src/core/history`, `src/core/persistence`,
+  `src/ui/canvas`, `src/systems/autosave`, `src/systems/export`, `tests/performance`
+- Last checks: F2 full validate passed with 49 TS plus 128 retained legacy tests;
+  multi-work generations, corrupt-latest fallback, v1 database migration,
+  autosave backpressure, native `.prodraw` round trip and Save-path reuse passed.
+  Packaged renderer smoke loaded `dist`, preload/IPC and all 12 brushes.
+- Last updated: `2026-08-16, main@0410fdf`
 
 ## Product Outcome
 
@@ -54,7 +54,8 @@ Included:
 - `DSK-01`: Windows desktop build принимает pen pressure/tilt и touch gestures.
 - `DOC-01`: layers, blend/opacity, masks, selections, transform и undo работают
   на больших документах без full-document snapshot на каждый dab.
-- `IO-01`: gallery/autosave, PNG/JPEG и layered interchange имеют round trip.
+- `IO-01`: gallery/autosave, flattened PNG и layered PSD/native interchange
+  имеют проверяемый round trip.
 - `EXP-01`: ПКМ по слою/группе открывает «Сохранить как холст» для одного,
   нескольких выделенных элементов или целой группы, с сохранением структуры
   и вариантами полного размера/обрезки по содержимому.

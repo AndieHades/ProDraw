@@ -15,7 +15,8 @@ end-to-end workflow suitable for daily illustration and game-art use.
 - `R5.1` Complete groups, masks, clipping, alpha lock, opacity and blend modes.
 - `R5.2` Add rectangular/freehand selection, feather, transform and clipboard.
 - `R5.3` Port useful adjustments/effects through non-destructive contracts.
-- `R5.4` Add import and exact PNG/JPEG export; define layered PSD support matrix.
+- `R5.4` Add exact flattened PNG and layered PSD export; import must publish and
+  enforce an explicit PSD compatibility matrix rather than silently flattening.
 - `R5.5` Implement atomic document/gallery storage, thumbnails and recovery.
 - `R5.6` Add autosave boundaries, crash-safe writes and legacy read-only import.
 - `R5.7` Complete RU/EN presentation, keyboard map and pen/touch/desktop parity.
@@ -53,9 +54,9 @@ end-to-end workflow suitable for daily illustration and game-art use.
 | marked layers | full marked set | source document filename | layered ProDraw document |
 | group | complete subtree | group name | group plus nested layer tree |
 
-Each row exposes `Whole canvas` and `By contour`. PNG/JPEG remain explicit
-flattened export formats; **Save as canvas** defaults to the native layered
-document format so the wording never destroys editable structure unexpectedly.
+Each row exposes `Whole canvas` and `By contour`. PNG remains an explicit
+flattened export; PSD and **Save as canvas** use layered document formats so the
+wording never destroys editable structure unexpectedly.
 
 ## Failure cases
 
@@ -69,8 +70,9 @@ partially written file as a complete document.
 ## Checks and acceptance
 
 Create → paint → layer/mask/select/transform → save → restart → reopen → export
-preserves dimensions, DPI, layer pixels/order and visible composite. Interrupted
-save recovery and malformed import are tested explicitly.
+preserves dimensions, DPI, layer pixels/order and visible composite. Layered PSD
+reopen is compared to the native document; interrupted save and malformed import
+are tested explicitly.
 
 The context-menu matrix is tested for one layer, discontiguous selected layers
 and a nested group in both bounds modes. Restarting the packaged app proves the
@@ -87,4 +89,11 @@ last successful directory is offered again, while cancel leaves it unchanged.
   Open/Save/Save As and close flushing are therefore pulled forward as repair
   slice `F2`, before R4 feature work. R5 still owns the complete layer tree,
   multi-selection and the two structural Save as Canvas variants in `F7`.
+- F2 checkpoint (`0410fdf`): every canvas now has identity, dirty/native revision
+  state and two atomic IndexedDB recovery generations; New keeps prior works.
+  Corrupt latest generations visibly fall back to last-good, v1 databases migrate,
+  and autosave serializes/coalesces writes. Windows Open/Save/Save As uses native
+  `.prodraw`, remembered runtime directory, atomic replacement and a bounded close
+  handshake with dirty confirmation. Full validation passed with 49 TS plus 128
+  legacy tests and packaged renderer smoke.
 - Commit/checks/deviations: pending

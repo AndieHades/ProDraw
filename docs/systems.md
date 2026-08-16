@@ -35,6 +35,11 @@ stabilization → spacing для документа и Drawing Pad. `DrawingSyst
 Smudge renderer; pointer-up добавляет фактическую конечную точку, а cancel
 откатывает все затронутые tiles.
 
+`DocumentWorkflow` владеет New/Open/Save/Save As, dirty revision и close guard.
+`DocumentRepository` хранит несколько работ и две атомарные recovery-generation
+на работу; `AutosaveSystem` сериализует записи и coalesces новую ревизию. Native
+`.prodraw` проходит через `DocumentFileSystem` и атомарный Windows file adapter.
+
 Архитектурные фикстуры запрещают DOM-типы в `src/contracts`, импорт mutable
 document/persistence в UI и композицию runtime systems вне `src/app`. Старый
 `src/app.js` вокруг глобального `S` не загружается и остаётся read-only oracle до
