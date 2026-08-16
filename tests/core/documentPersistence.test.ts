@@ -47,4 +47,19 @@ describe("raster document persistence", () => {
     serializer.serialize(document);
     expect(serializer.copiedTiles).toBe(2);
   });
+
+  it("abandons a chunked snapshot when pixels change between chunks", async () => {
+    const document = createRasterDocument({ name: "Chunked", width: 1280, height: 256,
+      dpi: 72, layerName: "Paint" }, (() => { let id = 0; return () => `chunk-${++id}`; })());
+    const surface = document.editableSurface();
+    for (let tile = 0; tile < 5; tile += 1) {
+      surface.blendPixel(tile * surface.tileSize, 0,
+        { red: 10, green: 20, blue: 30, alpha: 255 });
+    }
+    const serializer = new DocumentSerializer();
+    const pending = serializer.serializeAsync(document);
+    surface.blendPixel(1, 1, { red: 200, green: 100, blue: 50, alpha: 255 });
+    expect(await pending).toBeNull();
+    expect(await serializer.serializeAsync(document)).not.toBeNull();
+  });
 });

@@ -1,4 +1,5 @@
 import type { SerializedDocument, SerializedLayer } from "../../contracts/persistence";
+import { PERSISTENCE } from "../../config/persistence";
 import { RasterDocument } from "../document/RasterDocument";
 import { tileKey } from "../raster/tileAddress";
 
@@ -6,6 +7,8 @@ interface CachedSerializedTile {
   readonly revision: number;
   readonly bytes: ArrayBuffer;
 }
+
+const yieldToInput = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
 
 export class DocumentSerializer {
   readonly #tiles = new Map<string, CachedSerializedTile>();
@@ -27,12 +30,7 @@ export class DocumentSerializer {
         const key = `${layer.surface.id}/${tileKey(x, y)}`;
         liveKeys.add(key);
         const revision = layer.surface.tileRevision(x, y);
-        let cached = this.#tiles.get(key);
-        if (!cached || cached.revision !== revision) {
-          cached = { revision, bytes: new Uint8ClampedArray(bytes).buffer };
-          this.#tiles.set(key, cached);
-          this.#copiedTiles += 1;
-        }
+        const cached = this.cachedTile(key, revision, bytes);
         tiles.push({ x, y, revision, bytes: cached.bytes });
       });
       return { descriptor: { ...layer.descriptor }, tiles };
@@ -40,6 +38,51 @@ export class DocumentSerializer {
     for (const key of this.#tiles.keys()) if (!liveKeys.has(key)) this.#tiles.delete(key);
     return { version: 1, descriptor: { ...document.descriptor },
       activeLayerId: snapshot.activeLayerId, layers, savedAt: Date.now() };
+  }
+
+  async serializeAsync(document: RasterDocument): Promise<SerializedDocument | null> {
+    if (document.descriptor.id !== this.#documentId) {
+      this.#documentId = document.descriptor.id;
+      this.#tiles.clear();
+    }
+    const snapshot = document.snapshot();
+    const layersAtStart = [...document.layers];
+    const revisions = layersAtStart.map(({ surface }) => surface.revision);
+    const liveKeys = new Set<string>();
+    let processed = 0;
+    const layers: SerializedLayer[] = [];
+    for (const layer of layersAtStart) {
+      const entries: Array<{ x: number; y: number; bytes: Uint8ClampedArray }> = [];
+      layer.surface.visitTiles(({ x, y }, bytes) => entries.push({ x, y, bytes }));
+      const tiles: SerializedLayer["tiles"][number][] = [];
+      for (const { x, y, bytes } of entries) {
+        const key = `${layer.surface.id}/${tileKey(x, y)}`;
+        const revision = layer.surface.tileRevision(x, y);
+        liveKeys.add(key);
+        tiles.push({ x, y, revision, bytes: this.cachedTile(key, revision, bytes).bytes });
+        processed += 1;
+        if (processed % PERSISTENCE.autosaveSerializationYieldTiles === 0) await yieldToInput();
+      }
+      layers.push({ descriptor: { ...layer.descriptor }, tiles });
+    }
+    const unchanged = JSON.stringify(document.snapshot()) === JSON.stringify(snapshot) &&
+      layersAtStart.every((layer, index) => document.layers[index] === layer &&
+        layer.surface.revision === revisions[index]);
+    if (!unchanged) return null;
+    for (const key of this.#tiles.keys()) if (!liveKeys.has(key)) this.#tiles.delete(key);
+    return { version: 1, descriptor: { ...document.descriptor },
+      activeLayerId: snapshot.activeLayerId, layers, savedAt: Date.now() };
+  }
+
+  private cachedTile(key: string, revision: number,
+    bytes: Uint8ClampedArray): CachedSerializedTile {
+    let cached = this.#tiles.get(key);
+    if (!cached || cached.revision !== revision) {
+      cached = { revision, bytes: new Uint8ClampedArray(bytes).buffer };
+      this.#tiles.set(key, cached);
+      this.#copiedTiles += 1;
+    }
+    return cached;
   }
 }
 

@@ -35,6 +35,20 @@ describe("TileHistory", () => {
     expect(surface.copyTile(1, 1)).toBeNull();
   });
 
+  it("reports only the current lifecycle's open edits", () => {
+    const surface = new RasterSurface("open", 8, 8, 4);
+    const history = new TileHistory();
+    const first = history.begin(surface, "first");
+    expect(history.hasOpenEdit).toBe(true);
+    first.cancel();
+    expect(history.hasOpenEdit).toBe(false);
+    const stale = history.begin(surface, "stale");
+    history.reset();
+    history.begin(surface, "current");
+    stale.cancel();
+    expect(history.hasOpenEdit).toBe(true);
+  });
+
   it("does not record no-op edits and clears redo after a new edit", () => {
     const surface = new RasterSurface("paint", 4, 4, 4);
     const history = new TileHistory();

@@ -13,12 +13,14 @@ interface TouchedTile {
 export class RasterEdit {
   readonly #surface: RasterSurface;
   readonly #label: string;
+  readonly #onClose: () => void;
   readonly #touched = new Map<string, TouchedTile>();
   #closed = false;
 
-  constructor(surface: RasterSurface, label: string) {
+  constructor(surface: RasterSurface, label: string, onClose: () => void = () => undefined) {
     this.#surface = surface;
     this.#label = label;
+    this.#onClose = onClose;
   }
 
   blendPixel(x: number, y: number, color: RgbaColor, opacity = 1): boolean {
@@ -46,7 +48,6 @@ export class RasterEdit {
 
   commit(): TileChangeSet | null {
     this.assertOpen();
-    this.#closed = true;
     const patches: TilePatch[] = [];
     for (const touched of this.#touched.values()) {
       const after = this.#surface.compactTile(touched.x, touched.y);
@@ -55,15 +56,16 @@ export class RasterEdit {
           before: touched.before, after });
       }
     }
+    this.close();
     return patches.length ? { label: this.#label, patches } : null;
   }
 
   cancel(): void {
     this.assertOpen();
-    this.#closed = true;
     for (const touched of this.#touched.values()) {
       this.#surface.replaceTile(touched.x, touched.y, touched.before);
     }
+    this.close();
   }
 
   private capturePixelTile(x: number, y: number): void {
@@ -79,5 +81,10 @@ export class RasterEdit {
 
   private assertOpen(): void {
     if (this.#closed) throw new Error("Raster edit is already closed");
+  }
+
+  private close(): void {
+    this.#closed = true;
+    this.#onClose();
   }
 }

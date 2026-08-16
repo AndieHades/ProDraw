@@ -42,7 +42,7 @@ describe("autosave backpressure", () => {
       () => ({ revision, savedRevision: 0, nativeLocation: null }));
 
     const first = autosave.flush();
-    expect(repository.revisions).toEqual([1]);
+    await vi.waitFor(() => expect(repository.revisions).toEqual([1]));
     revision = 2;
     autosave.schedule();
     const second = autosave.flush();
@@ -53,5 +53,22 @@ describe("autosave backpressure", () => {
 
     expect(repository.maximumActive).toBe(1);
     expect(statuses).toEqual(["saving", "saved"]);
+  });
+
+  it("waits for an active pen transaction before taking a snapshot", async () => {
+    const repository = new SlowRepository(new IDBFactory());
+    const document = createRasterDocument({ name: "Pen", width: 8, height: 8,
+      dpi: 72, layerName: "Paint" }, (() => { let id = 0; return () => `pen-${++id}`; })());
+    let drawing = true;
+    const autosave = new AutosaveSystem(repository, () => document, () => undefined,
+      () => ({ revision: 1, savedRevision: 0, nativeLocation: null }), () => !drawing);
+
+    const saving = autosave.flush();
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    expect(repository.revisions).toEqual([]);
+    drawing = false;
+    await vi.waitFor(() => expect(repository.revisions).toEqual([1]));
+    repository.release();
+    await saving;
   });
 });

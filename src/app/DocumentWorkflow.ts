@@ -28,7 +28,8 @@ export class DocumentWorkflow {
     this.#autosave = new AutosaveSystem(options.repository,
       () => options.session.document,
       (status) => options.onStatus(`status.${status}` as MessageKey),
-      () => options.session.sessionSnapshot);
+      () => options.session.sessionSnapshot,
+      () => !options.session.history.hasOpenEdit);
     if (options.platform.kind === "windows") {
       options.platform.onCloseRequested(() => this.closeRequested());
     }

@@ -9,5 +9,7 @@ export const PERSISTENCE = Object.freeze({
   recoveryIndexKey: "index-v1",
   retainedGenerations: 2,
   autosaveDelayMs: 700,
+  autosaveBusyRetryMs: 16,
+  autosaveSerializationYieldTiles: 4,
   closeFlushTimeoutMs: 4_000
 });

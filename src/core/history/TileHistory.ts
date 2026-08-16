@@ -11,6 +11,8 @@ export class TileHistory {
   readonly #byteLimit: number;
   #undoBytes = 0;
   #redoBytes = 0;
+  #openEdits = 0;
+  #lifecycle = 0;
 
   constructor(limit: number = RASTER_LIMITS.maximumHistoryEntries,
     byteLimit: number = RASTER_LIMITS.maximumHistoryBytes) {
@@ -27,6 +29,7 @@ export class TileHistory {
   }
   get undoBytes(): number { return this.#undoBytes; }
   get redoBytes(): number { return this.#redoBytes; }
+  get hasOpenEdit(): boolean { return this.#openEdits > 0; }
 
   registerSurface(surface: RasterSurface): void {
     this.#surfaces.set(surface.id, surface);
@@ -38,7 +41,11 @@ export class TileHistory {
 
   begin(surface: RasterSurface, label: string): RasterEdit {
     if (this.#surfaces.get(surface.id) !== surface) this.registerSurface(surface);
-    return new RasterEdit(surface, label);
+    this.#openEdits += 1;
+    const lifecycle = this.#lifecycle;
+    return new RasterEdit(surface, label, () => {
+      if (lifecycle === this.#lifecycle) this.#openEdits = Math.max(0, this.#openEdits - 1);
+    });
   }
 
   record(changeSet: TileChangeSet | null): boolean {
@@ -89,6 +96,8 @@ export class TileHistory {
   reset(): void {
     this.clear();
     this.#surfaces.clear();
+    this.#lifecycle += 1;
+    this.#openEdits = 0;
   }
 
   private apply(patches: readonly TilePatch[], side: "before" | "after"): void {

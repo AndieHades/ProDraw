@@ -12,6 +12,7 @@ export class AutosaveSystem {
   readonly #repository: DocumentRepository;
   readonly #getDocument: () => RasterDocument;
   readonly #getSession: () => DocumentSessionSnapshot;
+  readonly #canPersist: () => boolean;
   readonly #onStatus: (status: AutosaveStatus) => void;
   readonly #serializer = new DocumentSerializer();
   #timer: ReturnType<typeof setTimeout> | null = null;
@@ -20,10 +21,12 @@ export class AutosaveSystem {
 
   constructor(repository: DocumentRepository, getDocument: () => RasterDocument,
     onStatus: (status: AutosaveStatus) => void = () => undefined,
-    getSession: () => DocumentSessionSnapshot = fallbackSession) {
+    getSession: () => DocumentSessionSnapshot = fallbackSession,
+    canPersist: () => boolean = () => true) {
     this.#repository = repository;
     this.#getDocument = getDocument;
     this.#getSession = getSession;
+    this.#canPersist = canPersist;
     this.#onStatus = onStatus;
   }
 
@@ -54,9 +57,17 @@ export class AutosaveSystem {
     try {
       while (this.#requested) {
         this.#requested = false;
-        await this.#repository.saveRecovery(
-          this.#serializer.serialize(this.#getDocument()), this.#getSession()
-        );
+        while (!this.#canPersist()) await new Promise((resolve) =>
+          setTimeout(resolve, PERSISTENCE.autosaveBusyRetryMs));
+        const document = this.#getDocument();
+        const session = this.#getSession();
+        const serialized = await this.#serializer.serializeAsync(document);
+        if (!serialized || document !== this.#getDocument() ||
+            session.revision !== this.#getSession().revision) {
+          this.#requested = true;
+          continue;
+        }
+        await this.#repository.saveRecovery(serialized, session);
       }
       this.#onStatus("saved");
     } catch (error) {
