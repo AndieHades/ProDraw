@@ -1,6 +1,7 @@
 import type { BrushPreset, LoadedBrush } from "../contracts/brush";
 import type { NewDocumentRequest } from "../contracts/editorCommands";
 import type { CanvasFrameViewModel, EditorViewModel } from "../contracts/editorView";
+import type { DocumentSessionSnapshot } from "../contracts/persistence";
 import type { RasterSize } from "../contracts/raster";
 import type { ViewState } from "../contracts/view";
 import { VIEW_INPUT } from "../config/input";
@@ -18,11 +19,16 @@ export class RasterEditorSession {
   #document: RasterDocument;
   #view: ViewState;
   #brush: BrushPreset | LoadedBrush;
+  #session: DocumentSessionSnapshot;
 
-  constructor(document: RasterDocument, brush: BrushPreset, viewport: RasterSize) {
+  constructor(document: RasterDocument, brush: BrushPreset, viewport: RasterSize,
+    session: DocumentSessionSnapshot = {
+      revision: 0, savedRevision: 0, nativeLocation: null
+    }) {
     this.#document = document;
     this.#brush = brush;
     this.#view = fitView(document.descriptor, viewport);
+    this.#session = session;
     this.registerSurfaces();
   }
 
@@ -30,6 +36,8 @@ export class RasterEditorSession {
   get history(): TileHistory { return this.#history; }
   get view(): ViewState { return this.#view; }
   get brush(): BrushPreset | LoadedBrush { return this.#brush; }
+  get isDirty(): boolean { return this.#session.revision !== this.#session.savedRevision; }
+  get sessionSnapshot(): DocumentSessionSnapshot { return { ...this.#session }; }
 
   setView(view: ViewState): void { this.#view = view; }
 
@@ -43,8 +51,15 @@ export class RasterEditorSession {
   forgetBrush(id: string): void { this.#catalog.clear(id); }
 
   createDocument(request: NewDocumentRequest, layerName: string, viewport: RasterSize): void {
-    this.#document = createRasterDocument({ ...request, layerName });
-    this.#history.clear();
+    this.replaceDocument(createRasterDocument({ ...request, layerName }), viewport,
+      { revision: 1, savedRevision: 0, nativeLocation: null });
+  }
+
+  replaceDocument(document: RasterDocument, viewport: RasterSize,
+    session: DocumentSessionSnapshot): void {
+    this.#document = document;
+    this.#session = session;
+    this.#history.reset();
     this.registerSurfaces();
     this.fit(viewport);
   }
@@ -53,14 +68,27 @@ export class RasterEditorSession {
     const layer = this.#document.addLayer({ id: crypto.randomUUID(), name,
       visible: true, locked: false, opacity: 1, blendMode: "normal" });
     this.#history.registerSurface(layer.surface);
+    this.markDocumentChanged();
   }
 
   selectLayer(id: string): void { this.#document.selectLayer(id); }
   setLayerVisible(id: string, visible: boolean): void {
     this.#document.updateLayer(id, { visible });
+    this.markDocumentChanged();
   }
 
-  historyStep(direction: "undo" | "redo"): void { this.#history[direction](); }
+  historyStep(direction: "undo" | "redo"): boolean {
+    const changed = this.#history[direction]() !== null;
+    if (changed) this.markDocumentChanged();
+    return changed;
+  }
+  markDocumentChanged(): void {
+    this.#session = { ...this.#session, revision: this.#session.revision + 1 };
+  }
+  markNativeSaved(location: string | null): void {
+    this.#session = { ...this.#session, savedRevision: this.#session.revision,
+      nativeLocation: location };
+  }
   fit(viewport: RasterSize): void { this.#view = fitView(this.#document.descriptor, viewport); }
 
   rotate(direction: -1 | 1, viewport: RasterSize): void {
@@ -69,7 +97,8 @@ export class RasterEditorSession {
   }
 
   viewModel(): EditorViewModel {
-    return createEditorView(this.#document, this.#history, this.#view, this.#brush);
+    return createEditorView(this.#document, this.#history, this.#view, this.#brush,
+      this.#session);
   }
 
   canvasFrame(): CanvasFrameViewModel { return createCanvasFrame(this.#document); }

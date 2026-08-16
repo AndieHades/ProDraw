@@ -24,13 +24,22 @@ export function createDesktopPlatform(bridge: DesktopBridge): PlatformPort {
     async openBinary(filters) {
       const opened = await bridge.openBinary(filters);
       if (!opened) return null;
-      return { name: opened.name, bytes: new Uint8Array(opened.bytes) };
+      return { name: opened.name, bytes: new Uint8Array(opened.bytes),
+        location: opened.location };
     },
     async saveBinary(request) {
       return bridge.saveBinary({
         suggestedName: request.suggestedName,
         bytes: request.bytes.buffer,
         ...(request.filters ? { filters: request.filters } : {})
+      });
+    },
+    writeBinary: (location, bytes) => bridge.writeBinary(location, bytes.buffer),
+    confirmDiscard: (request) => bridge.confirmDiscard(request),
+    onCloseRequested(handler) {
+      return bridge.onCloseRequested(() => {
+        void handler().then((allow) => bridge.resolveCloseRequest(allow),
+          () => bridge.resolveCloseRequest(false));
       });
     }
   };

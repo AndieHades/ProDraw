@@ -3,6 +3,10 @@ const { contextBridge, ipcRenderer } = require("electron");
 const channels = {
   fileOpen: "prodraw:file:open",
   fileSave: "prodraw:file:save",
+  fileWrite: "prodraw:file:write",
+  fileConfirmDiscard: "prodraw:file:confirm-discard",
+  closeRequest: "prodraw:window:close-request",
+  closeDecision: "prodraw:window:close-decision",
   brushSeed: "prodraw:brush:seed",
   brushList: "prodraw:brush:list",
   brushRead: "prodraw:brush:read",
@@ -21,14 +25,28 @@ contextBridge.exposeInMainWorld("prodrawDesktop", {
   async openBinary(filters) {
     const result = await ipcRenderer.invoke(channels.fileOpen, filters ?? []);
     if (!result) return null;
-    return { name: result.name, bytes: Uint8Array.from(result.bytes).buffer };
+    return { name: result.name, location: result.location, bytes: result.bytes };
   },
   async saveBinary(request) {
     return ipcRenderer.invoke(channels.fileSave, {
       suggestedName: request.suggestedName,
       filters: request.filters ?? [],
-      bytes: Array.from(new Uint8Array(request.bytes))
+      bytes: request.bytes
     });
+  },
+  writeBinary(location, bytes) {
+    return ipcRenderer.invoke(channels.fileWrite, { location, bytes });
+  },
+  confirmDiscard(request) {
+    return ipcRenderer.invoke(channels.fileConfirmDiscard, request);
+  },
+  onCloseRequested(listener) {
+    const handler = () => listener();
+    ipcRenderer.on(channels.closeRequest, handler);
+    return () => ipcRenderer.removeListener(channels.closeRequest, handler);
+  },
+  resolveCloseRequest(allow) {
+    ipcRenderer.send(channels.closeDecision, Boolean(allow));
   },
   brushStorage: {
     ensureSeeded(setName, files) {

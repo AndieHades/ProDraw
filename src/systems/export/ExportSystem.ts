@@ -31,7 +31,7 @@ export class ExportSystem {
         filters: [{ name: "PNG", extensions: ["png"] }]
       });
       this.#options.onStatus(saved ? "exported" : "cancelled");
-      return saved;
+      return saved !== null;
     } catch {
       this.#options.onStatus("export-failed");
       return false;

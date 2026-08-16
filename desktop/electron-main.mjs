@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { registerFileIpc } from "./electron-ipc.mjs";
 import { registerBrushIpc } from "./brush-ipc.mjs";
+import { attachCloseHandshake, registerCloseIpc } from "./close-ipc.mjs";
 import { runPackagedSmoke } from "./desktop-smoke.mjs";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
@@ -41,6 +42,7 @@ async function createWindow({ smoke = false } = {}) {
     catch { /* Invalid navigation is denied below. */ }
     if (!url.startsWith("file:") && !allowedDevelopment) event.preventDefault();
   });
+  if (!smoke) attachCloseHandshake(window);
   if (!smoke) window.once("ready-to-show", () => window.show());
   if (developmentUrl) await window.loadURL(developmentUrl.href);
   else await window.loadFile(path.join(root, "..", "dist", "index.html"),
@@ -51,6 +53,7 @@ async function createWindow({ smoke = false } = {}) {
 async function start() {
   registerFileIpc();
   registerBrushIpc();
+  registerCloseIpc();
   if (smokeOnly) {
     const window = await createWindow({ smoke: true });
     await runPackagedSmoke(window);

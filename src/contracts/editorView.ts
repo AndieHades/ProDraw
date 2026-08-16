@@ -11,12 +11,20 @@ export interface LayerListViewModel {
   readonly layers: readonly LayerDescriptor[];
 }
 
+export interface DocumentSessionViewModel {
+  readonly revision: number;
+  readonly savedRevision: number;
+  readonly dirty: boolean;
+  readonly hasNativeLocation: boolean;
+}
+
 export interface EditorViewModel {
   readonly document: DocumentDescriptor;
   readonly history: HistoryViewModel;
   readonly layers: LayerListViewModel;
   readonly view: ViewState;
   readonly brushName: string;
+  readonly session: DocumentSessionViewModel;
 }
 
 export interface CanvasTileViewModel {

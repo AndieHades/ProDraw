@@ -1,10 +1,15 @@
-import { access, readFile } from "node:fs/promises";
+import { access, mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { atomicWriteFile } from "../desktop/atomic-file.mjs";
 
 const required = [
   "desktop/electron-main.mjs",
   "desktop/desktop-smoke.mjs",
   "desktop/electron-preload.cjs",
   "desktop/electron-ipc.mjs",
+  "desktop/atomic-file.mjs",
+  "desktop/close-ipc.mjs",
   "desktop/brush-ipc.mjs",
   "desktop/ipc-channels.cjs",
   "src/contracts/platform.ts",
@@ -33,11 +38,18 @@ if (!main.includes("nodeIntegration: false")) errors.push("nodeIntegration must 
 if (!main.includes("sandbox: true")) errors.push("renderer sandbox must be enabled");
 if (!main.includes("app.isPackaged")) errors.push("development URL must be disabled when packaged");
 if (!main.includes("await runPackagedSmoke")) errors.push("packaged smoke must await renderer proof");
+if (!main.includes("attachCloseHandshake")) errors.push("desktop close must await renderer flush");
 if (!main.includes('query: { smoke: "1" }')) errors.push("packaged smoke must mark renderer URL");
 if (!preload.includes("contextBridge.exposeInMainWorld")) errors.push("preload must expose an allowlisted bridge");
 if (/remote\./.test(preload)) errors.push("preload must not use Electron remote");
 if (/require\(["']\.\//.test(preload)) {
   errors.push("sandboxed preload cannot require project-local modules");
+}
+for (const marker of ["fileWrite", "fileConfirmDiscard", "closeRequest", "closeDecision"]) {
+  if (!preload.includes(marker)) errors.push(`preload lifecycle capability missing: ${marker}`);
+}
+if (preload.includes("Array.from(new Uint8Array(request.bytes))")) {
+  errors.push("document file IPC must not amplify binary bytes into number arrays");
 }
 for (const [, channel] of channels.matchAll(/"(prodraw:[^"]+)"/g)) {
   if (!preload.includes(`"${channel}"`)) errors.push(`preload channel missing: ${channel}`);
@@ -52,6 +64,23 @@ for (const marker of ["brushStorage", "renderBrushDab", "saveCurrent", "loadCurr
 }
 if (!packageSmoke.includes("--user-data-dir=")) {
   errors.push("packaged smoke must isolate the user-data profile");
+}
+
+const atomicDirectory = await mkdtemp(path.join(tmpdir(), "prodraw-atomic-check-"));
+try {
+  const target = path.join(atomicDirectory, "work.prodraw");
+  await atomicWriteFile(target, Uint8Array.from([1, 2, 3]));
+  await atomicWriteFile(target, Uint8Array.from([7, 8, 9, 10]));
+  const bytes = await readFile(target);
+  if (!bytes.equals(Buffer.from([7, 8, 9, 10]))) errors.push("atomic replace bytes differ");
+  if ((await readdir(atomicDirectory)).some((name) => name.endsWith(".tmp"))) {
+    errors.push("atomic replace left a temporary file");
+  }
+} finally {
+  if (path.dirname(atomicDirectory) === path.resolve(tmpdir()) &&
+      path.basename(atomicDirectory).startsWith("prodraw-atomic-check-")) {
+    await rm(atomicDirectory, { recursive: true, force: true });
+  }
 }
 
 if (errors.length) {

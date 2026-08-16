@@ -28,6 +28,9 @@ export class WorkspacePresenter {
 
   bind(dispatch: EditorCommandDispatch): void {
     this.click("#new-document", () => dispatch({ type: "document.new" }));
+    this.click("#open-document", () => dispatch({ type: "document.open" }));
+    this.click("#save-document", () => dispatch({ type: "document.save" }));
+    this.click("#save-document-as", () => dispatch({ type: "document.saveAs" }));
     this.click("#export-png", () => dispatch({ type: "document.exportPng" }));
     this.click("#undo", () => dispatch({ type: "history.undo" }));
     this.click("#redo", () => dispatch({ type: "history.redo" }));
@@ -72,7 +75,8 @@ export class WorkspacePresenter {
   render(model: EditorViewModel): void {
     const descriptor = model.document;
     this.#brushName.textContent = model.brushName;
-    this.#documentStatus.textContent = `${descriptor.name} · ${descriptor.width} × ` +
+    const dirty = model.session.dirty ? "*" : "";
+    this.#documentStatus.textContent = `${descriptor.name}${dirty} · ${descriptor.width} × ` +
       `${descriptor.height} px · ${descriptor.dpi} DPI`;
     const degrees = Math.round(model.view.rotation * 180 / Math.PI);
     this.#viewStatus.textContent = `${Math.round(model.view.scale * 100)}% · ${degrees}°`;

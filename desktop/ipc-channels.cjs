@@ -1,6 +1,10 @@
 module.exports = Object.freeze({
   fileOpen: "prodraw:file:open",
   fileSave: "prodraw:file:save",
+  fileWrite: "prodraw:file:write",
+  fileConfirmDiscard: "prodraw:file:confirm-discard",
+  closeRequest: "prodraw:window:close-request",
+  closeDecision: "prodraw:window:close-decision",
   brushSeed: "prodraw:brush:seed",
   brushList: "prodraw:brush:list",
   brushRead: "prodraw:brush:read",

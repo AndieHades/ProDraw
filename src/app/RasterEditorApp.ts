@@ -2,11 +2,9 @@ import type { BrushPreset } from "../contracts/brush";
 import type { BrushLibraryPort } from "../contracts/brushLibraryPort";
 import type { EditorCommand, EditorCommandDispatch } from "../contracts/editorCommands";
 import type { PlatformPort } from "../contracts/platform";
-import type { RasterDocument } from "../core/document/RasterDocument";
 import { EditorEventBus } from "../core/events/EditorEventBus";
 import { DocumentRepository } from "../core/persistence/DocumentRepository";
 import { t, type MessageKey } from "../i18n/raster/translate";
-import { AutosaveSystem } from "../systems/autosave/AutosaveSystem";
 import { DrawingSystem } from "../systems/drawing/DrawingSystem";
 import { ExportSystem } from "../systems/export/ExportSystem";
 import { ViewportSystem } from "../systems/viewport/ViewportSystem";
@@ -16,6 +14,8 @@ import { CanvasPresenter } from "../ui/canvas/CanvasPresenter";
 import { NewDocumentPresenter } from "../ui/document/NewDocumentPresenter";
 import { LayerPresenter } from "../ui/layers/LayerPresenter";
 import { WorkspacePresenter } from "../ui/workspace/WorkspacePresenter";
+import { DocumentWorkflow } from "./DocumentWorkflow";
+import type { InitialEditorState } from "./createInitialDocument";
 import { RasterEditorSession } from "./RasterEditorSession";
 
 export class RasterEditorApp {
@@ -24,23 +24,24 @@ export class RasterEditorApp {
   readonly #layers = new LayerPresenter();
   readonly #session: RasterEditorSession;
   readonly #canvas: CanvasPresenter;
-  readonly #autosave: AutosaveSystem;
+  readonly #documents: DocumentWorkflow;
   readonly #exporter: ExportSystem;
   readonly #brushes: BrushLibraryPresenter;
   readonly #studio: BrushStudioPresenter;
   readonly #newDocument: NewDocumentPresenter;
 
-  constructor(platform: PlatformPort, repository: DocumentRepository, document: RasterDocument,
+  constructor(platform: PlatformPort, repository: DocumentRepository, initial: InitialEditorState,
     library: BrushLibraryPort) {
     const brush = library.snapshot.sets.flatMap(({ brushes }) => brushes)[0];
     if (!brush) throw new Error("Brush library is empty");
     const viewport = { width: this.#workspace.canvas.clientWidth,
       height: this.#workspace.canvas.clientHeight };
-    this.#session = new RasterEditorSession(document, brush, viewport);
+    this.#session = new RasterEditorSession(initial.document, brush, viewport, initial.session);
     this.#canvas = new CanvasPresenter(this.#workspace.canvas,
       () => this.#session.canvasFrame(), () => this.#session.view);
-    this.#autosave = new AutosaveSystem(repository, () => this.#session.document,
-      (status) => this.status(`status.${status}` as MessageKey));
+    this.#documents = new DocumentWorkflow({ platform, repository, session: this.#session,
+      viewport: () => this.#canvas.size,
+      onChanged: () => this.changed(), onStatus: (key) => this.status(key) });
     this.#exporter = new ExportSystem({ platform, getDocument: () => this.#session.document,
       onStatus: (status) => this.status(`status.${status}` as MessageKey) });
     this.#studio = new BrushStudioPresenter(async (source, draft) => {
@@ -59,6 +60,8 @@ export class RasterEditorApp {
     this.mountSystems();
     this.#workspace.bind(this.dispatch);
     this.refreshUi();
+    if (initial.recoveryStatus === "previous") this.status("status.recoveredPrevious");
+    if (initial.recoveryStatus === "corrupt") this.status("status.recoveryCorrupt");
   }
 
   private readonly dispatch: EditorCommandDispatch = (command): void => {
@@ -67,14 +70,19 @@ export class RasterEditorApp {
 
   private handleCommand(command: EditorCommand): void {
     switch (command.type) {
-      case "document.new": this.#newDocument.open(); return;
+      case "document.new":
+        void this.#documents.requestNew(() => this.#newDocument.open()); return;
+      case "document.open": void this.#documents.open(); return;
+      case "document.save": void this.#documents.save(); return;
+      case "document.saveAs": void this.#documents.save(true); return;
       case "document.exportPng": void this.#exporter.exportPng(); return;
       case "document.create":
-        this.#session.createDocument(command.request, t("layers.default"), this.#canvas.size);
-        this.changed(true); return;
+        this.#documents.create(command.request, t("layers.default")); return;
       case "history.undo": case "history.redo":
-        this.#session.historyStep(command.type === "history.undo" ? "undo" : "redo");
-        this.changed(true); return;
+        if (this.#session.historyStep(command.type === "history.undo" ? "undo" : "redo")) {
+          this.#documents.sessionChanged();
+        }
+        return;
       case "tool.select": this.#workspace.setTool(command.tool); return;
       case "view.fit": this.#session.fit(this.#canvas.size); this.changed(); return;
       case "view.rotate":
@@ -83,7 +91,8 @@ export class RasterEditorApp {
       case "layer.add": this.addLayer(); return;
       case "layer.select": this.#session.selectLayer(command.id); this.changed(); return;
       case "layer.visibility":
-        this.#session.setLayerVisible(command.id, command.visible); this.changed(true); return;
+        this.#session.setLayerVisible(command.id, command.visible);
+        this.#documents.sessionChanged(); return;
     }
   }
 
@@ -97,7 +106,8 @@ export class RasterEditorApp {
       getBrush: () => this.#session.brush, getColor: () => this.#workspace.color,
       getSize: () => this.#workspace.brushSize, getOpacity: () => this.#workspace.brushOpacity,
       getTool: () => this.#workspace.tool, canDraw: (event) => !viewport.isPanning(event),
-      onCommit: () => this.changed(true), onBlocked: () => this.status("status.layerBlocked")
+      onCommit: () => this.#documents.documentChanged(),
+      onBlocked: () => this.status("status.layerBlocked")
     }).mount();
   }
 
@@ -109,11 +119,10 @@ export class RasterEditorApp {
   private addLayer(): void {
     const index = this.#session.document.layers.length + 1;
     this.#session.addLayer(`${t("layers.default")} ${index}`);
-    this.changed(true);
+    this.#documents.sessionChanged();
   }
 
-  private changed(save = false): void {
-    if (save) this.#autosave.schedule();
+  private changed(): void {
     this.#events.emit({ type: "editor.changed" });
   }
 

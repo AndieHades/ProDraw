@@ -14,10 +14,10 @@ import { DocumentRepository } from "./core/persistence/DocumentRepository";
 
 async function bootstrap(): Promise<void> {
   const repository = new DocumentRepository();
-  const document = await createInitialDocument(repository);
+  const initial = await createInitialDocument(repository);
   const platform = createPlatform();
   const brushes = await BrushLibraryService.create(platform.brushStorage, BUNDLED_BRUSHES);
-  new RasterEditorApp(platform, repository, document, brushes);
+  new RasterEditorApp(platform, repository, initial, brushes);
   if (rendererSmokeRequested()) await runRendererSmoke(platform, repository, brushes);
 }
 

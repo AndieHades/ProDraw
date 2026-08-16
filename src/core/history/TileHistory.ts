@@ -63,6 +63,11 @@ export class TileHistory {
     this.#redo.length = 0;
   }
 
+  reset(): void {
+    this.clear();
+    this.#surfaces.clear();
+  }
+
   private apply(patches: readonly TilePatch[], side: "before" | "after"): void {
     for (const patch of patches) {
       const surface = this.#surfaces.get(patch.surfaceId);

@@ -10,6 +10,9 @@ export interface NewDocumentRequest {
 export type EditorCommand =
   | { readonly type: "document.new" }
   | { readonly type: "document.create"; readonly request: NewDocumentRequest }
+  | { readonly type: "document.open" }
+  | { readonly type: "document.save" }
+  | { readonly type: "document.saveAs" }
   | { readonly type: "document.exportPng" }
   | { readonly type: "history.undo" }
   | { readonly type: "history.redo" }

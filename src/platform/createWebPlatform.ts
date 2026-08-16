@@ -27,7 +27,8 @@ export function createWebPlatform(): PlatformPort {
     async openBinary(filters) {
       const file = await openWithInput(filters);
       if (!file) return null;
-      return { name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) };
+      return { name: file.name, bytes: new Uint8Array(await file.arrayBuffer()),
+        location: null };
     },
     async saveBinary(request) {
       const blob = new Blob([request.bytes]);
@@ -37,7 +38,10 @@ export function createWebPlatform(): PlatformPort {
       link.download = request.suggestedName;
       link.click();
       queueMicrotask(() => URL.revokeObjectURL(url));
-      return true;
-    }
+      return { name: request.suggestedName, location: null };
+    },
+    writeBinary: async () => false,
+    confirmDiscard: async (request) => window.confirm(request.message),
+    onCloseRequested: () => () => undefined
   };
 }

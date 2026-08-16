@@ -35,7 +35,7 @@ class FakeCanvas {
 }
 
 class FailingRepository extends DocumentRepository {
-  override saveCurrent(): Promise<void> {
+  override saveRecovery(): Promise<void> {
     return Promise.reject(new Error("Disk write failed"));
   }
 }

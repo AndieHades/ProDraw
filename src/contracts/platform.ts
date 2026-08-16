@@ -12,6 +12,12 @@ export interface FileFilter {
 export interface OpenedBinaryFile {
   readonly name: string;
   readonly bytes: Uint8Array<ArrayBuffer>;
+  readonly location: string | null;
+}
+
+export interface SavedBinaryFile {
+  readonly name: string;
+  readonly location: string | null;
 }
 
 export interface SaveBinaryRequest {
@@ -20,11 +26,21 @@ export interface SaveBinaryRequest {
   readonly filters?: readonly FileFilter[];
 }
 
+export interface ConfirmDiscardRequest {
+  readonly title: string;
+  readonly message: string;
+  readonly confirmLabel: string;
+  readonly cancelLabel: string;
+}
+
 export interface PlatformPort {
   readonly kind: PlatformKind;
   readonly brushStorage: BrushLibraryStoragePort | null;
   openBinary(filters?: readonly FileFilter[]): Promise<OpenedBinaryFile | null>;
-  saveBinary(request: SaveBinaryRequest): Promise<boolean>;
+  saveBinary(request: SaveBinaryRequest): Promise<SavedBinaryFile | null>;
+  writeBinary(location: string, bytes: Uint8Array<ArrayBuffer>): Promise<boolean>;
+  confirmDiscard(request: ConfirmDiscardRequest): Promise<boolean>;
+  onCloseRequested(handler: () => Promise<boolean>): () => void;
 }
 
 export interface DesktopBridge {
@@ -33,10 +49,15 @@ export interface DesktopBridge {
   openBinary(filters?: readonly FileFilter[]): Promise<{
     readonly name: string;
     readonly bytes: ArrayBuffer;
+    readonly location: string;
   } | null>;
   saveBinary(request: {
     readonly suggestedName: string;
     readonly bytes: ArrayBuffer;
     readonly filters?: readonly FileFilter[];
-  }): Promise<boolean>;
+  }): Promise<{ readonly name: string; readonly location: string } | null>;
+  writeBinary(location: string, bytes: ArrayBuffer): Promise<boolean>;
+  confirmDiscard(request: ConfirmDiscardRequest): Promise<boolean>;
+  onCloseRequested(listener: () => void): () => void;
+  resolveCloseRequest(allow: boolean): void;
 }
