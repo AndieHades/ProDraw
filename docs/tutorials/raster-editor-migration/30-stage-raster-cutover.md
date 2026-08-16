@@ -1,9 +1,10 @@
 # Stage R2: Playable Raster Cutover
 
-- Status: `planned`
+- Status: `in_progress`
 - Depends on: `R1`
 - Requirements: `RST-01`, `BRH-01`, `CAN-01`, minimum `DOC-01`, `CUT-01`
-- Planned commit: `feat: cut over to raster painting core`
+- Planned commits: `feat: add tiled raster document core`, then
+  `feat: cut over to raster painting core`
 
 ## Outcome
 
@@ -20,7 +21,7 @@ with bundled brushes, layers and undo, then save and export exact-size PNG.
 
 ## Steps
 
-- `R2.1` Implement lazy RGBA tiles and patch history with deterministic tests.
+- `R2.1` Implement lazy RGBA tiles and patch history with deterministic tests. ✅
 - `R2.2` Implement typed document store and composite visible layers.
 - `R2.3` Decode build-manifest `.brush` archives with per-brush isolation.
 - `R2.4` Render antialiased shape/soft procedural fallback, grain and opacity.
@@ -44,4 +45,7 @@ redo restores the stroke. No app entrypoint imports pixelizer/grid/tilemap.
 
 ## Completion record
 
-- Commit/checks/deviations: pending
+- R2.1: lazy 256×256 RGBA tiles, straight-alpha source-over/erase,
+  per-surface layer ownership and byte-exact tile-patch undo/redo are complete.
+  Focused evidence: strict check, ESLint, 12 TS tests, line and cycle validators.
+- Remaining R2.2–R2.9: pending.

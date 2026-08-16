@@ -1,6 +1,6 @@
 # Raster Editor Migration
 
-Status: `ready`
+Status: `in_progress`
 
 Evidence baseline: `main@df2b924`, 2026-08-16.
 
@@ -9,13 +9,14 @@ Canonical owner: this package.
 ## Resume Here
 
 - Current stage: `R2 — playable raster cutover`
-- Status: `ready`
+- Status: `in_progress`
 - Last completed stage: `R1`
-- Next action: implement and test lazy RGBA tile surfaces plus tile-patch history before changing the app entrypoint
+- Next action: connect typed document composition and visible-tile rendering before changing the app entrypoint
 - Blockers: none
-- Working paths: none after the R1 foundation commit
-- Last checks: check, lint, legacy/TS tests, validators, bundle and packaged Windows smoke passed
-- Last updated: `2026-08-16, R1 completion state`
+- Working paths: `src/core/{raster,history,document}`, `src/contracts`,
+  `src/logic/raster`, `src/config/raster.ts`, `tests/core`
+- Last checks: R2.1 check, lint, 12 TS tests, governed lines and cycles passed
+- Last updated: `2026-08-16, main@8fbdf54 + R2.1 working tree`
 
 ## Product Outcome
 
@@ -96,7 +97,7 @@ Excluded:
 | --- | --- | --- | --- | --- |
 | `R0` | [`10-stage-governance.md`](10-stage-governance.md) | none | done | `docs: plan raster editor migration` |
 | `R1` | [`20-stage-typescript-desktop.md`](20-stage-typescript-desktop.md) | `R0` | done | `build: establish TypeScript desktop foundation` |
-| `R2` | [`30-stage-raster-cutover.md`](30-stage-raster-cutover.md) | `R1` | ready | `feat: cut over to raster painting core` |
+| `R2` | [`30-stage-raster-cutover.md`](30-stage-raster-cutover.md) | `R1` | in progress | `feat: cut over to raster painting core` |
 | `R3` | [`40-stage-brush-studio.md`](40-stage-brush-studio.md) | `R2` | planned | `feat: add professional brush studio` |
 | `R4` | [`50-stage-lossless-transform.md`](50-stage-lossless-transform.md) | `R2` | planned | `feat: add source-preserving transform and liquify` |
 | `R5` | [`60-stage-document-workflow.md`](60-stage-document-workflow.md) | `R3`, `R4` | planned | `feat: complete professional document workflow` |
