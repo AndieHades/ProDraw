@@ -1,0 +1,14 @@
+import { runNpmScripts } from "./command-runner.mjs";
+
+await runNpmScripts([
+  "check",
+  "lint",
+  "test",
+  "validate:docs",
+  "validate:lines",
+  "validate:architecture",
+  "validate:cycles",
+  "validate:desktop",
+  "build:bundle"
+]);
+console.log("Full repository validation passed.");

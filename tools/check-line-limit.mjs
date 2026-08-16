@@ -13,7 +13,7 @@ function lineCount(source) {
 
 function isNewCode(file) {
   if (/^src\/.*\.tsx?$/.test(file)) return true;
-  if (/^(desktop|tools)\/.*\.(mjs|tsx?)$/.test(file)) return true;
+  if (/^(desktop|tools)\/.*\.(cjs|mjs|tsx?)$/.test(file)) return true;
   if (/^\.claude\/hooks\/.*\.mjs$/.test(file)) return true;
   return /^(eslint|vite)\.config\.(js|mjs|ts)$/.test(file);
 }

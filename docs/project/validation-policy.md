@@ -14,6 +14,7 @@
 Дополнительно:
 
 - `npm run validate:cycles` — при изменении imports/layers;
+- `npm run validate:architecture` — rejection fixtures для forbidden imports и line limit;
 - `git diff --check` — перед каждым коммитом;
 - screenshot не является gate без явной просьбы пользователя;
 - skipped/conditional проверки перечисляются точным именем и причиной.

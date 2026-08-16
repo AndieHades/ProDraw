@@ -36,6 +36,23 @@ visible compatibility status; one broken brush never blocks the catalog.
 Bundled brushes load through an explicit manifest generated/validated at build
 time. Catalog presence, decoding and an actual RGBA stroke are separate tests.
 
+The library uses ordered brush sets like Procreate: a set rail and the selected
+set's brush list/grid. Sets and brushes support create, rename, duplicate,
+delete, drag/reorder and pack import/export. Smart views expose Recent and
+Favorites without changing canonical ownership. The repository `main` folder
+seeds a non-destructive `Main` set exactly once.
+
+On Windows, normal sets are folder-backed under the app-data brush root. Native
+brush files live in their selected set directory; create/duplicate write there,
+move changes the physical owner directory and set rename updates the directory
+atomically. The catalog never treats immutable repository assets as writable.
+
+Smudge is a first-class tool that selects a brush from the same library. Each
+dab samples local RGBA pigment and applies strength, pickup/pull, dilution/flow
+and pressure dynamics along the stabilized stroke. It respects selection,
+mask, alpha lock, layer lock and tile bounds, and commits one history transaction
+per gesture. Smudge never resamples or deforms the whole layer as a side effect.
+
 ## Canvas presets
 
 Presets are data with pixel width/height and optional physical size/DPI:

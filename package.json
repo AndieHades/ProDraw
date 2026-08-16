@@ -1,22 +1,56 @@
 {
-  "name": "pixel-heart",
+  "name": "prodraw",
+  "version": "0.1.0",
+  "description": "Windows-first raster graphics editor for pen and touch",
+  "author": "Andie Hades",
   "private": true,
   "type": "module",
+  "main": "desktop/electron-main.mjs",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run check && vite build",
+    "build:bundle": "vite build",
+    "build:desktop": "npm run check && vite build --mode desktop",
+    "check": "tsc --noEmit --incremental --tsBuildInfoFile node_modules/.cache/prodraw.tsbuildinfo",
+    "package:desktop": "npm run validate:desktop && npm run build:desktop && electron-builder --win --x64 --dir && npm run smoke:desktop",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test": "node test/no-cyrillic.mjs && node test/unit.mjs && node test/storage.mjs && node test/module-int.mjs && node test/module-boot.mjs",
+    "test": "npm run test:legacy && npm run test:ts",
+    "test:legacy": "node test/no-cyrillic.mjs && node test/unit.mjs && node test/storage.mjs && node test/module-int.mjs && node test/module-boot.mjs",
+    "test:ts": "vitest run",
+    "smoke:desktop": "node tools/smoke-packaged-desktop.mjs",
+    "validate": "node tools/validate.mjs",
+    "validate:architecture": "node tools/validate-architecture-fixtures.mjs",
+    "validate:cycles": "node tools/check-import-cycles.mjs",
+    "validate:desktop": "node tools/validate-desktop-shell.mjs",
     "validate:docs": "node tools/validate-docs.mjs",
-    "validate:lines": "node tools/check-line-limit.mjs"
+    "validate:lines": "node tools/check-line-limit.mjs",
+    "validate:changed": "node tools/validate-changed.mjs"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.4",
-    "eslint": "^9.39.4",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.0.0",
+    "electron": "^42.4.1",
+    "electron-builder": "^26.15.3",
+    "eslint": "^10.5.0",
     "fake-indexeddb": "^6.2.5",
     "globals": "^17.6.0",
     "jsdom": "^29.1.1",
-    "vite": "^5.4.21"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.0",
+    "vite": "^8.0.12",
+    "vitest": "^4.1.9"
+  },
+  "build": {
+    "appId": "com.andiehades.prodraw",
+    "productName": "ProDraw",
+    "directories": {
+      "output": "artifacts/desktop"
+    },
+    "files": [
+      "dist/**",
+      "desktop/**",
+      "package.json"
+    ]
   }
 }

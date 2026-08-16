@@ -1,6 +1,6 @@
 # Stage R1: TypeScript and Windows Foundation
 
-- Status: `planned`
+- Status: `done`
 - Depends on: `R0`
 - Requirements: `ARC-01`, `OPS-01`, foundation of `DSK-01`
 - Planned commit: `build: establish TypeScript desktop foundation`
@@ -34,4 +34,11 @@ fixture are rejected. Product UI remains the legacy entry until `R2`.
 
 ## Completion record
 
-- Commit/checks/deviations: pending
+- Commit: R1 foundation commit (this commit)
+- Checks: strict TypeScript, ESLint, 2 TS tests, 128 legacy unit tests,
+  415 legacy integration tests, storage/boot, docs/lines/architecture/cycles,
+  Vite bundle and packaged Windows executable smoke.
+- Deviations: final app icon/installer branding remains in `R6`; R1 packages an
+  unpacked directory only, as planned.
+- Residual: npm reports one high-severity dev-tool transitive advisory; packaged
+  runtime has no npm production dependencies and `npm audit --omit=dev` is clean.

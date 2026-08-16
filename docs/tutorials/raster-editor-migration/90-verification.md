@@ -19,7 +19,11 @@
 | `RST-01` | antialiased RGBA stroke persists | no grid is allocated or serialized |
 | `BRH-01` | every bundled entry paints distinct non-empty output | one corrupt archive does not block catalog |
 | `BRH-02` | dynamics change preview and document identically | invalid values clamp; unsupported fields are disclosed |
+| `BRH-03` | set folders/order/recent/favorites and physical ownership survive restart | create/duplicate/move/delete cannot orphan, overwrite or target the wrong directory |
+| `BRH-04` | reference hierarchy, sections, live pad and draft Apply match chapter 04 | Wet Mix, Color Dynamics, Materials and Apple Pencil are absent |
 | `STB-01` | recorded shaky traces smooth while endpoints/corners remain | dot, short stroke and predicted preview cannot vanish or commit ghosts |
+| `SMG-01` | stabilized brush mixes a controlled local colour fixture | lock/mask/selection and dirty bounds prevent outside mutation |
+| `HUI-01` | Huion/Windows Ink trace calibrates pressure, tilt and mapped buttons | missing device identity or optional tilt never invents values or blocks drawing |
 | `CAN-01` | every named preset exports exact dimensions/DPI | over-budget custom size is rejected before allocation |
 | `IMG-01` | direct and multi-preview final results match | cancel/view operations never change source hash |
 | `DSK-01` | packaged app receives pressure/tilt | mouse/touch fallback stays usable and deterministic |

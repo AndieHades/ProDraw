@@ -1,52 +1,60 @@
-import js from '@eslint/js';
-import globals from 'globals';
+import js from "@eslint/js";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+import { architecture } from "./tools/eslint-rules/architecture.mjs";
 
-const relaxed = {
-  // catch(e){} — идиома в этом коде: пустой catch и неиспользуемый параметр ок
-  'no-empty': ['error', { allowEmptyCatch: true }],
-  'no-unused-vars': ['error', { caughtErrors: 'none', args: 'none' }],
+const typescriptFiles = ["src/**/*.ts", "tests/**/*.ts", "tools/**/*.ts"];
+const typescriptRecommended = tseslint.configs.recommended.map((config) => ({
+  ...config,
+  files: typescriptFiles
+}));
+
+const relaxedLegacy = {
+  "no-empty": ["error", { allowEmptyCatch: true }],
+  "no-unused-vars": ["error", { caughtErrors: "none", args: "none" }],
+  "no-useless-assignment": "off"
 };
 
 export default [
+  { ignores: ["artifacts/**", "dist/**", "node_modules/**"] },
   js.configs.recommended,
+  ...typescriptRecommended,
   {
-    ignores: ['dist/**', 'node_modules/**'],
-  },
-  {
-    files: ['src/**/*.js'],
+    files: ["src/**/*.js"],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      globals: { ...globals.browser },
+      ecmaVersion: "latest", sourceType: "module", globals: globals.browser
     },
-    rules: relaxed,
+    rules: relaxedLegacy
   },
   {
-    files: ['public/sw.js'],
+    files: ["public/sw.js"],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      globals: { ...globals.serviceworker, ...globals.browser },
+      ecmaVersion: "latest", sourceType: "module",
+      globals: { ...globals.serviceworker, ...globals.browser }
     },
-    rules: relaxed,
+    rules: relaxedLegacy
   },
   {
-    // тесты гоняются под jsdom — нужны и node, и browser глобали
-    files: ['test/**/*.mjs', '*.config.js'],
+    files: ["test/**/*.mjs", "*.config.js", "desktop/**/*.{mjs,cjs}", "tools/**/*.mjs",
+      ".claude/hooks/**/*.mjs"],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      globals: { ...globals.node, ...globals.browser },
+      ecmaVersion: "latest", sourceType: "module",
+      globals: { ...globals.node, ...globals.browser }
     },
-    rules: relaxed,
+    rules: relaxedLegacy
   },
   {
-    files: ['tools/**/*.mjs', '.claude/hooks/**/*.mjs'],
-    languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      globals: { ...globals.node },
-    },
-    rules: relaxed,
-  },
+    files: typescriptFiles,
+    plugins: { architecture },
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    rules: {
+      "max-lines": ["error", { max: 150, skipBlankLines: false, skipComments: false }],
+      "architecture/no-cross-system-imports": "error",
+      "architecture/no-platform-sdk-outside-platform": "error",
+      "architecture/no-ui-in-core-runtime": "error",
+      "architecture/no-legacy-js-in-typescript": "error",
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }]
+    }
+  }
 ];
