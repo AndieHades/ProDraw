@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh",
+            "command": "bash .claude/hooks/session-start.sh",
             "timeout": 300
           },
           {
@@ -19,7 +19,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/reload-claude-md.sh"
+            "command": "node .claude/hooks/session-start.mjs"
           }
         ]
       }
@@ -29,7 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/fetch-main.sh",
+            "command": "node .claude/hooks/fetch-main.mjs",
             "timeout": 30
           }
         ]
@@ -41,7 +41,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/fetch-main.sh",
+            "command": "node .claude/hooks/fetch-main.mjs",
             "if": "Bash(git push*)",
             "timeout": 30
           }

@@ -4,6 +4,10 @@
   "description": "Windows-first raster graphics editor for pen and touch",
   "author": "Andie Hades",
   "private": true,
+  "packageManager": "npm@11.16.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "type": "module",
   "main": "desktop/electron-main.mjs",
   "scripts": {
@@ -24,6 +28,7 @@
     "validate:cycles": "node tools/check-import-cycles.mjs",
     "validate:desktop": "node tools/validate-desktop-shell.mjs",
     "validate:docs": "node tools/validate-docs.mjs",
+    "validate:hooks": "node tools/validate-hooks.mjs",
     "validate:lines": "node tools/check-line-limit.mjs",
     "validate:raster-entry": "node tools/validate-raster-entry.mjs",
     "validate:changed": "node tools/validate-changed.mjs"

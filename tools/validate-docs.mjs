@@ -1,6 +1,7 @@
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import { repositoryFiles } from "./repository-files.mjs";
+import { validatePlanRecovery } from "./validate-plan-recovery.mjs";
 
 const required = [
   "AGENTS.md", "CLAUDE.md", "project.config.json", "docs/index.md",
@@ -49,6 +50,7 @@ for (const file of markdown.filter((item) => /^docs\/tutorials\/[^/]+\/README\.m
   const folder = file.split("/").at(-2);
   if (!registry.includes(`${folder}/README.md`)) errors.push(`${file}: not registered`);
 }
+errors.push(...await validatePlanRecovery());
 
 if (errors.length) {
   console.error(`Documentation validation failed:\n${errors.join("\n")}`);

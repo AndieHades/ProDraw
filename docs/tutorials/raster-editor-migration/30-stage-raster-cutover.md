@@ -58,3 +58,5 @@ redo restores the stroke. No app entrypoint imports pixelizer/grid/tilemap.
 - Deviation: old DOM-coupled module-int/module-boot suites are retained only as
   pre-cutover oracle and are no longer default gates. Brush folder writes,
   duplicate/delete, Studio and stabilization remain correctly owned by R3.
+- Commits: tiled raster foundation (`a040fc4`), production raster cutover
+  (`c89e78c`).

@@ -4,7 +4,7 @@
 
 | Изменение | Обязательная проверка |
 | --- | --- |
-| docs/rules/hooks | `npm run validate:docs`, `npm run validate:lines`, diff read |
+| docs/rules/hooks | `validate:docs`, `validate:lines`, `validate:hooks`, diff read |
 | чистая logic | focused Vitest + `npm run check` + targeted lint |
 | core contract/state | unit + integration + check + targeted lint |
 | drawing/input/brush | focused integration + browser smoke + check/lint |
@@ -15,6 +15,7 @@
 
 - `npm run validate:cycles` — при изменении imports/layers;
 - `npm run validate:architecture` — rejection fixtures для forbidden imports и line limit;
+- `npm run validate:hooks` — при изменении agent entrypoints/config;
 - `git diff --check` — перед каждым коммитом;
 - screenshot не является gate без явной просьбы пользователя;
 - skipped/conditional проверки перечисляются точным именем и причиной.

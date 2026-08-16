@@ -5,6 +5,7 @@ await runNpmScripts([
   "lint",
   "test",
   "validate:docs",
+  "validate:hooks",
   "validate:lines",
   "validate:architecture",
   "validate:cycles",

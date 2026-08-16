@@ -3,12 +3,22 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { registerFileIpc } from "./electron-ipc.mjs";
 import { registerBrushIpc } from "./brush-ipc.mjs";
+import { runPackagedSmoke } from "./desktop-smoke.mjs";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const smokeOnly = process.argv.includes("--smoke-test");
 
-function createWindow() {
-  const developmentUrl = process.env.PRODRAW_DEV_URL;
+function developmentLocation() {
+  if (app.isPackaged || !process.env.PRODRAW_DEV_URL) return null;
+  const location = new URL(process.env.PRODRAW_DEV_URL);
+  if (!new Set(["http:", "https:"]).has(location.protocol)) {
+    throw new Error("PRODRAW_DEV_URL must use HTTP(S)");
+  }
+  return location;
+}
+
+async function createWindow({ smoke = false } = {}) {
+  const developmentUrl = developmentLocation();
   const window = new BrowserWindow({
     width: 1440,
     height: 960,
@@ -26,26 +36,36 @@ function createWindow() {
   window.removeMenu();
   window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
   window.webContents.on("will-navigate", (event, url) => {
-    const allowedDevelopment = developmentUrl && url.startsWith(developmentUrl);
+    let allowedDevelopment = false;
+    try { allowedDevelopment = developmentUrl?.origin === new URL(url).origin; }
+    catch { /* Invalid navigation is denied below. */ }
     if (!url.startsWith("file:") && !allowedDevelopment) event.preventDefault();
   });
-  window.once("ready-to-show", () => window.show());
-  if (developmentUrl) void window.loadURL(developmentUrl);
-  else void window.loadFile(path.join(root, "..", "dist", "index.html"));
+  if (!smoke) window.once("ready-to-show", () => window.show());
+  if (developmentUrl) await window.loadURL(developmentUrl.href);
+  else await window.loadFile(path.join(root, "..", "dist", "index.html"),
+    smoke ? { query: { smoke: "1" } } : undefined);
+  return window;
 }
 
-app.whenReady().then(() => {
-  if (smokeOnly) {
-    process.stdout.write(`ProDraw desktop ${app.getVersion()}\n`);
-    app.quit();
-    return;
-  }
+async function start() {
   registerFileIpc();
   registerBrushIpc();
-  createWindow();
+  if (smokeOnly) {
+    const window = await createWindow({ smoke: true });
+    await runPackagedSmoke(window);
+    app.exit(0);
+    return;
+  }
+  await createWindow();
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
   });
+}
+
+void app.whenReady().then(start).catch((error) => {
+  console.error("ProDraw desktop startup failed", error);
+  app.exit(1);
 });
 
 app.on("window-all-closed", () => app.quit());

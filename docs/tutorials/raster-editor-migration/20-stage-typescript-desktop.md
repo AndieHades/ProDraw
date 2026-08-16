@@ -34,7 +34,7 @@ fixture are rejected. Product UI remains the legacy entry until `R2`.
 
 ## Completion record
 
-- Commit: R1 foundation commit (this commit)
+- Commit: R1 foundation commit (`8fbdf54`)
 - Checks: strict TypeScript, ESLint, 2 TS tests, 128 legacy unit tests,
   415 legacy integration tests, storage/boot, docs/lines/architecture/cycles,
   Vite bundle and packaged Windows executable smoke.

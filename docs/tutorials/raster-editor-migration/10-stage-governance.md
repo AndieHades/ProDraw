@@ -34,7 +34,7 @@ Excluded: production source/toolchain changes and runtime cutover.
 
 ## Completion record
 
-- Commit: R0 planning commit (this commit)
+- Commit: R0 planning commit (`32db0b2`)
 - Checks: `validate:docs`, `validate:lines`, targeted ESLint, `git diff --check`
 - Deviations: none
 - Next stage: `R1`

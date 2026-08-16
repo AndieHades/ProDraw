@@ -2,6 +2,8 @@ import { readdir, readFile } from "node:fs/promises";
 
 const html = await readFile("index.html", "utf8");
 const main = await readFile("src/main.ts", "utf8");
+const rasterConfig = await readFile("src/config/raster.ts", "utf8");
+const projectConfig = JSON.parse(await readFile("project.config.json", "utf8"));
 const brushFiles = (await readdir("src/app-folders/brushes/main"))
   .filter((file) => file.endsWith(".brush"));
 const errors = [];
@@ -17,6 +19,11 @@ if (!main.includes("RasterEditorApp")) {
 }
 if (brushFiles.length !== 12) {
   errors.push(`expected 12 bundled .brush files, found ${brushFiles.length}`);
+}
+const runtimeMaximum = rasterConfig.match(/maximumPixels:\s*([\d_]+)/)?.[1];
+if (!runtimeMaximum || Number(runtimeMaximum.replaceAll("_", "")) !==
+    projectConfig.maxCanvasPixels) {
+  errors.push("project and runtime maximum canvas pixels must match");
 }
 
 if (errors.length) {
