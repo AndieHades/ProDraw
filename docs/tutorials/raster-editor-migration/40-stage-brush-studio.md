@@ -119,4 +119,4 @@ fixture without changing pixels outside dirty bounds and undoes in one step.
   preview and dirty-tile frame budgets, plus brush import/export/reset. Remaining
   panel commands activate in R4/R5 only with their raster/undo contracts.
 - Commit: R3B stabilized Huion brush and Smudge checkpoint (this commit).
-- Commit: R3C persistent brush sets and movable panel checkpoint (this commit).
+- Commit: R3C persistent brush sets and movable panel checkpoint (`a21584a`).

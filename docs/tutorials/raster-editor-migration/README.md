@@ -11,8 +11,8 @@ Canonical owner: this package.
 - Current stage: `R3 — professional brush studio`
 - Status: `in_progress`
 - Last completed stage: `R2`
-- Next action: commit the validated R3C brush-library/tool-panel checkpoint,
-  then finish brush import/export/reset and the remaining R3 performance proof
+- Next action: finish brush import/export/reset and the remaining R3 performance
+  proof, without adding Pixel Perfect or a global stabilization command
 - Blockers: none
 - Working paths: `src/contracts/brush*`, `src/platform`, `desktop/brush-ipc.mjs`,
   `src/core/brush-library`, `src/ui/brushes`, `tests/brush`
@@ -20,7 +20,7 @@ Canonical owner: this package.
   architecture, cycles, raster entry, desktop package and packaged smoke pass;
   browser matrix passed folder create/rename/delete and movable-panel reload;
   drag-to-set is covered by a DOM integration test and physical-storage fixture
-- Last updated: `2026-08-16, main@a59065a + validated R3C working tree`
+- Last updated: `2026-08-16, main@a21584a`
 
 ## Product Outcome
 
