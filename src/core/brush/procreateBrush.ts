@@ -55,7 +55,7 @@ export async function decodeProcreateBrush(
       try {
         const result = applyBrushArchiveSettings(preset,
           decodeKeyedArchiveRoot(archiveBytes), Boolean(grainBytes));
-        resolvedPreset = result.preset;
+        resolvedPreset = preset.fileName.endsWith(".brush") ? result.preset : preset;
         compatibility = result.compatibility;
       } catch (error) {
         const detail = error instanceof Error ? error.message : "unknown settings failure";

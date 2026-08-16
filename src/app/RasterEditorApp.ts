@@ -44,7 +44,8 @@ export class RasterEditorApp {
       onChanged: () => this.changed(), onStatus: (key) => this.status(key) });
     this.#exporter = new ExportSystem({ platform, getDocument: () => this.#session.document,
       onStatus: (status) => this.status(`status.${status}` as MessageKey) });
-    this.#studio = new BrushStudioPresenter(async (source, draft) => {
+    this.#studio = new BrushStudioPresenter(
+      (candidate) => this.#session.loadBrush(candidate), async (source, draft) => {
       const applied = await library.applyDraft(source, draft);
       this.#session.forgetBrush(source.id);
       this.selectBrush(applied);
@@ -52,7 +53,8 @@ export class RasterEditorApp {
     });
     this.#brushes = new BrushLibraryPresenter(library, brush.id, {
       select: (selected) => this.selectBrush(selected),
-      edit: (selected) => this.#studio.open(selected)
+      edit: (selected) => this.#studio.open(selected),
+      load: (selected) => this.#session.loadBrush(selected)
     });
     this.#newDocument = new NewDocumentPresenter(this.dispatch);
     this.#events.subscribe((event) => event.type === "editor.changed"

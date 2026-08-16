@@ -99,19 +99,14 @@ export class DrawingSystem {
   private drawSample(sample: StrokeSample): void {
     if (!this.#edit) return;
     const brush = this.#options.getBrush();
-    const scatter = brush.strokePath.scatter * this.#options.getSize();
-    const angle = ((Math.floor(sample.time * 10) * 1103515245) >>> 0) / 0xffffffff * Math.PI * 2;
-    const radius = scatter * (((Math.floor(sample.time * 100) * 2654435761) >>> 0) / 0xffffffff);
-    const scattered = { ...sample, x: sample.x + Math.cos(angle) * radius,
-      y: sample.y + Math.sin(angle) * radius };
     if (this.#strokeTool === "smudge" && this.#smudge) {
-      renderSmudgeDab(this.#edit, brush, scattered,
+      renderSmudgeDab(this.#edit, brush, sample,
         { size: this.#options.getSize(), strength: this.#options.getOpacity(),
           ...SMUDGE_DEFAULTS }, this.#smudge);
       this.#options.viewport.requestRender();
       return;
     }
-    renderBrushDab(this.#edit, brush, scattered,
+    renderBrushDab(this.#edit, brush, sample,
       { size: this.#options.getSize(), opacity: this.#options.getOpacity(),
         erase: this.#strokeTool === "eraser" },
       this.#options.getColor());

@@ -1,4 +1,4 @@
-import type { BrushPreset } from "../../contracts/brush";
+import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
 import {
   BRUSH_STUDIO_SECTIONS, type BrushStudioSectionId
 } from "../../config/brushStudio";
@@ -20,15 +20,20 @@ export class BrushStudioPresenter {
     requiredElement<HTMLElement>("#studio-controls")
   );
   readonly #pad: BrushStudioPad;
+  readonly #load: (brush: BrushPreset) => Promise<LoadedBrush>;
   readonly #onApply: (source: BrushPreset, draft: BrushPreset) => Promise<void>;
   #source: BrushPreset | null = null;
   #draft: BrushPreset | null = null;
+  #loaded: LoadedBrush | null = null;
+  #openRequest = 0;
   #section: BrushStudioSectionId = "strokePath";
 
-  constructor(onApply: (source: BrushPreset, draft: BrushPreset) => Promise<void>) {
+  constructor(load: (brush: BrushPreset) => Promise<LoadedBrush>,
+    onApply: (source: BrushPreset, draft: BrushPreset) => Promise<void>) {
+    this.#load = load;
     this.#onApply = onApply;
     this.#pad = new BrushStudioPad(requiredElement("#studio-pad"),
-      () => this.requiredDraft(), (sample) => {
+      () => this.renderingBrush(), (sample) => {
         this.#diagnostics.textContent = `${t("studio.pressure")} ${sample.pressure.toFixed(2)} · ` +
           `${t("studio.tilt")} ${sample.tiltX}° / ${sample.tiltY}° · ` +
           `${t("studio.buttons")} ${sample.buttons}`;
@@ -37,12 +42,21 @@ export class BrushStudioPresenter {
   }
 
   open(brush: BrushPreset): void {
+    const request = ++this.#openRequest;
     this.#source = brush;
     this.#draft = cloneBrushPreset(brush);
+    this.#loaded = null;
     this.#section = "strokePath";
     this.#dialog.showModal();
     this.render();
     requestAnimationFrame(() => this.#pad.resetPreview());
+    void this.#load(brush).then((loaded) => {
+      if (request !== this.#openRequest || this.#source?.id !== loaded.id) return;
+      this.#draft = cloneBrushPreset(loaded);
+      this.#loaded = loaded;
+      this.render();
+      this.#pad.resetPreview();
+    });
   }
 
   private render(): void {
@@ -59,7 +73,7 @@ export class BrushStudioPresenter {
       });
       return button;
     }));
-    this.#controls.render(this.#section, draft, (path, value) => {
+    this.#controls.render(this.#section, this.renderingBrush(), (path, value) => {
       this.updateDraft(path, value);
     });
   }
@@ -87,5 +101,12 @@ export class BrushStudioPresenter {
   private requiredDraft(): BrushPreset {
     if (!this.#draft) throw new Error("Brush Studio has no draft");
     return this.#draft;
+  }
+
+  private renderingBrush(): BrushPreset | LoadedBrush {
+    const draft = this.requiredDraft();
+    const loaded = this.#loaded;
+    return loaded ? { ...draft, shapeMap: loaded.shapeMap, grainMap: loaded.grainMap,
+      compatibility: loaded.compatibility, warnings: loaded.warnings } : draft;
   }
 }

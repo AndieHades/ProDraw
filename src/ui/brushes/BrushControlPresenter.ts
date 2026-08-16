@@ -1,4 +1,4 @@
-import type { BrushPreset } from "../../contracts/brush";
+import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
 import type { BrushControlDefinition, BrushStudioSectionId } from
   "../../config/brushStudio";
 import { BRUSH_STUDIO_CONTROLS } from "../../config/brushStudio";
@@ -16,18 +16,41 @@ export class BrushControlPresenter {
 
   render(
     section: BrushStudioSectionId,
-    preset: BrushPreset,
+    preset: BrushPreset | LoadedBrush,
     onChange: (path: string, value: BrushScalarValue) => void
   ): void {
-    if (section === "preview" || section === "about") {
+    if (section === "about") {
+      this.#host.replaceChildren(...this.about(preset));
+      return;
+    }
+    if (section === "preview") {
       const hint = document.createElement("p");
-      hint.textContent = t(section === "preview" ? "studio.previewHint" : "studio.aboutHint");
+      hint.textContent = t("studio.previewHint");
       this.#host.replaceChildren(hint);
       return;
     }
     const controls = BRUSH_STUDIO_CONTROLS[section] ?? [];
     this.#host.replaceChildren(...controls.map((control) =>
       this.control(control, preset, onChange)));
+  }
+
+  private about(preset: BrushPreset | LoadedBrush): HTMLElement[] {
+    const lines: string[] = [t("studio.aboutHint")];
+    if (!("compatibility" in preset)) lines.push(t("studio.aboutLoading"));
+    else {
+      const report = preset.compatibility;
+      lines.push(`${t("studio.aboutArchive")}: ${report.archiveName ?? "—"} · ` +
+        `v${report.archiveVersion ?? "—"}`);
+      lines.push(`${t("studio.aboutSupported")}: ${report.supportedFields.length}`);
+      if (report.unsupportedActiveFields.length) lines.push(
+        `${t("studio.aboutUnsupported")}: ${report.unsupportedActiveFields.join(", ")}`);
+      if (preset.warnings.length) lines.push(
+        `${t("studio.aboutWarnings")}: ${preset.warnings.join(", ")}`);
+      lines.push(t("studio.aboutExcluded"));
+    }
+    return lines.map((text) => {
+      const paragraph = document.createElement("p"); paragraph.textContent = text; return paragraph;
+    });
   }
 
   private control(

@@ -25,10 +25,18 @@ export function brushTipCoverage(
   normalizedX: number,
   normalizedY: number
 ): number {
-  if (Math.abs(normalizedX) > 1 || Math.abs(normalizedY) > 1) return 0;
+  const cosine = Math.cos(brush.shape.angle);
+  const sine = Math.sin(brush.shape.angle);
+  const transformedX = normalizedX * cosine + normalizedY * sine;
+  const transformedY = (-normalizedX * sine + normalizedY * cosine) /
+    Math.max(0.05, brush.shape.roundness);
+  if (Math.abs(transformedX) > 1 || Math.abs(transformedY) > 1) return 0;
   const shape = shapeOf(brush);
-  if (shape) return bilinear(shape, (normalizedX + 1) / 2, (normalizedY + 1) / 2);
-  const distance = Math.hypot(normalizedX, normalizedY);
+  if (shape) {
+    const sampled = bilinear(shape, (transformedX + 1) / 2, (transformedY + 1) / 2);
+    return Math.pow(sampled, 1 + (1 - brush.shape.hardness) * 2);
+  }
+  const distance = Math.hypot(transformedX, transformedY);
   if (distance >= 1) return 0;
   const edge = Math.max(0.001, 1 - brush.shape.hardness);
   return Math.min(1, Math.max(0, (1 - distance) / edge));
@@ -41,10 +49,14 @@ export function brushTexture(
 ): number {
   if (brush.grain.strength <= 0) return 1;
   const grain = "grainMap" in brush ? brush.grainMap : null;
-  const procedural = ((x * 73856093) ^ (y * 19349663) ^ brush.id.length * 83492791) >>> 0;
+  const scale = Math.max(0.05, brush.grain.scale);
+  const sampleX = Math.floor(x / scale);
+  const sampleY = Math.floor(y / scale);
+  const procedural = ((sampleX * 73856093) ^ (sampleY * 19349663) ^
+    brush.id.length * 83492791) >>> 0;
   const sample = grain
-    ? (grain.data[((y % grain.height + grain.height) % grain.height) * grain.width +
-      ((x % grain.width + grain.width) % grain.width)] ?? 0) / 255
+    ? (grain.data[((sampleY % grain.height + grain.height) % grain.height) * grain.width +
+      ((sampleX % grain.width + grain.width) % grain.width)] ?? 0) / 255
     : (procedural % 997) / 996;
   return 1 - brush.grain.strength + sample * brush.grain.strength;
 }

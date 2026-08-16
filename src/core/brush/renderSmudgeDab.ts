@@ -23,8 +23,7 @@ function bounds(
   sample: StrokeSample,
   settings: SmudgeRenderSettings
 ): DabBounds {
-  const radius = pressureBrushSize(brush,
-    { size: settings.size, opacity: 1, erase: false }, sample.pressure) / 2;
+  const radius = pressureBrushSize(brush, settings.size, sample) / 2;
   return { minimumX: Math.floor(sample.x - radius - 1),
     maximumX: Math.ceil(sample.x + radius + 1),
     minimumY: Math.floor(sample.y - radius - 1),

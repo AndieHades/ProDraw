@@ -6,12 +6,16 @@ import type { RasterEdit } from "../history/RasterEdit";
 
 export function pressureBrushSize(
   brush: BrushPreset | LoadedBrush,
-  settings: BrushRenderSettings,
-  pressure: number
+  size: number,
+  sample: Pick<StrokeSample, "pressure" | "tiltX" | "tiltY">
 ): number {
   const response = 1 - brush.dynamics.sizeByPressure +
-    brush.dynamics.sizeByPressure * pressure;
-  return Math.max(1, settings.size * response);
+    brush.dynamics.sizeByPressure * sample.pressure;
+  const tilt = brush.stylus.tiltEnabled
+    ? Math.min(1, Math.hypot(sample.tiltX, sample.tiltY) / 90) : 0;
+  const responsiveSize = size * response * (1 + brush.dynamics.tiltToSize * tilt);
+  return Math.max(brush.properties.minimumSize,
+    Math.min(brush.properties.maximumSize, responsiveSize));
 }
 
 export function renderBrushDab(
@@ -21,7 +25,7 @@ export function renderBrushDab(
   settings: BrushRenderSettings,
   color: RgbaColor
 ): void {
-  const size = pressureBrushSize(brush, settings, sample.pressure);
+  const size = pressureBrushSize(brush, settings.size, sample);
   const radius = size / 2;
   const minimumX = Math.floor(sample.x - radius - 1);
   const maximumX = Math.ceil(sample.x + radius + 1);

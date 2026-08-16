@@ -53,4 +53,20 @@ describe("bundled brush catalog", () => {
     }
     expect(signatures.size).toBe(BUNDLED_BRUSHES.length);
   }, 30_000);
+
+  it("keeps authored ProDraw settings while reusing archive assets", async () => {
+    const preset = BUNDLED_BRUSHES.find(({ fileName }) => fileName === "lineart.brush")!;
+    const filePath = path.join(process.cwd(), "src", "app-folders", "brushes",
+      "main", preset.fileName);
+    const source = await readFile(filePath);
+    const authored = { ...preset, fileName: "lineart-custom.prodraw-brush",
+      stabilization: { ...preset.stabilization, streamlineAmount: 0.123 },
+      properties: { minimumSize: 7, maximumSize: 77 } };
+    const loaded = await decodeProcreateBrush(new Uint8Array(source.buffer.slice(
+      source.byteOffset, source.byteOffset + source.byteLength
+    )), authored);
+    expect(loaded.stabilization.streamlineAmount).toBe(0.123);
+    expect(loaded.properties).toEqual({ minimumSize: 7, maximumSize: 77 });
+    expect(loaded.compatibility.archiveVersion).toBe(4);
+  });
 });

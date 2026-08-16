@@ -1,4 +1,4 @@
-import type { BrushPreset } from "../../contracts/brush";
+import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
 import type { BrushLibrarySnapshot } from "../../contracts/brushLibrary";
 import type { BrushLibraryPort } from "../../contracts/brushLibraryPort";
 import { t } from "../../i18n/raster/translate";
@@ -12,6 +12,7 @@ import { BrushSetContextMenuPresenter } from "./BrushSetContextMenuPresenter";
 export interface BrushLibraryActions {
   readonly select: (brush: BrushPreset) => void;
   readonly edit: (brush: BrushPreset) => void;
+  readonly load: (brush: BrushPreset) => Promise<LoadedBrush>;
 }
 type SmartCollection = "recent" | "favorites" | null;
 export class BrushLibraryPresenter {
@@ -51,12 +52,10 @@ export class BrushLibraryPresenter {
   }
 
   open(): void {
-    this.#dialog.showModal();
-  }
+    this.#dialog.showModal(); }
 
   select(id: string): void {
-    this.#selectedId = id;
-    this.render();
+    this.#selectedId = id; this.render();
   }
   private render(): void {
     this.renderSets();
@@ -98,8 +97,7 @@ export class BrushLibraryPresenter {
   }
 
   private allBrushes(): BrushPreset[] {
-    return this.#snapshot.sets.flatMap(({ brushes }) => brushes);
-  }
+    return this.#snapshot.sets.flatMap(({ brushes }) => brushes); }
 
   private brushRow(brush: BrushPreset): HTMLButtonElement {
     const button = document.createElement("button");
@@ -112,6 +110,8 @@ export class BrushLibraryPresenter {
     const preview = document.createElement("canvas");
     preview.className = "brush-preview";
     renderBrushPreview(preview, brush);
+    void this.#actions.load(brush).then((loaded) => {
+      if (button.isConnected) renderBrushPreview(preview, loaded); });
     button.append(name, preview);
     button.addEventListener("click", () => this.choose(brush));
     button.addEventListener("dblclick", () => {

@@ -1,4 +1,4 @@
-import type { BrushPreset } from "../../contracts/brush";
+import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
 import type { StrokeSample, StylusDiagnosticSample } from "../../contracts/stroke";
 import { renderBrushDab } from "../../core/brush/renderBrushDab";
 import { RasterEdit } from "../../core/history/RasterEdit";
@@ -9,7 +9,7 @@ import { StrokePipeline } from "../../logic/stroke/StrokePipeline";
 
 export class BrushStudioPad {
   readonly #canvas: HTMLCanvasElement;
-  readonly #getBrush: () => BrushPreset;
+  readonly #getBrush: () => BrushPreset | LoadedBrush;
   readonly #onSample: (sample: StylusDiagnosticSample) => void;
   #surface = new RasterSurface("studio-pad", 640, 360);
   #edit: RasterEdit | null = null;
@@ -18,7 +18,7 @@ export class BrushStudioPad {
 
   constructor(
     canvas: HTMLCanvasElement,
-    getBrush: () => BrushPreset,
+    getBrush: () => BrushPreset | LoadedBrush,
     onSample: (sample: StylusDiagnosticSample) => void
   ) {
     this.#canvas = canvas;
@@ -35,14 +35,15 @@ export class BrushStudioPad {
     const brush = this.#getBrush();
     const edit = new RasterEdit(this.#surface, "Studio preview");
     const width = this.#surface.width;
+    const pipeline = new StrokePipeline(brush, 52);
     for (let index = 0; index <= 36; index += 1) {
       const amount = index / 36;
-      renderBrushDab(edit, brush, { x: 24 + amount * (width - 48),
+      const source = { x: 24 + amount * (width - 48),
         y: this.#surface.height / 2 + Math.sin(amount * Math.PI * 2) * 24,
-        pressure: 0.1 + amount * 0.9, tiltX: 0, tiltY: 0, time: index },
-      { size: 18 + amount * 34, opacity: 1, erase: false },
-      { red: 246, green: 246, blue: 249, alpha: 255 });
+        pressure: 0.1 + amount * 0.9, tiltX: 0, tiltY: 0, time: index };
+      this.renderSamples(edit, brush, pipeline.push(source), 52);
     }
+    this.renderSamples(edit, brush, pipeline.finish(), 52);
     edit.commit();
     this.render();
   }
@@ -92,6 +93,13 @@ export class BrushStudioPad {
 
   private drawSamples(samples: readonly StrokeSample[]): void {
     for (const sample of samples) this.draw(sample);
+  }
+
+  private renderSamples(edit: RasterEdit, brush: BrushPreset | LoadedBrush,
+    samples: readonly StrokeSample[], size: number): void {
+    for (const sample of samples) renderBrushDab(edit, brush, sample,
+      { size, opacity: 1, erase: false },
+      { red: 246, green: 246, blue: 249, alpha: 255 });
   }
 
   private sample(event: PointerEvent): StrokeSample {

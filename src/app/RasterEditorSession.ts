@@ -31,6 +31,7 @@ export class RasterEditorSession {
     this.#view = fitView(document.descriptor, viewport);
     this.#session = session;
     this.registerSurfaces();
+    this.loadSelectedBrush(brush);
   }
 
   get document(): RasterDocument { return this.#document; }
@@ -44,10 +45,10 @@ export class RasterEditorSession {
 
   selectBrush(brush: BrushPreset): void {
     this.#brush = brush;
-    void this.#catalog.load(brush).then((loaded) => {
-      if (this.#brush.id === loaded.id) this.#brush = loaded;
-    });
+    this.loadSelectedBrush(brush);
   }
+
+  loadBrush(brush: BrushPreset): Promise<LoadedBrush> { return this.#catalog.load(brush); }
 
   forgetBrush(id: string): void { this.#catalog.clear(id); }
 
@@ -109,5 +110,13 @@ export class RasterEditorSession {
 
   private registerSurfaces(): void {
     for (const layer of this.#document.layers) this.#history.registerSurface(layer.surface);
+  }
+
+  private loadSelectedBrush(brush: BrushPreset): void {
+    void this.loadBrush(brush).then((loaded) => {
+      if (this.#brush.id === loaded.id && this.#brush.revision === loaded.revision) {
+        this.#brush = loaded;
+      }
+    });
   }
 }

@@ -1,0 +1,41 @@
+import { describe, expect, it } from "vitest";
+import type { BrushPreset } from "../../src/contracts/brush";
+import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
+import { pressureBrushSize } from "../../src/core/brush/renderBrushDab";
+import { brushTexture, brushTipCoverage } from "../../src/logic/brush/brushCoverage";
+
+const source = BUNDLED_BRUSHES[0]!;
+const brush = (patch: Partial<BrushPreset>): BrushPreset => ({ ...source, ...patch });
+
+describe("brush coverage controls", () => {
+  it("applies hardness, roundness, and shape angle to the tip", () => {
+    const hard = brush({ shape: { hardness: 1, angle: 0, roundness: 1 } });
+    const soft = brush({ shape: { hardness: 0, angle: 0, roundness: 1 } });
+    expect(brushTipCoverage(hard, 0.7, 0)).toBeGreaterThan(
+      brushTipCoverage(soft, 0.7, 0));
+
+    const narrow = brush({ shape: { hardness: 1, angle: 0, roundness: 0.2 } });
+    const rotated = brush({ shape: { hardness: 1, angle: Math.PI / 2, roundness: 0.2 } });
+    expect(brushTipCoverage(narrow, 0, 0.7)).toBe(0);
+    expect(brushTipCoverage(rotated, 0, 0.7)).toBeGreaterThan(0);
+  });
+
+  it("uses grain scale to change texture sampling", () => {
+    const fine = brush({ grain: { strength: 1, scale: 0.2 } });
+    const broad = brush({ grain: { strength: 1, scale: 5 } });
+    const samples = [[3, 7], [11, 5], [17, 23]] as const;
+    expect(samples.map(([x, y]) => brushTexture(fine, x, y))).not.toEqual(
+      samples.map(([x, y]) => brushTexture(broad, x, y)));
+  });
+
+  it("clamps size and responds to Huion pressure and tilt", () => {
+    const responsive = brush({
+      dynamics: { sizeByPressure: 1, opacityByPressure: 0, tiltToSize: 1 },
+      properties: { minimumSize: 5, maximumSize: 30 }
+    });
+    expect(pressureBrushSize(responsive, 20,
+      { pressure: 0, tiltX: 0, tiltY: 0 })).toBe(5);
+    expect(pressureBrushSize(responsive, 20,
+      { pressure: 1, tiltX: 90, tiltY: 0 })).toBe(30);
+  });
+});
