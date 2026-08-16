@@ -18,7 +18,7 @@ second product roadmap.
 | `F1` | architecture foundation | commands/view models plus end-to-end harness | `F0` | done |
 | `F2` | pull forward R5 safety | crash-safe multi-document session | `F1` | done |
 | `F3` | finish R3 performance | bounded render/history/autosave/export | `F1`, `F2` | done |
-| `F4` | finish R3 brushes | truthful `.brush` engine and library workflow | `F1`, `F3` | planned |
+| `F4` | finish R3 brushes | truthful `.brush` engine and library workflow | `F1`, `F3` | done |
 | `F5` | finish R3 tablet | robust Huion/touch/stabilizer/Smudge path | `F3`, `F4` | planned |
 | `F6` | R4 | immutable-source Transform and Liquify | `F3`, `F5` | planned |
 | `F7` | R5 document | layer tree, selections and native Save as Canvas | `F2`, `F6` | planned |
@@ -66,12 +66,9 @@ passes from a clean checkout.
 
 **Commit:** `build: make governance and desktop gates truthful`.
 
-**Completion:** commit `c9a0fb9`; shared portable Claude/Codex hooks and
-`validate:hooks`, untracked-file fixture, full working-file line baseline,
-recovery/limit parity validators, npm-only lock and renderer-ready packaged smoke
-are complete. `npm run validate` passed with 42 TS plus 128 retained legacy
-tests; `npm run package:desktop` loaded packaged `dist`, preload/IPC, 12 seeded
-brushes and an RGBA Undo/Redo/IndexedDB round trip (`alpha 255`).
+**Completion:** `c9a0fb9`; portable hooks, truthful validators, npm-only lock and
+renderer-ready packaged smoke are complete. Full validation passed; packaged
+`dist` loaded preload/IPC, 12 brushes and RGBA persistence (`alpha 255`).
 
 ## `F1` — establish testable runtime seams
 
@@ -92,12 +89,9 @@ runs without importing legacy JS.
 
 **Commit:** `refactor: establish editor command and view model seams`.
 
-**Completion:** commit `8ca59f3`; UI dispatches serializable commands and renders
-copied editor/layer/canvas models; `RasterEditorSession` owns document, history,
-view and brush. Eight fixtures enforce DOM-free contracts, UI immutability and
-app-only composition. The pen scenario covers RGBA, frame request, Undo/Redo,
-cancel and autosave success/failure. `npm run validate` passed with 43 TS plus
-128 legacy tests; packaged smoke loaded renderer, IPC, 12 brushes and RGBA save.
+**Completion:** `8ca59f3`; serializable commands and copied view models cross the
+UI boundary; eight fixtures enforce ownership. The pen scenario covers RGBA,
+Undo/Redo, cancel and autosave failure; full validation and packaged smoke passed.
 
 ## `F2` — crash-safe document sessions
 
@@ -162,6 +156,11 @@ changing each enabled parameter changes its expected metric; Studio and document
 match; corrupt/missing/imported brush cases leave a usable library.
 
 **Commit:** `feat: make brush rendering and compatibility truthful`.
+
+**Completion:** `238582b`, `453d5cd`, `9a45c12`, `6f4868b`; one deterministic
+archive renderer, delta-tested controls and durable library workflows passed.
+Packaged evidence found 12 brushes and all 8 live root Shape/Grain resources;
+Edit records provenance and embeds selections so later deletion is safe.
 
 ## `F5` — production tablet input and Smudge
 

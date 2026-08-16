@@ -10,17 +10,16 @@ Canonical owner: this package.
 
 - Current stage: `R3 — professional brush studio`
 - Status: `in_progress`
-- Last completed stage: repair slice `F3`
-- Next action: execute repair slice `F4` from `07-remediation-plan.md`; parse
-  supported `.brush` fields and make every exposed brush control truthful
+- Last completed stage: repair slice `F4`
+- Next action: execute repair slice `F5` from `07-remediation-plan.md`; harden
+  pointer sessions, frequency-normalized stabilization and premultiplied Smudge
 - Blockers: none
-- Working paths: `src/core/document`, `src/core/history`, `src/core/persistence`,
-  `src/ui/canvas`, `src/systems/autosave`, `src/systems/export`, `tests/performance`
-- Last checks: F3 full validate passed with 67 TS plus 128 retained legacy tests;
-  isolated performance gate, active-pen autosave exclusion, incremental recovery,
-  bounded history/cache/export and five-minute virtual plateau passed. Packaged
-  renderer smoke loaded `dist`, preload/IPC and all 12 brushes.
-- Last updated: `2026-08-16, main@6f9ec00`
+- Working paths: `src/systems/input`, `src/logic/stroke`, `src/core/tools`,
+  `src/ui/canvas`, `tests/input`, `tests/stroke`, `tests/smudge`
+- Last checks: F4 full validate passed with 80 TS plus 128 retained legacy tests
+  and 5 performance tests. Packaged renderer smoke loaded all 12 brushes and 8
+  live root Shape/Grain resources through the shared Source Library path.
+- Last updated: `2026-08-16, main@6f4868b`
 
 ## Product Outcome
 

@@ -124,8 +124,8 @@ fixture without changing pixels outside dirty bounds and undoes in one step.
   loaded-brush paths differ, input/render/autosave lack bounded budgets, or
   stabilization has no frequency-equivalent real Huion trace. These gaps are
   owned by repair slices `F3..F5` in `07-remediation-plan.md`.
-- Residual R3 also includes predicted replaceable preview, brush Import/Export/
-  Reset/Restore, resilient per-brush startup and premultiplied-alpha Smudge.
+- Residual R3 is now limited to the F5 device path: predicted replaceable
+  preview, frequency-normalized Huion input and premultiplied-alpha Smudge.
   Remaining panel commands activate in R4/R5 only with raster/undo contracts.
 - Evidence correction: the historical packaged executable smoke only started
   Electron and exited before IPC, preload, window and renderer boot. It remains
@@ -142,3 +142,14 @@ fixture without changing pixels outside dirty bounds and undoes in one step.
   five-minute virtual memory plateau, full validation and packaged renderer
   smoke. Reference numbers and non-device boundaries are recorded in
   [`performance-budgets.md`](../../project/performance-budgets.md).
+- F4 brush repair: `238582b`, `453d5cd`, `9a45c12`, `6f4868b` parse supported
+  archives, use one loaded-brush renderer, isolate bad brushes, persist the active
+  brush and provide Import/Export/Reset/Restore Trash/Reveal Folder. All exposed
+  rendering and stabilization controls have focused delta tests and 12 bundled
+  brushes have frozen distinct golden stroke hashes.
+- The Shape/Grain `Edit` action now opens one compact shared library derived from
+  every live brush file, without search. Its cards name the source brush; imported
+  and created brushes contribute automatically, deleted brushes disappear, and a
+  chosen source is embedded into the target brush so that preset stays drawable.
+  Packaged smoke decoded 3 Shape plus 5 Grain root resources and full validation
+  passed with 80 TypeScript, 128 retained legacy and 5 performance tests.
