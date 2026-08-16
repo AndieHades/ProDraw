@@ -28,3 +28,5 @@ Live-аудит `main@6bcfdaa` зафиксирован в
 Huion/touch/Smudge → `F6` R4 → `F7..F8` R5 → `F9` R6. Полные зависимости,
 проверки и commit boundaries находятся в
 [`07-remediation-plan.md`](../tutorials/raster-editor-migration/07-remediation-plan.md).
+
+Текущий repair checkpoint: `F0` завершён в `c9a0fb9`; следующий срез — `F1`.

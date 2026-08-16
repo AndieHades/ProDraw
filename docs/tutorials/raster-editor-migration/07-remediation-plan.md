@@ -3,8 +3,8 @@
 - Status: `ready`
 - Evidence baseline: `main@6bcfdaa`, 2026-08-16
 - Audit: [`06-live-audit-2026-08-16.md`](06-live-audit-2026-08-16.md)
-- Implementation authority: not granted by the audit request; begin only after an
-  explicit implementation instruction
+- Implementation authority: granted by the user's `выполняй` instruction on
+  2026-08-16
 
 ## Outcome and ordering rule
 
@@ -14,7 +14,7 @@ second product roadmap.
 
 | Slice | Existing stage | Outcome | Depends on | Status |
 | --- | --- | --- | --- | --- |
-| `F0` | repair R0/R1 | truthful hooks, validators and desktop smoke | none | planned |
+| `F0` | repair R0/R1 | truthful hooks, validators and desktop smoke | none | done |
 | `F1` | architecture foundation | commands/view models plus end-to-end harness | `F0` | planned |
 | `F2` | pull forward R5 safety | crash-safe multi-document session | `F1` | planned |
 | `F3` | finish R3 performance | bounded render/history/autosave/export | `F1`, `F2` | planned |
@@ -65,6 +65,13 @@ fails if `dist`, preload, IPC or renderer bootstrap is broken. Full validation
 passes from a clean checkout.
 
 **Commit:** `build: make governance and desktop gates truthful`.
+
+**Completion:** commit `c9a0fb9`; shared portable Claude/Codex hooks and
+`validate:hooks`, untracked-file fixture, full working-file line baseline,
+recovery/limit parity validators, npm-only lock and renderer-ready packaged smoke
+are complete. `npm run validate` passed with 42 TS plus 128 retained legacy
+tests; `npm run package:desktop` loaded packaged `dist`, preload/IPC, 12 seeded
+brushes and an RGBA Undo/Redo/IndexedDB round trip (`alpha 255`).
 
 ## `F1` — establish testable runtime seams
 

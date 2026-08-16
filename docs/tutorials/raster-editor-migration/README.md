@@ -11,16 +11,15 @@ Canonical owner: this package.
 - Current stage: `R3 — professional brush studio`
 - Status: `in_progress`
 - Last completed stage: `R2`
-- Next action: after explicit implementation approval, execute repair slice `F0`
-  from `07-remediation-plan.md`; do not add tools before safety/truth gates
-- Blockers: implementation has not been requested after the audit
-- Working paths: `06-live-audit-2026-08-16.md`, `07-remediation-plan.md`, then
-  `.codex`, `.claude`, `tools`, `desktop` for `F0`
-- Last checks: `npm run validate` passed at the audit baseline (41 TS plus 128
-  retained legacy tests and build); after plan capture, `validate:docs`,
-  `validate:lines` and `git diff --check` passed. Audit proved the current
-  packaged smoke exits before renderer/IPC boot, so it is not product evidence.
-- Last updated: `2026-08-16, audit baseline main@6bcfdaa`
+- Next action: execute repair slice `F1` from `07-remediation-plan.md`; establish
+  commands/view models and the pen-to-autosave end-to-end harness
+- Blockers: none
+- Working paths: `src/contracts`, `src/app`, `src/ui`, `src/systems`,
+  `tools/eslint-rules`, `tests`
+- Last checks: F0 full validate passed with 42 TS plus 128 retained legacy tests;
+  packaged smoke loaded `dist`, preload/IPC, 12 brushes and an RGBA Undo/Redo/
+  IndexedDB round trip. `npm audit --omit=dev` reports zero vulnerabilities.
+- Last updated: `2026-08-16, main@c9a0fb9`
 
 ## Product Outcome
 
