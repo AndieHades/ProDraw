@@ -2,7 +2,9 @@ import { access } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import path from "node:path";
 
-const executable = path.resolve("artifacts/desktop/win-unpacked/ProDraw.exe");
+const executable = path.resolve(
+  process.argv[2] ?? "artifacts/desktop/win-unpacked/ProDraw.exe"
+);
 await access(executable);
 
 await new Promise((resolve, reject) => {

@@ -16,7 +16,9 @@ const html = await readFile("index.html", "utf8");
 const errors = [];
 
 if (pkg.main !== "desktop/electron-main.mjs") errors.push("package main must own Electron entry");
-if (!pkg.scripts?.["package:desktop"]?.includes("--dir")) errors.push("desktop package must produce an unpacked test artifact");
+if (pkg.scripts?.["package:desktop"] !== "node tools/package-desktop.mjs") {
+  errors.push("desktop package must use the verified packaging runner");
+}
 if (!main.includes("contextIsolation: true")) errors.push("contextIsolation must be enabled");
 if (!main.includes("nodeIntegration: false")) errors.push("nodeIntegration must be disabled");
 if (!main.includes("sandbox: true")) errors.push("renderer sandbox must be enabled");

@@ -22,3 +22,9 @@
 Полный `validate` должен объединять typecheck, lint, tests, docs, line limit,
 import cycles и production build. `validate:changed` может выбирать более узкий
 набор, но не заменяет доказательство поведения.
+
+После R2 production entrypoint больше не создаёт legacy pixel DOM, поэтому
+`test/module-int.mjs` и `test/module-boot.mjs` остаются pre-cutover oracle, но не
+входят в зелёный gate. `npm run test:legacy` выполняет 128 чистых legacy unit
+tests и storage tests; новый runtime доказывают Vitest, `validate:raster-entry`
+и browser/packaged smoke.

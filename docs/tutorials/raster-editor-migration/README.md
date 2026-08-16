@@ -8,15 +8,15 @@ Canonical owner: this package.
 
 ## Resume Here
 
-- Current stage: `R2 — playable raster cutover`
-- Status: `in_progress`
-- Last completed stage: `R1`
-- Next action: connect typed document composition and visible-tile rendering before changing the app entrypoint
+- Current stage: `R3 — professional brush studio`
+- Status: `ready`
+- Last completed stage: `R2`
+- Next action: implement folder-backed brush sets and draft/apply preset revisions before opening Brush Studio from double LMB
 - Blockers: none
-- Working paths: `src/core/{raster,history,document}`, `src/contracts`,
-  `src/logic/raster`, `src/config/raster.ts`, `tests/core`
-- Last checks: R2.1 check, lint, 12 TS tests, governed lines and cycles passed
-- Last updated: `2026-08-16, main@8fbdf54 + R2.1 working tree`
+- Working paths: none after the R2 cutover commit
+- Last checks: full validate, 25 TS tests, 128 legacy logic tests, browser
+  A4/stroke/undo/12-brush/PNG smoke and packaged Windows executable smoke passed
+- Last updated: `2026-08-16, R2 completion state`
 
 ## Product Outcome
 
@@ -97,8 +97,8 @@ Excluded:
 | --- | --- | --- | --- | --- |
 | `R0` | [`10-stage-governance.md`](10-stage-governance.md) | none | done | `docs: plan raster editor migration` |
 | `R1` | [`20-stage-typescript-desktop.md`](20-stage-typescript-desktop.md) | `R0` | done | `build: establish TypeScript desktop foundation` |
-| `R2` | [`30-stage-raster-cutover.md`](30-stage-raster-cutover.md) | `R1` | in progress | `feat: cut over to raster painting core` |
-| `R3` | [`40-stage-brush-studio.md`](40-stage-brush-studio.md) | `R2` | planned | `feat: add professional brush studio` |
+| `R2` | [`30-stage-raster-cutover.md`](30-stage-raster-cutover.md) | `R1` | done | `feat: cut over to raster painting core` |
+| `R3` | [`40-stage-brush-studio.md`](40-stage-brush-studio.md) | `R2` | ready | `feat: add professional brush studio` |
 | `R4` | [`50-stage-lossless-transform.md`](50-stage-lossless-transform.md) | `R2` | planned | `feat: add source-preserving transform and liquify` |
 | `R5` | [`60-stage-document-workflow.md`](60-stage-document-workflow.md) | `R3`, `R4` | planned | `feat: complete professional document workflow` |
 | `R6` | [`70-stage-cleanup-polish.md`](70-stage-cleanup-polish.md) | `R5` | planned | `chore: retire pixel editor and complete product docs` |

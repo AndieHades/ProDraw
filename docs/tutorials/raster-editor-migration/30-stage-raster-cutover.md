@@ -1,6 +1,6 @@
 # Stage R2: Playable Raster Cutover
 
-- Status: `in_progress`
+- Status: `done`
 - Depends on: `R1`
 - Requirements: `RST-01`, `BRH-01`, `CAN-01`, minimum `DOC-01`, `CUT-01`
 - Planned commits: `feat: add tiled raster document core`, then
@@ -22,14 +22,14 @@ with bundled brushes, layers and undo, then save and export exact-size PNG.
 ## Steps
 
 - `R2.1` Implement lazy RGBA tiles and patch history with deterministic tests. ✅
-- `R2.2` Implement typed document store and composite visible layers.
-- `R2.3` Decode build-manifest `.brush` archives with per-brush isolation.
-- `R2.4` Render antialiased shape/soft procedural fallback, grain and opacity.
-- `R2.5` Connect coalesced pointer samples, pressure size/opacity and eraser.
-- `R2.6` Connect layers, undo/redo and non-destructive pan/zoom/rotate view.
-- `R2.7` Add exact required canvas presets/custom validation and PNG export.
-- `R2.8` Cut `index.html` to the TS app; remove pixelizer from runtime UI.
-- `R2.9` Add current-format autosave/reopen and browser/desktop smoke.
+- `R2.2` Implement typed document store and composite visible layers. ✅
+- `R2.3` Decode build-manifest `.brush` archives with per-brush isolation. ✅
+- `R2.4` Render antialiased shape/soft procedural fallback, grain and opacity. ✅
+- `R2.5` Connect coalesced pointer samples, pressure size/opacity and eraser. ✅
+- `R2.6` Connect layers, undo/redo and non-destructive pan/zoom/rotate view. ✅
+- `R2.7` Add exact required canvas presets/custom validation and PNG export. ✅
+- `R2.8` Cut `index.html` to the TS app; remove pixelizer from runtime UI. ✅
+- `R2.9` Add current-format autosave/reopen and browser/desktop smoke. ✅
 
 ## Edge cases
 
@@ -48,4 +48,13 @@ redo restores the stroke. No app entrypoint imports pixelizer/grid/tilemap.
 - R2.1: lazy 256×256 RGBA tiles, straight-alpha source-over/erase,
   per-surface layer ownership and byte-exact tile-patch undo/redo are complete.
   Focused evidence: strict check, ESLint, 12 TS tests, line and cycle validators.
-- Remaining R2.2–R2.9: pending.
+- R2.2–R2.9: TypeScript entrypoint, typed layer document/compositor, 12-asset
+  brush catalog with isolated archive fallbacks, antialiased pressure strokes,
+  pen eraser, non-destructive view, exact presets, DPI-tagged PNG and IndexedDB
+  round trip are complete.
+- Evidence: full repository validate; 25 TS tests and 128 retained legacy logic
+  tests; A4 2480×3508 @300 DPI browser creation, continuous drag, undo, all 12
+  previews and PNG status; packaged `ProDraw.exe --smoke-test` passed.
+- Deviation: old DOM-coupled module-int/module-boot suites are retained only as
+  pre-cutover oracle and are no longer default gates. Brush folder writes,
+  duplicate/delete, Studio and stabilization remain correctly owned by R3.

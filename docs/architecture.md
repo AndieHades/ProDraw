@@ -21,5 +21,6 @@ immutable source и выполняет единственный final resample �
 
 ## Переход
 
-Текущие `src/core/state.js` и `Layer.grid` — legacy oracle до `R2/R6`, не
-контракт для нового кода. Новый TypeScript не должен зависеть от них.
+Production entrypoint `src/main.ts` собирает только target TypeScript graph.
+`src/core/state.js` и `Layer.grid` остаются неисполняемым legacy oracle до R6;
+новый TypeScript не зависит от них, что проверяет `validate:raster-entry`.

@@ -1,0 +1,28 @@
+:root {
+  color-scheme: dark;
+  --bg-app: #111216;
+  --bg-bar: #1b1c21;
+  --bg-panel: rgba(31, 32, 38, .96);
+  --bg-control: #292a31;
+  --bg-control-hover: #353741;
+  --bg-canvas: #16171b;
+  --text-main: #f4f4f6;
+  --text-muted: #a5a7b0;
+  --accent: #087dff;
+  --accent-hover: #248dff;
+  --border: rgba(255, 255, 255, .1);
+  --shadow: 0 16px 48px rgba(0, 0, 0, .38);
+  --radius-small: 8px;
+  --radius-medium: 12px;
+  --topbar-height: 54px;
+  --status-height: 28px;
+  --panel-width: 220px;
+  --control-height: 36px;
+  --space-xs: 6px;
+  --space-sm: 10px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --font-ui: Inter, "Segoe UI Variable", "Segoe UI", sans-serif;
+  --font-small: 12px;
+  --font-normal: 14px;
+}

@@ -53,6 +53,16 @@ export class RasterDocument {
     this.#activeLayerId = id;
   }
 
+  removeLayer(id: string): void {
+    if (this.#layers.length <= 1) throw new Error("A document needs at least one layer");
+    const index = this.#layers.findIndex(({ descriptor }) => descriptor.id === id);
+    if (index < 0) throw new Error(`Unknown layer: ${id}`);
+    this.#layers.splice(index, 1);
+    if (this.#activeLayerId === id) {
+      this.#activeLayerId = this.#layers[Math.min(index, this.#layers.length - 1)]?.descriptor.id ?? "";
+    }
+  }
+
   updateLayer(id: string, update: Partial<Omit<LayerDescriptor, "id">>): void {
     const layer = this.#layers.find(({ descriptor }) => descriptor.id === id);
     if (!layer) throw new Error(`Unknown layer: ${id}`);

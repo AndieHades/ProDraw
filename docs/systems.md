@@ -18,9 +18,9 @@
 
 ## Legacy inventory
 
-До cutover `src/app.js` собирает старые JS systems вокруг глобального `S` и
-pixel grids, включая pixelizer, tilemap и pixel-perfect. Это read-only
-поведенческий oracle для полезных gallery/layer/selection/IO сценариев. Новая
-system не импортирует legacy system и не пишет в legacy state.
+`src/main.ts` и `src/app/RasterEditorApp.ts` собирают текущие drawing, viewport,
+autosave и export systems. Они работают через `RasterDocument`, `TileHistory`,
+platform port и presenters. Старый `src/app.js` вокруг глобального `S` больше не
+загружается и остаётся read-only oracle для будущего parity transfer.
 
 После `R6` этот раздел заменяется сгенерированным индексом production systems.

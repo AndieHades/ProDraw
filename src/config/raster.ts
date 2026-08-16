@@ -1,7 +1,7 @@
 export const RASTER_LIMITS = Object.freeze({
   tileSize: 256,
   maximumSide: 8192,
-  maximumPixels: 67_108_864,
+  maximumPixels: 50_000_000,
   maximumHistoryEntries: 100
 });
 

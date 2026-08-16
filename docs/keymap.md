@@ -1,7 +1,8 @@
 # Keyboard and Pen Map
 
-Дискретные действия регистрируются в typed action registry, а bindings живут в
-`src/config/keymap.ts`. UI и systems не разбирают глобальный `keydown` напрямую.
+Полный typed action registry и data-driven bindings принадлежат R3/R5. Текущий
+R2 runtime поддерживает pointer/pen, toolbar actions, wheel zoom, Alt+wheel
+rotate и Space-pan; production не импортирует legacy keymap.
 
 Базовые действия: brush/eraser, eyedropper, undo/redo, brush size, pan, rotate
 view, fit/100%, layer commands, selection/transform, save/export. Windows `Ctrl`
@@ -10,5 +11,5 @@ view, fit/100%, layer commands, selection/transform, save/export. Windows `Ctrl`
 Pen eraser/barrel buttons и touch gestures имеют отдельную data-driven map.
 Predicted pointer samples не являются commands и никогда не коммитятся.
 
-Старый `src/systems/keyboard/keymap.js` остаётся oracle до `R2`; новые действия
-не добавляются туда без отдельной необходимости поддержать legacy runtime.
+Старый `src/systems/keyboard/keymap.js` остаётся неисполняемым oracle до R6;
+новые действия туда не добавляются.

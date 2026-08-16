@@ -9,6 +9,7 @@ await runNpmScripts([
   "validate:architecture",
   "validate:cycles",
   "validate:desktop",
+  "validate:raster-entry",
   "build:bundle"
 ]);
 console.log("Full repository validation passed.");

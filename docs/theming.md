@@ -1,6 +1,6 @@
 # Темизация
 
-UI использует semantic CSS variables из `src/styles/tokens.css`; компоненты не
+UI использует semantic CSS variables из `src/styles/raster-tokens.css`; компоненты не
 хардкодят цвета, размеры, spacing, radius или animation timing.
 
 Canvas checkerboard, selection overlays и brush cursor используют отдельные

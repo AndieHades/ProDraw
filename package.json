@@ -12,11 +12,11 @@
     "build:bundle": "vite build",
     "build:desktop": "npm run check && vite build --mode desktop",
     "check": "tsc --noEmit --incremental --tsBuildInfoFile node_modules/.cache/prodraw.tsbuildinfo",
-    "package:desktop": "npm run validate:desktop && npm run build:desktop && electron-builder --win --x64 --dir && npm run smoke:desktop",
+    "package:desktop": "node tools/package-desktop.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "npm run test:legacy && npm run test:ts",
-    "test:legacy": "node test/no-cyrillic.mjs && node test/unit.mjs && node test/storage.mjs && node test/module-int.mjs && node test/module-boot.mjs",
+    "test:legacy": "node test/no-cyrillic.mjs && node test/unit.mjs && node test/storage.mjs",
     "test:ts": "vitest run",
     "smoke:desktop": "node tools/smoke-packaged-desktop.mjs",
     "validate": "node tools/validate.mjs",
@@ -25,6 +25,7 @@
     "validate:desktop": "node tools/validate-desktop-shell.mjs",
     "validate:docs": "node tools/validate-docs.mjs",
     "validate:lines": "node tools/check-line-limit.mjs",
+    "validate:raster-entry": "node tools/validate-raster-entry.mjs",
     "validate:changed": "node tools/validate-changed.mjs"
   },
   "devDependencies": {
