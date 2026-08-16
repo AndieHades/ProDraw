@@ -29,6 +29,11 @@ describe("StrokePipeline brush dynamics", () => {
       spacingJitter: 0.8, lateralJitter: 0.7, linearJitter: 0.6, scatter: 0.5 } };
     expect(run(dynamic)).toEqual(run(dynamic));
     expect(run(dynamic)).not.toEqual(run(stable));
+    for (const [key, value] of [["spacingJitter", 0.8], ["lateralJitter", 0.7],
+      ["linearJitter", 0.6], ["scatter", 0.5]] as const) {
+      const variant = { ...stable, strokePath: { ...stable.strokePath, [key]: value } };
+      expect(run(variant), key).not.toEqual(run(stable));
+    }
   });
 
   it("makes spacing and falloff affect generated samples", () => {

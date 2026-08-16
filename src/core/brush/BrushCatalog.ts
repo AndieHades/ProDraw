@@ -21,10 +21,12 @@ export class BrushCatalog {
       this.#loaded.delete(key);
       const working = this.#lastWorking.get(preset.id);
       if (working) return { ...working, ...preset, shapeMap: working.shapeMap,
-        grainMap: working.grainMap, compatibility: working.compatibility,
+        grainMap: working.grainMap, nativeShapeMap: working.nativeShapeMap,
+        nativeGrainMap: working.nativeGrainMap, compatibility: working.compatibility,
         warnings: [...working.warnings, "last-working-fallback"] };
       const detail = error instanceof Error ? error.message : "unknown fetch failure";
       return { ...preset, shapeMap: null, grainMap: null,
+        nativeShapeMap: null, nativeGrainMap: null,
         compatibility: emptyBrushCompatibility(), warnings: [`asset-fallback:${detail}`] };
     });
     this.#loaded.set(key, loading);

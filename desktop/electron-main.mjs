@@ -57,7 +57,8 @@ async function start() {
   if (smokeOnly) {
     const window = await createWindow({ smoke: true });
     await runPackagedSmoke(window);
-    app.exit(0);
+    window.destroy();
+    app.quit();
     return;
   }
   await createWindow();

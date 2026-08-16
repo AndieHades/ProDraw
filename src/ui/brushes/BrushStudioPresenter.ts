@@ -1,8 +1,13 @@
-import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
+import type {
+  BrushPreset, BrushSourceAsset, BrushSourceKind, LoadedBrush
+} from "../../contracts/brush";
 import {
   BRUSH_STUDIO_SECTIONS, type BrushStudioSectionId
 } from "../../config/brushStudio";
 import { cloneBrushPreset } from "../../logic/brush/cloneBrushPreset";
+import {
+  effectiveBrushSources, selectBrushSource
+} from "../../logic/brush/brushSourceAsset";
 import { t, type MessageKey } from "../../i18n/raster/translate";
 import {
   updateBrushValue, type BrushScalarValue
@@ -10,28 +15,33 @@ import {
 import { requiredElement } from "../dom/query";
 import { BrushControlPresenter } from "./BrushControlPresenter";
 import { BrushStudioPad } from "./BrushStudioPad";
+import { BrushSourceLibraryPresenter } from "./BrushSourceLibraryPresenter";
 
 export class BrushStudioPresenter {
   readonly #dialog = requiredElement<HTMLDialogElement>("#brush-studio-dialog");
   readonly #name = requiredElement<HTMLElement>("#studio-brush-name");
   readonly #sections = requiredElement<HTMLElement>("#studio-sections");
   readonly #diagnostics = requiredElement<HTMLElement>("#stylus-diagnostics");
-  readonly #controls = new BrushControlPresenter(
-    requiredElement<HTMLElement>("#studio-controls")
-  );
+  readonly #controls: BrushControlPresenter;
   readonly #pad: BrushStudioPad;
+  readonly #sourceLibrary: BrushSourceLibraryPresenter;
   readonly #load: (brush: BrushPreset) => Promise<LoadedBrush>;
   readonly #onApply: (source: BrushPreset, draft: BrushPreset) => Promise<void>;
   #source: BrushPreset | null = null;
   #draft: BrushPreset | null = null;
   #loaded: LoadedBrush | null = null;
   #openRequest = 0;
+  #draftVersion = 0;
   #section: BrushStudioSectionId = "strokePath";
 
-  constructor(load: (brush: BrushPreset) => Promise<LoadedBrush>,
+  constructor(getBrushes: () => readonly BrushPreset[],
+    load: (brush: BrushPreset) => Promise<LoadedBrush>,
     onApply: (source: BrushPreset, draft: BrushPreset) => Promise<void>) {
     this.#load = load;
     this.#onApply = onApply;
+    this.#controls = new BrushControlPresenter(requiredElement("#studio-controls"),
+      (kind) => this.openSource(kind));
+    this.#sourceLibrary = new BrushSourceLibraryPresenter(getBrushes, load);
     this.#pad = new BrushStudioPad(requiredElement("#studio-pad"),
       () => this.renderingBrush(), (sample) => {
         this.#diagnostics.textContent = `${t("studio.pressure")} ${sample.pressure.toFixed(2)} · ` +
@@ -46,13 +56,14 @@ export class BrushStudioPresenter {
     this.#source = brush;
     this.#draft = cloneBrushPreset(brush);
     this.#loaded = null;
+    this.#draftVersion = 0;
     this.#section = "strokePath";
     this.#dialog.showModal();
     this.render();
     requestAnimationFrame(() => this.#pad.resetPreview());
     void this.#load(brush).then((loaded) => {
       if (request !== this.#openRequest || this.#source?.id !== loaded.id) return;
-      this.#draft = cloneBrushPreset(loaded);
+      if (this.#draftVersion === 0) this.#draft = cloneBrushPreset(loaded);
       this.#loaded = loaded;
       this.render();
       this.#pad.resetPreview();
@@ -79,9 +90,21 @@ export class BrushStudioPresenter {
   }
 
   private updateDraft(path: string, value: BrushScalarValue): void {
+    this.#draftVersion += 1;
     this.#draft = updateBrushValue(this.requiredDraft(), path, value);
     if (path === "name") this.#name.textContent = this.#draft.name;
     this.#pad.resetPreview();
+  }
+
+  private openSource(kind: BrushSourceKind): void {
+    this.#sourceLibrary.open(kind, (selectedKind, asset) =>
+      this.selectSource(selectedKind, asset));
+  }
+
+  private selectSource(kind: BrushSourceKind, asset: BrushSourceAsset): void {
+    this.#draftVersion += 1;
+    this.#draft = selectBrushSource(this.requiredDraft(), kind, asset);
+    this.render(); this.#pad.resetPreview();
   }
 
   private async apply(): Promise<void> {
@@ -106,7 +129,9 @@ export class BrushStudioPresenter {
   private renderingBrush(): BrushPreset | LoadedBrush {
     const draft = this.requiredDraft();
     const loaded = this.#loaded;
-    return loaded ? { ...draft, shapeMap: loaded.shapeMap, grainMap: loaded.grainMap,
-      compatibility: loaded.compatibility, warnings: loaded.warnings } : draft;
+    if (!loaded) return draft;
+    return { ...loaded, ...draft, ...effectiveBrushSources(draft, loaded),
+      nativeShapeMap: loaded.nativeShapeMap, nativeGrainMap: loaded.nativeGrainMap,
+      compatibility: loaded.compatibility, warnings: loaded.warnings };
   }
 }

@@ -4,6 +4,28 @@ export interface CoverageMap {
   readonly data: Uint8Array<ArrayBuffer>;
 }
 
+export type BrushSourceKind = "shape" | "grain";
+
+export interface BrushSourceAsset {
+  readonly sourceBrushName: string;
+  readonly width: number;
+  readonly height: number;
+  readonly alphaBase64: string;
+}
+
+export interface BrushSourceSelection {
+  readonly shape: BrushSourceAsset | null;
+  readonly grain: BrushSourceAsset | null;
+}
+
+export interface BrushSourceResource {
+  readonly id: string;
+  readonly kind: BrushSourceKind;
+  readonly sourceBrushName: string;
+  readonly map: CoverageMap;
+  readonly asset: BrushSourceAsset;
+}
+
 export interface BrushStrokePath {
   readonly spacing: number;
   readonly spacingJitter: number;
@@ -55,6 +77,7 @@ export interface BrushPreset {
   readonly dynamics: BrushDynamics;
   readonly stylus: BrushStylusSettings;
   readonly properties: { readonly maximumSize: number; readonly minimumSize: number };
+  readonly sources: BrushSourceSelection;
 }
 
 export interface BrushCompatibilityReport {
@@ -68,6 +91,8 @@ export interface BrushCompatibilityReport {
 export interface LoadedBrush extends BrushPreset {
   readonly shapeMap: CoverageMap | null;
   readonly grainMap: CoverageMap | null;
+  readonly nativeShapeMap: CoverageMap | null;
+  readonly nativeGrainMap: CoverageMap | null;
   readonly compatibility: BrushCompatibilityReport;
   readonly warnings: readonly string[];
 }

@@ -5,6 +5,7 @@ import { unzip } from "../archive/unzip";
 import { decodeKeyedArchiveRoot } from "../archive/keyedArchive";
 import { applyBrushArchiveSettings } from "./brushArchiveSettings";
 import { decodeCoverage } from "./decodeCoverage";
+import { sourceCoverage } from "../../logic/brush/brushSourceAsset";
 
 function entryByBaseName(
   entries: ReadonlyMap<string, Uint8Array<ArrayBuffer>>,
@@ -62,16 +63,24 @@ export async function decodeProcreateBrush(
         warnings.push(`archive-settings-fallback:${detail}`);
       }
     } else warnings.push("archive-settings-missing");
-    const shapeMap = await coverage(shapeBytes, 512, "shape-decode-fallback", warnings);
-    const grainMap = await coverage(grainBytes, 256, "grain-decode-fallback", warnings);
-    if (!shapeMap) warnings.push("built-in-shape-fallback");
-    if (!grainMap && resolvedPreset.grain.strength > 0) {
+    const nativeShapeMap = await coverage(shapeBytes, 512, "shape-decode-fallback", warnings);
+    const nativeGrainMap = await coverage(grainBytes, 256, "grain-decode-fallback", warnings);
+    if (!nativeShapeMap) warnings.push("built-in-shape-fallback");
+    if (!nativeGrainMap && resolvedPreset.grain.strength > 0) {
       warnings.push("procedural-grain-fallback");
     }
-    return { ...resolvedPreset, shapeMap, grainMap, compatibility, warnings };
+    let shapeMap = nativeShapeMap;
+    let grainMap = nativeGrainMap;
+    try {
+      if (resolvedPreset.sources.shape) shapeMap = sourceCoverage(resolvedPreset.sources.shape);
+      if (resolvedPreset.sources.grain) grainMap = sourceCoverage(resolvedPreset.sources.grain);
+    } catch { warnings.push("embedded-source-fallback"); }
+    return { ...resolvedPreset, shapeMap, grainMap, nativeShapeMap, nativeGrainMap,
+      compatibility, warnings };
   } catch (error) {
     const detail = error instanceof Error ? error.message : "unknown decode failure";
     return { ...preset, shapeMap: null, grainMap: null,
+      nativeShapeMap: null, nativeGrainMap: null,
       compatibility: emptyBrushCompatibility(), warnings: [`archive-fallback:${detail}`] };
   }
 }

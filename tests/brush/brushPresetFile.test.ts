@@ -3,6 +3,7 @@ import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
 import {
   parsePresetFile, presetFileBytes
 } from "../../src/core/brush-library/brushPresetFile";
+import { sourceAsset } from "../../src/logic/brush/brushSourceAsset";
 
 describe("ProDraw brush preset file", () => {
   it("round trips edited settings without persisting environment paths", () => {
@@ -11,7 +12,9 @@ describe("ProDraw brush preset file", () => {
       stabilization: { ...base.stabilization, streamlineAmount: 0.72 },
       stylus: { ...base.stylus,
         pressureCurve: [0, 0.18, 0.82, 1] as const,
-        barrelAction: "smudge" as const } };
+        barrelAction: "smudge" as const },
+      sources: { ...base.sources, shape: sourceAsset(
+        { width: 2, height: 2, data: Uint8Array.of(0, 64, 128, 255) }, "Source Ink") } };
     const bytes = presetFileBytes(edited);
     const text = new TextDecoder().decode(bytes);
     expect(text).not.toContain("setName");
@@ -22,6 +25,7 @@ describe("ProDraw brush preset file", () => {
     expect(parsed.stabilization.streamlineAmount).toBe(0.72);
     expect(parsed.stylus.pressureCurve).toEqual([0, 0.18, 0.82, 1]);
     expect(parsed.stylus.barrelAction).toBe("smudge");
+    expect(parsed.sources.shape?.sourceBrushName).toBe("Source Ink");
   });
 
   it("clamps numeric input and rejects untrusted stylus actions", () => {

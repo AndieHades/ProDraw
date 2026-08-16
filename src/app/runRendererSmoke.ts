@@ -1,5 +1,7 @@
 import type { PlatformPort } from "../contracts/platform";
 import { renderBrushDab } from "../core/brush/renderBrushDab";
+import { BrushCatalog } from "../core/brush/BrushCatalog";
+import { BrushSourceCatalog } from "../core/brush/BrushSourceCatalog";
 import type { BrushLibraryService } from "../core/brush-library/BrushLibraryService";
 import { createRasterDocument } from "../core/document/createRasterDocument";
 import { restoreDocument, serializeDocument } from "../core/persistence/documentSerialization";
@@ -10,6 +12,7 @@ interface SmokeResult {
   readonly ok: boolean;
   readonly brushFiles?: number;
   readonly alpha?: number;
+  readonly sourceResources?: number;
   readonly error?: string;
 }
 
@@ -45,6 +48,14 @@ export async function runRendererSmoke(
   }
   const brushBytes = await platform.brushStorage.readFile("Main", brush.fileName);
   if (!brushBytes.byteLength) throw new Error("Seeded brush cannot be read through IPC");
+  const brushes = library.snapshot.sets.flatMap(({ brushes }) => brushes);
+  const brushCatalog = new BrushCatalog(platform.brushStorage);
+  const resources = await new BrushSourceCatalog().collect(brushes,
+    (candidate) => brushCatalog.load(candidate));
+  if (resources.filter(({ kind }) => kind === "shape").length < 3 ||
+      resources.filter(({ kind }) => kind === "grain").length < 5) {
+    throw new Error("Bundled Shape/Grain Source Library is incomplete");
+  }
 
   const ids = ["smoke-document", "smoke-layer"];
   const smokeDocument = createRasterDocument({ name: "Smoke", width: 32, height: 32,
@@ -68,5 +79,6 @@ export async function runRendererSmoke(
   if (!saved) throw new Error("IndexedDB smoke record is missing");
   const restoredAlpha = restoreDocument(saved).compositePixel(16, 16).alpha;
   if (restoredAlpha !== paintedAlpha) throw new Error("IndexedDB RGBA round trip differs");
-  report({ ok: true, brushFiles: storedMain.files.length, alpha: restoredAlpha });
+  report({ ok: true, brushFiles: storedMain.files.length, alpha: restoredAlpha,
+    sourceResources: resources.length });
 }

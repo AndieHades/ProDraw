@@ -1,4 +1,6 @@
-import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
+import type {
+  BrushPreset, BrushSourceKind, LoadedBrush
+} from "../../contracts/brush";
 import type { BrushControlDefinition, BrushStudioSectionId } from
   "../../config/brushStudio";
 import { BRUSH_STUDIO_CONTROLS } from "../../config/brushStudio";
@@ -6,12 +8,14 @@ import { t, type MessageKey } from "../../i18n/raster/translate";
 import {
   readBrushValue, type BrushScalarValue
 } from "../../logic/brush/brushStudioValues";
+import { renderCoverageMap } from "./renderCoverageMap";
 
 export class BrushControlPresenter {
   readonly #host: HTMLElement;
+  readonly #editSource: (kind: BrushSourceKind) => void;
 
-  constructor(host: HTMLElement) {
-    this.#host = host;
+  constructor(host: HTMLElement, editSource: (kind: BrushSourceKind) => void) {
+    this.#host = host; this.#editSource = editSource;
   }
 
   render(
@@ -30,8 +34,26 @@ export class BrushControlPresenter {
       return;
     }
     const controls = BRUSH_STUDIO_CONTROLS[section] ?? [];
-    this.#host.replaceChildren(...controls.map((control) =>
+    const source = section === "shape" || section === "grain"
+      ? [this.sourcePanel(preset, section)] : [];
+    this.#host.replaceChildren(...source, ...controls.map((control) =>
       this.control(control, preset, onChange)));
+  }
+
+  private sourcePanel(preset: BrushPreset | LoadedBrush,
+    kind: BrushSourceKind): HTMLElement {
+    const section = document.createElement("section"); section.className = "studio-source";
+    const header = document.createElement("header");
+    const title = document.createElement("strong");
+    title.textContent = t(kind === "shape" ? "source.shape" : "source.grain");
+    const edit = document.createElement("button");
+    edit.type = "button"; edit.textContent = t("action.edit");
+    edit.addEventListener("click", () => this.#editSource(kind));
+    const canvas = document.createElement("canvas");
+    const map = "shapeMap" in preset
+      ? (kind === "shape" ? preset.shapeMap : preset.grainMap) : null;
+    renderCoverageMap(canvas, map);
+    header.append(title, edit); section.append(header, canvas); return section;
   }
 
   private about(preset: BrushPreset | LoadedBrush): HTMLElement[] {

@@ -14,5 +14,6 @@ export async function runPackagedSmoke(window, timeoutMs = 30_000) {
     })
   `, true);
   if (!result?.ok) throw new Error(result?.error ?? "Renderer smoke failed");
-  process.stdout.write(`Renderer ready: ${result.brushFiles} brushes, alpha ${result.alpha}\n`);
+  process.stdout.write(`Renderer ready: ${result.brushFiles} brushes, ` +
+    `${result.sourceResources} sources, alpha ${result.alpha}\n`);
 }

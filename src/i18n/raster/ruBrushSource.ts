@@ -1,0 +1,19 @@
+export const ruBrushSource = {
+  "action.edit": "Изменить",
+  "brush.import": "Импортировать кисть",
+  "brush.export": "Экспортировать выбранную кисть",
+  "brush.reset": "Сбросить настройки кисти из исходного архива",
+  "brush.restoreTrash": "Восстановить кисти и наборы из корзины",
+  "brush.revealFolder": "Показать папку набора в Проводнике",
+  "brush.fileFilter": "Кисть Procreate или ProDraw",
+  "source.library": "Библиотека источников",
+  "source.shape": "Источник формы",
+  "source.grain": "Источник зерна",
+  "source.loading": "Загрузка ресурсов кистей…",
+  "source.noneForKind": "В живых кистях нет ресурсов этого типа.",
+  "status.brushImported": "Кисть импортирована",
+  "status.brushExported": "Кисть экспортирована",
+  "status.brushReset": "Настройки кисти сброшены",
+  "status.brushTrashRestored": "Доступные кисти из корзины восстановлены",
+  "status.brushFileFailed": "Операция с файлом кисти не выполнена"
+} as const;

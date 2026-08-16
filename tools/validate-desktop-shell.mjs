@@ -43,6 +43,9 @@ if (!main.includes("nodeIntegration: false")) errors.push("nodeIntegration must 
 if (!main.includes("sandbox: true")) errors.push("renderer sandbox must be enabled");
 if (!main.includes("app.isPackaged")) errors.push("development URL must be disabled when packaged");
 if (!main.includes("await runPackagedSmoke")) errors.push("packaged smoke must await renderer proof");
+if (!main.includes("window.destroy()") || !main.includes("app.quit()")) {
+  errors.push("packaged smoke must close bitmap work through the normal lifecycle");
+}
 if (!main.includes("attachCloseHandshake")) errors.push("desktop close must await renderer flush");
 if (!main.includes('query: { smoke: "1" }')) errors.push("packaged smoke must mark renderer URL");
 if (!preload.includes("contextBridge.exposeInMainWorld")) errors.push("preload must expose an allowlisted bridge");

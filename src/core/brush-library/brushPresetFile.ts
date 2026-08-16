@@ -1,4 +1,4 @@
-import type { BrushPreset } from "../../contracts/brush";
+import type { BrushPreset, BrushSourceAsset } from "../../contracts/brush";
 import type { BrushPresetFileV1 } from "../../contracts/brushLibrary";
 
 const encoder = new TextEncoder();
@@ -19,6 +19,18 @@ function pressureCurve(value: unknown, fallback: readonly [number, number, numbe
 
 function action<T extends string>(value: unknown, allowed: Set<string>, fallback: T): T {
   return typeof value === "string" && allowed.has(value) ? value as T : fallback;
+}
+
+function sourceAsset(value: unknown): BrushSourceAsset | null {
+  if (!value || typeof value !== "object") return null;
+  const source = value as Partial<BrushSourceAsset>;
+  const pixels = Number(source.width) * Number(source.height);
+  if (typeof source.sourceBrushName !== "string" || !source.sourceBrushName.trim() ||
+      source.sourceBrushName.length > 200 || !Number.isInteger(source.width) ||
+      !Number.isInteger(source.height) || pixels < 1 || pixels > 1_048_576 ||
+      typeof source.alphaBase64 !== "string" || source.alphaBase64.length > 1_500_000) return null;
+  return { sourceBrushName: source.sourceBrushName, width: source.width!,
+    height: source.height!, alphaBase64: source.alphaBase64 };
 }
 
 export function presetFileBytes(preset: BrushPreset): Uint8Array<ArrayBuffer> {
@@ -47,6 +59,7 @@ export function parsePresetFile(
   const dynamics = parsed.dynamics;
   const stylus = parsed.stylus;
   const properties = parsed.properties;
+  const sources = parsed.sources;
   return { ...base, format: "prodraw-brush", version: 1,
     revision: Math.max(1, Math.round(clamp(parsed.revision, 1, 1_000_000, 1))),
     id: parsed.id, name: parsed.name.trim() || base.name, setName, fileName,
@@ -83,7 +96,8 @@ export function parsePresetFile(
       barrelAction: action(stylus?.barrelAction, barrelActions, "eraser"),
       eraserAction: action(stylus?.eraserAction, eraserActions, "eraser") },
     properties: { maximumSize: clamp(properties?.maximumSize, 1, 2000, 500),
-      minimumSize: clamp(properties?.minimumSize, 0.1, 500, 1) } };
+      minimumSize: clamp(properties?.minimumSize, 0.1, 500, 1) },
+    sources: { shape: sourceAsset(sources?.shape), grain: sourceAsset(sources?.grain) } };
 }
 
 export function presetBaseFileName(bytes: Uint8Array<ArrayBuffer>): string | null {

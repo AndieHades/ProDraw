@@ -1,4 +1,7 @@
+import { ruBrushSource } from "./ruBrushSource";
+
 export const ru = {
+  ...ruBrushSource,
   "action.new": "Новый холст",
   "action.open": "Открыть",
   "action.save": "Сохранить",
@@ -27,12 +30,6 @@ export const ru = {
   "brush.favorites": "Избранные",
   "brush.add": "Создать кисть",
   "brush.addSet": "Добавить набор кистей",
-  "brush.import": "Импортировать кисть",
-  "brush.export": "Экспортировать выбранную кисть",
-  "brush.reset": "Сбросить настройки кисти из исходного архива",
-  "brush.restoreTrash": "Восстановить кисти и наборы из корзины",
-  "brush.revealFolder": "Показать папку набора в Проводнике",
-  "brush.fileFilter": "Кисть Procreate или ProDraw",
   "brush.favorite": "Добавить в избранное",
   "brush.unfavorite": "Убрать из избранного",
   "brush.untitled": "Новая кисть",
@@ -133,11 +130,6 @@ export const ru = {
   "status.cancelled": "Сохранение отменено",
   "status.export-failed": "Не удалось экспортировать PNG",
   "status.layerBlocked": "Слой скрыт или заблокирован",
-  "status.brushImported": "Кисть импортирована",
-  "status.brushExported": "Кисть экспортирована",
-  "status.brushReset": "Настройки кисти сброшены",
-  "status.brushTrashRestored": "Доступные кисти из корзины восстановлены",
-  "status.brushFileFailed": "Операция с файлом кисти не выполнена",
   "confirm.unsavedTitle": "Есть несохранённые изменения",
   "confirm.unsavedMessage": "Изменения ещё не записаны в файл .prodraw. Продолжить?",
   "group.document": "Действия с документом",

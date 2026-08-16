@@ -48,6 +48,7 @@ export class RasterEditorApp {
     this.#exporter = new ExportSystem({ platform, getDocument: () => this.#session.document,
       onStatus: (status) => this.status(`status.${status}` as MessageKey) });
     this.#studio = new BrushStudioPresenter(
+      () => library.snapshot.sets.flatMap(({ brushes }) => brushes),
       (candidate) => this.#session.loadBrush(candidate), async (source, draft) => {
       const applied = await library.applyDraft(source, draft);
       this.#session.forgetBrush(source.id);

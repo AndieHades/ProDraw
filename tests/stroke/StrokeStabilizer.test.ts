@@ -41,4 +41,23 @@ describe("StrokeStabilizer", () => {
     expect(calibratedPressure(0.55, stylus)).toBeCloseTo(0.5, 4);
     expect(calibratedPressure(1, stylus)).toBe(1);
   });
+
+  it("makes every visible stabilization control affect its intended signal", () => {
+    const trace = [sample(0, 0, 0, 0.2), sample(12, 3, 8, 0.8),
+      sample(27, -2, 16, 0.35), sample(45, 4, 24, 0.9)];
+    const output = (value: BrushStabilization) => {
+      const stabilizer = new StrokeStabilizer(value, 20);
+      return trace.flatMap((point) => stabilizer.push(point));
+    };
+    const zero: BrushStabilization = { streamlineAmount: 0, streamlinePressure: 0,
+      stabilizationAmount: 0, motionFilteringAmount: 0, motionFilteringExpression: 0 };
+    for (const key of ["streamlineAmount", "stabilizationAmount",
+      "motionFilteringAmount"] as const) {
+      expect(output({ ...zero, [key]: 0.8 }), key).not.toEqual(output(zero));
+    }
+    expect(output({ ...zero, streamlinePressure: 0.8 })).not.toEqual(output(zero));
+    const filtering = { ...zero, motionFilteringAmount: 0.8 };
+    expect(output({ ...filtering, motionFilteringExpression: 1 }))
+      .not.toEqual(output(filtering));
+  });
 });

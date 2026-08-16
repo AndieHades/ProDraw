@@ -39,7 +39,8 @@ function preset(fileName: string, sourceUrl: string, profile: Profile): BrushPre
     dynamics: { sizeByPressure: 0.82, opacityByPressure: 0.28, tiltToSize: 0 },
     stylus: { minimumPressure: 0.01, pressureCurve: [0, 0.33, 0.67, 1],
       tiltEnabled: true, barrelAction: "eraser", eraserAction: "eraser" },
-    properties: { maximumSize: 500, minimumSize: 1 } };
+    properties: { maximumSize: 500, minimumSize: 1 },
+    sources: { shape: null, grain: null } };
 }
 
 export const BUNDLED_BRUSHES: readonly BrushPreset[] = Object.entries(urls)
