@@ -23,4 +23,9 @@ autosave и export systems. Они работают через `RasterDocument`,
 platform port и presenters. Старый `src/app.js` вокруг глобального `S` больше не
 загружается и остаётся read-only oracle для будущего parity transfer.
 
+`src/core/brush-library` владеет загрузкой наборов и ревизиями нативных пресетов;
+`src/ui/brushes` только отображает команды. В Windows `desktop/brush-ipc.mjs`
+реализует allowlisted app-data операции: seed/list/read/atomic-write/trash и
+директорные create/rename/move. Renderer не получает произвольный filesystem API.
+
 После `R6` этот раздел заменяется сгенерированным индексом production systems.

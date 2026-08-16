@@ -23,6 +23,7 @@ async function openWithInput(filters?: readonly FileFilter[]) {
 export function createWebPlatform(): PlatformPort {
   return {
     kind: "web",
+    brushStorage: null,
     async openBinary(filters) {
       const file = await openWithInput(filters);
       if (!file) return null;

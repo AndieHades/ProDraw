@@ -1,3 +1,7 @@
+import type {
+  BrushLibraryStoragePort, DesktopBrushStorageBridge
+} from "./brushStorage";
+
 export type PlatformKind = "web" | "windows";
 
 export interface FileFilter {
@@ -18,12 +22,14 @@ export interface SaveBinaryRequest {
 
 export interface PlatformPort {
   readonly kind: PlatformKind;
+  readonly brushStorage: BrushLibraryStoragePort | null;
   openBinary(filters?: readonly FileFilter[]): Promise<OpenedBinaryFile | null>;
   saveBinary(request: SaveBinaryRequest): Promise<boolean>;
 }
 
 export interface DesktopBridge {
   readonly platform: "windows";
+  readonly brushStorage: DesktopBrushStorageBridge;
   openBinary(filters?: readonly FileFilter[]): Promise<{
     readonly name: string;
     readonly bytes: ArrayBuffer;

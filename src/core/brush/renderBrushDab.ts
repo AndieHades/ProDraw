@@ -35,7 +35,8 @@ export function renderBrushDab(
       const normalizedY = (y + 0.5 - sample.y) / radius;
       const coverage = brushTipCoverage(brush, normalizedX, normalizedY);
       if (coverage <= 0) continue;
-      const opacity = settings.opacity * brush.flow * pressureOpacity * coverage *
+      const opacity = settings.opacity * brush.rendering.opacity * brush.rendering.flow *
+        pressureOpacity * coverage *
         brushTexture(brush, x, y);
       if (settings.erase) edit.erasePixel(x, y, opacity);
       else edit.blendPixel(x, y, color, opacity);

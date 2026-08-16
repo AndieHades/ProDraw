@@ -24,14 +24,14 @@ export async function decodeProcreateBrush(
     const entries = await unzip(bytes);
     const shapeBytes = entryByBaseName(entries, "shape.png");
     const grainBytes = entryByBaseName(entries, "grain.png");
-    const shape = shapeBytes ? await decodeCoverage(shapeBytes) : null;
-    const grain = grainBytes ? await decodeCoverage(grainBytes, 256) : null;
-    if (!shape) warnings.push("built-in-shape-fallback");
-    if (!grain && preset.texture > 0) warnings.push("procedural-grain-fallback");
-    return { ...preset, shape, grain, warnings };
+    const shapeMap = shapeBytes ? await decodeCoverage(shapeBytes) : null;
+    const grainMap = grainBytes ? await decodeCoverage(grainBytes, 256) : null;
+    if (!shapeMap) warnings.push("built-in-shape-fallback");
+    if (!grainMap && preset.grain.strength > 0) warnings.push("procedural-grain-fallback");
+    return { ...preset, shapeMap, grainMap, warnings };
   } catch (error) {
     const detail = error instanceof Error ? error.message : "unknown decode failure";
-    return { ...preset, shape: null, grain: null,
+    return { ...preset, shapeMap: null, grainMap: null,
       warnings: [`archive-fallback:${detail}`] };
   }
 }

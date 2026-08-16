@@ -52,8 +52,9 @@ and native `.prodraw-brush` files. Repository assets in
 `src/app-folders/brushes/main` seed the user `Main` directory once and remain
 immutable source assets.
 
-Creating or duplicating a brush writes atomically into the currently selected
-set directory. Moving a brush between sets moves its file; renaming a set
+Creating a brush writes atomically into the currently selected set directory;
+duplicating writes beside its source brush, so a smart Recent/Favorites view
+cannot accidentally change ownership. Moving a brush between sets moves its file; renaming a set
 renames its directory with collision/invalid-character handling. External file
 changes are reconciled explicitly and cannot silently orphan catalog records.
 

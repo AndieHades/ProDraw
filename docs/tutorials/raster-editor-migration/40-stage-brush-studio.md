@@ -1,9 +1,10 @@
 # Stage R3: Brush Studio and Tablet Dynamics
 
-- Status: `planned`
+- Status: `in_progress`
 - Depends on: `R2`
 - Requirements: `BRH-02..04`, `STB-01`, `SMG-01`, `HUI-01`, performance part of `DOC-01`, `DSK-01`
-- Planned commit: `feat: add professional brush studio`
+- Planned commits: `feat: add folder-backed brush studio`, then
+  `feat: add stabilized Huion brush and smudge`
 
 ## Outcome
 
@@ -36,7 +37,8 @@ pressure/tilt produce smooth repeatable strokes on A4/4K documents.
 - `R3.14` Move decode/resample and smudge sampling work off the input path and
   enforce per-frame dirty-tile budgets.
 - `R3.15` Bind single-LMB select, double-LMB Studio and RMB Duplicate/Delete;
-  persist every created/duplicated brush into the current set's app-data folder.
+  persist every created brush in the selected set and every duplicate beside
+  its source brush in the corresponding app-data folder.
 - `R3.16` Reconcile set rename/move/delete with physical directories, atomic
   writes, collision handling and recoverable trash.
 
@@ -59,4 +61,21 @@ fixture without changing pixels outside dirty bounds and undoes in one step.
 
 ## Completion record
 
-- Commit/checks/deviations: pending
+- R3A working checkpoint: the versioned native preset, one-time `Main` seed,
+  physical set directories, atomic create/revision writes, recoverable trash,
+  compact Studio, exact section/control inventory, live pad, single/double/RMB
+  bindings, create/duplicate/delete, and live Recent/Favorites collections are
+  implemented. Set reorder/rename/move, library metadata persistence and
+  import/export/reset remain in R3 after this checkpoint.
+- R3B remains the actual stabilization pipeline, Huion calibration diagnostics
+  against recorded pen traces, performance budgets and Smudge.
+- R3A checks: full `npm run validate` (30 TypeScript and 128 retained legacy
+  logic tests), `npm run package:desktop`, packaged executable smoke and browser
+  library/create/Recent/Favorites/single-LMB/double-LMB/RMB/Studio
+  Cancel/Apply checks passed. Studio was visually confirmed as a compact
+  three-column 900×620-class window rather than fullscreen.
+- Windows-specific evidence: the rebuilt packaged app started with an isolated
+  user-data profile and seeded exactly 12 `.brush` files plus `.seeded-v1` into
+  `brushes/Main`; the desktop validator now rejects project-local `require()`
+  from the sandboxed preload that would disable the bridge after packaging.
+- Commit: R3A folder-backed Brush Studio checkpoint (this commit).

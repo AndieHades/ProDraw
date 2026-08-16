@@ -8,7 +8,7 @@
 | `R0` | правила, hooks, доказательный и восстанавливаемый план | done |
 | `R1` | строгий TypeScript и Windows desktop shell | done |
 | `R2` | рабочий RGBA editor cutover с bundled brushes | done |
-| `R3` | Brush Studio, pen dynamics и производительность | ready |
+| `R3` | Brush Studio, pen dynamics и производительность | in progress |
 | `R4` | lossless view/transform и single-resample Liquify | planned |
 | `R5` | профессиональный документ, persistence и interchange | planned |
 | `R6` | UX polish, удаление legacy и финальная документация | planned |

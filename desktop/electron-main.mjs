@@ -2,6 +2,7 @@ import { app, BrowserWindow } from "electron";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { registerFileIpc } from "./electron-ipc.mjs";
+import { registerBrushIpc } from "./brush-ipc.mjs";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const smokeOnly = process.argv.includes("--smoke-test");
@@ -40,6 +41,7 @@ app.whenReady().then(() => {
     return;
   }
   registerFileIpc();
+  registerBrushIpc();
   createWindow();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

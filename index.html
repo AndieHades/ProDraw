@@ -76,10 +76,50 @@
 
   <dialog id="brush-library-dialog" class="modal brush-library-dialog">
     <form method="dialog"><header><h2 data-i18n="brush.library"></h2>
-      <button value="cancel" class="icon-button">×</button></header>
-      <div class="brush-library-body"><nav><button class="selected" data-i18n="brush.mainSet"></button></nav>
+      <span><button id="add-brush" type="button" data-i18n-title="brush.add" class="icon-button">＋</button>
+        <button id="add-brush-set" type="button" data-i18n-title="brush.addSet" class="icon-button">▣＋</button>
+        <button value="cancel" class="icon-button">×</button></span></header>
+      <div class="brush-library-body"><nav id="brush-set-list"></nav>
         <div id="brush-list" class="brush-list"></div></div>
+      <div id="brush-context-menu" class="context-menu" hidden>
+        <button type="button" data-action="favorite"></button>
+        <button type="button" data-action="duplicate" data-i18n="brush.duplicate"></button>
+        <button type="button" data-action="delete" data-i18n="brush.delete"></button>
+      </div>
     </form>
+  </dialog>
+
+  <dialog id="brush-studio-dialog" class="modal brush-studio-dialog">
+    <form method="dialog"><header><div><small data-i18n="studio.title"></small>
+      <h2 id="studio-brush-name"></h2></div><span>
+      <button id="studio-cancel" value="cancel" data-i18n="action.cancel"></button>
+      <button id="studio-apply" type="button" class="primary" data-i18n="action.apply"></button>
+    </span></header>
+    <div class="brush-studio-body">
+      <nav id="studio-sections"></nav>
+      <section id="studio-controls" class="studio-controls"></section>
+      <aside class="drawing-pad"><header data-i18n="studio.drawingPad"></header>
+        <canvas id="studio-pad"></canvas><div id="stylus-diagnostics" class="stylus-diagnostics"></div>
+      </aside>
+    </div></form>
+  </dialog>
+
+  <dialog id="delete-brush-dialog" class="modal confirm-dialog">
+    <form method="dialog"><h2 data-i18n="brush.deleteTitle"></h2>
+      <p id="delete-brush-message"></p><footer>
+        <button value="cancel" data-i18n="action.cancel"></button>
+        <button id="confirm-delete-brush" type="button" class="danger" data-i18n="brush.delete"></button>
+      </footer></form>
+  </dialog>
+
+  <dialog id="brush-set-dialog" class="modal confirm-dialog">
+    <form method="dialog"><h2 data-i18n="brush.newSetTitle"></h2>
+      <label class="studio-control"><span data-i18n="brush.setName"></span>
+        <input id="brush-set-name" type="text" maxlength="80" /></label>
+      <p id="brush-set-error" class="dialog-error"></p><footer>
+        <button value="cancel" data-i18n="action.cancel"></button>
+        <button id="create-brush-set" type="button" class="primary" data-i18n="action.create"></button>
+      </footer></form>
   </dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>

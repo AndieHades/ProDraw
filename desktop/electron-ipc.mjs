@@ -1,9 +1,8 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { dialog, ipcMain } from "electron";
+import channels from "./ipc-channels.cjs";
 
-const OPEN_CHANNEL = "prodraw:file:open";
-const SAVE_CHANNEL = "prodraw:file:save";
 
 function electronFilters(filters = []) {
   return filters.map((filter) => ({
@@ -13,7 +12,7 @@ function electronFilters(filters = []) {
 }
 
 export function registerFileIpc() {
-  ipcMain.handle(OPEN_CHANNEL, async (_event, filters) => {
+  ipcMain.handle(channels.fileOpen, async (_event, filters) => {
     const result = await dialog.showOpenDialog({
       properties: ["openFile"],
       filters: electronFilters(filters)
@@ -24,7 +23,7 @@ export function registerFileIpc() {
     return { name: path.basename(filePath), bytes: Array.from(bytes) };
   });
 
-  ipcMain.handle(SAVE_CHANNEL, async (_event, request) => {
+  ipcMain.handle(channels.fileSave, async (_event, request) => {
     const result = await dialog.showSaveDialog({
       defaultPath: String(request.suggestedName),
       filters: electronFilters(request.filters)
@@ -35,4 +34,4 @@ export function registerFileIpc() {
   });
 }
 
-export const fileChannels = { open: OPEN_CHANNEL, save: SAVE_CHANNEL };
+export const fileChannels = { open: channels.fileOpen, save: channels.fileSave };

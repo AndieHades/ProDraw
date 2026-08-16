@@ -1,8 +1,8 @@
 import type { BrushPreset, LoadedBrush } from "../contracts/brush";
 import type { ViewState } from "../contracts/view";
-import { BUNDLED_BRUSHES } from "../config/bundledBrushes";
 import { VIEW_INPUT } from "../config/input";
 import { BrushCatalog } from "../core/brush/BrushCatalog";
+import type { BrushLibraryService } from "../core/brush-library/BrushLibraryService";
 import { createRasterDocument } from "../core/document/createRasterDocument";
 import type { RasterDocument } from "../core/document/RasterDocument";
 import { TileHistory } from "../core/history/TileHistory";
@@ -15,26 +15,31 @@ import { DrawingSystem } from "../systems/drawing/DrawingSystem";
 import { ExportSystem } from "../systems/export/ExportSystem";
 import { ViewportSystem } from "../systems/viewport/ViewportSystem";
 import { BrushLibraryPresenter } from "../ui/brushes/BrushLibraryPresenter";
+import { BrushStudioPresenter } from "../ui/brushes/BrushStudioPresenter";
 import { CanvasPresenter } from "../ui/canvas/CanvasPresenter";
 import { NewDocumentPresenter, type NewDocumentValues } from "../ui/document/NewDocumentPresenter";
 import { LayerPresenter } from "../ui/layers/LayerPresenter";
 import { WorkspacePresenter } from "../ui/workspace/WorkspacePresenter";
-
 export class RasterEditorApp {
   readonly #workspace = new WorkspacePresenter();
   readonly #history = new TileHistory();
-  readonly #catalog = new BrushCatalog(BUNDLED_BRUSHES);
+  readonly #catalog = new BrushCatalog();
   #document: RasterDocument;
   #view: ViewState;
-  #brush: BrushPreset | LoadedBrush = BUNDLED_BRUSHES[0]!;
+  #brush: BrushPreset | LoadedBrush;
   readonly #canvas: CanvasPresenter;
   readonly #layers = new LayerPresenter();
   readonly #autosave: AutosaveSystem;
   readonly #brushes: BrushLibraryPresenter;
+  readonly #studio: BrushStudioPresenter;
   readonly #newDocument: NewDocumentPresenter;
 
-  constructor(platform: PlatformPort, repository: DocumentRepository, document: RasterDocument) {
+  constructor(platform: PlatformPort, repository: DocumentRepository, document: RasterDocument,
+    library: BrushLibraryService) {
     this.#document = document;
+    const initialBrush = library.snapshot.sets.flatMap(({ brushes }) => brushes)[0];
+    if (!initialBrush) throw new Error("Brush library is empty");
+    this.#brush = initialBrush;
     this.registerSurfaces();
     this.#view = fitView(document.descriptor, {
       width: this.#workspace.canvas.clientWidth, height: this.#workspace.canvas.clientHeight
@@ -42,8 +47,16 @@ export class RasterEditorApp {
     this.#canvas = new CanvasPresenter(this.#workspace.canvas,
       () => this.#document, () => this.#view);
     this.#autosave = new AutosaveSystem(repository, () => this.#document);
-    this.#brushes = new BrushLibraryPresenter(BUNDLED_BRUSHES, this.#brush.id,
-      (brush) => this.selectBrush(brush));
+    this.#studio = new BrushStudioPresenter(async (source, draft) => {
+      const applied = await library.applyDraft(source, draft);
+      this.#catalog.clear(source.id);
+      this.selectBrush(applied);
+      this.#brushes.select(applied.id);
+    });
+    this.#brushes = new BrushLibraryPresenter(library, this.#brush.id, {
+      select: (brush) => this.selectBrush(brush),
+      edit: (brush) => this.#studio.open(brush)
+    });
     this.#newDocument = new NewDocumentPresenter((values) => this.createDocument(values));
     this.mountSystems(platform);
     this.refreshUi();
@@ -63,22 +76,21 @@ export class RasterEditorApp {
       onBlocked: () => this.#workspace.showStatus("status.layerBlocked") }).mount();
     const exporter = new ExportSystem({ platform, getDocument: () => this.#document,
       onStatus: (status) => this.#workspace.showStatus(`status.${status}` as MessageKey) });
-    this.bindActions(viewport, exporter);
+    this.bindActions(exporter);
   }
 
-  private bindActions(viewport: ViewportSystem, exporter: ExportSystem): void {
+  private bindActions(exporter: ExportSystem): void {
     this.#workspace.bind({ newDocument: () => this.#newDocument.open(),
       exportPng: () => void exporter.exportPng(), undo: () => this.historyStep("undo"),
       redo: () => this.historyStep("redo"), selectTool: (tool) => this.#workspace.setTool(tool),
       fitView: () => this.fit(), rotateView: (direction) => this.rotate(direction),
       openBrushes: () => this.#brushes.open(), addLayer: () => this.addLayer() });
-    void viewport;
   }
 
   private selectBrush(brush: BrushPreset): void {
     this.#brush = brush;
     this.#workspace.setBrushName(brush.name);
-    void this.#catalog.load(brush.id).then((loaded) => {
+    void this.#catalog.load(brush).then((loaded) => {
       if (this.#brush.id === loaded.id) this.#brush = loaded;
     });
   }

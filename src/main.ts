@@ -5,12 +5,16 @@ import "./styles/raster-dialogs.css";
 import { createPlatform } from "./app/createPlatform";
 import { createInitialDocument } from "./app/createInitialDocument";
 import { RasterEditorApp } from "./app/RasterEditorApp";
+import { BUNDLED_BRUSHES } from "./config/bundledBrushes";
+import { BrushLibraryService } from "./core/brush-library/BrushLibraryService";
 import { DocumentRepository } from "./core/persistence/DocumentRepository";
 
 async function bootstrap(): Promise<void> {
   const repository = new DocumentRepository();
   const document = await createInitialDocument(repository);
-  new RasterEditorApp(createPlatform(), repository, document);
+  const platform = createPlatform();
+  const brushes = await BrushLibraryService.create(platform.brushStorage, BUNDLED_BRUSHES);
+  new RasterEditorApp(platform, repository, document, brushes);
 }
 
 void bootstrap();

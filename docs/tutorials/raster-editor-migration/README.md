@@ -9,14 +9,17 @@ Canonical owner: this package.
 ## Resume Here
 
 - Current stage: `R3 — professional brush studio`
-- Status: `ready`
+- Status: `in_progress`
 - Last completed stage: `R2`
-- Next action: implement folder-backed brush sets and draft/apply preset revisions before opening Brush Studio from double LMB
+- Next action: commit the validated R3A folder-backed Brush Studio checkpoint,
+  then implement the pure recorded-trace stabilization pipeline and Smudge
 - Blockers: none
-- Working paths: none after the R2 cutover commit
-- Last checks: full validate, 25 TS tests, 128 legacy logic tests, browser
-  A4/stroke/undo/12-brush/PNG smoke and packaged Windows executable smoke passed
-- Last updated: `2026-08-16, R2 completion state`
+- Working paths: `src/contracts/brush*`, `src/platform`, `desktop/brush-ipc.mjs`,
+  `src/core/brush-library`, `src/ui/brushes`, `tests/brush`
+- Last checks: full validate, 30 TS tests, 128 legacy logic tests, packaged
+  Windows executable smoke, and browser library/create/recent/favorite,
+  single/double/RMB, compact Studio draft Cancel/Apply smoke passed
+- Last updated: `2026-08-16, main@c89e78c + R3 working tree`
 
 ## Product Outcome
 
@@ -48,6 +51,11 @@ Included:
 - `DOC-01`: layers, blend/opacity, masks, selections, transform и undo работают
   на больших документах без full-document snapshot на каждый dab.
 - `IO-01`: gallery/autosave, PNG/JPEG и layered interchange имеют round trip.
+- `EXP-01`: ПКМ по слою/группе открывает «Сохранить как холст» для одного,
+  нескольких выделенных элементов или целой группы, с сохранением структуры
+  и вариантами полного размера/обрезки по содержимому.
+- `EXP-02`: Windows Save As всегда показывает путь и имя, предлагает имя
+  документа/слоя/группы и запоминает последнюю выбранную директорию.
 - `ARC-01`: строгий TypeScript и enforceable layer/import/line rules.
 - `OPS-01`: hooks, focused validators, CI и recoverable plans встроены в repo.
 - `CUT-01`: pixelizer/tilemap/pixel-perfect runtime удалён после parity transfer.
@@ -67,7 +75,7 @@ Excluded:
 | `RST-01`, `BRH-01`, `CAN-01` | `R2` | pen stroke persists and exports at every preset |
 | `BRH-02..04`, `STB-01`, `SMG-01`, `HUI-01`, `DOC-01` performance | `R3` | reference-layout checks, library round trip, recorded-trace and smudge tests |
 | `IMG-01` | `R4` | repeated preview equals one source-to-final resample |
-| `DOC-01`, `IO-01` | `R5` | document round trip preserves layers and pixels |
+| `DOC-01`, `IO-01`, `EXP-01..02` | `R5` | document round trip and contextual canvas-save matrix preserve layers and pixels |
 | `CUT-01`, `UX-01`, `DSK-01` | `R1`, `R6` | packaged Windows smoke and legacy absence checks |
 
 ## Non-Negotiable Decisions
@@ -98,7 +106,7 @@ Excluded:
 | `R0` | [`10-stage-governance.md`](10-stage-governance.md) | none | done | `docs: plan raster editor migration` |
 | `R1` | [`20-stage-typescript-desktop.md`](20-stage-typescript-desktop.md) | `R0` | done | `build: establish TypeScript desktop foundation` |
 | `R2` | [`30-stage-raster-cutover.md`](30-stage-raster-cutover.md) | `R1` | done | `feat: cut over to raster painting core` |
-| `R3` | [`40-stage-brush-studio.md`](40-stage-brush-studio.md) | `R2` | ready | `feat: add professional brush studio` |
+| `R3` | [`40-stage-brush-studio.md`](40-stage-brush-studio.md) | `R2` | in progress | `feat: add professional brush studio` |
 | `R4` | [`50-stage-lossless-transform.md`](50-stage-lossless-transform.md) | `R2` | planned | `feat: add source-preserving transform and liquify` |
 | `R5` | [`60-stage-document-workflow.md`](60-stage-document-workflow.md) | `R3`, `R4` | planned | `feat: complete professional document workflow` |
 | `R6` | [`70-stage-cleanup-polish.md`](70-stage-cleanup-polish.md) | `R5` | planned | `chore: retire pixel editor and complete product docs` |

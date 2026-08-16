@@ -1,7 +1,7 @@
 import type { BrushPreset, CoverageMap, LoadedBrush } from "../../contracts/brush";
 
 function shapeOf(brush: BrushPreset | LoadedBrush): CoverageMap | null {
-  return "shape" in brush ? brush.shape : null;
+  return "shapeMap" in brush ? brush.shapeMap : null;
 }
 
 function bilinear(map: CoverageMap, x: number, y: number): number {
@@ -30,7 +30,7 @@ export function brushTipCoverage(
   if (shape) return bilinear(shape, (normalizedX + 1) / 2, (normalizedY + 1) / 2);
   const distance = Math.hypot(normalizedX, normalizedY);
   if (distance >= 1) return 0;
-  const edge = Math.max(0.001, 1 - brush.hardness);
+  const edge = Math.max(0.001, 1 - brush.shape.hardness);
   return Math.min(1, Math.max(0, (1 - distance) / edge));
 }
 
@@ -39,12 +39,12 @@ export function brushTexture(
   x: number,
   y: number
 ): number {
-  if (brush.texture <= 0) return 1;
-  const grain = "grain" in brush ? brush.grain : null;
+  if (brush.grain.strength <= 0) return 1;
+  const grain = "grainMap" in brush ? brush.grainMap : null;
   const procedural = ((x * 73856093) ^ (y * 19349663) ^ brush.id.length * 83492791) >>> 0;
   const sample = grain
     ? (grain.data[((y % grain.height + grain.height) % grain.height) * grain.width +
       ((x % grain.width + grain.width) % grain.width)] ?? 0) / 255
     : (procedural % 997) / 996;
-  return 1 - brush.texture + sample * brush.texture;
+  return 1 - brush.grain.strength + sample * brush.grain.strength;
 }

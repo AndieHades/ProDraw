@@ -4,6 +4,7 @@ import { selectPlatform } from "../../src/platform/selectPlatform";
 
 const web: PlatformPort = {
   kind: "web",
+  brushStorage: null,
   openBinary: vi.fn(async () => null),
   saveBinary: vi.fn(async () => true)
 };
@@ -16,6 +17,16 @@ describe("selectPlatform", () => {
   it("adapts the allowlisted desktop bridge", async () => {
     const bridge: DesktopBridge = {
       platform: "windows",
+      brushStorage: {
+        ensureSeeded: vi.fn(async () => undefined),
+        listSets: vi.fn(async () => []),
+        readFile: vi.fn(async () => new ArrayBuffer(0)),
+        writeFile: vi.fn(async () => undefined),
+        trashFile: vi.fn(async () => undefined),
+        createSet: vi.fn(async () => undefined),
+        renameSet: vi.fn(async () => undefined),
+        moveFile: vi.fn(async () => undefined)
+      },
       openBinary: vi.fn(async () => ({
         name: "work.prodraw",
         bytes: Uint8Array.from([1, 2, 3]).buffer

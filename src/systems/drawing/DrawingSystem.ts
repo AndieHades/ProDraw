@@ -70,7 +70,7 @@ export class DrawingSystem {
     for (const pointer of samples) {
       const next = this.sample(pointer);
       const brush = this.#options.getBrush();
-      const spacing = Math.max(0.25, this.#options.getSize() * brush.spacing);
+      const spacing = Math.max(0.25, this.#options.getSize() * brush.strokePath.spacing);
       for (const sample of interpolateStrokeSegment(this.#last, next, spacing)) {
         this.drawSample(sample);
       }
@@ -98,7 +98,7 @@ export class DrawingSystem {
   private drawSample(sample: StrokeSample): void {
     if (!this.#edit) return;
     const brush = this.#options.getBrush();
-    const scatter = brush.scatter * this.#options.getSize();
+    const scatter = brush.strokePath.scatter * this.#options.getSize();
     const angle = ((Math.floor(sample.time * 10) * 1103515245) >>> 0) / 0xffffffff * Math.PI * 2;
     const radius = scatter * (((Math.floor(sample.time * 100) * 2654435761) >>> 0) / 0xffffffff);
     const scattered = { ...sample, x: sample.x + Math.cos(angle) * radius,
