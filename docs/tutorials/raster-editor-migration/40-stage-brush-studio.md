@@ -84,7 +84,7 @@ fixture without changing pixels outside dirty bounds and undoes in one step.
   user-data profile and seeded exactly 12 `.brush` files plus `.seeded-v1` into
   `brushes/Main`; the desktop validator now rejects project-local `require()`
   from the sandboxed preload that would disable the bridge after packaging.
-- Commit: R3A folder-backed Brush Studio checkpoint (this commit).
+- Commit: R3A folder-backed Brush Studio checkpoint (`ac18d56`).
 - R3B checkpoint: the production document and Drawing Pad now share a stateful
   stabilization pipeline. StreamLine, trajectory stabilization and motion
   filtering reduce short-scale variation; pressure has its own smoothing and
@@ -115,8 +115,17 @@ fixture without changing pixels outside dirty bounds and undoes in one step.
   create/rename/delete plus drag/reload panel smoke; DOM integration proves the
   drag-to-set command and physical move; desktop package and packaged Windows
   executable smoke passed.
-- Residual R3: real-device Huion trace/manual acceptance, predicted replaceable
-  preview and dirty-tile frame budgets, plus brush import/export/reset. Remaining
-  panel commands activate in R4/R5 only with their raster/undo contracts.
-- Commit: R3B stabilized Huion brush and Smudge checkpoint (this commit).
+- Audit rebaseline (`main@6bcfdaa`): R3 is not complete while `Brush.archive`
+  settings are ignored, visible controls are runtime no-ops, Studio/card/document
+  loaded-brush paths differ, input/render/autosave lack bounded budgets, or
+  stabilization has no frequency-equivalent real Huion trace. These gaps are
+  owned by repair slices `F3..F5` in `07-remediation-plan.md`.
+- Residual R3 also includes predicted replaceable preview, brush Import/Export/
+  Reset/Restore, resilient per-brush startup and premultiplied-alpha Smudge.
+  Remaining panel commands activate in R4/R5 only with raster/undo contracts.
+- Evidence correction: the historical packaged executable smoke only started
+  Electron and exited before IPC, preload, window and renderer boot. It remains
+  a checkpoint record, but no longer counts as Windows product acceptance; `F0`
+  replaces it with a renderer-ready packaged smoke.
+- Commit: R3B stabilized Huion brush and Smudge checkpoint (`a59065a`).
 - Commit: R3C persistent brush sets and movable panel checkpoint (`a21584a`).

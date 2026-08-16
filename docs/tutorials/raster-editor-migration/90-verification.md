@@ -5,12 +5,27 @@
 | Stage | Focused evidence | Other commands |
 | --- | --- | --- |
 | `R0` | links, metadata and diff review | `validate:docs`, `validate:lines`, `git diff --check` |
-| `R1` | TS/platform/validator tests, packaged-shell smoke | check, lint, cycles, build, desktop package |
+| `R1` | TS/platform/validator tests, renderer-ready packaged smoke | check, lint, cycles, build, desktop package |
 | `R2` | tile/history/brush/preset integration and save round trip | check, lint, focused tests, browser + desktop smoke |
 | `R3` | golden stroke plans, Brush Studio persistence, tablet matrix | check, lint, performance profile |
 | `R4` | source hash, resampler and preview-equivalence tests | check, lint, worker/browser smoke |
 | `R5` | full document round trip and failure recovery | validate, build, desktop package |
 | `R6` | source-removal/doc consistency and final scenario | full validate/build/package |
+
+Audit repair slices add gates rather than inheriting historical green labels:
+
+| Repair | Required evidence |
+| --- | --- |
+| `F0` | portable hooks; untracked-code rejection; packaged `dist`/preload/IPC/renderer-ready round trip |
+| `F1` | illegal contract/UI/core fixtures plus pen-to-autosave system scenario |
+| `F2` | quick-close, kill-during-write, corrupt-latest, quota and New Canvas recovery |
+| `F3` | filled FHD/A4/4K latency, allocation, history-byte and autosave budgets |
+| `F4` | 12 archive golden strokes, per-control delta, preview/document equality, corrupt/import/reset recovery |
+| `F5` | 60/120/240 Hz equivalence and packaged Huion/touch/palm/focus-loss matrix |
+| `F6` | immutable source hash, tile-seam/alpha goldens and single final resample |
+| `F7` | nested layer and Save as Canvas scope/bounds/native-directory restart matrix |
+| `F8` | exact 16-command row-major registry, gating, keyboard/pen/touch and panel reload |
+| `F9` | clean-machine install/create/draw/save/reopen/export/uninstall workflow |
 
 ## Acceptance matrix
 
@@ -29,17 +44,22 @@
 | `DSK-01` | packaged app receives pressure/tilt | mouse/touch fallback stays usable and deterministic |
 | `DOC-01` | layer/mask/select/undo survives reopen | lock/mask/history failure cannot partially commit |
 | `IO-01` | atomic save/reopen/export preserves composite | corrupt/interrupted record preserves last good data |
+| `EXP-01` | one/marked/group scope preserves structure in Whole Canvas and By Contour | empty/collision/interrupted output writes no false success |
+| `EXP-02` | successful Save As reopens at the remembered directory with a derived name | cancel/failure does not change remembered path |
 | `ARC-01` | strict TS and legal dependency graph pass | fixtures prove bad import/any/line count fail |
 | `OPS-01` | hooks/docs/plan resume a stage from repo state | stale checkpoint is detected against HEAD/status |
 | `CUT-01` | production graph has no pixel runtime | legacy save import cannot reintroduce grid ownership |
 | `UX-01` | RU/EN and pen/touch/keyboard paths expose core actions | missing key/token fails validation |
 
-## Performance budgets to establish in R2
+## Performance budgets to establish and freeze in F3
 
-- pointer handler does bounded work and coalesces samples;
+- pointer handler does bounded work and coalesces samples without synchronous
+  full-document presentation or persistence;
 - history memory is proportional to dirty tiles, not document area;
 - untouched A4/4K layers allocate metadata only;
 - long strokes do not grow retained transient state after commit/cancel;
+- unchanged/offscreen composite tiles are not recomputed;
+- autosave and export have backpressure, progress/cancel and measured peak bytes;
 - preview quality may adapt, but final Apply/export uses the selected exact filter.
 
 ## Final observable scenario

@@ -82,4 +82,9 @@ last successful directory is offered again, while cancel leaves it unchanged.
   handlers and a broader export tree, but the R2 raster UI intentionally does not
   import them. The current raster build therefore has no working layer-context
   **Save as canvas** command; R5 must port behavior through typed raster contracts.
+- Audit safety rebaseline: the single-record delayed autosave can lose the last
+  stroke or replace the only work on New Canvas. Crash-safe identity, revisions,
+  Open/Save/Save As and close flushing are therefore pulled forward as repair
+  slice `F2`, before R4 feature work. R5 still owns the complete layer tree,
+  multi-selection and the two structural Save as Canvas variants in `F7`.
 - Commit/checks/deviations: pending

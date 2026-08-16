@@ -2,7 +2,7 @@
 
 Status: `in_progress`
 
-Evidence baseline: `main@df2b924`, 2026-08-16.
+Evidence baseline: `main@6bcfdaa`, 2026-08-16.
 
 Canonical owner: this package.
 
@@ -11,16 +11,16 @@ Canonical owner: this package.
 - Current stage: `R3 — professional brush studio`
 - Status: `in_progress`
 - Last completed stage: `R2`
-- Next action: finish brush import/export/reset and the remaining R3 performance
-  proof, without adding Pixel Perfect or a global stabilization command
-- Blockers: none
-- Working paths: `src/contracts/brush*`, `src/platform`, `desktop/brush-ipc.mjs`,
-  `src/core/brush-library`, `src/ui/brushes`, `tests/brush`
-- Last checks: full validation (41 TS plus 128 retained legacy tests), docs,
-  architecture, cycles, raster entry, desktop package and packaged smoke pass;
-  browser matrix passed folder create/rename/delete and movable-panel reload;
-  drag-to-set is covered by a DOM integration test and physical-storage fixture
-- Last updated: `2026-08-16, main@a21584a`
+- Next action: after explicit implementation approval, execute repair slice `F0`
+  from `07-remediation-plan.md`; do not add tools before safety/truth gates
+- Blockers: implementation has not been requested after the audit
+- Working paths: `06-live-audit-2026-08-16.md`, `07-remediation-plan.md`, then
+  `.codex`, `.claude`, `tools`, `desktop` for `F0`
+- Last checks: `npm run validate` passed at the audit baseline (41 TS plus 128
+  retained legacy tests and build); after plan capture, `validate:docs`,
+  `validate:lines` and `git diff --check` passed. Audit proved the current
+  packaged smoke exits before renderer/IPC boot, so it is not product evidence.
+- Last updated: `2026-08-16, audit baseline main@6bcfdaa`
 
 ## Product Outcome
 
@@ -101,8 +101,10 @@ Excluded:
 3. [`03-decisions-and-risks.md`](03-decisions-and-risks.md)
 4. [`04-brush-studio-ui-reference.md`](04-brush-studio-ui-reference.md)
 5. [`05-tool-panel-ui-reference.md`](05-tool-panel-ui-reference.md)
-6. The current stage chapter
-7. [`90-verification.md`](90-verification.md)
+6. [`06-live-audit-2026-08-16.md`](06-live-audit-2026-08-16.md)
+7. [`07-remediation-plan.md`](07-remediation-plan.md)
+8. The current stage chapter
+9. [`90-verification.md`](90-verification.md)
 
 ## Delivery Order
 
@@ -116,6 +118,12 @@ Excluded:
 | `R5` | [`60-stage-document-workflow.md`](60-stage-document-workflow.md) | `R3`, `R4` | planned | `feat: complete professional document workflow` |
 | `R6` | [`70-stage-cleanup-polish.md`](70-stage-cleanup-polish.md) | `R5` | planned | `chore: retire pixel editor and complete product docs` |
 
+The audit reopens acceptance evidence without rewriting historical commits.
+Repair slices `F0..F5` make R0/R1/R3 truthful and pull document safety forward;
+`F6..F9` refine R4–R6. Their dependency order in
+[`07-remediation-plan.md`](07-remediation-plan.md) takes precedence over starting
+the next feature merely because its old stage number is next.
+
 ## Completion Definition
 
 - [ ] Every requirement has positive and failure evidence.
@@ -125,4 +133,5 @@ Excluded:
 - [ ] Repeated view/preview operations do not accumulate raster degradation.
 - [ ] Pixelizer and pixel-grid production paths are absent.
 - [ ] Typecheck, lint, tests, architecture/docs/line gates and build pass.
+- [ ] Every P0/P1 audit finding is closed by its named repair acceptance evidence.
 - [ ] Stage records, roadmap, system docs and `Resume Here` agree.
