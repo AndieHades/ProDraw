@@ -1,6 +1,6 @@
 # Brush Library and Studio UI Reference
 
-Source: three user-provided Procreate screenshots, 2026-08-16. This chapter
+Source: thirteen user-provided Procreate screenshots, 2026-08-16. This chapter
 records the required information so implementation does not depend on chat or
 external image paths.
 
@@ -99,6 +99,47 @@ Stabilization:
 - Stabilization: Amount;
 - Motion Filtering: Amount and Expression.
 
+Taper preserves the screenshot hierarchy instead of flattening every value into
+one undifferentiated list:
+
+- Pressure Taper graph with independent start/end handles;
+- Link Tip Sizes, Size, Opacity, Pressure, Tip and Tip Animation;
+- Touch Taper graph with independent handles, Link Tip Sizes, Size, Opacity and
+  Tip;
+- values whose rendering contract is not implemented remain visibly unavailable,
+  never enabled no-ops.
+
+Shape:
+
+- large live Shape Source preview with an explicit Edit action;
+- Input Style: Touch Only, Azimuth, or Azimuth and Barrel Roll;
+- Relative to Stroke, touch rotation/follow-stroke and Scatter;
+- Windows maps azimuth to pen tilt direction. Barrel roll appears only when the
+  Pointer Event/native Huion adapter supplies real twist data.
+
+Grain:
+
+- large live Grain Source preview with Edit;
+- Moving/Texturized behavior switch;
+- Movement, Scale, Zoom, Rotation, Depth and Depth Minimum;
+- source and behavior affect the same production sampler used by document,
+  brush-row preview and Drawing Pad.
+
+Rendering:
+
+- one rendering-mode selector using the screenshot grouping (Light/Uniformed/
+  Intense/Heavy Glaze and Uniform/Intense Blending);
+- Flow plus explicit blending controls;
+- Wet Edges, Burnt Edges and their special modes may only be enabled after a
+  tested algorithm exists. This does not reintroduce the excluded Wet Mix section.
+
+Dynamics:
+
+- Speed group: Size, Opacity and Spacing;
+- Jitter group: Size and Opacity;
+- values are deterministic under an injected stroke seed so Undo/replay and
+  golden previews do not change randomly.
+
 Each slider shows a compact current value (`None` or percent), supports precise
 keyboard entry and updates Drawing Pad immediately.
 
@@ -112,6 +153,26 @@ the platform port if a Huion driver does not expose required data.
 
 No UI claims to detect a Huion model when the browser/driver provides no device
 identity. The product label describes the supported workflow, not invented data.
+
+The section translates the Apple Pencil screenshots into available Windows Ink/
+Huion data:
+
+- editable pressure response graph plus Size, Opacity and Flow;
+- Tilt graph/angle, Opacity, Gradation, Size and Size Compression;
+- Barrel Roll Size/Opacity only when real twist is present;
+- configurable barrel-button/eraser actions and live diagnostics;
+- Cursor Outline and Hover controls only when the platform reports those
+  capabilities. Estimated pressure, Hover Fill and model-specific claims stay
+  hidden otherwise.
+
+Bleed is omitted with Wet Mix. A missing Apple-only signal is never simulated.
+
+## Properties section
+
+- Orient to Screen;
+- Smudge Pull as a bridge to the first-class Smudge tool, not a Wet Mix panel;
+- Maximum/Minimum Size and Maximum/Minimum Opacity;
+- limits clamp the production dab, preview and Smudge paths identically.
 
 ## Acceptance
 
