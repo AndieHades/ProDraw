@@ -6,18 +6,18 @@ set -euo pipefail
 cd "$CLAUDE_PROJECT_DIR" 2>/dev/null || exit 0
 [ -f CLAUDE.md ] || exit 0
 
-echo "Контекст был сжат. Правила проекта из CLAUDE.md (перечитаны):"
+echo "Контекст был сжат. Entry rules из CLAUDE.md (перечитаны):"
 echo
 cat CLAUDE.md
 
 cat <<'EOF'
 
-Дополнительный рабочий контекст Codex после сжатия:
-- Пользователь сам проверяет визуал через GitHub Pages и присылает скриншоты, если что-то не так.
-- Не запускать долгую визуальную проверку/Playwright ради внешнего вида, если пользователь явно не попросил; достаточно тестов, lint, build и аккуратного описания изменений.
-- После правок делать коммит сразу, но не пушить без прямой команды пользователя.
-- Перед стартом перечитать CLAUDE.md и docs/conventions.md, проверить текущую задачу, git status, ветку и актуальность origin/main.
-- CSS держать логически разнесённым по parts, новые CSS-комментарии писать по-русски.
-- Типографику, размеры и цвета брать из токенов, не вводить новые локальные размеры без необходимости.
-- Для галереи: плитки квадратные; изображение внутри центрируется и помещается целиком без обрезки.
+Дополнительный рабочий контекст после сжатия:
+- Прочитать docs/project/context-recovery.md и живой Resume Here; сверить его с HEAD/status.
+- Финальный продукт — Windows raster editor для пера; Vite/web — development runtime.
+- Не развивать legacy pixelizer/grid/tilemap и не импортировать старые systems в новые.
+- View transform не пишет в artwork; Transform/Liquify preview всегда читает immutable source и Apply растрирует один раз.
+- Не запускать screenshot/долгий visual QA без явной просьбы; выбрать gate из validation-policy.md.
+- Код/CSS/config держать до 150 строк, UI-текст в i18n, стили и размеры в tokens/config.
+- Завершённый этап — отдельный commit; соблюдать Git-процесс из AGENTS.md.
 EOF

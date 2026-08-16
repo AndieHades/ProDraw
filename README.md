@@ -1,33 +1,36 @@
-# Pixel Heart
+# ProDraw
 
-Пиксель-арт редактор, который сейчас запускается как web/PWA-сборка, но
-проектируется как полноценное Windows-приложение с будущей сборкой в `.exe`.
-Браузерная версия — текущий runtime для разработки, тестирования и GitHub Pages,
-а UX и архитектурные решения нужно оценивать через призму desktop-приложения:
-отдельные окна, работа с файлами, несколько мониторов, пипетка и OS-интеграции.
+ProDraw — будущий Windows-first растровый редактор для графического планшета.
+Цель продукта: отзывчивое рисование и gestures уровня Procreate, документные
+возможности Photoshop и отсутствие накопительного размытия при zoom, rotate,
+Transform и Liquify.
 
-## Возможности (Фаза 1)
-- Карандаш, ластик, пипетка, заливка.
-- Зум/панорама: щипок двумя пальцами (или колесо/кнопки ＋ － ⤢).
-- Симметрия лево-право (`⇄`) — рисуется зеркально вживую.
-- Undo/redo (`↶ ↷`).
-- Палитра внизу + свой цвет; активный цвет — слева.
-- Импорт (`📷`) картинки → авто-сетка пикселей; экспорт (`⬇️`) PNG.
+## Текущий статус
 
-## Хостинг текущей web-сборки (GitHub Pages)
-1. Залей файлы этого репозитория в корень (`index.html`, `manifest.webmanifest`, `sw.js`,
-   `icon-192.png`, `icon-512.png`).
-2. Settings → Pages → Source: **Deploy from a branch**, branch `main`, папка `/ (root)` → Save.
-3. Через ~минуту откроется `https://<имя>.github.io/<repo>/`.
+В `main@df2b924` ещё работает прежний pixel-grid PWA. Активная миграция описана
+в [`docs/tutorials/raster-editor-migration/`](docs/tutorials/raster-editor-migration/README.md).
+До этапа `R2` наличие старого UI не означает, что pixel-art остаётся целью.
 
-## Установка web-сборки на телефон (iPhone)
-- Открой ссылку в браузере → «Поделиться» → **«На экран „Домой“»**.
-- Запустится на весь экран как приложение, работает офлайн.
-
-## Локальный запуск
-Просто открой `index.html` в браузере (на десктопе) — всё работает, кроме установки/офлайна
-(они требуют HTTPS-хостинга).
+Целевой стек: Vite + strict TypeScript для development runtime, Electron для
+Windows package, типизированные contracts/commands/events, lazy RGBA tiles и
+проверяемый brush pipeline.
 
 ## Разработка
-Архитектура, правила и карта модулей — в [CLAUDE.md](CLAUDE.md) и [`docs/`](docs/).
-Перед коммитом: `npm test` (юнит-тесты модулей + headless smoke в jsdom).
+
+```bash
+npm install
+npm run dev
+npm test
+npm run lint
+npm run build
+```
+
+Новые gates добавляются по этапам миграции. Сейчас доступны:
+
+```bash
+npm run validate:docs
+npm run validate:lines
+```
+
+Перед изменениями прочитай [`AGENTS.md`](AGENTS.md) и
+[`docs/index.md`](docs/index.md).

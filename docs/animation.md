@@ -1,4 +1,8 @@
-# Animator / Frame Animation
+# Animator / Frame Animation — superseded legacy plan
+
+> Этот pixel-grid план не задаёт целевой продукт после решения о Windows
+> raster editor. Возможная raster animation будет перепланирована после `R6`;
+> канон: [`raster-editor-migration`](tutorials/raster-editor-migration/README.md).
 
 Цель: простой покадровый Animator для пиксель-арта, который ощущается как
 родная часть редактора, но не живёт внутри панели слоёв. Активный кадр

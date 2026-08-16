@@ -15,6 +15,6 @@ fi
 git fetch origin main -q 2>/dev/null || exit 0
 behind=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo 0)
 [ "${behind:-0}" -gt 0 ] || exit 0
-msg="origin/main впереди на ${behind} коммит(ов). Перед коммитом/пушем: git rebase origin/main, затем npm run lint и npm test."
+msg="origin/main впереди на ${behind} коммит(ов). Перед коммитом/пушем перенеси работу поверх origin/main и повтори gate из docs/project/validation-policy.md."
 ctx=$(printf '%s' "$msg" | jq -Rs .)
 printf '{"hookSpecificOutput":{"hookEventName":"%s","additionalContext":%s}}\n' "$ev" "$ctx"

@@ -1,0 +1,16 @@
+{
+  "title": "ProDraw",
+  "packageName": "prodraw",
+  "product": "touch-first raster graphics editor",
+  "targetPlatform": "windows-desktop",
+  "developmentRuntime": "vite-web",
+  "languages": ["ru", "en"],
+  "lineLimit": 150,
+  "docsLineLimit": 250,
+  "maxCanvasSide": 8192,
+  "maxCanvasPixels": 67108864,
+  "legacyDocsOverLimit": [
+    "docs/animation.md",
+    "docs/tileset-tilemap.md"
+  ]
+}

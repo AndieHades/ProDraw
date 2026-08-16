@@ -1,4 +1,8 @@
-# Text Tool: план и мокап
+# Text Tool — legacy reference
+
+> Старый план относится к pixel-grid runtime. Профессиональный raster text
+> workflow будет переоценён в `R5`; канон:
+> [`raster-editor-migration`](tutorials/raster-editor-migration/README.md).
 
 ## Цель
 

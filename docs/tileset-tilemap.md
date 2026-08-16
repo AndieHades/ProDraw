@@ -1,4 +1,8 @@
-# Tileset / Tilemap — дизайн и план разработки
+# Tileset / Tilemap — superseded legacy plan
+
+> Tilemap исключён из текущей raster migration и не должен влиять на новые
+> document contracts. Канон:
+> [`raster-editor-migration`](tutorials/raster-editor-migration/README.md).
 
 Система тайлов в духе **Aseprite Tiles**: пользователь создаёт тайлы в палитре,
 рисует ими на специальном tilemap-слое, правит исходный тайл — и все его

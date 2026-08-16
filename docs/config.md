@@ -1,44 +1,18 @@
-# Конфигурация (`src/config/`)
+# Конфигурация
 
-Цель: всё настраиваемое — **данные в одном очевидном месте**, а не магические
-числа по коду. Поменять поведение/пресет/дефолт = править `config`, не системы.
+Настраиваемые пределы, presets, timings, brush defaults и hotkeys являются
+данными в `src/config`, а не literals внутри systems.
 
-## Файлы
+## Обязательные canvas presets
 
-| Файл | Что настраивает |
-|------|-----------------|
-| `config/limits.js` | пределы: `MAX_LAYERS`, `MAX_SIZE`, `BP_SMAX`, `ZOOM_MIN/MAX`, `historyCap(area)` |
-| `config/presets.js` | `SIZE_PRESETS` (плитки «Новый документ»), `DEFAULT_DOC` |
-| `config/palette.js` | `DEFAULT_PALETTE_HEX`, `DEFAULT_ACTIVE`, `defaultPalette()` |
-| `config/defaults.js` | дефолты кисти/ластика, эффектов (обводка/тень/свечение/коррекция), импорта, флаги pp/стабилизации |
-| `config/timings.js` | тайминги и пороги жестов (долгий тап, удержание, drag-порог, сглаживание, щипок, тост) |
-| `config/layer-actions.js` | `LAYER_SWIPE_ACTIONS` — кнопки строки слоя при свайпе влево (lock/alphaLock/clip/duplicate/delete) |
-| `config/lasso.js` | Freehand Selection: `LASSO_DEFAULT` (режим/операция), `LASSO_CLOSE_PX` (порог замыкания), `LASSO_MIN_POINTS` |
-| `config/brush-resize.js` | Brush Size Modifier: `BRUSH_RESIZE` (Hot Key/чувствительность/направление), `SENS_PRESETS`, `DIRECTIONS` |
-| `config/eyedropper.js` | Пипетка: `EYEDROPPER.key` — Hot Key по умолчанию (Alt), переназначается в настройках |
-| `config/quickshape.js` | QuickShape: `QUICKSHAPE.holdMs` — задержка удержания до выравнивания формы |
-| `config/text.js` | Text Tool: встроенные шрифты, дефолт текста, ограничения файлов импорта |
+- game: 1920×1080, 1920×1200, 2560×1440, 2560×1600, 3840×2160;
+- print 300 DPI: A5 1748×2480 и A4 2480×3508, portrait/landscape;
+- social: 1080×1080, 1080×1350, 1080×1920;
+- art: 2048×2048, 4096×4096;
+- custom: в пределах `project.config.json` side/pixel budget.
 
-Хоткеи — тоже данные, но живут со своей системой: `systems/keyboard/keymap.js`
-(см. [keymap.md](keymap.md)). Строки UI — в локалях ([i18n.md](i18n.md)),
-значения стиля — в токенах ([theming.md](theming.md)).
+Physical presets хранят DPI и исходный размер, но painting coordinates остаются
+pixel-based. Поворот A-series меняет ориентацию, не пересчитывает размеры.
 
-## Правило
-
-- **Никаких магических чисел/значений в системах**, если это что-то
-  настраиваемое (предел, пресет, дефолт, тайминг). Импортируй из `config`.
-- `state.js` берёт стартовые значения документа из `config` (размер, палитра,
-  кисти) — не дублируй их.
-- Добавляешь настраиваемое — клади в подходящий файл `config` и ссылайся.
-
-## Примеры
-
-```js
-import { MAX_LAYERS } from '../config/limits.js';
-import { SIZE_PRESETS } from '../config/presets.js';
-import { LONG_PRESS_MS } from '../config/timings.js';
-import { GLOW_DEFAULT } from '../config/defaults.js';
-```
-
-Добавить пресет размера — одна строка в `SIZE_PRESETS`. Изменить глубину
-истории — `historyCap`. Сменить дефолтную палитру — `DEFAULT_PALETTE_HEX`.
+Текущие `src/config/*.js` относятся к legacy editor. Целевые `.ts`-данные
+создаются в `R2`; старые 32×32/640px ограничения не переносятся.

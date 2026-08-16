@@ -7,7 +7,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test": "node test/no-cyrillic.mjs && node test/unit.mjs && node test/storage.mjs && node test/module-int.mjs && node test/module-boot.mjs"
+    "test": "node test/no-cyrillic.mjs && node test/unit.mjs && node test/storage.mjs && node test/module-int.mjs && node test/module-boot.mjs",
+    "validate:docs": "node tools/validate-docs.mjs",
+    "validate:lines": "node tools/check-line-limit.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

@@ -40,4 +40,13 @@ export default [
     },
     rules: relaxed,
   },
+  {
+    files: ['tools/**/*.mjs', '.claude/hooks/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: { ...globals.node },
+    },
+    rules: relaxed,
+  },
 ];
