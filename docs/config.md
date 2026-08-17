@@ -3,6 +3,12 @@
 Настраиваемые пределы, presets, timings, brush defaults и hotkeys являются
 данными в `src/config`, а не literals внутри systems.
 
+Миграционный режим, живой и целевой entrypoints, текущий cutover stage и
+невозрастающие ceilings production JavaScript/legacy-state модулей принадлежат
+`project.config.json.cutover`. После каждого переноса C1-C6 ceilings только
+снижаются; финальный режим требует единственный TypeScript entrypoint и ноль
+production `.js`.
+
 ## Обязательные canvas presets
 
 - game: 1920×1080, 1920×1200, 2560×1440, 2560×1600, 3840×2160;

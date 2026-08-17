@@ -8,13 +8,13 @@ Canonical owner: this package.
 
 ## Resume Here
 
-- Current stage: `R2 / R2.11 / C0 — truthful cutover gates and repository health`
+- Current stage: `R2 / R2.11 / C1 — preserved TypeScript shell`
 - Status: `in_progress`
-- Last completed stage: `F3-R1..F3-R5` and the bounded P1
-  merge/document-remap recovery; F5 input and trace checkpoints remain complete
-- Next action: execute the registered
-  [`R2.11 owner cutover`](r2-11-owner-cutover/README.md), beginning with gates
-  that cannot confuse the live bridge with the dormant TypeScript editor
+- Last completed stage: `R2.11/C0` in `0f12c2d`; F3-R1..F3-R5 and the bounded
+  P1 merge/document-remap recovery also remain complete
+- Next action: migrate the complete preserved UI shell and shared pure leaves
+  to strict TypeScript under the registered
+  [`R2.11 owner cutover`](r2-11-owner-cutover/README.md)
 - Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace;
   R2 engine acceptance remains revoked until the restored UI uses typed RGBA owners
 - Working paths: `src/app.js`, `src/raster-main.ts`, `src/core`, `src/systems`,
@@ -28,7 +28,7 @@ Canonical owner: this package.
   the aggregate TypeScript suite passed 80 files/202 checks and the sequential
   performance suite passed 17 files/52 checks. `npm run validate` and a fresh
   packaged Windows smoke passed (`12` brushes, `8` sources, alpha `255`).
-- Last updated: `2026-08-17, full project audit rebaselined R2.11 at main@d3fc81a`
+- Last updated: `2026-08-17, C0 closed at 0f12c2d and C1 started`
 
 ## Product Outcome
 

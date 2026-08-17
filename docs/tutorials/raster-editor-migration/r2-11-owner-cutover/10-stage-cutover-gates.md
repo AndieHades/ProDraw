@@ -2,7 +2,7 @@
 
 - Stable id: `C0`
 - Depends on: none
-- Status: `in_progress`
+- Status: `done`
 - Scope: validation, dependency/security, product identity and failure reporting
 
 ## Change map
@@ -49,6 +49,10 @@ validation nondeterministic; lock/audit evidence is recorded separately if so.
 
 ## Completion record
 
-- Commit: pending
-- Checks: pending
-- Residual risk: pending
+- Commit: `0f12c2d` (`build: enforce the TypeScript cutover baseline`)
+- Checks: focused renderer-trust tests, cutover validator and five rejection
+  fixtures, desktop/raster-entry/interface validators, dependency audit, full
+  `npm run validate`, packaged Windows smoke and browser gallery/workspace smoke
+- Residual risk: production still enters the measured migration bridge and the
+  main bundle remains about 688 kB minified. C1-C6 own their removal; C0 prevents
+  either JavaScript or legacy-state counts from growing meanwhile.

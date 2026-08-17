@@ -8,18 +8,20 @@
 
 ## Resume Here
 
-- Current stage: `C0 — truthful cutover gates and repository health`
+- Current stage: `C1 — preserved shell and pure/shared TypeScript modules`
 - Status: `in_progress`
-- Last completed stage: none in this package
-- Next action: close the security, entrypoint, parity and migration-gate findings
-  from the current-state audit without changing product behaviour
+- Last completed stage: `C0` in `0f12c2d`
+- Next action: inventory the complete preserved shell by action and owner, then
+  migrate its pure/shared leaves to strict TypeScript without changing markup,
+  gestures, labels or observable behaviour
 - Blockers: physical Huion acceptance remains a final device-only check; it does
   not block code migration or automated trace evidence
-- Working paths: `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`,
-  `tools`, `desktop`, `package-lock.json`, then `src`
-- Last checks: clean `main@d3fc81a`; `npm run validate` passed 129 legacy unit,
-  447 integration, 214 TypeScript and 53 performance checks; browser New ->
-  800x600 workspace -> stroke -> Undo passed with no console errors
+- Working paths: `src`, `tests`, `tools`,
+  `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`
+- Last checks: C0 full validation passed 129 legacy unit, 447 integration,
+  217 TypeScript and 53 performance checks; dependency audit is clean; packaged
+  Windows smoke passed; browser gallery -> 800x600 workspace passed without
+  console errors
 - Last updated: 2026-08-17
 
 ## Outcome
@@ -48,8 +50,8 @@ contract. Tile mode, animation and all other rows remain required.
 
 | Stage | Outcome | Depends on | Status | Commit boundary |
 | --- | --- | --- | --- | --- |
-| `C0` | truthful gates, security and baseline health | none | in progress | `build: enforce the TypeScript cutover baseline` |
-| `C1` | preserved shell and pure/shared modules in TypeScript | `C0` | pending | `refactor: migrate the preserved shell to TypeScript` |
+| `C0` | truthful gates, security and baseline health | none | done | `0f12c2d` |
+| `C1` | preserved shell and pure/shared modules in TypeScript | `C0` | in progress | `refactor: migrate the preserved shell to TypeScript` |
 | `C2` | drawing, render, history and layers use one RGBA owner | `C1` | pending | `refactor: cut editor state over to tiled RGBA` |
 | `C3` | layer tree, effects and selection parity | `C2` | pending | `feat: port layer effects and selection to RGBA` |
 | `C4` | transform, tools, text, colour and view parity | `C3` | pending | `feat: port creative tools to the typed editor` |

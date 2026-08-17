@@ -18,12 +18,12 @@
 
 ## Current runtime inventory
 
-Текущая Windows/web-поставка временно запускает восстановленный оригинальный
-shell по цепочке `index.html` → `src/legacy-entry.js` → `src/app.js`. Этот bridge
-остаётся production-путём до завершения `F3-R/UI-R`: он сохраняет gallery,
-layers, palette, reference и drag/drop, пока их владельцы по одному переводятся
-на typed RGBA contracts. Его dense grid не является целевой моделью и не может
-получать новые pixel-art зависимости.
+Текущая Windows/web-поставка запускает восстановленный оригинальный shell по
+измеряемой migration-цепочке `index.html` → `src/legacy-entry.js` → `src/app.js`.
+Это не вторая допустимая архитектура: `R2.11/C1-C6` сохраняют тот же интерфейс,
+переводят всех его владельцев на typed RGBA contracts и затем удаляют цепочку.
+Её dense grid не является целевой моделью и не может получать новые pixel-art
+зависимости.
 
 Параллельный target runtime начинается в `src/main.ts` и
 `src/app/RasterEditorApp.ts`. Там `RasterEditorSession` владеет изменяемыми
@@ -32,10 +32,17 @@ layers, palette, reference и drag/drop, пока их владельцы по �
 mutable document/history в presenters не передаются. После parity transfer эта
 композиция заменит bridge за тем же оригинальным DOM, а не новым интерфейсом.
 
+`project.config.json.cutover` объявляет живой entrypoint, target entrypoint,
+текущий этап и невозрастающие пределы production JS/legacy-state модулей.
+`validate:cutover` строит достижимый production-граф и отклоняет ложный live
+target, второй runtime или рост этих пределов.
+
 `src/core/brush-library` владеет загрузкой наборов и ревизиями нативных пресетов;
 `src/ui/brushes` только отображает команды. В Windows `desktop/brush-ipc.mjs`
 реализует allowlisted app-data операции: seed/list/read/atomic-write/trash и
 директорные create/rename/move. Renderer не получает произвольный filesystem API.
+Все privileged IPC handlers проходят общий exact-origin/exact-file sender guard,
+а двоичные brush payload передаются как `ArrayBuffer`, без `number[]` amplification.
 
 `src/logic/stroke/StrokePipeline.ts` — единая чистая цепочка pressure response →
 stabilization → spacing для документа и Drawing Pad. `DrawingSystem` открывает

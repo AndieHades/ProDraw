@@ -9,7 +9,7 @@
 | core contract/state | unit + integration + check + targeted lint |
 | drawing/input/brush | focused integration + browser smoke + check/lint |
 | persistence/import/export | round-trip/failure tests + check/lint |
-| wide refactor/dependencies | `npm run validate` и `npm run build` |
+| wide refactor/dependencies | `validate:cutover`, `npm run validate` и `npm run build` |
 
 Дополнительно:
 
