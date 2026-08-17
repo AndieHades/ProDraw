@@ -53,7 +53,8 @@ export function brushCoverageSampler(
   brush: BrushPreset | LoadedBrush
 ): BrushCoverageSampler {
   const cached = samplers.get(brush); if (cached) return cached;
-  const shape = shapeOf(brush);
+  const radialBuiltIn = /brush-preset-(?:hard|soft)/i.test(brush.shape.sourceName ?? "");
+  const shape = radialBuiltIn ? null : shapeOf(brush);
   const nativeGrain = "grainMap" in brush ? brush.grainMap : null;
   const cosine = Math.cos(brush.shape.angle);
   const sine = Math.sin(brush.shape.angle);

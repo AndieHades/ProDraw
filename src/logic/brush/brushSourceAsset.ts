@@ -22,7 +22,8 @@ function decodeBase64(value: string): Uint8Array<ArrayBuffer> {
 
 export function sourceAsset(map: CoverageMap, sourceBrushName: string): BrushSourceAsset {
   return { sourceBrushName, width: map.width, height: map.height,
-    alphaBase64: encodeBase64(map.data) };
+    alphaBase64: encodeBase64(map.data), ...(map.scaleReference
+      ? { scaleReference: map.scaleReference } : {}) };
 }
 
 export function sourceCoverage(asset: BrushSourceAsset): CoverageMap {
@@ -32,7 +33,8 @@ export function sourceCoverage(asset: BrushSourceAsset): CoverageMap {
   }
   const data = decodeBase64(asset.alphaBase64);
   if (data.length !== asset.width * asset.height) throw new Error("Invalid brush source data");
-  return { width: asset.width, height: asset.height, data };
+  return { width: asset.width, height: asset.height, data,
+    ...(asset.scaleReference ? { scaleReference: asset.scaleReference } : {}) };
 }
 
 export function effectiveBrushSources(

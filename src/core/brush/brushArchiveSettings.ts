@@ -12,7 +12,7 @@ const supported = new Set([
   "textureInverted", "textureContrast", "textureBrightness", "dynamicsGlazedFlow",
   "maxOpacity", "dynamicsPressureSize", "dynamicsPressureOpacity",
   "dynamicsTiltSize", "smudgeStrength", "smudgePickup", "smudgeFlow",
-  "maxSize", "minSize", "bundledShapePath"
+  "maxSize", "minSize", "bundledShapePath", "bundledGrainPath"
 ]);
 const metadata = /^(?:\$class|name|version|author|creation|bundled|saved|preview|hover|erase|paint|color|signature)/i;
 const excluded = /(?:wet|mix|bleed|hue|saturation|brightness|lightness|darkness|secondaryColor|metallic|roughness|height)/i;
@@ -38,8 +38,9 @@ function angle(value: number): number {
   return ((value + Math.PI) % turn + turn) % turn - Math.PI;
 }
 
-function bundledShape(root: Readonly<Record<string, BinaryPlistValue>>): string | undefined {
-  const value = root.bundledShapePath;
+function bundledSource(root: Readonly<Record<string, BinaryPlistValue>>,
+  key: "bundledShapePath" | "bundledGrainPath"): string | undefined {
+  const value = root[key];
   return typeof value === "string" && value !== "$null" ? value : undefined;
 }
 
@@ -58,9 +59,10 @@ export interface ArchiveBrushResult {
 export function applyBrushArchiveSettings(
   preset: BrushPreset,
   root: Readonly<Record<string, BinaryPlistValue>>,
-  hasGrainAsset: boolean
+  _hasGrainAsset: boolean
 ): ArchiveBrushResult {
-  const shapeSource = bundledShape(root);
+  const shapeSource = bundledSource(root, "bundledShapePath");
+  const grainSource = bundledSource(root, "bundledGrainPath");
   const maximumSizeValue = numeric(root, "maxSize", -1);
   const maximumSize = maximumSizeValue > 0
     ? clamp(maximumSizeValue * 1_000, 1, 2_000) : preset.properties.maximumSize;
@@ -99,10 +101,9 @@ export function applyBrushArchiveSettings(
       angle: angle(numeric(root, "shapeAngle", preset.shape.angle)),
       roundness: clamp(numeric(root, "shapeRoundness", preset.shape.roundness), 0.05, 1),
       ...(shapeSource ? { sourceName: shapeSource } : {}) },
-    grain: { strength: hasGrainAsset
-      ? clamp(numeric(root, "grainDepth", preset.grain.strength), 0, 1)
-      : preset.grain.strength,
-      scale: clamp(numeric(root, "textureScale", preset.grain.scale), 0.05, 10) },
+    grain: { strength: clamp(numeric(root, "grainDepth", preset.grain.strength), 0, 1),
+      scale: clamp(numeric(root, "textureScale", preset.grain.scale), 0.05, 10),
+      ...(grainSource ? { sourceName: grainSource } : {}) },
     rendering: { flow: clamp(numeric(root, "dynamicsGlazedFlow",
       preset.rendering.flow), 0.01, 1),
       opacity: clamp(numeric(root, "maxOpacity", preset.rendering.opacity), 0.01, 1) },

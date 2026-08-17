@@ -8,7 +8,8 @@ function fingerprint(kind: BrushSourceKind, map: CoverageMap): string {
   for (const value of map.data) {
     hash ^= value; hash = Math.imul(hash, 16_777_619);
   }
-  return `${kind}:${map.width}x${map.height}:${(hash >>> 0).toString(16)}`;
+  return `${kind}:${map.width}x${map.height}@${map.scaleReference ?? map.width}:` +
+    (hash >>> 0).toString(16);
 }
 
 function append(

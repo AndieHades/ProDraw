@@ -1,5 +1,8 @@
 # Stage R3: Brush Studio and Tablet Dynamics
 
+The active Lineart/source/control repair is tracked in
+[`42-brush-studio-source-parity.md`](42-brush-studio-source-parity.md).
+
 - Status: `blocked`
 - Depends on: `R2`
 - Requirements: `BRH-02..04`, `STB-01`, `SMG-01`, `HUI-01`, performance part of `DOC-01`, `DSK-01`

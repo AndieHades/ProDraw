@@ -30,7 +30,9 @@ function sourceAsset(value: unknown): BrushSourceAsset | null {
       !Number.isInteger(source.height) || pixels < 1 || pixels > 1_048_576 ||
       typeof source.alphaBase64 !== "string" || source.alphaBase64.length > 1_500_000) return null;
   return { sourceBrushName: source.sourceBrushName, width: source.width!,
-    height: source.height!, alphaBase64: source.alphaBase64 };
+    height: source.height!, alphaBase64: source.alphaBase64,
+    ...(Number.isFinite(source.scaleReference) && Number(source.scaleReference) > 0
+      ? { scaleReference: Math.min(8192, Math.round(Number(source.scaleReference))) } : {}) };
 }
 
 export function presetFileBytes(preset: BrushPreset): Uint8Array<ArrayBuffer> {
@@ -88,7 +90,10 @@ export function parsePresetFile(
         ? { sourceName: shape.sourceName.slice(0, 200) }
         : base.shape.sourceName ? { sourceName: base.shape.sourceName } : {}) },
     grain: { strength: clamp(grain?.strength, 0, 1, base.grain.strength),
-      scale: clamp(grain?.scale, 0.05, 10, 1) },
+      scale: clamp(grain?.scale, 0.05, 10, 1),
+      ...(typeof grain?.sourceName === "string"
+        ? { sourceName: grain.sourceName.slice(0, 200) }
+        : base.grain.sourceName ? { sourceName: base.grain.sourceName } : {}) },
     rendering: { flow: clamp(rendering?.flow, 0.01, 1, base.rendering.flow),
       opacity: clamp(rendering?.opacity, 0.01, 1, 1) },
     dynamics: { sizeByPressure: clamp(dynamics?.sizeByPressure, 0, 1, 0.82),

@@ -6,6 +6,7 @@ import { decodeKeyedArchiveRoot } from "../archive/keyedArchive";
 import { applyBrushArchiveSettings } from "./brushArchiveSettings";
 import { decodeCoverage, type CoverageDecodeOptions } from "./decodeCoverage";
 import { sourceCoverage } from "../../logic/brush/brushSourceAsset";
+import { builtInBrushSource } from "../../logic/brush/builtinBrushSource";
 import rasterConfig from "../../config/brush-raster.json" with { type: "json" };
 
 function entryByBaseName(
@@ -71,11 +72,15 @@ export async function decodeProcreateBrush(
         warnings.push(`archive-settings-fallback:${detail}`);
       }
     } else warnings.push("archive-settings-missing");
-    const nativeShapeMap = await coverage(shapeBytes, rasterConfig.sourceMaximumSide,
+    const embeddedShapeMap = await coverage(shapeBytes, rasterConfig.sourceMaximumSide,
       "shape-decode-fallback", warnings, shapeOptions);
-    const nativeGrainMap = await coverage(grainBytes, rasterConfig.grainDecodeMaximumSide,
+    const embeddedGrainMap = await coverage(grainBytes, rasterConfig.grainDecodeMaximumSide,
       "grain-decode-fallback", warnings, grainOptions);
-    if (!nativeShapeMap) warnings.push("built-in-shape-fallback");
+    const nativeShapeMap = embeddedShapeMap ??
+      builtInBrushSource(resolvedPreset.shape.sourceName, "shape");
+    const nativeGrainMap = embeddedGrainMap ??
+      builtInBrushSource(resolvedPreset.grain.sourceName, "grain");
+    if (!nativeShapeMap) warnings.push("unresolved-shape-source");
     if (!nativeGrainMap && resolvedPreset.grain.strength > 0) {
       warnings.push("procedural-grain-fallback");
     }

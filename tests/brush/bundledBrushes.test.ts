@@ -32,8 +32,10 @@ describe("bundled brush catalog", () => {
     expect(loaded.stabilization.stabilizationAmount).toBeCloseTo(0.0584949069);
     expect(loaded.shape.sourceName).toBe("Brush-Pocket-Brick.png");
     expect(brushTipCoverage(loaded, 0.8, 0.8)).toBe(0);
-    expect(brushTipCoverage(loaded, 0.8, 0)).toBeGreaterThan(0);
-    expect(loaded.warnings).toContain("built-in-shape-fallback");
+    expect(brushTipCoverage(loaded, 0.35, 0)).toBeGreaterThan(0);
+    expect(loaded.shapeMap?.data.some(Boolean)).toBe(true);
+    expect(loaded.grainMap?.data.some(Boolean)).toBe(true);
+    expect(loaded.warnings).not.toContain("unresolved-shape-source");
     expect(loaded.warnings.every((warning) => !warning.startsWith("archive-fallback")))
       .toBe(true);
   });

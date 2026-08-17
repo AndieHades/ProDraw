@@ -29,8 +29,10 @@ function horizontal(map: CoverageMap, width: number): Float32Array<ArrayBuffer> 
 /** Area-filtered periodic tile used by Procreate grain on the raster canvas. */
 export function logicalGrainTile(map: CoverageMap, scale: number): CoverageMap {
   const cached = tiles.get(map)?.get(scale); if (cached) return cached;
-  const width = targetSide(map.width, scale);
-  const height = targetSide(map.height, scale);
+  const reference = map.scaleReference ?? Math.max(map.width, map.height);
+  const ratio = targetSide(reference, scale) / reference;
+  const width = Math.max(1, Math.round(map.width * ratio));
+  const height = Math.max(1, Math.round(map.height * ratio));
   if (width === map.width && height === map.height) return map;
   const rows = horizontal(map, width);
   const data = new Uint8Array(width * height);

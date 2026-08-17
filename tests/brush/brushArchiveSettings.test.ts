@@ -12,4 +12,15 @@ describe("Procreate bundled shape settings", () => {
       sourceName: "Brush-Preset-Hard.png" });
     expect(result.compatibility.supportedFields).toContain("bundledShapePath");
   });
+
+  it("keeps the built-in grain identity for Studio and production", () => {
+    const result = applyBrushArchiveSettings(BUNDLED_BRUSHES[0]!, {
+      bundledGrainPath: "Brush-Artery-Charcoal-Corse.jpg", grainDepth: 1,
+      textureScale: 0.13357694447040558
+    }, false);
+    expect(result.preset.grain).toMatchObject({ strength: 1,
+      scale: 0.13357694447040558,
+      sourceName: "Brush-Artery-Charcoal-Corse.jpg" });
+    expect(result.compatibility.supportedFields).toContain("bundledGrainPath");
+  });
 });

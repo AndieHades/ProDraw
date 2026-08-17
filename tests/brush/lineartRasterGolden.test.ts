@@ -9,12 +9,12 @@ import { RasterEdit } from "../../src/core/history/RasterEdit";
 import { RasterSurface } from "../../src/core/raster/RasterSurface";
 
 const expected = {
-  "lineart.brush": "208495fcf220ffefe705e4354a134781a0a2f1de74c1fcb9c244cc38b25464f5",
-  "lineart_long.brush": "b9e8a36977c36505ea09388b1eef5cf6e7d141869cb829fb3c7c52ec2f924469"
+  "lineart.brush": "de53e262287729c74b3512e8e73bf3f58327c13a0a75ef3e6c91dfc4883b2f56",
+  "lineart_long.brush": "b345a22961a3b89454c77b62faf2b1933c3538e3cc14c1e8318241bdcafb040a"
 } as const;
 
 describe("Lineart raster goldens", () => {
-  it("keeps both real archives smooth instead of inventing a square tip", async () => {
+  it("uses the same resolved brick tip and grain for both real archives", async () => {
     for (const fileName of Object.keys(expected) as Array<keyof typeof expected>) {
       const preset = BUNDLED_BRUSHES.find((brush) => brush.fileName === fileName);
       if (!preset) throw new Error(`Missing fixture: ${fileName}`);
@@ -37,7 +37,7 @@ describe("Lineart raster goldens", () => {
       }
       expect(createHash("sha256").update(rgba).digest("hex")).toBe(expected[fileName]);
       expect(surface.getPixel(51, 51).alpha).toBe(0);
-      expect(surface.getPixel(51, 32).alpha).toBeGreaterThan(0);
+      expect(surface.getPixel(42, 32).alpha).toBeGreaterThan(0);
     }
   });
 });

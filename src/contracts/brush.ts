@@ -2,6 +2,7 @@ export interface CoverageMap {
   readonly width: number;
   readonly height: number;
   readonly data: Uint8Array<ArrayBuffer>;
+  readonly scaleReference?: number;
 }
 
 export type BrushSourceKind = "shape" | "grain";
@@ -11,6 +12,7 @@ export interface BrushSourceAsset {
   readonly width: number;
   readonly height: number;
   readonly alphaBase64: string;
+  readonly scaleReference?: number;
 }
 
 export interface BrushSourceSelection {
@@ -85,7 +87,8 @@ export interface BrushPreset {
   readonly stabilization: BrushStabilization;
   readonly taper: { readonly start: number; readonly end: number; readonly pressure: number };
   readonly shape: BrushShapeSettings;
-  readonly grain: { readonly strength: number; readonly scale: number };
+  readonly grain: { readonly strength: number; readonly scale: number;
+    readonly sourceName?: string };
   readonly rendering: { readonly flow: number; readonly opacity: number };
   readonly dynamics: BrushDynamics;
   readonly smudge: BrushSmudgeSettings;

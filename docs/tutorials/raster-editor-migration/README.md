@@ -110,6 +110,7 @@ Excluded:
 2. [`02-target-contract.md`](02-target-contract.md)
 3. [`03-decisions-and-risks.md`](03-decisions-and-risks.md)
 4. [`04-brush-studio-ui-reference.md`](04-brush-studio-ui-reference.md)
+5. [`42-brush-studio-source-parity.md`](42-brush-studio-source-parity.md)
 5. [`05-tool-panel-ui-reference.md`](05-tool-panel-ui-reference.md)
 6. [`06-live-audit-2026-08-16.md`](06-live-audit-2026-08-16.md)
 7. [`07-remediation-plan.md`](07-remediation-plan.md)
