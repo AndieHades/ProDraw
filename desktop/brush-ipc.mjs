@@ -1,7 +1,7 @@
 import { mkdir, readFile, readdir, rename, stat, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { ipcMain, shell } from "electron";
+import { shell } from "electron";
 import channels from "./ipc-channels.cjs";
 import {
   brushFilePath as filePath, brushRoot, brushSetPath as setPath,
@@ -9,6 +9,7 @@ import {
 } from "./brush-storage-paths.mjs";
 import { brushSetSeedVersion, seedBrushSet } from "./brush-seed.mjs";
 import { restoreBrushTrash } from "./brush-trash.mjs";
+import { handleTrusted } from "./trusted-ipc.mjs";
 
 async function seed(setName, files) {
   await seedBrushSet(setName, files);
@@ -86,29 +87,29 @@ async function writeState(json) {
 }
 
 export function registerBrushIpc() {
-  ipcMain.handle(channels.brushSeed, (_event, request) => seed(request.setName, request.files));
-  ipcMain.handle(channels.brushList, () => listSets());
-  ipcMain.handle(channels.brushRead, async (_event, request) =>
-    Array.from(await readFile(filePath(request.setName, request.fileName))));
-  ipcMain.handle(channels.brushWrite, (_event, request) =>
+  handleTrusted(channels.brushSeed, (_event, request) => seed(request.setName, request.files));
+  handleTrusted(channels.brushList, () => listSets());
+  handleTrusted(channels.brushRead, async (_event, request) =>
+    Uint8Array.from(await readFile(filePath(request.setName, request.fileName))).buffer);
+  handleTrusted(channels.brushWrite, (_event, request) =>
     atomicNewFile(request.setName, request.fileName, request.bytes));
-  ipcMain.handle(channels.brushTrash, (_event, request) =>
+  handleTrusted(channels.brushTrash, (_event, request) =>
     trashFile(request.setName, request.fileName));
-  ipcMain.handle(channels.brushCreateSet, (_event, name) =>
+  handleTrusted(channels.brushCreateSet, (_event, name) =>
     mkdir(setPath(name), { recursive: false }));
-  ipcMain.handle(channels.brushRenameSet, (_event, request) =>
+  handleTrusted(channels.brushRenameSet, (_event, request) =>
     rename(setPath(request.from), setPath(request.to)));
-  ipcMain.handle(channels.brushMove, (_event, request) =>
+  handleTrusted(channels.brushMove, (_event, request) =>
     rename(filePath(request.fromSet, request.fileName),
       filePath(request.toSet, request.fileName)));
-  ipcMain.handle(channels.brushTrashSet, (_event, setName) => trashSet(setName));
-  ipcMain.handle(channels.brushRestoreTrash, () => restoreBrushTrash());
-  ipcMain.handle(channels.brushRevealFolder, async (_event, setName) => {
+  handleTrusted(channels.brushTrashSet, (_event, setName) => trashSet(setName));
+  handleTrusted(channels.brushRestoreTrash, () => restoreBrushTrash());
+  handleTrusted(channels.brushRevealFolder, async (_event, setName) => {
     const target = setName === null ? brushRoot() : setPath(setName);
     await mkdir(target, { recursive: true });
     const error = await shell.openPath(target);
     if (error) throw new Error(error);
   });
-  ipcMain.handle(channels.brushStateRead, () => readState());
-  ipcMain.handle(channels.brushStateWrite, (_event, json) => writeState(json));
+  handleTrusted(channels.brushStateRead, () => readState());
+  handleTrusted(channels.brushStateWrite, (_event, json) => writeState(json));
 }

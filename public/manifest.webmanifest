@@ -1,7 +1,7 @@
 {
-  "name": "Pixel Heart",
-  "short_name": "Pixel Heart",
-  "description": "Пиксель-арт редактор: рисование, зум, симметрия, импорт и экспорт PNG.",
+  "name": "ProDraw",
+  "short_name": "ProDraw",
+  "description": "Профессиональный растровый редактор для пера, мыши и touch.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

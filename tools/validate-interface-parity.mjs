@@ -6,6 +6,7 @@ const app = await readFile("src/app.js", "utf8");
 const layers = await readFile("src/systems/layers/index.js", "utf8");
 const layerList = await readFile("src/systems/layers/list.js", "utf8");
 const panels = await readFile("src/systems/panels.js", "utf8");
+const manifest = JSON.parse(await readFile("public/manifest.webmanifest", "utf8"));
 const errors = [];
 
 const requiredIds = [
@@ -30,6 +31,10 @@ for (const id of requiredIds) {
 if (!html.includes('<body class="gallery-open">') ||
     !html.includes('<div id="gallery" class="on">')) {
   errors.push("gallery must cover the editor from the first rendered frame");
+}
+if (!html.includes('<span id="gal-title">ProDraw</span>') ||
+    manifest.name !== "ProDraw" || manifest.short_name !== "ProDraw") {
+  errors.push("visible gallery and install manifest identity must be ProDraw");
 }
 for (const id of forbiddenReplacementIds) {
   if (html.includes(`id="${id}"`)) errors.push(`replacement shell #${id} is forbidden`);

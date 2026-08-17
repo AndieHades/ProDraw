@@ -10,8 +10,8 @@ const brushFiles = (await readdir("src/app-folders/brushes/main"))
   .filter((file) => file.endsWith(".brush"));
 const errors = [];
 
-if (!html.includes('src="/src/legacy-entry.js"')) {
-  errors.push("index.html must boot the checked interface migration bridge");
+if (!html.includes(`src="/${projectConfig.cutover.productionEntry}"`)) {
+  errors.push("index.html must boot the configured production entry");
 }
 if (!bridge.includes("import './app.js'") || !bridge.includes("from './main.ts'")) {
   errors.push("migration bridge must join the original shell to typed brush owners");
@@ -36,4 +36,4 @@ if (errors.length) {
   console.error(`Raster entry validation failed:\n${errors.join("\n")}`);
   process.exit(1);
 }
-console.log("Interface bridge, raster bootstrap and bundled brush assets validated.");
+console.log("Configured migration entry, detached target and bundled brush assets validated.");

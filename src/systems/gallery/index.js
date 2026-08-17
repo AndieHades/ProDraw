@@ -2,7 +2,7 @@
 // автосохранение, инициализация (на старте открываем галерею).
 import * as bus from '../../core/bus.js';
 import * as actions from '../../core/actions.js';
-import { $ } from '../../core/dom.js';
+import { $, t, toast } from '../../core/dom.js';
 import { imageData, looksPixelArt } from '../../core/image.js';
 import { newWorkFromImage, newWorkFromLayers, beginConvertedWork, saveCurrent,
   autosave, autosaveInputStarted } from './doc.js';
@@ -20,7 +20,9 @@ async function finishShow(change) { const saved = await saveCurrent();
   await render(); return saved && change === galleryChange; }
 export function show() { const change = ++galleryChange; setGalleryOpen(true);
   bus.emit('document-transition');
-  readyTask = finishShow(change).catch(() => false); return readyTask; }
+  readyTask = finishShow(change).catch(() => {
+    toast(t('toast.documentSaveFailed')); return false;
+  }); return readyTask; }
 export const whenReady = () => readyTask;
 // выходя в эдитор, гасим ВСЕ галерейные оверлеи (.gallery-only) — системно, без
 // списка id: новый галерейный элемент с этим классом закрывается автоматически
@@ -31,12 +33,15 @@ function pick(accept, fn) { const i = document.createElement('input'); i.type = 
   i.onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) fn(f); }; i.click(); }
 
 // картинка → новый проект: пиксель-арт сразу как есть, иначе через Pixelize (конвертер)
-function fromFile(f) { const im = new Image(); im.onerror = () => {};
-  im.onload = () => { if (looksPixelArt(im)) { const d = imageData(im, im.naturalWidth, im.naturalHeight, false); hide(); newWorkFromImage(d.width, d.height, d.data, f.name.replace(/\.\w+$/, '')); }
-    else { beginConvertedWork(); actions.run('import.openFile', f); } }; im.src = URL.createObjectURL(f); } // конвертер поверх галереи; уйдём по «Применить»
+function fromFile(f) { const im = new Image(), url = URL.createObjectURL(f);
+  im.onerror = () => { URL.revokeObjectURL(url); toast(t('toast.imgOpenFail')); };
+  im.onload = () => { URL.revokeObjectURL(url);
+    if (looksPixelArt(im)) { const d = imageData(im, im.naturalWidth, im.naturalHeight, false); hide(); newWorkFromImage(d.width, d.height, d.data, f.name.replace(/\.\w+$/, '')); }
+    else { beginConvertedWork(); actions.run('import.openFile', f); } }; im.src = url; } // конвертер поверх галереи; уйдём по «Применить»
 function photo() { pick('image/*', fromFile); } // не-пиксельная графика уходит в конвертер автоматически (fromFile)
 function importPsd() { pick('.psd,image/vnd.adobe.photoshop', async (f) => { try { const psd = readPsd(await f.arrayBuffer());
-  if (psd && psd.layers.length) { hide(); newWorkFromLayers(psd.W, psd.H, psd.layers, f.name.replace(/\.psd$/i, '')); } } catch (e) {} }); }
+  if (psd && psd.layers.length) { hide(); newWorkFromLayers(psd.W, psd.H, psd.layers, f.name.replace(/\.psd$/i, '')); }
+  else toast(t('toast.documentOpenFailed')); } catch (e) { toast(t('toast.documentOpenFailed')); } }); }
 
 export async function mount() {
   if (mounted) return whenReady(); mounted = true;

@@ -22,6 +22,11 @@ const channels = {
   brushStateWrite: "prodraw:brush:state-write"
 };
 
+function arrayBuffer(bytes) {
+  if (bytes instanceof ArrayBuffer) return bytes;
+  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+}
+
 contextBridge.exposeInMainWorld("prodrawDesktop", {
   platform: "windows",
   async openBinary(filters) {
@@ -53,17 +58,16 @@ contextBridge.exposeInMainWorld("prodrawDesktop", {
   brushStorage: {
     ensureSeeded(setName, files) {
       return ipcRenderer.invoke(channels.brushSeed, { setName,
-        files: files.map((file) => ({ fileName: file.fileName,
-          bytes: Array.from(new Uint8Array(file.bytes)) })) });
+        files: files.map((file) => ({ fileName: file.fileName, bytes: file.bytes })) });
     },
     listSets: () => ipcRenderer.invoke(channels.brushList),
     async readFile(setName, fileName) {
-      return Uint8Array.from(await ipcRenderer.invoke(channels.brushRead,
-        { setName, fileName })).buffer;
+      return arrayBuffer(await ipcRenderer.invoke(channels.brushRead,
+        { setName, fileName }));
     },
     writeFile(setName, fileName, bytes) {
       return ipcRenderer.invoke(channels.brushWrite, { setName, fileName,
-        bytes: Array.from(new Uint8Array(bytes)) });
+        bytes });
     },
     trashFile: (setName, fileName) =>
       ipcRenderer.invoke(channels.brushTrash, { setName, fileName }),

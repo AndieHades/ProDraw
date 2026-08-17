@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import { app, BrowserWindow, dialog } from "electron";
 import { atomicWriteFile } from "./atomic-file.mjs";
 import channels from "./ipc-channels.cjs";
+import { handleTrusted } from "./trusted-ipc.mjs";
 
 let lastDirectory = null;
 
@@ -30,7 +31,7 @@ function nativeDocumentLocation(value) {
 }
 
 export function registerFileIpc() {
-  ipcMain.handle(channels.fileOpen, async (event, filters) => {
+  handleTrusted(channels.fileOpen, async (event, filters) => {
     const result = await dialog.showOpenDialog(parentWindow(event), {
       properties: ["openFile"], filters: electronFilters(filters),
       defaultPath: lastDirectory ?? app.getPath("documents")
@@ -43,7 +44,7 @@ export function registerFileIpc() {
       bytes: Uint8Array.from(bytes).buffer };
   });
 
-  ipcMain.handle(channels.fileSave, async (event, request) => {
+  handleTrusted(channels.fileSave, async (event, request) => {
     const result = await dialog.showSaveDialog(parentWindow(event), {
       defaultPath: defaultPath(request.suggestedName),
       filters: electronFilters(request.filters)
@@ -54,13 +55,13 @@ export function registerFileIpc() {
     return { name: path.basename(result.filePath), location: result.filePath };
   });
 
-  ipcMain.handle(channels.fileWrite, async (_event, request) => {
+  handleTrusted(channels.fileWrite, async (_event, request) => {
     await atomicWriteFile(nativeDocumentLocation(request.location), request.bytes);
     lastDirectory = path.dirname(request.location);
     return true;
   });
 
-  ipcMain.handle(channels.fileConfirmDiscard, async (event, request) => {
+  handleTrusted(channels.fileConfirmDiscard, async (event, request) => {
     const result = await dialog.showMessageBox(parentWindow(event), {
       type: "warning", title: String(request.title), message: String(request.message),
       buttons: [String(request.confirmLabel), String(request.cancelLabel)],

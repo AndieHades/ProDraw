@@ -229,7 +229,7 @@ export const ru = {
   'toast.savedAs': 'Сохранено: {name}',
   'toast.inserted': 'Вставлено {w}×{h}',
   'toast.brushImported': 'Кисть импортирована: {name}', 'toast.brushImportFail': 'Не удалось прочитать файл кисти',
-  'toast.documentCreateFailed': 'Не удалось создать и сохранить холст. Попробуйте ещё раз.',
+  'toast.documentCreateFailed': 'Не удалось создать и сохранить холст. Попробуйте ещё раз.', 'toast.documentSaveFailed': 'Не удалось сохранить текущий холст. Работа остаётся открытой.',
   'toast.documentOpenFailed': 'Не удалось открыть холст. Текущая работа не изменена.',
   'toast.fontImported': 'Шрифт добавлен: {name}', 'toast.fontImportFail': 'Не удалось прочитать файл шрифта', 'toast.textCreated': 'Текстовый слой создан',
   'toast.imgImported': 'Картинка добавлена сверху', 'toast.psdImported': 'PSD импортирован: {n} слоёв', 'toast.psdSomeFx': 'PSD импортирован (часть эффектов пропущена)',

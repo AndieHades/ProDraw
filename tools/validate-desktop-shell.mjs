@@ -2,6 +2,7 @@ import { access, mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { atomicWriteFile } from "../desktop/atomic-file.mjs";
+import { isTrustedRendererUrl } from "../desktop/renderer-trust.mjs";
 
 const required = [
   "desktop/electron-main.mjs",
@@ -15,6 +16,9 @@ const required = [
   "desktop/brush-storage-paths.mjs",
   "desktop/brush-trash.mjs",
   "desktop/ipc-channels.cjs",
+  "desktop/ipc-sender.mjs",
+  "desktop/renderer-trust.mjs",
+  "desktop/trusted-ipc.mjs",
   "src/contracts/platform.ts",
   "src/platform/createDesktopPlatform.ts",
   "src/app/runRendererSmoke.ts",
@@ -28,6 +32,8 @@ const preload = await readFile("desktop/electron-preload.cjs", "utf8");
 const channels = await readFile("desktop/ipc-channels.cjs", "utf8");
 const brushSeed = await readFile("desktop/brush-seed.mjs", "utf8");
 const brushIpc = await readFile("desktop/brush-ipc.mjs", "utf8");
+const fileIpc = await readFile("desktop/electron-ipc.mjs", "utf8");
+const closeIpc = await readFile("desktop/close-ipc.mjs", "utf8");
 const desktopSmoke = await readFile("desktop/desktop-smoke.mjs", "utf8");
 const rendererSmoke = await readFile("src/app/runRendererSmoke.ts", "utf8");
 const packageSmoke = await readFile("tools/smoke-packaged-desktop.mjs", "utf8");
@@ -37,6 +43,9 @@ const errors = [];
 if (pkg.main !== "desktop/electron-main.mjs") errors.push("package main must own Electron entry");
 if (pkg.scripts?.["package:desktop"] !== "node tools/package-desktop.mjs") {
   errors.push("desktop package must use the verified packaging runner");
+}
+if (pkg.scripts?.["smoke:desktop"] !== "npm run package:desktop") {
+  errors.push("desktop smoke command must build and smoke the same verified package");
 }
 if (!main.includes("contextIsolation: true")) errors.push("contextIsolation must be enabled");
 if (!main.includes("nodeIntegration: false")) errors.push("nodeIntegration must be disabled");
@@ -62,6 +71,15 @@ for (const marker of ["fileWrite", "fileConfirmDiscard", "closeRequest", "closeD
 if (preload.includes("Array.from(new Uint8Array(request.bytes))")) {
   errors.push("document file IPC must not amplify binary bytes into number arrays");
 }
+if (preload.includes("Array.from(new Uint8Array(bytes))")) {
+  errors.push("brush IPC must not amplify binary bytes into number arrays");
+}
+for (const [name, source, marker] of [
+  ["file", fileIpc, "handleTrusted"], ["brush", brushIpc, "handleTrusted"],
+  ["close", closeIpc, "onTrusted"]
+]) {
+  if (!source.includes(marker)) errors.push(`${name} IPC must validate its renderer sender`);
+}
 for (const [, channel] of channels.matchAll(/"(prodraw:[^"]+)"/g)) {
   if (!preload.includes(`"${channel}"`)) errors.push(`preload channel missing: ${channel}`);
 }
@@ -81,6 +99,21 @@ if (!brushSeed.includes('format: "prodraw-brush-seed", version: 2')) {
 }
 for (const marker of ["restoreBrushTrash", "shell.openPath"]) {
   if (!brushIpc.includes(marker)) errors.push(`brush IPC capability missing: ${marker}`);
+}
+
+const packagedEntry = path.resolve("dist/index.html");
+const trustOptions = { packagedEntry, developmentUrl: null };
+if (!isTrustedRendererUrl(new URL(`file:///${packagedEntry.replaceAll("\\", "/")}`),
+  trustOptions)) errors.push("packaged renderer entry must be trusted");
+if (isTrustedRendererUrl(new URL(`file:///${path.resolve("index.html").replaceAll("\\", "/")}`),
+  trustOptions)) errors.push("a sibling file renderer must be rejected");
+const devTrust = { packagedEntry, developmentUrl: "http://127.0.0.1:4173/editor" };
+if (!isTrustedRendererUrl("http://127.0.0.1:4173/", devTrust)) {
+  errors.push("exact development origin must be trusted");
+}
+for (const candidate of ["http://127.0.0.1:4174/", "http://evil.local:4173/",
+  `file:///${packagedEntry.replaceAll("\\", "/")}`]) {
+  if (isTrustedRendererUrl(candidate, devTrust)) errors.push(`untrusted renderer accepted: ${candidate}`);
 }
 
 const atomicDirectory = await mkdtemp(path.join(tmpdir(), "prodraw-atomic-check-"));

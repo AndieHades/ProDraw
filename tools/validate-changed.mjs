@@ -9,6 +9,7 @@ const docsOnly = changed.length > 0 && changed.every((file) =>
 if (docsOnly) await runNpmScripts(["validate:docs", "validate:hooks", "validate:lines"]);
 else await runNpmScripts([
   "check", "lint", "test:ts", "validate:docs", "validate:hooks", "validate:lines",
-  "validate:architecture", "validate:cycles", "validate:desktop"
+  "validate:architecture", "validate:cycles", "validate:cutover", "validate:desktop",
+  "validate:raster-entry"
 ]);
 console.log(`Changed-surface validation passed for ${changed.length} files.`);

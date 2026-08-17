@@ -136,7 +136,10 @@ export function mount() {
   $('font-stretch').onclick = stretchText;
   $('font-menu').onclick = (e) => { const b = e.target.closest('button'); if (b) menuAct(b.dataset.act); };
   $('font-pop').addEventListener('dragover', (e) => { e.preventDefault(); });
-  $('font-pop').addEventListener('drop', async (e) => { e.preventDefault(); for (const f of e.dataTransfer.files) try { await importFontFile(f); } catch (err) {} refresh(); });
+  $('font-pop').addEventListener('drop', async (e) => { e.preventDefault();
+    for (const f of e.dataTransfer.files) try { await importFontFile(f);
+      toast(t('toast.fontImported', { name: f.name }));
+    } catch (err) { toast(t('toast.fontImportFail')); } refresh(); });
   bus.on('layer-active', () => { if (opened()) { syncPrefsColorFromActive(); syncControls(); renderFonts(); syncOpenColor(); } });
   bus.on('palette', () => { if (opened()) { syncPrefsColorFromActive(); syncControls(); } });
   bus.on('locale', () => { if (opened()) renderFonts(); });

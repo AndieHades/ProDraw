@@ -15,7 +15,7 @@ function lineCount(source) {
 }
 
 function isWorkingCode(file) {
-  if (/^(src|tests|desktop|tools|public)\/.*\.(cjs|mjs|js|jsx|ts|tsx|css)$/.test(file)) {
+  if (/^(src|tests|test|desktop|tools|public)\/.*\.(cjs|mjs|js|jsx|ts|tsx|css)$/.test(file)) {
     return true;
   }
   if (/^\.(claude|codex)\/hooks\/.*\.(mjs|js|sh)$/.test(file)) return true;

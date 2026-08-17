@@ -10,6 +10,8 @@ await runNpmScripts([
   "validate:lines",
   "validate:architecture",
   "validate:cycles",
+  "validate:cutover",
+  "validate:cutover-fixtures",
   "validate:desktop",
   "validate:raster-entry",
   "build:bundle"

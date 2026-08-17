@@ -1,7 +1,7 @@
 // Service worker: network-first с рантайм-кэшем. Берём свежее из сети, кэшируем
 // по ходу; офлайн — отдаём из кэша, для навигации — index.html. Без списка
 // предзагрузки (имена ассетов хэшируются сборкой), поэтому установка не падает.
-const CACHE = 'pixel-heart-v1';
+const CACHE = 'prodraw-v2';
 
 self.addEventListener('install', () => self.skipWaiting());
 

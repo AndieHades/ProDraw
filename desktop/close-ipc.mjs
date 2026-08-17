@@ -1,10 +1,10 @@
-import { ipcMain } from "electron";
 import channels from "./ipc-channels.cjs";
+import { onTrusted } from "./trusted-ipc.mjs";
 
 const pending = new Map();
 
 export function registerCloseIpc() {
-  ipcMain.on(channels.closeDecision, (event, allow) => {
+  onTrusted(channels.closeDecision, (event, allow) => {
     const request = pending.get(event.sender.id);
     if (!request) return;
     pending.delete(event.sender.id);

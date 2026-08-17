@@ -227,7 +227,7 @@ export const en = {
   'toast.savedAs': 'Saved: {name}',
   'toast.inserted': 'Inserted {w}×{h}',
   'toast.brushImported': 'Brush imported: {name}', 'toast.brushImportFail': 'Could not read brush file',
-  'toast.documentCreateFailed': 'Could not create and save the canvas. Try again.',
+  'toast.documentCreateFailed': 'Could not create and save the canvas. Try again.', 'toast.documentSaveFailed': 'Could not save the current canvas. Your work remains open.',
   'toast.documentOpenFailed': 'Could not open the canvas. Your current work remains unchanged.',
   'toast.fontImported': 'Font added: {name}', 'toast.fontImportFail': 'Could not read font file', 'toast.textCreated': 'Text layer created',
   'toast.imgImported': 'Image imported on top', 'toast.psdImported': 'PSD imported: {n} layers', 'toast.psdSomeFx': 'PSD imported (some effects skipped)',

@@ -9,6 +9,14 @@
   "docsLineLimit": 250,
   "maxCanvasSide": 8192,
   "maxCanvasPixels": 50000000,
+  "cutover": {
+    "stage": "C0",
+    "runtimeMode": "bridge",
+    "productionEntry": "src/legacy-entry.js",
+    "targetEntry": "src/raster-main.ts",
+    "maximumSourceJavaScriptFiles": 345,
+    "maximumLegacyStateJavaScriptFiles": 206
+  },
   "legacyCodeOverLimit": [
     "src/app.js",
     "src/i18n/locales/en.js",
@@ -21,7 +29,9 @@
     "src/systems/tile-from-layer.js",
     "src/systems/tilemap-dialog.js",
     "src/systems/tilemap-paint/index.js",
-    "src/systems/toolbars.js"
+    "src/systems/toolbars.js",
+    "test/module-int.mjs",
+    "test/unit.mjs"
   ],
   "legacyDocsOverLimit": [
     "docs/animation.md",
