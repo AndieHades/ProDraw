@@ -1,5 +1,5 @@
 import type { LayerMaskData, PixelArray, PixelData } from "ag-psd";
-import type { PsdImportBitmap, PsdImportMask } from "../../contracts/psdImport";
+import type { PsdImportBitmap, PsdImportMask } from "../../contracts/psdImport.ts";
 
 const byte = (data: PixelArray, index: number): number => {
   const value = data[index] ?? 0;

@@ -1,6 +1,6 @@
 import type { LayerEffectsInfo } from "ag-psd";
-import type { PsdEffectKind, PsdImportedEffect } from "../../contracts/psdEffects";
-import { psdJsonObject } from "./psdJson";
+import type { PsdEffectKind, PsdImportedEffect } from "../../contracts/psdEffects.ts";
+import { psdJsonObject } from "./psdJson.ts";
 
 type EffectRecord = Readonly<Record<string, unknown>>;
 type EffectSource = EffectRecord | readonly EffectRecord[] | undefined;

@@ -50,7 +50,8 @@ export async function cloneLayersIdle(layers, boundsFor, isCurrent,
 const cloneBg = (bg) => ({ color: bg?.color ? bg.color.slice(0, 3) : null,
   visible: bg?.visible !== false });
 const cloneFolders = (folders = []) => folders.map((folder) =>
-  ({ ...folder, effects: cloneFx(folder.effects) }));
+  ({ ...folder, effects: cloneFx(folder.effects),
+    psdEffects: structuredClone(folder.psdEffects || []) }));
 
 async function cloneFrameIdle(frame, live, isCurrent, yieldWork) {
   const source = live || frame;

@@ -1,4 +1,4 @@
-import type { PsdJsonValue } from "../../contracts/psdEffects";
+import type { PsdJsonValue } from "../../contracts/psdEffects.ts";
 
 export function psdJsonValue(value: unknown): PsdJsonValue | undefined {
   if (value === null || typeof value === "string" || typeof value === "boolean") return value;

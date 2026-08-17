@@ -2,7 +2,7 @@
 
 - Stable id: `PSD2`
 - Depends on: `PSD1`
-- Status: `pending`
+- Status: `done`
 
 ## Scope
 
@@ -21,6 +21,8 @@ against New, Open and a second import. Restart/reopen proves gallery presence.
 
 ## Completion Record
 
-- Commit: pending
-- Checks: pending
-- Residual risk: pending
+- Commit: this stage commit (`feat: open psd as gallery documents`)
+- Checks: PSD 5 files/10 tests, module integration 393, module boot, storage,
+  TypeScript, targeted ESLint, interface/catalog/cycles/lines and Vite build
+- Residual risk: masks, non-normal blend modes and PSD effect metadata are
+  persistent but become visually active in `PSD3`

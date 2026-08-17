@@ -117,6 +117,7 @@ export const enFeedback: LocaleDictionary = {
   "toast.imgImported": "Image imported on top",
   "toast.psdImported": "PSD imported: {n} layers",
   "toast.psdSomeFx": "PSD imported (some effects skipped)",
+  "toast.psdCompatibility": "PSD opened with compatibility warnings",
   "toast.selectedColorN": "Selected: {n} px — paint, drag or fill",
   "toast.importReady": "Done: {w}×{h} — draw!",
   "toast.sizeRange": "Sizes from 2 to {max}",

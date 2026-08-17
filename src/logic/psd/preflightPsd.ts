@@ -1,5 +1,5 @@
-import { PSD_IMPORT_LIMITS } from "../../config/psd-import";
-import { PsdDecodeError } from "../../core/psd/PsdDecodeError";
+import { PSD_IMPORT_LIMITS } from "../../config/psd-import.ts";
+import { PsdDecodeError } from "../../core/psd/PsdDecodeError.ts";
 
 export interface PsdHeader {
   readonly version: 1 | 2;

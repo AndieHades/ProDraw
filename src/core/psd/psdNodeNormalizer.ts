@@ -1,10 +1,10 @@
 import type { Layer } from "ag-psd";
 import type {
   PsdBlendMode, PsdImportGroup, PsdImportLayer, PsdImportNode
-} from "../../contracts/psdImport";
-import { normalizePsdEffects } from "./psdEffectNormalizer";
-import { psdJsonObject } from "./psdJson";
-import { normalizeBitmap, normalizeMask } from "./psdPixels";
+} from "../../contracts/psdImport.ts";
+import { normalizePsdEffects } from "./psdEffectNormalizer.ts";
+import { psdJsonObject } from "./psdJson.ts";
+import { normalizeBitmap, normalizeMask } from "./psdPixels.ts";
 
 const blendMode = (value: Layer["blendMode"]): PsdBlendMode => value ?? "normal";
 

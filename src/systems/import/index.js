@@ -10,6 +10,7 @@ import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { imageData, looksPixelArt } from '../../core/image.js';
 import { setImpData, impConvert, applyImport, rotateImp, setImportMode, getImportMode } from './convert.js';
+import { isPsdFile } from './psd-file.ts';
 
 let impSrcImg = null;
 export { looksPixelArt };
@@ -55,7 +56,10 @@ function centerImpBox() { const b = $('imp-box'); if (!b) return;
 
 // drop в галерею → новый проект; drop в редактор → верхним слоем (не стирая холст).
 // Точный пиксель-арт вставляется как есть — конвертер не открывается ни в каком случае.
-export function dropImage(file) { if (!file) return;
+export async function dropImage(file) { if (!file) return;
+  if (await isPsdFile(file)) { await actions.run('import.psdFile', file); return; }
+  if (!file.type.startsWith('image/') && !/\.(?:png|jpe?g|gif|webp|bmp|avif)$/i.test(file.name)) {
+    toast(t('toast.notImage')); return; }
   if ($('gallery').classList.contains('on')) { setImportMode('replace'); actions.run('gallery.importDrop', file); return; }
   const im = new Image(); im.onerror = () => toast(t('toast.imgOpenFail'));
   im.onload = () => { if (looksPixelArt(im)) insertImageTop(im); else { setImportMode('layer'); openImport(file); } };
@@ -81,8 +85,8 @@ export function mount() {
   window.addEventListener('dragenter', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); depth++; show(true); } });
   window.addEventListener('dragleave', () => { depth = Math.max(0, depth - 1); if (!depth) show(false); });
   window.addEventListener('drop', (e) => { e.preventDefault(); depth = 0; show(false);
-    const f = e.dataTransfer && [...e.dataTransfer.files].find((x) => x.type.startsWith('image/'));
-    if (f) dropImage(f); else if (e.dataTransfer && e.dataTransfer.files.length) toast(t('toast.notImage')); });
+    const f = e.dataTransfer && e.dataTransfer.files[0];
+    if (f) void dropImage(f); });
 }
 
 // открыть файл в конвертере как новый проект (галерея, меню Pixelize) — режим replace

@@ -1,4 +1,4 @@
-import { MAX_SIZE } from "./limits";
+import { MAX_SIZE } from "./limits.ts";
 
 const mebibyte = 1024 * 1024;
 

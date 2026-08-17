@@ -3,9 +3,8 @@
 // создаём. Photo/File — прямая вставка, Pixelize — открыть конвертер.
 import * as actions from '../../core/actions.ts';
 import { $, showMenuAt, toast, t } from '../../ui/dom/ShellDom.ts';
-import { readPsd } from '../../logic/psd.js';
-import { insertPsd } from './psd-insert.js';
 import { insertImageTop } from './index.js';
+import { decodePsdFile, isPsdFile } from './psd-file.ts';
 
 function pick(accept, fn) { const i = document.createElement('input'); i.type = 'file'; i.accept = accept;
   i.onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) fn(f); }; i.click(); }
@@ -14,11 +13,18 @@ const baseName = (n) => n.replace(/\.[^.]+$/, '');
 
 const photo = () => pick('image/*', (f) => loadImg(f, (im) => insertImageTop(im, baseName(f.name))));
 const pixelize = () => pick('image/*', (f) => actions.run('import.openFile', f)); // конвертер как новый проект
-function file(f0) { const go = (f) => { if (/\.psd$/i.test(f.name) || f.type === 'image/vnd.adobe.photoshop')
-    f.arrayBuffer().then((b) => { let psd = null; try { psd = readPsd(b); } catch (e) {} // битый/непрочитанный PSD не должен ронять импорт
-      if (psd && psd.layers.length) insertPsd(psd, baseName(f.name)); else toast(t('toast.imgOpenFail')); });
-  else loadImg(f, (im) => insertImageTop(im, baseName(f.name))); };
-  if (f0) go(f0); else pick('image/*,.psd,image/vnd.adobe.photoshop', go); }
+export async function importPsd(f) { const token = actions.run('gallery.beginPsdImport');
+  if (!Number.isInteger(token)) { toast(t('toast.documentOpenFailed')); return false; }
+  try { const decoded = await decodePsdFile(f);
+    const status = await actions.run('gallery.completePsdImport', token,
+      decoded.document, decoded.name);
+    if (status === 'failed') toast(t('toast.documentOpenFailed'));
+    return status === 'opened';
+  } catch (error) { toast(t('toast.documentOpenFailed')); return false; } }
+function file(f0) { const go = async (f) => {
+    if (await isPsdFile(f)) await importPsd(f);
+    else loadImg(f, (im) => insertImageTop(im, baseName(f.name))); };
+  if (f0) void go(f0); else pick('image/*,.psd,.psb,image/vnd.adobe.photoshop', go); }
 
 export function mount() {
   $('imp-btn').addEventListener('click', (e) => { const r = e.currentTarget.getBoundingClientRect(); showMenuAt($('impmenu'), r.left + r.width / 2, r.bottom); });
@@ -27,4 +33,5 @@ export function mount() {
   $('impmenu-file').onclick = () => { close(); file(); };
   $('impmenu-pix').onclick = () => { close(); pixelize(); };
   actions.register('file.import', () => file());
+  actions.register('import.psdFile', importPsd);
 }

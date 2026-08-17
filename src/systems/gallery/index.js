@@ -4,10 +4,9 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, t, toast } from '../../ui/dom/ShellDom.ts';
 import { imageData, looksPixelArt } from '../../core/image.js';
-import { newWorkFromImage, newWorkFromLayers, beginConvertedWork, saveCurrent,
-  autosave, autosaveInputStarted } from './doc.js';
+import { newWorkFromImage, beginConvertedWork, saveCurrent,
+  autosave, autosaveInputStarted, beginPsdImport, completePsdImport } from './doc.js';
 import { configure, render, goBack, setSelecting, isSelecting, stackSelected, dupSelected, delSelected } from './screen.js';
-import { readPsd } from '../../logic/psd.js';
 
 let galleryChange = 0, readyTask = Promise.resolve(true), mounted = false;
 function setGalleryOpen(on) {
@@ -39,9 +38,8 @@ function fromFile(f) { const im = new Image(), url = URL.createObjectURL(f);
     if (looksPixelArt(im)) { const d = imageData(im, im.naturalWidth, im.naturalHeight, false); hide(); newWorkFromImage(d.width, d.height, d.data, f.name.replace(/\.\w+$/, '')); }
     else { beginConvertedWork(); actions.run('import.openFile', f); } }; im.src = url; } // конвертер поверх галереи; уйдём по «Применить»
 function photo() { pick('image/*', fromFile); } // не-пиксельная графика уходит в конвертер автоматически (fromFile)
-function importPsd() { pick('.psd,image/vnd.adobe.photoshop', async (f) => { try { const psd = readPsd(await f.arrayBuffer());
-  if (psd && psd.layers.length) { hide(); newWorkFromLayers(psd.W, psd.H, psd.layers, f.name.replace(/\.psd$/i, '')); }
-  else toast(t('toast.documentOpenFailed')); } catch (e) { toast(t('toast.documentOpenFailed')); } }); }
+export const importPsdSelection = (file) => actions.run('import.psdFile', file);
+function importPsd() { pick('.psd,.psb,image/vnd.adobe.photoshop', importPsdSelection); }
 
 export async function mount() {
   if (mounted) return whenReady(); mounted = true;
@@ -53,6 +51,13 @@ export async function mount() {
   $('docsbtn').onclick = show;
   actions.register('gallery.hide', hide); // конвертер/импорт после «Применить» уводят с галереи в редактор
   actions.register('gallery.importDrop', fromFile); // drop картинки в галерею → новый проект (через Pixelize)
+  actions.register('gallery.beginPsdImport', beginPsdImport);
+  actions.register('gallery.completePsdImport', async (token, document, name) => {
+    const result = await completePsdImport(token, document, name);
+    if (result.status === 'opened') { hide(); toast(document.warnings.length
+      ? t('toast.psdCompatibility') : t('toast.psdImported', { n: result.layerCount })); }
+    return result.status;
+  });
   bus.on('stroke-begin', autosaveInputStarted);
   bus.on('snapshot', autosave); bus.on('layers', autosave); bus.on('reference', autosave); bus.on('grid', autosave);
   await show(); // старт не открывает скрытый документ: пользователь явно выбирает файл или New

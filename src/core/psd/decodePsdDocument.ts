@@ -1,10 +1,10 @@
 import { readPsd } from "ag-psd";
-import { PSD_IMPORT_LIMITS } from "../../config/psd-import";
-import type { PsdImportedDocument } from "../../contracts/psdImport";
-import { preflightPsd } from "../../logic/psd/preflightPsd";
-import { PsdDecodeError } from "./PsdDecodeError";
-import { countPsdNodes, normalizePsdNodes } from "./psdNodeNormalizer";
-import { normalizeBitmap } from "./psdPixels";
+import { PSD_IMPORT_LIMITS } from "../../config/psd-import.ts";
+import type { PsdImportedDocument } from "../../contracts/psdImport.ts";
+import { preflightPsd } from "../../logic/psd/preflightPsd.ts";
+import { PsdDecodeError } from "./PsdDecodeError.ts";
+import { countPsdNodes, normalizePsdNodes } from "./psdNodeNormalizer.ts";
+import { normalizeBitmap } from "./psdPixels.ts";
 
 function documentDpi(value: ReturnType<typeof readPsd>): number {
   const resolution = value.imageResources?.resolutionInfo;

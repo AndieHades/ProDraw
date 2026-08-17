@@ -6,7 +6,7 @@ import { dirtyAll } from '../../core/layer-cache.js';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../../core/reference-board.js';
 import { dedupePal } from '../../logic/quantize.js';
 import { defaultPalette, grayscalePalette, DEFAULT_ACTIVE } from '../../config/palette.js';
-import { saveDoc, getDoc } from '../../core/storage.js';
+import { saveDoc, getDoc, removeDoc } from '../../core/storage.js';
 import { ensureGrid } from '../../core/grid.js';
 import { cloneAnimator, loadFrame } from '../../core/animation.js';
 import { t } from '../../i18n/index.ts';
@@ -17,6 +17,7 @@ import { LegacyAutosaveController } from './LegacyAutosaveController.ts';
 import { buildGalleryRecord } from './record.js';
 import { uid } from './store.js';
 import { retireTilemapRecord } from '../../logic/retiredTilemap.ts';
+import { buildPsdGalleryRecord } from './psd-record.js';
 
 let curId = null, curFolder = null, workChange = 0, mutation = 0, saved = null;
 let persistChain = Promise.resolve(false);
@@ -52,9 +53,13 @@ export const autosave = () => { invalidateSaved(); autosaveController.request();
 export const autosaveInputStarted = () => autosaveController.inputStarted();
 
 function applyRec(rec) { retireTilemapRecord(rec);
-  S.W = rec.W; S.H = rec.H; S.layerSeq = rec.layerSeq || 1;
+  S.W = rec.W; S.H = rec.H; S.dpi = rec.dpi || 72; S.layerSeq = rec.layerSeq || 1;
   S.layers = rec.layers; S.folders = rec.folders || [];
-  S.layers.forEach((L) => { if (!L.effects) L.effects = []; L.reference = !!L.reference; if (!L.kind) L.kind = 'pixel'; }); S.folders.forEach((f) => { if (!f.effects) f.effects = []; }); // старые проекты без эффектов/reference/kind
+  S.layers.forEach((L) => { if (!L.effects) L.effects = []; L.reference = !!L.reference;
+    if (!L.kind) L.kind = 'pixel'; L.blendMode ||= 'normal'; L.masks ||= [];
+    L.psdEffects ||= []; });
+  S.folders.forEach((f) => { if (!f.effects) f.effects = [];
+    f.blendMode ||= 'normal'; f.psdEffects ||= []; });
   // folderSeq всегда впереди реальных id — иначе новые папки могут получить чужой id (старые проекты)
   S.folderSeq = S.folders.reduce((m, f) => Math.max(m, f.id), rec.folderSeq || 0); S.palette = dedupePal(rec.palette); S.active = (rec.active || S.palette[0]).slice();
   S.bg = rec.bg ? { color: rec.bg.color ? rec.bg.color.slice() : null, visible: rec.bg.visible !== false } : { color: null, visible: true }; S.bgSel = false;
@@ -62,13 +67,15 @@ function applyRec(rec) { retireTilemapRecord(rec);
   S.shading = { colors: [], on: false, open: false, picking: false };
   S.referenceBoard = normalizeReferenceBoard(rec.referenceBoard);
   S.animator = rec.animator ? cloneAnimator(rec.animator) : null;
-  S.docName = rec.name; S.colorMode = rec.colorMode || 'rgba'; S.cur = 0; S.marked.clear(); S.undoStack.length = 0; S.redoStack.length = 0;
+  S.docName = rec.name; S.colorMode = rec.colorMode || 'rgba';
+  S.psdWarnings = (rec.psdWarnings || []).slice(); S.sourceFormat = rec.sourceFormat || null;
+  S.cur = 0; S.marked.clear(); S.undoStack.length = 0; S.redoStack.length = 0;
   S.sel = S.selMask = S.selFloat = S.cropMode = S.rotMode = S.fxDraft = null;
   if (S.animator) loadFrame(S.animator.liveFrameId || S.animator.timelines[0].selectedFrameId, { emit: false });
   dirtyAll(); bus.emit('palette'); bus.emit('layers'); bus.emit('selection'); bus.emit('grid'); bus.emit('fit'); bus.emit('reference'); }
 
 function blankWork(w, h, name, colorMode = 'rgba') { nextWorkChange(); curId = uid('d'); curFolder = null;
-  S.W = w; S.H = h; S.layerSeq = 1; S.folderSeq = 0; S.layers = [newLayer(t('layer.name') + ' 1', w, h)]; S.folders = []; S.cur = 0; S.marked.clear();
+  S.W = w; S.H = h; S.dpi = 72; S.layerSeq = 1; S.folderSeq = 0; S.layers = [newLayer(t('layer.name') + ' 1', w, h)]; S.folders = []; S.cur = 0; S.marked.clear();
   S.colorMode = colorMode; S.palette = colorMode === 'grayscale' ? grayscalePalette() : defaultPalette();
   S.active = colorMode === 'grayscale' ? S.palette[S.palette.length - 1].slice() : S.palette[DEFAULT_ACTIVE].slice(); S.docName = name || t('gallery.untitled');
   S.shading = { colors: [], on: false, open: false, picking: false };
@@ -76,6 +83,7 @@ function blankWork(w, h, name, colorMode = 'rgba') { nextWorkChange(); curId = u
   S.referenceBoard = defaultReferenceBoard(); bus.emit('reference');
   S.bg = { color: null, visible: true }; S.bgSel = false;
   S.animator = null;
+  S.psdWarnings = []; S.sourceFormat = null;
   S.undoStack.length = 0; S.redoStack.length = 0; S.sel = S.selMask = S.selFloat = S.cropMode = S.rotMode = S.fxDraft = null; }
 
 function activateNewWork(w, h, name, bg, colorMode) { blankWork(w, h, name, colorMode);
@@ -112,6 +120,22 @@ export function newWorkFromLayers(w, h, layers, name) { blankWork(w, h, name);
 
 // заготовка нового документа под результат конвертера (applyImport заполнит S)
 export function beginConvertedWork() { nextWorkChange(); curId = uid('d'); curFolder = null; S.docName = t('gallery.untitled'); }
+
+export const beginPsdImport = () => nextWorkChange();
+export async function completePsdImport(token, document, name) {
+  if (token !== workChange) return { status: 'superseded', layerCount: 0 };
+  if (!await saveCurrent() || token !== workChange) {
+    return { status: token === workChange ? 'failed' : 'superseded', layerCount: 0 };
+  }
+  const id = uid('d'), record = buildPsdGalleryRecord(id, name, document);
+  try { await saveDoc(record); } catch (error) {
+    return { status: 'failed', layerCount: 0 };
+  }
+  if (token !== workChange) { await removeDoc(id); return { status: 'superseded', layerCount: 0 }; }
+  const opened = await openWork(id);
+  if (!opened) { await removeDoc(id); return { status: 'failed', layerCount: 0 }; }
+  return { status: 'opened', layerCount: record.layers.length };
+}
 
 export async function openWork(id) { const change = nextWorkChange();
   if (id === curId) return await saveCurrent() && change === workChange;

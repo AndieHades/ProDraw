@@ -62,6 +62,12 @@ Windows Ink не создаёт лишний полный dab, пока перо
 edit, проверяет revision-consistency и coalesces новую ревизию. Native `.prodraw`
 проходит через `DocumentFileSystem` и атомарный Windows file adapter.
 
+PSD picker и window drop используют один lazy-loaded `ag-psd` adapter. Decode
+завершается до смены активной работы; gallery transaction сохраняет прежний
+документ, атомарно создаёт отдельную запись и только затем открывает её. DPI,
+Unicode tree, alpha, masks, clipping, blend/effect metadata переживают reopen;
+их полное применение в recovery renderer принадлежит `PSD3`.
+
 `DocumentCompositor` владеет revision-aware LRU composite cache и вычисляет
 только tiles в текущих viewport bounds. `CanvasPresenter` повторно использует
 tile canvases до смены presentation revision. `TileHistory` ограничен числом

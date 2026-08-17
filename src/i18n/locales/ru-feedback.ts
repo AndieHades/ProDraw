@@ -117,6 +117,7 @@ export const ruFeedback: LocaleDictionary = {
   "toast.imgImported": "Картинка добавлена сверху",
   "toast.psdImported": "PSD импортирован: {n} слоёв",
   "toast.psdSomeFx": "PSD импортирован (часть эффектов пропущена)",
+  "toast.psdCompatibility": "PSD открыт; есть предупреждения совместимости",
   "toast.selectedColorN": "Выделено: {n} пикс. — крась, тащи или жми заливку",
   "toast.importReady": "Готово: {w}×{h} — рисуй!",
   "toast.sizeRange": "Размеры от 2 до {max}",

@@ -1,4 +1,4 @@
-import type { PsdImportedEffect, PsdJsonValue } from "./psdEffects";
+import type { PsdImportedEffect, PsdJsonValue } from "./psdEffects.ts";
 
 export type PsdBlendMode =
   "pass through" | "normal" | "dissolve" | "darken" | "multiply" |
