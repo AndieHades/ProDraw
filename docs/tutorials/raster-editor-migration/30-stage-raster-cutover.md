@@ -1,6 +1,6 @@
 # Stage R2: Playable Raster Cutover
 
-- Status: `done`
+- Status: `in_progress`
 - Depends on: `R1`
 - Requirements: `RST-01`, `BRH-01`, `CAN-01`, minimum `DOC-01`, `CUT-01`
 - Planned commits: `feat: add tiled raster document core`, then
@@ -28,7 +28,7 @@ with bundled brushes, layers and undo, then save and export exact-size PNG.
 - `R2.5` Connect coalesced pointer samples, pressure size/opacity and eraser. ✅
 - `R2.6` Connect layers, undo/redo and non-destructive pan/zoom/rotate view. ✅
 - `R2.7` Add exact required canvas presets/custom validation and PNG export. ✅
-- `R2.8` Cut `index.html` to the TS app; remove pixelizer from runtime UI. ✅
+- `R2.8` Cut `index.html` to the TS app; raster engine ✅, original UI parity ❌
 - `R2.9` Add current-format autosave/reopen and browser/desktop smoke. ✅
 
 ## Edge cases
@@ -60,3 +60,7 @@ redo restores the stroke. No app entrypoint imports pixelizer/grid/tilemap.
   duplicate/delete, Studio and stabilization remain correctly owned by R3.
 - Commits: tiled raster foundation (`a040fc4`), production raster cutover
   (`c89e78c`).
+- Product acceptance revoked on 2026-08-16: `c89e78c` removed 538 lines of the
+  approved interface while replacing the runtime. Recovery is owned by
+  [`08-interface-feature-parity.md`](08-interface-feature-parity.md); the RGBA
+  engine stays, but the original shell and all non-pixelizer functions return.

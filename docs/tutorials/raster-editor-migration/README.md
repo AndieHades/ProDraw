@@ -8,18 +8,19 @@ Canonical owner: this package.
 
 ## Resume Here
 
-- Current stage: `R3 — professional brush studio`
+- Current stage: `R2 — original interface and feature parity recovery`
 - Status: `in_progress`
-- Last completed stage: repair slice `F4`; F5 input checkpoint is complete
-- Next action: finish F5 with exportable Huion Windows Ink traces and the manual
-  pressure/tilt/eraser/barrel/focus-loss/fast-lift device matrix
-- Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace
-- Working paths: `src/systems/drawing`, `src/systems/viewport`,
-  `src/logic/input`, `src/logic/stroke`, `tests/input`, `tests/stroke`
-- Last checks: F5 checkpoint full validate passed with 91 TS, 128 retained legacy
+- Last completed stage: repair slice `F4`; F5 input and trace checkpoints are complete
+- Next action: restore the original living shell around `RasterEditorApp`, then
+  finish the physical Huion matrix and behaviour parity through F6..F9
+- Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace;
+  R2 product acceptance is revoked until the original UI is restored
+- Working paths: `index.html`, `src/ui`, `src/styles`, `src/config`,
+  `tests/system`, `test/module-int.mjs`
+- Last checks: F5 trace checkpoint full validate passed with 94 TS, 128 retained legacy
   and 5 performance tests. Packaged renderer smoke loaded all 12 brushes, 8
   Shape/Grain resources and the RGBA scenario.
-- Last updated: `2026-08-16, main@e7e44da`
+- Last updated: `2026-08-16, main@4be1980`
 
 ## Product Outcome
 
@@ -105,7 +106,9 @@ Excluded:
 7. [`07-remediation-plan.md`](07-remediation-plan.md)
 8. The current stage chapter
 9. [`41-huion-device-matrix.md`](41-huion-device-matrix.md) for F5 evidence
-10. [`90-verification.md`](90-verification.md)
+10. [`08-interface-feature-parity.md`](08-interface-feature-parity.md) for the
+    original UI and complete non-pixelizer behaviour oracle
+11. [`90-verification.md`](90-verification.md)
 
 ## Delivery Order
 
@@ -113,8 +116,8 @@ Excluded:
 | --- | --- | --- | --- | --- |
 | `R0` | [`10-stage-governance.md`](10-stage-governance.md) | none | done | `docs: plan raster editor migration` |
 | `R1` | [`20-stage-typescript-desktop.md`](20-stage-typescript-desktop.md) | `R0` | done | `build: establish TypeScript desktop foundation` |
-| `R2` | [`30-stage-raster-cutover.md`](30-stage-raster-cutover.md) | `R1` | done | `feat: cut over to raster painting core` |
-| `R3` | [`40-stage-brush-studio.md`](40-stage-brush-studio.md) | `R2` | in progress | `feat: add professional brush studio` |
+| `R2` | [`30-stage-raster-cutover.md`](30-stage-raster-cutover.md) | `R1` | in progress | `feat: restore the original raster editor shell` |
+| `R3` | [`40-stage-brush-studio.md`](40-stage-brush-studio.md) | `R2` | blocked | `feat: add professional brush studio` |
 | `R4` | [`50-stage-lossless-transform.md`](50-stage-lossless-transform.md) | `R2` | planned | `feat: add source-preserving transform and liquify` |
 | `R5` | [`60-stage-document-workflow.md`](60-stage-document-workflow.md) | `R3`, `R4` | planned | `feat: complete professional document workflow` |
 | `R6` | [`70-stage-cleanup-polish.md`](70-stage-cleanup-polish.md) | `R5` | planned | `chore: retire pixel editor and complete product docs` |

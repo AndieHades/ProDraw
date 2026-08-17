@@ -1,6 +1,6 @@
 # Stage R3: Brush Studio and Tablet Dynamics
 
-- Status: `in_progress`
+- Status: `blocked`
 - Depends on: `R2`
 - Requirements: `BRH-02..04`, `STB-01`, `SMG-01`, `HUI-01`, performance part of `DOC-01`, `DSK-01`
 - Planned commits: `feat: add folder-backed brush studio`, then
@@ -126,8 +126,8 @@ The real-device procedure and evidence record are owned by
   loaded-brush paths differ, input/render/autosave lack bounded budgets, or
   stabilization has no frequency-equivalent real Huion trace. These gaps are
   owned by repair slices `F3..F5` in `07-remediation-plan.md`.
-- Residual R3 is now limited to exportable recorded Huion traces and the manual
-  device matrix; selection/mask wiring follows the F7 document selection owner.
+- Residual R3 is now limited to the manual Huion device matrix captured through
+  exportable traces; selection/mask wiring follows the F7 document selection owner.
   Remaining panel commands activate in R4/R5 only with raster/undo contracts.
 - Evidence correction: the historical packaged executable smoke only started
   Electron and exited before IPC, preload, window and renderer boot. It remains
@@ -166,3 +166,5 @@ The real-device procedure and evidence record are owned by
   Smudge now has per-brush pull/pickup/flow plus workspace strength, premultiplied
   alpha mixing and an injectable selection/mask clip. Full validation passed with
   91 TypeScript, 128 retained legacy and 5 performance tests; packaged smoke passed.
+- F5 trace checkpoint `4be1980` records actual/coalesced Windows Ink and exports
+  it natively; 94 TypeScript, 128 legacy and 5 performance tests passed.

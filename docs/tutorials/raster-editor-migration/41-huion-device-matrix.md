@@ -2,7 +2,7 @@
 
 - Status: `pending_device`
 - Owner stage: `R3 / F5`
-- Automated baseline: `main@e7e44da`
+- Automated baseline: `main@4be1980`
 - Required hardware: a Huion tablet with Windows Ink enabled
 
 ## Capture workflow
