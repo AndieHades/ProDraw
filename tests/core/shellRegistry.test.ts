@@ -10,6 +10,8 @@ describe("typed preserved-shell registries", () => {
     expect(actions.run<boolean>("view.tile", true)).toBe(true);
     actions.replace("view.tile", () => "replaced");
     expect(actions.run<string>("view.tile")).toBe("replaced");
+    actions.registerOrReplace("view.tile", () => "mounted-again");
+    expect(actions.run<string>("view.tile")).toBe("mounted-again");
     expect(actions.unregister("view.tile")).toBe(true);
     expect(actions.run("view.tile")).toBe(false);
   });

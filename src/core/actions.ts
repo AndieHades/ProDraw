@@ -18,6 +18,12 @@ export function replace<Args extends unknown[], Result>(
   registry.set(name, action as StoredAction);
 }
 
+export function registerOrReplace<Args extends unknown[], Result>(
+  name: ShellActionName, action: (...args: Args) => Result
+): void {
+  registry.set(name, action as StoredAction);
+}
+
 export function unregister(name: ShellActionName): boolean {
   return registry.delete(name);
 }

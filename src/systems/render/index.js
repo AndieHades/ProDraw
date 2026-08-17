@@ -11,7 +11,8 @@ import { C } from '../../styles/canvas-colors.ts';
 import { hexToRgb } from '../../logic/color.js';
 import { clamp01 } from '../../logic/math.ts';
 import { makeCanvas, syncCanvasSize } from '../../core/canvas.js';
-import { contentRevision, takeCompositeDamage } from '../../core/layer-cache.js';
+import { contentGeneration, contentRevision,
+  takeCompositeDamage } from '../../core/layer-cache.js';
 import { LegacyCompositeCache } from '../../core/render/LegacyCompositeCache.ts';
 import { isIncrementalCompositeSafe } from '../../core/render/LegacyCompositeDamage.ts';
 import { drawOverlays } from './overlays.js';
@@ -64,7 +65,7 @@ export function render() {
   const resized = buf.width !== W || buf.height !== H;
   if (resized) { buf.width = W; buf.height = H; compositeCache.invalidate(); }
   const bx = buf.getContext('2d'); bx.imageSmoothingEnabled = false;
-  const candidate = compositeCache.candidate(S, contentRevision());
+  const candidate = compositeCache.candidate(S, contentRevision(), contentGeneration());
   const damage = takeCompositeDamage();
   if (!compositeCache.isHit(candidate)) {
     const partial = !resized && compositeCache.canPatch(candidate) &&

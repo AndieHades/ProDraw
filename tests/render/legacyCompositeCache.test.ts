@@ -42,6 +42,16 @@ describe("legacy composite cache", () => {
     expect(cache.isHit(cache.candidate(state, 4))).toBe(true);
   });
 
+  it("rejects an old document after a full content generation reset", () => {
+    const cache = new LegacyCompositeCache();
+    const state = fixture();
+    cache.commit(cache.candidate(state, 7, 2));
+
+    const nextDocument = cache.candidate(state, 8, 3);
+    expect(cache.isHit(nextDocument)).toBe(false);
+    expect(cache.canPatch(nextDocument)).toBe(false);
+  });
+
   it.each(["cropMode", "rotMode", "rotPrev", "moveDrag", "selFloat"] as const)(
     "bypasses and invalidates cache while %s is live", (key) => {
       const cache = new LegacyCompositeCache();

@@ -40,6 +40,7 @@ function hasLiveComposite(state: LegacyCompositeState): boolean {
 export interface LegacyCompositeCandidate {
   readonly visual: string;
   readonly contentRevision: number;
+  readonly contentGeneration: number;
 }
 
 function draftSignature(state: LegacyCompositeState): unknown {
@@ -68,19 +69,22 @@ export class LegacyCompositeCache {
   #committed: LegacyCompositeCandidate | null = null;
 
   candidate(state: LegacyCompositeState,
-    contentRevision: number): LegacyCompositeCandidate | null {
+    contentRevision: number,
+    contentGeneration = 0): LegacyCompositeCandidate | null {
     return hasLiveComposite(state) ? null :
-      { visual: visualSignature(state), contentRevision };
+      { visual: visualSignature(state), contentRevision, contentGeneration };
   }
 
   isHit(candidate: LegacyCompositeCandidate | null): boolean {
     return candidate !== null && candidate.visual === this.#committed?.visual &&
-      candidate.contentRevision === this.#committed.contentRevision;
+      candidate.contentRevision === this.#committed.contentRevision &&
+      candidate.contentGeneration === this.#committed.contentGeneration;
   }
 
   canPatch(candidate: LegacyCompositeCandidate | null): boolean {
     return candidate !== null && candidate.visual === this.#committed?.visual &&
-      candidate.contentRevision !== this.#committed.contentRevision;
+      candidate.contentRevision !== this.#committed.contentRevision &&
+      candidate.contentGeneration === this.#committed.contentGeneration;
   }
 
   commit(candidate: LegacyCompositeCandidate | null): void {

@@ -11,7 +11,7 @@ import { legacyBrushStamp } from './logic/brush/legacyBrushAdapter.ts';
 import { mountOriginalInterfaceBridge } from './main.ts';
 
 const compactBrushShell = {
-  registerOpen(handler) { actions.register('ui.brushLibrary', handler); },
+  registerOpen(handler) { actions.registerOrReplace('ui.brushLibrary', handler); },
   mountFloating(panel, grip, handle, onClose) {
     floatingWindow(panel, { grip, handle, storeKey: 'brushwin', minW: 240,
       minH: 220, onClose });

@@ -38,6 +38,7 @@ export function dirtyAll({ preserveGridBounds = false } = {}) { if (!preserveGri
 // версия содержимого слоя i (растёт при правках) — подпись для кеша эффектов
 export const layerRev = (i) => generation + ':' + (revs[i] || 0);
 export const contentRevision = () => contentRev;
+export const contentGeneration = () => generation;
 export const takeCompositeDamage = () => compositeDamage.take(S.W, S.H);
 export function layerContentBounds(i) {
   const layer = S.layers[i]; if (!layer) return null;
