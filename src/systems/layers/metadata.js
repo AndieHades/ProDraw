@@ -1,6 +1,6 @@
 // Lightweight history for non-structural layer, folder and background fields.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { snapshotDescriptors, snapshotEffects } from '../../core/history.js';
 
 function descriptorFor(ref, properties) {

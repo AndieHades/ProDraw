@@ -1,8 +1,8 @@
 // Заливка слоя/папки цветом и приём брошенного на список цвета (на слой, папку
 // или поле эффекта). Часть системы слоёв — отдельный модуль ради размера ops.js.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { snapshot, snapshotEffects } from '../../core/history.js';
 import { rgbToHex } from '../../logic/color.js';
 import { dirtyAll, markDirty } from '../../core/layer-cache.js';

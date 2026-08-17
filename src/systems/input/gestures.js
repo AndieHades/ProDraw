@@ -2,10 +2,10 @@
 // 3 пальца — повтор. Делегирует down/move/up системе ввода. Пипетка на тач —
 // через единую Eyedropper System (удержание кнопки bb-pick), здесь её нет.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { doUndo, doRedo } from '../../core/history.js';
-import { TAP_MAX_MS, DRAG_THRESHOLD, PINCH_MIN } from '../../config/timings.js';
-import { ZOOM_MIN, ZOOM_MAX } from '../../config/limits.js';
+import { TAP_MAX_MS, DRAG_THRESHOLD, PINCH_MIN } from '../../config/timings.ts';
+import { ZOOM_MIN, ZOOM_MAX } from '../../config/limits.ts';
 
 export function mountGestures(cv, io) {
   const ptrs = new Map(); let pinch = null, gMaxN = 0, gMoved = false, gT0 = 0, gx0 = 0, gy0 = 0, drawing = false;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CANVAS_PRESETS } from '../../src/config/canvasPresets.ts';
 import { CANVAS_PALETTE_LIMIT, PALETTE_SAMPLE_MAX_SIDE } from
-  '../../src/config/palette-sampling.js';
+  '../../src/config/palette-sampling.ts';
 import { PaletteCompositeCache } from '../../src/core/palette-composite-cache.js';
 import { paletteFromCanvasSource, paletteFromPointSource,
   paletteSampleSize } from '../../src/core/palette-sampling.js';

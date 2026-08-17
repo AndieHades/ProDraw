@@ -2,7 +2,7 @@
 // вложенные группы и поддерживаемые эффекты (best-effort). Холст не меняется —
 // то, что не влезло, уходит в ext (Trim покажет). Старые проекты не создаём.
 import { S, newLayer, newEffect, blank } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { snapshot } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { toast, t } from '../../core/dom.js';

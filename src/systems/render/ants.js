@@ -3,7 +3,7 @@
 // перерисовок; рендер лишь обновляет геометрию путей и ручки выделения.
 import { S } from '../../core/state.js';
 import { selectionBoundaryEdges } from '../../logic/mask-ops.js';
-import { SELECTION_ANTS } from '../../config/selection-ants.js';
+import { SELECTION_ANTS } from '../../config/selection-ants.ts';
 
 let svg = null, bgP = null, fgP = null, handlesG = null;
 const NS = 'http://www.w3.org/2000/svg';

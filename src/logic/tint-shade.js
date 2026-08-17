@@ -1,7 +1,7 @@
 // Чистая генерация шкал тинтов/шейдов и цветовых гармоний — без DOM и без state.
 // Тинт подмешивает белый, шейд — чёрный; каждая шкала = база + 4 шага = 5 цветов.
 import { rgbToHsv, hsvToRgb } from './color.js';
-import { TINT_SHADE_STEPS, HARMONY_OFFSETS } from '../config/tint-shade.js';
+import { TINT_SHADE_STEPS, HARMONY_OFFSETS } from '../config/tint-shade.ts';
 
 const tintCh = (c, a) => Math.round(c + (255 - c) * a);
 const shadeCh = (c, a) => Math.round(c * (1 - a));

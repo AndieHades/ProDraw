@@ -1,12 +1,12 @@
 // Настройки приложения: тема (тумблер), язык и жест Brush Size Modifier
 // (Hot Key / чувствительность / направление). Шестерёнка в галерее.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { $, showMenuAt } from '../core/dom.js';
-import { t, getLocale, locales, setLocale } from '../i18n/index.js';
-import { toggleTheme, getTheme } from '../styles/theme.js';
-import { SENS_PRESETS } from '../config/brush-resize.js';
+import { t, getLocale, locales, setLocale } from '../i18n/index.ts';
+import { toggleTheme, getTheme } from '../styles/theme.ts';
+import { SENS_PRESETS } from '../config/brush-resize.ts';
 
 const SENS_LABELS = ['brsz.low', 'brsz.medium', 'brsz.high'];
 const sensLabel = () => { const i = SENS_PRESETS.indexOf(S.brushResize.sensitivity); return t(SENS_LABELS[i < 0 ? 1 : i]); };

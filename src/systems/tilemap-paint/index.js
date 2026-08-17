@@ -5,8 +5,8 @@
 // Пустая клетка/локальный вариант → создаётся новый тайл; если штрих оставил его
 // пустым — тайл удаляется (пустая клетка тайла не порождает).
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { setTool } from '../../core/tools.js';
 import { registerGlobal } from '../../core/canvas-handlers.js';
 import { snapshot } from '../../core/history.js';

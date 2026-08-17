@@ -1,11 +1,11 @@
 // История: снимок всего документа (слои + размеры) и откат. Восстановление
 // шлёт события 'layers'/'render' — история не знает про системы визуала.
 import { S, cloneLayer } from './state.js';
-import * as bus from './bus.js';
-import * as actions from './actions.js';
+import * as bus from './bus.ts';
+import * as actions from './actions.ts';
 import { toast, t } from './dom.js';
 import { dirtyAll, markDirty } from './layer-cache.js';
-import { historyCap } from '../config/limits.js';
+import { historyCap } from '../config/limits.ts';
 import { cloneGrid } from '../logic/raster.js';
 import { cloneTileset } from '../logic/tileset-data.js';
 import { historyRef, syncHistoryFrame } from './animation.js';

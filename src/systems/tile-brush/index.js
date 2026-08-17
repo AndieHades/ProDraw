@@ -2,8 +2,8 @@
 // только на tilemap-слое (иначе подсказка). Режим — S.tileMode (paint/erase/pick),
 // трансформация новых экземпляров — S.tileFlags. Случайные варианты — из группы.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { registerTool } from '../../core/canvas-handlers.js';
 import { setTool } from '../../core/tools.js';
 import { snapshot } from '../../core/history.js';

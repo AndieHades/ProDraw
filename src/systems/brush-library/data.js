@@ -2,7 +2,7 @@
 // (как слои). Грузится из IndexedDB, мутации сразу персистятся. Активная кисть
 // живёт в S.stampBrush — тут только каталог.
 import { listBrushes, listSets, saveBrush, saveSet, removeBrush } from '../../core/brush-store.js';
-import { t } from '../../i18n/index.js';
+import { t } from '../../i18n/index.ts';
 
 export const lib = { sets: [], brushes: [], curSet: null };
 const uid = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);

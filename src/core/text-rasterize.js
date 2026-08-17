@@ -1,5 +1,5 @@
 import { S } from './state.js';
-import * as bus from './bus.js';
+import * as bus from './bus.ts';
 import { snapshotRasterReferences } from './history.js';
 import { markDirty } from './layer-cache.js';
 import { rasterizeTextLayer, textLayerBounds } from './text-layer.js';

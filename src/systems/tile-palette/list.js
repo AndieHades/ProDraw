@@ -6,7 +6,7 @@ import { $ } from '../../core/dom.js';
 import { makeCanvas } from '../../core/canvas.js';
 import { inlineRename } from '../../core/inline-rename.js';
 import { snapshot } from '../../core/history.js';
-import { C } from '../../styles/canvas-colors.js';
+import { C } from '../../styles/canvas-colors.ts';
 import { activeTileset } from './ops.js';
 import { renameTile } from '../../core/tileset.js';
 import { wireTile } from './select.js';

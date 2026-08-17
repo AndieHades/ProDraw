@@ -2,7 +2,7 @@
 // Дублировать/Удалить) работает над выделением; копирование/вставка на все
 // выбранные слои. Перенос/переупорядочивание — drag в списке (layers/fx-drag).
 import { S, cloneFx } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { snapshotEffects } from '../../core/history.js';
 import { $, showMenuBeside, toast, t } from '../../core/dom.js';
 import { openFxEdit } from './settings.js';

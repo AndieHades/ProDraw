@@ -2,7 +2,7 @@
 // пиксели за краем (ext) И охват видимых эффектов (обводка/свечение/тень). Есть
 // пустые поля → обрезает; контент/эффект выходят за холст → расширяет; впритык → ничего.
 import { S } from '../core/state.js';
-import * as actions from '../core/actions.js';
+import * as actions from '../core/actions.ts';
 import { boundsFor, canvasContentBounds } from '../core/canvas-bounds.js';
 import { applyCropRect } from '../core/document.js';
 import { toast, t } from '../core/dom.js';

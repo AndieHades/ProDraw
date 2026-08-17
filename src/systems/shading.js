@@ -1,8 +1,8 @@
 // Shading ramp: a compact Aseprite-like ink mode driven by a selected palette
 // range. The ramp order is the brush direction; clicking it reverses direction.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { $, t, toast } from '../core/dom.js';
 import { floatingWindow } from '../core/floating-window.js';
 import { setTool } from '../core/tools.js';

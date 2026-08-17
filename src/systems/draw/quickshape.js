@@ -4,12 +4,12 @@
 // (превью S.qsShape), а на отпускании коммитит её в активный слой. Не трогает
 // выделение/маски — рисует только по текущему слою через общий stamp.
 import { S, G } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { cloneGrid } from '../../core/history.js';
 import { markDirty } from '../../core/layer-cache.js';
 import { bres, rectEdges, ellipseEdges } from '../../logic/raster.js';
 import { recognizeShape } from '../../logic/quickshape.js';
-import { QUICKSHAPE } from '../../config/quickshape.js';
+import { QUICKSHAPE } from '../../config/quickshape.ts';
 import { stamp } from './stamp.js';
 
 let base = null, pts = null, engaged = false, timer = null, lastCell = null;

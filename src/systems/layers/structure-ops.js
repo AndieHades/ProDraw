@@ -1,12 +1,12 @@
 // Reversible layer/folder topology. Pixel payloads are referenced, never cloned.
 import { S, newLayer, cloneFx, cloneLayer } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { snapshotStructure } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { toast, t } from '../../core/dom.js';
-import { MAX_LAYERS } from '../../config/limits.js';
+import { MAX_LAYERS } from '../../config/limits.ts';
 import { folderChain } from '../../core/layers.js';
-import { localeValues } from '../../i18n/index.js';
+import { localeValues } from '../../i18n/index.ts';
 import { clearFolderEmptyPos, folderLayers, nextFolderId, nextFolderName,
   topOfFolder, uniqueFolderName } from './helpers.js';
 

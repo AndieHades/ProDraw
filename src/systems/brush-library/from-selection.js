@@ -4,7 +4,7 @@
 // набор, делает её активной и снимает выделение — можно сразу рисовать.
 // Pipeline: bounds → композит → trim → alpha-маска → stamp-asset → активна.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { toast, t } from '../../core/dom.js';
 import { paintStack } from '../../core/composite.js';
 import { makeCanvas } from '../../core/canvas.js';
@@ -12,7 +12,7 @@ import { inMask } from '../../core/selection.js';
 import { setStampBrush } from '../../core/stamp-brush.js';
 import { setTool } from '../../core/tools.js';
 import { deselect } from '../selection/model.js';
-import { BP_SMAX } from '../../config/limits.js';
+import { BP_SMAX } from '../../config/limits.ts';
 import { ensureLib, lib, addBrush, allBrushes } from './data.js';
 
 // приоритет: активное выделение → рамка трансформации → null

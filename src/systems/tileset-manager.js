@@ -2,8 +2,8 @@
 // именем, переименовать, загрузить, список с превью, удалить. Хранится в
 // localStorage. Окно строится в JS (без правок index.html).
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { $, toast, t } from '../core/dom.js';
 import { createLibraryDialog } from '../core/library-dialog.js';
 import { makeCanvas } from '../core/canvas.js';

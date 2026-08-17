@@ -1,8 +1,8 @@
 // Bake и экспорт tilemap: запечь слой в пиксели (дублировать/преобразовать),
 // экспорт картинки и пары tileset.png + tilemap.json (§14–§15 задачи).
 import { S, cloneLayer } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { snapshot } from '../core/history.js';
 import { toast, t } from '../core/dom.js';
 import { dirtyAll, markDirty } from '../core/layer-cache.js';

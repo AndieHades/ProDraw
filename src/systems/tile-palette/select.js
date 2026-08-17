@@ -5,11 +5,11 @@
 // Несколько выбранных = ПАТТЕРН (Godot) для штампа. Логика общая, без дублей:
 // призрак — core/drag-ghost, место вставки — core/drop-gap.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { setTool } from '../../core/tools.js';
 import { dragGhost } from '../../core/drag-ghost.js';
 import { makeDropGap, dropZone } from '../../core/drop-gap.js';
-import { LONG_PRESS_MS, DRAG_THRESHOLD } from '../../config/timings.js';
+import { LONG_PRESS_MS, DRAG_THRESHOLD } from '../../config/timings.ts';
 import { activeTileset } from './ops.js';
 import { openTileMenu } from './menu.js';
 

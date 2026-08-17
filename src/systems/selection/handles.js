@@ -1,12 +1,12 @@
 // Постоянные ручки выделения: тянут/двигают только область выделения, не пиксели.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $, toast, t } from '../../core/dom.js';
 import { selHit } from '../../core/selection.js';
 import { registerGlobal } from '../../core/canvas-handlers.js';
 import { cloneSelectionMask, resizeSelectionMask, shiftSelectionMask } from '../../logic/mask-ops.js';
-import { clamp as clampv } from '../../logic/math.js';
+import { clamp as clampv } from '../../logic/math.ts';
 
 let drag = null;
 const cloneSel = (s) => (s ? { x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1 } : null);

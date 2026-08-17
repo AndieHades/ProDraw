@@ -35,6 +35,7 @@
     "validate:interface": "node tools/validate-interface-parity.mjs",
     "validate:lines": "node tools/check-line-limit.mjs",
     "validate:raster-entry": "node tools/validate-raster-entry.mjs",
+    "validate:shell-catalog": "node tools/validate-shell-catalog.mjs",
     "validate:changed": "node tools/validate-changed.mjs"
   },
   "devDependencies": {

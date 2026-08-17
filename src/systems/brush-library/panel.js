@@ -2,8 +2,8 @@
 // и ластик (активная кисть у них разная — режим mode). «+» — из выделения /
 // импорт / экспорт. ЛКМ — выбор, клик по активной / долгое нажатие — настройки.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $, showMenuAt, t, toast } from '../../core/dom.js';
 import { floatingWindow } from '../../core/floating-window.js';
 import { importBrushFile } from '../../core/brush-import/index.js';
@@ -11,7 +11,7 @@ import { packSet, unpackSet } from '../../core/brush-pack.js';
 import { saveFile } from '../../core/io.js';
 import { setStampBrush } from '../../core/stamp-brush.js';
 import { brushHasShape } from '../../logic/brush-stamp.js';
-import { BP_SMAX } from '../../config/limits.js';
+import { BP_SMAX } from '../../config/limits.ts';
 import { ensureLib, allBrushes, addBrush, dupBrush, delBrush, addSet, renameBrush } from './data.js';
 import { renderBrushes, bindList, renameById } from './list.js';
 import { createFromSelection } from './from-selection.js';

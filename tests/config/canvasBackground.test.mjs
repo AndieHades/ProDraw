@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CANVAS_BACKGROUND_CHOICES, DEFAULT_CANVAS_BACKGROUND
-} from "../../src/config/canvas-background.js";
+} from "../../src/config/canvas-background.ts";
 
 describe("canvas background defaults", () => {
   it("starts new canvases with a visible white Background", () => {

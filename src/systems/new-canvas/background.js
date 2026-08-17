@@ -1,6 +1,6 @@
-import { CANVAS_BACKGROUND_CHOICES, DEFAULT_CANVAS_BACKGROUND } from '../../config/canvas-background.js';
+import { CANVAS_BACKGROUND_CHOICES, DEFAULT_CANVAS_BACKGROUND } from '../../config/canvas-background.ts';
 import { $ } from '../../core/dom.js';
-import { t } from '../../i18n/index.js';
+import { t } from '../../i18n/index.ts';
 import { rgb } from '../../logic/color.js';
 
 const defaultIndex = CANVAS_BACKGROUND_CHOICES.findIndex(

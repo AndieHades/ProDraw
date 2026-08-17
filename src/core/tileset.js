@@ -4,7 +4,7 @@
 import { S } from './state.js';
 import { blank, cloneGrid } from '../logic/raster.js';
 import { tileGridKey } from '../logic/tileset-data.js';
-import { TILE_WEIGHT_DEFAULT } from '../config/tileset.js';
+import { TILE_WEIGHT_DEFAULT } from '../config/tileset.ts';
 
 export const getTileset = (id) => S.tilesets.find((ts) => ts.id === id) || null;
 

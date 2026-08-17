@@ -1,5 +1,5 @@
 import { activeFrameId, activeTimeline, loadFrame, saveActiveFrame } from '../../core/animation.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { S } from '../../core/state.js';
 
 let playing = false, timer = null, idx = 0, dir = 1;

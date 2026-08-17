@@ -1,8 +1,8 @@
 // Автоцентрирование объекта слоя: сдвигает содержимое так, чтобы его габаритный
 // центр совпал с центром холста (или центром выделения, если оно активно).
 import { S, blank } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { snapshot, snapshotRasterReferences } from '../core/history.js';
 import { boundsWithExt } from '../logic/raster.js';
 import { shiftLayerGrid } from '../core/document.js';

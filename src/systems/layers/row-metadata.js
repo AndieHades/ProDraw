@@ -1,4 +1,4 @@
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { inlineRename, nameRenameGesture } from '../../core/inline-rename.js';
 import { renameMetadata, toggleSymmetryLock, toggleVisibility } from './metadata.js';
 

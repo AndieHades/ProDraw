@@ -15,4 +15,5 @@ export const ROT_MIN_SCALE = 0.15; // минимальный масштаб пр
 export const IMPORT_MAX_SIDE = 2048; // конвертер: даунскейлим исходник только выше этого (иначе теряется сетка пиксель-арта)
 
 // глубина истории отмен по площади холста (компромисс память/удобство)
-export const historyCap = (area) => (area > 90000 ? 8 : area > 20000 ? 15 : 30);
+export const historyCap = (area: number): number =>
+  area > 90_000 ? 8 : area > 20_000 ? 15 : 30;

@@ -1,9 +1,9 @@
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
+import * as bus from '../core/bus.ts';
 import { $ } from '../core/dom.js';
 import { registerGlobal } from '../core/canvas-handlers.js';
 import { ensureSymmetryDefaults, resetSymmetryLine, symmetryConfig } from '../core/layers.js';
-import { clamp } from '../logic/math.js';
+import { clamp } from '../logic/math.ts';
 
 const activeIds = () => ['x', 'y', 'd1', 'd2'].filter((id) => (id === 'x' ? S.sym : id === 'y' ? S.symH : id === 'd1' ? S.symD1 : S.symD2));
 const cursorFor = (id) => id === 'x' ? 'ew-resize' : id === 'y' ? 'ns-resize' : id === 'd1' ? 'nesw-resize' : 'nwse-resize';

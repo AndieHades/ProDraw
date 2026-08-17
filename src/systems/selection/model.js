@@ -1,8 +1,8 @@
 // Модель выделения: нормализация рамки, маски, операции над содержимым.
 // Drag/перенос — в selection-input; здесь логика, не жесты.
 import { S, G } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { combineSelectionState, selectionMaskFromState, selectionStateFromMask,
   SelectionMask, symmetrizeSelectionMask } from '../../logic/mask-ops.js';
 import { expandMask } from '../../logic/symmetry.js';

@@ -1,9 +1,9 @@
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { snapshotStructure } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { makeTextLayer } from '../../core/text-layer.js';
-import { TEXT_BOX } from '../../config/text.js';
+import { TEXT_BOX } from '../../config/text.ts';
 import { normalizeTextSource } from '../../logic/text-model.js';
 
 export const draftTextSource = (prefs, x, y) => normalizeTextSource({

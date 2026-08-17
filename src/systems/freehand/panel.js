@@ -2,8 +2,8 @@
 // выделения (New/Add/Subtract/Intersect) + отмена незавершённого контура.
 // Перетаскиваемость даёт общий toolpops (панель свёрстана как .toolpop).
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/dom.js';
 
 const syncChips = (box, val) => { for (const b of $(box).children) b.classList.toggle('on', b.dataset.v === val); };

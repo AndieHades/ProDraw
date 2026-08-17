@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 /* global document, HTMLCanvasElement */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import * as actions from '../../src/core/actions.js';
+import * as actions from '../../src/core/actions.ts';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { dirtyAll, layerContentBounds, markDirty } from '../../src/core/layer-cache.js';
 import { blank, S } from '../../src/core/state.js';

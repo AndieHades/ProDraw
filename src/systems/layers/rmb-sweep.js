@@ -3,8 +3,8 @@
 // контекст-меню (его подавляем только если была протяжка). Строки помечаем сразу
 // классом, состояние пишем на отпускании.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import { squelchContextMenu } from '../../core/long-press.js';
+import * as bus from '../../core/bus.ts';
+import { squelchContextMenu } from '../../ui/gestures/ContextGesture.ts';
 
 export function rmbSweep(e, el) {
   try { el.setPointerCapture(e.pointerId); } catch (err) {}

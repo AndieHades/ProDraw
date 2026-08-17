@@ -1,6 +1,6 @@
 import { S, MAX_LAYERS } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $, t, toast } from '../../core/dom.js';
 import { setTool } from '../../core/tools.js';
 import { registerGlobal, registerTool } from '../../core/canvas-handlers.js';

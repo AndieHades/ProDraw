@@ -1,8 +1,8 @@
 // Свободная трансформация слоя(ёв): рамка с углами (поворот) и сторонами
 // (растяжение). Живое превью в S.rotPrev (рендер рисует), рамка — оверлеем.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $, showMenuAt, toast, t } from '../../core/dom.js';
 import { setUndoGuard, snapshot, snapshotRasterReferences } from '../../core/history.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';

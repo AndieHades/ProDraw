@@ -2,7 +2,7 @@
 /* global document */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CANVAS_PRESETS } from '../../src/config/canvasPresets.ts';
-import { SELECTION_ANTS } from '../../src/config/selection-ants.js';
+import { SELECTION_ANTS } from '../../src/config/selection-ants.ts';
 import { S, blank } from '../../src/core/state.js';
 import { doUndo } from '../../src/core/history.js';
 import { inSel } from '../../src/core/selection.js';

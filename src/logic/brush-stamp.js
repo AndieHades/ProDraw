@@ -2,7 +2,7 @@
 // даба (режим + spacing/jitter). Переиспользуется движком рисования и
 // тест-канвасом окна настроек — без дублирования логики. Чистые функции.
 import { coverageToMask, maskRound } from './brush-mask.js';
-import { BRUSH_MASK, BRUSH_SCATTER } from '../config/brush-import.js';
+import { BRUSH_MASK, BRUSH_SCATTER } from '../config/brush-import.ts';
 
 // маска кончика по записи кисти: из покрытия или дефолтный круг.
 export function brushMask(sb, size) { return sb.cov ? coverageToMask(sb.cov, size, BRUSH_MASK) : maskRound(size); }

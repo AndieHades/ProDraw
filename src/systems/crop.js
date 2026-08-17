@@ -1,16 +1,16 @@
 // Интерактивный кроп: рамка с маркерами, грани наружу — расширить, внутри —
 // ЛКМ сдвигает рисунок, ПКМ сдвигает crop-рамку. Применение — applyCropRect.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { $, toast, t } from '../core/dom.js';
-import { commitNumericField, isNumericLiteral, numericFieldValue, setNumericField } from '../core/numeric-field.js';
+import { commitNumericField, isNumericLiteral, numericFieldValue, setNumericField } from '../core/numeric-field.ts';
 import { applyCropRect } from '../core/document.js';
 import { registerMode } from '../core/canvas-handlers.js';
 import { ensureGrid, gridCellH, gridCellW, setGridVisible } from '../core/grid.js';
 import { canvasContentBounds } from '../core/canvas-bounds.js';
-import { MAX_SIZE } from '../config/limits.js';
-import { clampRound } from '../logic/math.js';
+import { MAX_SIZE } from '../config/limits.ts';
+import { clampRound } from '../logic/math.ts';
 
 let cropDrag = null, cropSym = false, cropLink = false, cropRatio = 1, cropCells = false, cropTrim = false, mounted = false;
 let cellBase = null, trimBase = null;

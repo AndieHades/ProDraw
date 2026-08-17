@@ -1,5 +1,5 @@
-import { TEXT_DEFAULT, TEXT_LETTER_SPACING, TEXT_LINE_SPACING, TEXT_NAME, TEXT_SIZE } from '../config/text.js';
-import { clampRound } from './math.js';
+import { TEXT_DEFAULT, TEXT_LETTER_SPACING, TEXT_LINE_SPACING, TEXT_NAME, TEXT_SIZE } from '../config/text.ts';
+import { clampRound } from './math.ts';
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
 const ALIGNS = new Set(['left', 'center', 'right']);

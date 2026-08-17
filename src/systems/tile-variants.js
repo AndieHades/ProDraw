@@ -2,8 +2,8 @@
 // карта не меняется) и Replace With Variants (заменить tileId случайными
 // вариантами группы по выделению/всему слою — только по явной команде).
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { snapshot } from '../core/history.js';
 import { toast, t } from '../core/dom.js';
 import { getTileset, getTile, addTile, tileIndex } from '../core/tileset.js';

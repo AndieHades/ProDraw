@@ -1,11 +1,11 @@
 // Импорт картинки: выбор файла/drag-n-drop → пиксель-арт (через диалог) или
 // вставка как есть. Конвертация — в ./convert.js.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { snapshot, restore } from '../../core/history.js';
 import { expandCanvas, placeImageLayer, addImageLayerTop } from '../../core/document.js';
-import { MAX_LAYERS, IMPORT_MAX_SIDE } from '../../config/limits.js';
+import { MAX_LAYERS, IMPORT_MAX_SIDE } from '../../config/limits.ts';
 import { $, toast, t } from '../../core/dom.js';
 import { floatingWindow } from '../../core/floating-window.js';
 import { imageData, looksPixelArt } from '../../core/image.js';

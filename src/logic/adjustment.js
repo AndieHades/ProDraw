@@ -1,6 +1,6 @@
 import { bcAdjust, contrastFactor } from './bc.js';
 import { hsvToRgb, rgbToHsv } from './color.js';
-import { clamp } from './math.js';
+import { clamp } from './math.ts';
 
 export function adjustColor(c, params = {}) {
   const brightness = Number(params.brightness) || 0;

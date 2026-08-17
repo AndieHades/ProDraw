@@ -1,7 +1,7 @@
 import { S, G } from '../../core/state.js';
 import { layerContentBounds } from '../../core/layer-cache.js';
 import { maskHas } from '../../core/selection.js';
-import { SELECTION_FRAGMENT_DENSE_RATIO } from '../../config/selection-mask.js';
+import { SELECTION_FRAGMENT_DENSE_RATIO } from '../../config/selection-mask.ts';
 import { commitFloat } from './float.js';
 
 function visitSelectedPaint(callback) {

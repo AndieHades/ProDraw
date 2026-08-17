@@ -1,7 +1,7 @@
 // Мгновенные Flip/Rotate для активного выделения. Для обычного слоя двигаем
 // пиксели, для Tilemap — клетки и bitmap-версии тайлов, не растровый кеш.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
+import * as bus from '../core/bus.ts';
 import { snapshot } from '../core/history.js';
 import { parseKey } from '../logic/raster.js';
 import { cloneCell } from '../logic/tilemap-data.js';

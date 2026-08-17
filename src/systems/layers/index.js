@@ -1,8 +1,8 @@
 // Сборка панели слоёв: кнопки, плавающее окно, прозрачность, картинка-в-слой,
 // меню выбора слоя по ПКМ. Список рисует list.js по событию 'layers'.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $, showMenuAt, t } from '../../core/dom.js';
 import { effVis } from '../../core/layers.js';
 import { floatingWindow } from '../../core/floating-window.js';

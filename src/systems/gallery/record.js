@@ -3,7 +3,7 @@ import { liveFrameId } from '../../core/animation.js';
 import { cloneTileset } from '../../logic/tileset-data.js';
 import { cloneReferenceBoard } from '../../core/reference-board.js';
 import { ensureGrid } from '../../core/grid.js';
-import { t } from '../../i18n/index.js';
+import { t } from '../../i18n/index.ts';
 import { cloneAnimatorIdle, cloneLayersIdle } from './record-clone.js';
 import { renderGalleryPreview } from './record-preview.js';
 

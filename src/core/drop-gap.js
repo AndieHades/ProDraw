@@ -1,7 +1,7 @@
 // Единый физический gap для drag/drop: ничего не рисует, только раздвигает
 // элементы на половину размера цели. Его можно отключить флагом — расчёт
 // места вставки продолжит работать без визуального раздвигания.
-import { DROP_CENTER_RATIO, DROP_GAP_RATIO, PHYSICAL_DROP_GAP } from '../config/drag-drop.js';
+import { DROP_CENTER_RATIO, DROP_GAP_RATIO, PHYSICAL_DROP_GAP } from '../config/drag-drop.ts';
 
 export function makeDropGap({ axis = 'x', className = '', ratio = DROP_GAP_RATIO, min = 1, enabled = true } = {}) {
   const el = document.createElement('div');

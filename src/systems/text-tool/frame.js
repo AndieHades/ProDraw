@@ -1,10 +1,10 @@
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { snapshotRasterReferences } from '../../core/history.js';
 import { markDirty } from '../../core/layer-cache.js';
 import { textDamageBounds, updateTextLayerGrid } from '../../core/text-layer.js';
 import { cloneTextSource } from '../../logic/text-model.js';
-import { C } from '../../styles/canvas-colors.js';
+import { C } from '../../styles/canvas-colors.ts';
 
 let boxDrag = null;
 let sourceFn = () => null, layerFn = () => null, fontsFn = () => [], placeFn = () => {}, editingFn = () => false;

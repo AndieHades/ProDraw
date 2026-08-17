@@ -1,6 +1,6 @@
 // Менеджер палитр: сохранить текущую, загрузить, собрать из изображения.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
+import * as bus from '../core/bus.ts';
 import { $, showMenuAt, toast, t } from '../core/dom.js';
 import { createLibraryDialog } from '../core/library-dialog.js';
 import { compositeAt, contentRevision } from '../core/layer-cache.js';
@@ -11,7 +11,7 @@ import { rgb, eqc } from '../logic/color.js';
 import { sortPalette } from '../logic/palette-sort.js';
 import { defaultPalette } from '../config/palette.js';
 import { CANVAS_PALETTE_LIMIT, FILE_PALETTE_LIMIT,
-  PALETTE_EXACT_LIMIT } from '../config/palette-sampling.js';
+  PALETTE_EXACT_LIMIT } from '../config/palette-sampling.ts';
 import { initPaletteCreateChoice, refreshPaletteCreateChoice } from './palette-create-choice.js';
 import { allFolderPalettes, deletePaletteFromFolder, isPaletteImageFile, savePaletteToFolder } from '../core/palette-files.js';
 

@@ -1,4 +1,4 @@
-import { ANIMATION, ANIMATION_MODES } from '../config/animation.js';
+import { ANIMATION, ANIMATION_MODES } from '../config/animation.ts';
 
 const frameName = (n) => 'Frame ' + n;
 const timelineName = (n) => 'Timeline ' + n;

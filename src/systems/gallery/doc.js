@@ -1,7 +1,7 @@
 // Персистентность активной работы: снимок S → запись, восстановление, новая
 // работа (в т.ч. из картинки), автосохранение.
 import { S, newLayer } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { isTilemap, rasterLayer } from '../../core/tilemap.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../../core/reference-board.js';
@@ -10,10 +10,10 @@ import { defaultPalette, grayscalePalette, DEFAULT_ACTIVE } from '../../config/p
 import { saveDoc, getDoc } from '../../core/storage.js';
 import { ensureGrid } from '../../core/grid.js';
 import { cloneAnimator, loadFrame } from '../../core/animation.js';
-import { t } from '../../i18n/index.js';
-import { DEFAULT_CANVAS_BACKGROUND } from '../../config/canvas-background.js';
+import { t } from '../../i18n/index.ts';
+import { DEFAULT_CANVAS_BACKGROUND } from '../../config/canvas-background.ts';
 import { AUTOSAVE_DELAY_MS, AUTOSAVE_IDLE_TIMEOUT_MS,
-  AUTOSAVE_STROKE_RETRY_MS } from '../../config/timings.js';
+  AUTOSAVE_STROKE_RETRY_MS } from '../../config/timings.ts';
 import { LegacyAutosaveController } from './LegacyAutosaveController.ts';
 import { buildGalleryRecord } from './record.js';
 import { uid } from './store.js';

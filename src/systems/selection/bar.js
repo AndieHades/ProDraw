@@ -2,8 +2,8 @@
 // удалить/снять. Видна, пока есть активное выделение — снять можно при любом
 // инструменте, не только при «Выделении».
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $, showMenuAt } from '../../core/dom.js';
 
 const closeMenu = () => $('sctx').classList.remove('on');

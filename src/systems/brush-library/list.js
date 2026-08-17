@@ -6,8 +6,8 @@ import { $, t } from '../../core/dom.js';
 import { lib, allBrushes, setOrder } from './data.js';
 import { stampIcon } from '../../logic/brush-preview.js';
 import { paintCanvas, fillMask } from '../../core/canvas.js';
-import { attachReorder } from '../../core/reorder-drag.js';
-import { DRAG_THRESHOLD } from '../../config/timings.js';
+import { attachReorder } from '../../ui/shell/ReorderGesture.ts';
+import { DRAG_THRESHOLD } from '../../config/timings.ts';
 
 let cb = {}, squelchUntil = 0;
 const squelch = () => { squelchUntil = Date.now() + 350; };

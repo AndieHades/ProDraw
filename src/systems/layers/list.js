@@ -1,11 +1,11 @@
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $, t } from '../../core/dom.js';
-import { menuGesture } from '../../core/long-press.js';
+import { menuGesture } from '../../ui/gestures/ContextGesture.ts';
 import { layerCanvas } from '../../core/layer-cache.js';
 import { makeCanvas } from '../../core/canvas.js';
-import { C } from '../../styles/canvas-colors.js';
+import { C } from '../../styles/canvas-colors.ts';
 import { folderChain } from '../../core/layers.js';
 import { dragRow } from './drag.js';
 import { selectRange } from './range-select.js';

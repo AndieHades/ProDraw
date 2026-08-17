@@ -2,7 +2,7 @@ import { makeCanvas } from './canvas.js';
 import { exactPaletteFromRgba, samplesFromRgba,
   sourcePaletteFromSamples } from '../logic/quantize.js';
 import { PALETTE_EXACT_LIMIT, PALETTE_EXACT_MAX_PIXELS,
-  PALETTE_QUANTIZED_COLORS, PALETTE_SAMPLE_MAX_SIDE } from '../config/palette-sampling.js';
+  PALETTE_QUANTIZED_COLORS, PALETTE_SAMPLE_MAX_SIDE } from '../config/palette-sampling.ts';
 
 const stopped = (isCancelled) => Boolean(isCancelled && isCancelled());
 

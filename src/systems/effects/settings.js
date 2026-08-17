@@ -1,12 +1,12 @@
 // Окно настроек эффекта: живое превью на холсте, затем Применить/Отмена.
 // Новый эффект живёт черновиком до Apply; строка в списке появляется после фиксации.
 import { S, newEffect } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { snapshot, snapshotEffects, addUndoGuard } from '../../core/history.js';
 import { expandForEffects, needsEffectExpansion } from '../../core/document.js';
 import { $, t } from '../../core/dom.js';
-import { EFFECT_FIELDS } from '../../config/defaults.js';
+import { EFFECT_FIELDS } from '../../config/defaults.ts';
 import { rgbToHex } from '../../logic/color.js';
 import { activeTarget } from './shared.js';
 

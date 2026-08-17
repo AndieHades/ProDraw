@@ -2,9 +2,9 @@
 // применяет выбранную операцию выделения. Способ построения контура ему не
 // важен (Continuous/Segment) — общая точка для любых инструментов выделения.
 import { S } from '../../core/state.js';
-import * as actions from '../../core/actions.js';
+import * as actions from '../../core/actions.ts';
 import { polygonToMask } from '../../logic/poly-mask.js';
-import { LASSO_MIN_POINTS } from '../../config/lasso.js';
+import { LASSO_MIN_POINTS } from '../../config/lasso.ts';
 import { getPoints, resetPath } from './path.js';
 
 export function closePath() {

@@ -2,8 +2,8 @@
 // в JS (без правок index.html), список — list.js, тулбар — toolbar.js, меню —
 // menu.js. Открывается кнопкой сайдбара; реагирует на изменения тайлсета/слоёв.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $, t } from '../../core/dom.js';
 import { floatingWindow } from '../../core/floating-window.js';
 import { newTile, dupTile, delTile, activeTileset } from './ops.js';

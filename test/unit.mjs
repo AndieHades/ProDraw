@@ -2,10 +2,10 @@
 
 import assert from 'node:assert/strict';
 import { S, MAX_LAYERS, blank, newLayer, cloneLayer, G } from '../src/core/state.js';
-import * as bus from '../src/core/bus.js';
+import * as bus from '../src/core/bus.ts';
 import { hexToRgb, rgbToHex, rgb, eqc, rgbToHsv, hsvToRgb } from '../src/logic/color.js';
 import { parseKey, blendOver, mergeCells, gridBounds, noteGridBounds, alphaBounds, boundsWithExt, symmetrizeGrid, rectFill, ellipseEdges, ellipseFill, cloneGrid } from '../src/logic/raster.js';
-import { clamp, clamp01, clamp255, clampRound, evalNumericField, isNumericLiteral } from '../src/logic/math.js';
+import { clamp, clamp01, clamp255, clampRound, evalNumericField, isNumericLiteral } from '../src/logic/math.ts';
 import { floodRegion } from '../src/logic/flood.js';
 import { parsePsdEffects } from '../src/logic/psd-effects.js';
 import { sampleGrid } from '../src/logic/sample.js';
@@ -35,18 +35,18 @@ import { packSet, unpackSet } from '../src/core/brush-pack.js';
 import { brushMode, stampSize, planDab, brushHasShape } from '../src/logic/brush-stamp.js';
 import { recognizeShape } from '../src/logic/quickshape.js';
 import { expandMask, mirrorDeltas } from '../src/logic/symmetry.js';
-import { ZOOM_MIN, ZOOM_MAX, historyCap } from '../src/config/limits.js';
+import { ZOOM_MIN, ZOOM_MAX, historyCap } from '../src/config/limits.ts';
 import { SIZE_PRESETS, DEFAULT_DOC } from '../src/config/presets.js';
 import { defaultPalette, DEFAULT_PALETTE_HEX, DEFAULT_ACTIVE } from '../src/config/palette.js';
-import { FLAGS_DEFAULT } from '../src/config/defaults.js';
+import { FLAGS_DEFAULT } from '../src/config/defaults.ts';
 import { transformTile, invTransformCoord } from '../src/logic/tile-transform.js';
 import { rasterTilemap } from '../src/logic/tilemap-raster.js';
 import { cloneTilemap } from '../src/logic/tilemap-data.js';
 import { cloneTileset } from '../src/logic/tileset-data.js';
 import { addTile, duplicateTile, deleteTile, getTile } from '../src/core/tileset.js';
-import { t as tr } from '../src/i18n/index.js';
-import { ru } from '../src/i18n/locales/ru.js';
-import { en } from '../src/i18n/locales/en.js';
+import { t as tr } from '../src/i18n/index.ts';
+import { ru } from '../src/i18n/locales/ru.ts';
+import { en } from '../src/i18n/locales/en.ts';
 
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('  ok   ' + name); };
 

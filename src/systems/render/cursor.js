@@ -1,16 +1,16 @@
 // Курсор кисти: только прозрачный Photoshop-подобный контур фактического
 // следующего отпечатка. Обводит внешний край, отверстия и отдельные островки.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
-import { BP_SMAX } from '../../config/limits.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
+import { BP_SMAX } from '../../config/limits.ts';
 import { CURSOR_ALPHA_THRESHOLD, CURSOR_LINE_WIDTH,
-  CURSOR_MODES, CURSOR_TOOLS } from '../../config/cursor.js';
+  CURSOR_MODES, CURSOR_TOOLS } from '../../config/cursor.ts';
 import { footprintMask, footprintRotation } from '../../logic/brush-cursor.js';
 import { alphaContour } from '../../logic/brush/alphaContour.ts';
 import { brushCoverageSampler } from '../../logic/brush/brushCoverage.ts';
 import { brushCursorMask } from '../../core/brush/brushCursorMask.ts';
-import { C } from '../../styles/canvas-colors.js';
+import { C } from '../../styles/canvas-colors.ts';
 
 function inputs() {
   const tool = S.tool; if (!CURSOR_TOOLS.includes(tool)) return null;

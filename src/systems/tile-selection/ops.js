@@ -1,7 +1,7 @@
 // Операции над выделением клеток tilemap: Make Unique, удалить, копировать,
 // вставить. Источник истины — cells; после правок слой пересобирается.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { snapshot } from '../../core/history.js';
 import { toast, t } from '../../core/dom.js';
 import { getTileset, getTile, addTile } from '../../core/tileset.js';

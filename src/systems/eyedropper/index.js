@@ -5,13 +5,13 @@
 // Пока активна — показывает preview (Found/Current) и по клику/касанию делает
 // цвет под курсором активным через Active Color Manager (action 'color.setActive').
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/dom.js';
 import { setTool } from '../../core/tools.js';
 import { rgb, rgbToHex } from '../../logic/color.js';
 import { eventKey } from '../../logic/key-code.js';
-import { HOLD_PICK_MS, DRAG_THRESHOLD, TAP_MAX_MS } from '../../config/timings.js';
+import { HOLD_PICK_MS, DRAG_THRESHOLD, TAP_MAX_MS } from '../../config/timings.ts';
 import { sampleColor } from './sources.js';
 
 const E = S.eyedrop; // { key, capturing }

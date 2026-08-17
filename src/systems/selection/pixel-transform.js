@@ -3,7 +3,7 @@ import { snapshotRasterReferences } from '../../core/history.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { maskHas } from '../../core/selection.js';
 import { setGridBounds } from '../../logic/raster.js';
-import { SELECTION_BOUNDS_FALLBACK_PIXELS } from '../../config/selection-mask.js';
+import { SELECTION_BOUNDS_FALLBACK_PIXELS } from '../../config/selection-mask.ts';
 import {
   mapSelectionMask,
   selectionMaskFromState,

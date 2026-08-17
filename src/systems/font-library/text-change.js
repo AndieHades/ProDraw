@@ -1,5 +1,5 @@
 import { S } from '../../core/state.js';
-import * as actions from '../../core/actions.js';
+import * as actions from '../../core/actions.ts';
 import { snapshotRasterReferences } from '../../core/history.js';
 import { markDirty } from '../../core/layer-cache.js';
 import { textDamageBounds, updateTextLayerGrid } from '../../core/text-layer.js';

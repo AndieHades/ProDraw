@@ -1,8 +1,8 @@
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { makeCanvas } from '../../core/canvas.js';
 import { activeFrameId, activeTimeline, renderFrameToCanvas, saveActiveFrame } from '../../core/animation.js';
-import { C } from '../../styles/canvas-colors.js';
+import { C } from '../../styles/canvas-colors.ts';
 
 function tinted(c) {
   const out = makeCanvas(c.width, c.height), x = out.getContext('2d');

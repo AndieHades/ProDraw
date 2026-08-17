@@ -2,12 +2,12 @@
 // клетки/области. Рисуется поверх холста через событие 'overlay' (как рамка
 // трансформации) — композит не трогаем.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
+import * as bus from '../core/bus.ts';
 import { getTileset, getTile } from '../core/tileset.js';
 import { isTilemap, inMap, stampTileId, rollRandomTile } from '../core/tilemap.js';
 import { transformTile } from '../logic/tile-transform.js';
 import { hexToRgb, rgbToHex, farthestColor } from '../logic/color.js';
-import { C } from '../styles/canvas-colors.js';
+import { C } from '../styles/canvas-colors.ts';
 
 // цвет сетки Tileset Grid, гарантированно отличный от обычной сетки (когда та
 // видна) — чтобы не перепутать; иначе берём свой тёплый токен

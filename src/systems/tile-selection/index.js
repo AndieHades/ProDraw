@@ -2,8 +2,8 @@
 // логика от pixel-выделения). Регистрирует операции (make-unique/delete/copy/
 // paste) как именованные действия.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { registerTool } from '../../core/canvas-handlers.js';
 import { setTool } from '../../core/tools.js';
 import { toast, t } from '../../core/dom.js';

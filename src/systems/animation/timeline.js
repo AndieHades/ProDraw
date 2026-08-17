@@ -1,8 +1,8 @@
 import { S } from '../../core/state.js';
-import { attachReorder } from '../../core/reorder-drag.js';
+import { attachReorder } from '../../ui/shell/ReorderGesture.ts';
 import { activeFrameId, activeTimeline, renderFrameToCanvas, reorderFrames, selectFrame } from '../../core/animation.js';
-import { ANIMATION } from '../../config/animation.js';
-import { t } from '../../i18n/index.js';
+import { ANIMATION } from '../../config/animation.ts';
+import { t } from '../../i18n/index.ts';
 import { openFrameMenu } from './frame-menu.js';
 
 let squelchClick = false;

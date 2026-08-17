@@ -2,16 +2,16 @@
 // обработчики инструментов/режимов (core/canvas-handlers), пан правой кнопкой,
 // зум колесом, Alt — пипетка. Тач-жесты — в ./gestures.js.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/dom.js';
 import { selHit } from '../../core/selection.js';
 import { toolHandler, modeHandler, globalHandlers } from '../../core/canvas-handlers.js';
 import { canvasAt, gridAt } from '../../core/viewport.js';
 import { actualPointerEvents } from '../../core/input/actualPointerEvents.ts';
-import { STABILIZE, DRAG_THRESHOLD } from '../../config/timings.js';
-import { ZOOM_MIN, ZOOM_MAX } from '../../config/limits.js';
-import { CURSOR_TOOLS } from '../../config/cursor.js';
+import { STABILIZE, DRAG_THRESHOLD } from '../../config/timings.ts';
+import { ZOOM_MIN, ZOOM_MAX } from '../../config/limits.ts';
+import { CURSOR_TOOLS } from '../../config/cursor.ts';
 import { mountGestures } from './gestures.js';
 
 const cv = () => $('cv');

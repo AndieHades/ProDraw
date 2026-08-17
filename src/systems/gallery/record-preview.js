@@ -1,7 +1,7 @@
 import { S } from '../../core/state.js';
 import { compositeLayers } from '../../core/layer-cache.js';
 import { makeCanvas } from '../../core/canvas.js';
-import { GALLERY_PREVIEW_MAX_SIDE } from '../../config/limits.js';
+import { GALLERY_PREVIEW_MAX_SIDE } from '../../config/limits.ts';
 
 function encodeCanvas(canvas) {
   if (typeof canvas.toBlob !== 'function') return Promise.resolve(canvas.toDataURL('image/png'));

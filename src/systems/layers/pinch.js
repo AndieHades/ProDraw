@@ -3,7 +3,7 @@
 // центру (живая отдача). Слияние срабатывает только если щипок доведён;
 // неполный — строки отыгрывают назад. Сливаются слои под пальцами, не выбор.
 import { $ } from '../../core/dom.js';
-import { PINCH_MERGE } from '../../config/timings.js';
+import { PINCH_MERGE } from '../../config/timings.ts';
 import { mergeRange } from './ops.js';
 
 const pts = new Map();

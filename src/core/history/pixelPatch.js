@@ -1,4 +1,4 @@
-import { PIXEL_BATCH_SPARSE_LIMIT } from '../../config/limits.js';
+import { PIXEL_BATCH_SPARSE_LIMIT } from '../../config/limits.ts';
 
 const emptyBounds = () => ({ minx: Infinity, miny: Infinity,
   maxx: -Infinity, maxy: -Infinity });

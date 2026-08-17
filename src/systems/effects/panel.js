@@ -1,6 +1,6 @@
 // Перемещаемая панель эффектов: кнопка-звёздочка открывает/закрывает её,
 // иконки типов добавляют эффект (через окно настроек с превью).
-import * as actions from '../../core/actions.js';
+import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/dom.js';
 import { floatingWindow } from '../../core/floating-window.js';
 import { openFxNew } from './settings.js';

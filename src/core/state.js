@@ -2,22 +2,22 @@
 // Системы общаются с ним только через этот модуль — прямых связей между
 // системами нет. Поля менять как S.W = …, не реэкспортируя биндинги.
 // Настраиваемые значения берутся из src/config (а не зашиты тут).
-import { MAX_LAYERS, MAX_SIZE, BP_SMAX } from '../config/limits.js';
+import { MAX_LAYERS, MAX_SIZE, BP_SMAX } from '../config/limits.ts';
 import { DEFAULT_DOC } from '../config/presets.js';
 import { defaultPalette, DEFAULT_ACTIVE } from '../config/palette.js';
-import { BRUSH_DEFAULTS, FLAGS_DEFAULT, ADJUST_DEFAULT, EFFECT_DEFAULTS } from '../config/defaults.js';
-import { LASSO_DEFAULT } from '../config/lasso.js';
-import { BRUSH_RESIZE } from '../config/brush-resize.js';
-import { EYEDROPPER } from '../config/eyedropper.js';
-import { CURSOR } from '../config/cursor.js';
-import { DEFAULT_CANVAS_BACKGROUND } from '../config/canvas-background.js';
+import { BRUSH_DEFAULTS, FLAGS_DEFAULT, ADJUST_DEFAULT, EFFECT_DEFAULTS } from '../config/defaults.ts';
+import { LASSO_DEFAULT } from '../config/lasso.ts';
+import { BRUSH_RESIZE } from '../config/brush-resize.ts';
+import { EYEDROPPER } from '../config/eyedropper.ts';
+import { CURSOR } from '../config/cursor.ts';
+import { DEFAULT_CANVAS_BACKGROUND } from '../config/canvas-background.ts';
 import { loadBrushPrefs } from './brush-prefs.js';
 import { cloneGrid, blank } from '../logic/raster.js';
 import { cloneTilemap } from '../logic/tilemap-data.js';
 import { cloneTextSource } from '../logic/text-model.js';
-import { TILE_FLAGS_DEFAULT, TILE_GRID_DEFAULT, TILE_GRID_SIZES } from '../config/tileset.js';
+import { TILE_FLAGS_DEFAULT, TILE_GRID_DEFAULT, TILE_GRID_SIZES } from '../config/tileset.ts';
 import { defaultReferenceBoard } from './reference-board.js';
-import { t } from '../i18n/index.js';
+import { t } from '../i18n/index.ts';
 export { MAX_LAYERS, MAX_SIZE, BP_SMAX };
 
 // последний выбранный размер Tileset Grid — персистится (не сбрасывается на 16)

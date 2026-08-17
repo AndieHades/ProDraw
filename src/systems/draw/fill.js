@@ -1,7 +1,7 @@
 // Заливка связной области (4-связность) с учётом выделения-маски.
 import { S, G, blank } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch, recordPixelBefore,
   snapshot, snapshotDescriptors, snapshotRasterReferences } from '../../core/history.js';
 import { eqc } from '../../logic/color.js';

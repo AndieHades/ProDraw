@@ -1,6 +1,6 @@
 // Подтверждение действия: модальное окно с сообщением и Да/Отмена. Возвращает
 // Promise<boolean>. Единый помощник для деструктивных операций (удаление тайла).
-import { t } from '../i18n/index.js';
+import { t } from '../i18n/index.ts';
 
 let ovl = null, msgEl = null, resolver = null;
 

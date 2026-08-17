@@ -1,7 +1,7 @@
 // Галерея: сборка экрана, кнопки (Photo/Convert/Import/Select), навигация,
 // автосохранение, инициализация (на старте открываем галерею).
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $, t, toast } from '../../core/dom.js';
 import { imageData, looksPixelArt } from '../../core/image.js';
 import { newWorkFromImage, newWorkFromLayers, beginConvertedWork, saveCurrent,

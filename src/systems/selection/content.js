@@ -1,6 +1,6 @@
 import { S, G } from '../../core/state.js';
-import * as actions from '../../core/actions.js';
-import * as bus from '../../core/bus.js';
+import * as actions from '../../core/actions.ts';
+import * as bus from '../../core/bus.ts';
 import {
   beginPixelBatch,
   commitPixelPatch,

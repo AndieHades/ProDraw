@@ -1,10 +1,10 @@
 // Контекстное меню слоя/папки и переименование. Кросс-системные операции —
 // через actions; правки слоёв — на месте.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $, showMenuBeside } from '../../core/dom.js';
-import { t } from '../../i18n/index.js';
+import { t } from '../../i18n/index.ts';
 import { folderLayers } from './helpers.js';
 import { isTilemap } from '../../core/tilemap.js';
 import { clearLayerRefs, duplicateLayer, duplicateFolder, symmetrizeLayerRefs,

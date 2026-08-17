@@ -1,11 +1,11 @@
 // Temporary one-way seam: the preserved interface owns gestures while typed
 // brush services own .brush files and Brush Studio. Delete after full UI port.
 import './app.js';
-import * as actions from './core/actions.js';
-import * as bus from './core/bus.js';
+import * as actions from './core/actions.ts';
+import * as bus from './core/bus.ts';
 import { showMenuAt } from './core/dom.js';
 import { floatingWindow } from './core/floating-window.js';
-import { attachReorder } from './core/reorder-drag.js';
+import { attachReorder } from './ui/shell/ReorderGesture.ts';
 import { setStampBrush } from './core/stamp-brush.js';
 import { legacyBrushStamp } from './logic/brush/legacyBrushAdapter.ts';
 import { mountOriginalInterfaceBridge } from './main.ts';

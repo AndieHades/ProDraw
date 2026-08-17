@@ -1,7 +1,7 @@
 // Система клавиатуры: нормализует событие в «комбо», ищет действие в активной
 // карте (дефолт + пользовательские переопределения из localStorage) и запускает
 // его из реестра. Перенастройка — rebind()/resetKeymap(), сохраняется.
-import * as actions from '../../core/actions.js';
+import * as actions from '../../core/actions.ts';
 import { DEFAULT_KEYMAP } from './keymap.js';
 import { keyName } from '../../logic/key-code.js';
 

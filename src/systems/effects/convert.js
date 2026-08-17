@@ -1,4 +1,4 @@
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { toast, t } from '../../core/dom.js';
 import { targetEffectRegion } from '../../core/effects-render.js';
 import { snapshotCompound } from '../../core/history.js';

@@ -1,9 +1,9 @@
 // Два бара действий панели слоёв: команды, активные состояния и перестановка
 // кнопок ПКМ/долгим тапом между верхней и нижней строкой.
 import { S } from '../../core/state.js';
-import * as actions from '../../core/actions.js';
+import * as actions from '../../core/actions.ts';
 import { $, t } from '../../core/dom.js';
-import { attachReorder } from '../../core/reorder-drag.js';
+import { attachReorder } from '../../ui/shell/ReorderGesture.ts';
 import { isTilemap } from '../../core/tilemap.js';
 import { folderLayers, selectedIdx } from './helpers.js';
 import {

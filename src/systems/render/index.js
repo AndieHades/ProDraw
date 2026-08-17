@@ -2,14 +2,14 @@
 // превью move/transform/crop, сетка), затем оверлеи. Системные оверлеи
 // (рамка трансформации) подмешиваются через событие 'overlay'.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/dom.js';
 import { paintStack } from '../../core/composite.js';
-import { ZOOM_MIN, ZOOM_MAX, VIEW_FIT_MARGIN_MIN, VIEW_FIT_MARGIN_RATIO } from '../../config/limits.js';
-import { C } from '../../styles/canvas-colors.js';
+import { ZOOM_MIN, ZOOM_MAX, VIEW_FIT_MARGIN_MIN, VIEW_FIT_MARGIN_RATIO } from '../../config/limits.ts';
+import { C } from '../../styles/canvas-colors.ts';
 import { hexToRgb } from '../../logic/color.js';
-import { clamp01 } from '../../logic/math.js';
+import { clamp01 } from '../../logic/math.ts';
 import { makeCanvas, syncCanvasSize } from '../../core/canvas.js';
 import { contentRevision, takeCompositeDamage } from '../../core/layer-cache.js';
 import { LegacyCompositeCache } from '../../core/render/LegacyCompositeCache.ts';

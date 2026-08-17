@@ -2,7 +2,7 @@
 // Перенос меняет массивы .effects владельцев: переупорядочивание внутри стека или
 // применение эффекта к другому слою/папке. Верх списка = верх стека (как у слоёв).
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { snapshotEffects } from '../../core/history.js';
 
 const ownerIndex = (eff) => { for (const L of S.layers) { const i = L.effects.indexOf(eff); if (i >= 0) return [L, i]; }

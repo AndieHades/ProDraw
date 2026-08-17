@@ -1,6 +1,6 @@
 // Последние пользовательские настройки кисти, общие между сессиями.
-import { BP_SMAX } from '../config/limits.js';
-import { clamp01 as norm01, clampRound } from '../logic/math.js';
+import { BP_SMAX } from '../config/limits.ts';
+import { clamp01 as norm01, clampRound } from '../logic/math.ts';
 
 export const BRUSH_PREFS_STORE = 'brushSettings';
 

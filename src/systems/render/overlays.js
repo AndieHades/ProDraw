@@ -6,8 +6,8 @@ import { rgb, eqc, hexToRgb } from '../../logic/color.js';
 import { bres, rectEdges, rectFill, ellipseEdges, ellipseFill } from '../../logic/raster.js';
 import { symmetryConfig, effVis } from '../../core/layers.js';
 import { mirrorPoints } from '../../logic/symmetry.js';
-import { clamp01 } from '../../logic/math.js';
-import { C } from '../../styles/canvas-colors.js';
+import { clamp01 } from '../../logic/math.ts';
+import { C } from '../../styles/canvas-colors.ts';
 import { layerContentBounds } from '../../core/layer-cache.js';
 
 function diagSegment(W, H, kind, val) {

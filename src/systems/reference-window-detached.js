@@ -1,5 +1,5 @@
 import { $, toast, t } from '../core/dom.js';
-import * as actions from '../core/actions.js';
+import * as actions from '../core/actions.ts';
 
 let detachedWin = null, detachedPoll = null, closeCb = null;
 

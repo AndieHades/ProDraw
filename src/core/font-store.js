@@ -1,4 +1,4 @@
-import { TEXT_FONTS, TEXT_IMPORT } from '../config/text.js';
+import { TEXT_FONTS, TEXT_IMPORT } from '../config/text.ts';
 import { readAppFiles, writeAppFile } from './app-folders.js';
 
 const DB = 'pixelheart-fonts', STORE = 'fonts', VER = 1;

@@ -1,7 +1,7 @@
 // Свободный поворот слоя с чистыми гранями (RotSprite). Превью — canvas для
 // рендера; применение пишет в слой.
 import { S, blank } from '../core/state.js';
-import * as bus from '../core/bus.js';
+import * as bus from '../core/bus.ts';
 import { snapshot } from '../core/history.js';
 import { rotSprite } from '../logic/rotsprite.js';
 import { markDirty } from '../core/layer-cache.js';

@@ -1,7 +1,7 @@
 // Буфер обмена: копировать/вырезать/вставить/удалить (выделение или весь слой).
 import { S, G, newLayer } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import {
   doRedo,
   doUndo,
@@ -10,7 +10,7 @@ import {
 import { clearLayer } from '../../core/document.js';
 import { layerContentBounds, dirtyAll } from '../../core/layer-cache.js';
 import { toast, t } from '../../core/dom.js';
-import { MAX_LAYERS } from '../../config/limits.js';
+import { MAX_LAYERS } from '../../config/limits.ts';
 import { parseKey, setGridBounds } from '../../logic/raster.js';
 import { symA, symHA } from '../../core/layers.js';
 import { deleteSelContent, deselect } from './model.js';

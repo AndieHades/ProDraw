@@ -1,6 +1,6 @@
 // Контекст-меню тайла в палитре: dup/rename/variant/delete.
 // Variant дёргается по имени через actions — без прямого импорта систем.
-import * as actions from '../../core/actions.js';
+import * as actions from '../../core/actions.ts';
 import { $, showMenuAt, t } from '../../core/dom.js';
 import { dupTile, delTile, transformTile } from './ops.js';
 import { startTileRename } from './list.js';

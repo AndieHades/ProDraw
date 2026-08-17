@@ -1,7 +1,7 @@
 // Команды Tile Palette над тайлами активного тайлсета: создать/дублировать/
 // удалить/переименовать. Снимок в историю + чистка экземпляров удалённого тайла.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { snapshot } from '../../core/history.js';
 import { toast, t } from '../../core/dom.js';
 import { addTileUnique, duplicateTile, deleteTile, renameTile, tileIndex } from '../../core/tileset.js';

@@ -1,7 +1,7 @@
 import { makeCanvas } from '../../core/canvas.js';
 import { fontById } from '../../core/font-store.js';
-import { TEXT_STRETCH } from '../../config/text.js';
-import { clamp } from '../../logic/math.js';
+import { TEXT_STRETCH } from '../../config/text.ts';
+import { clamp } from '../../logic/math.ts';
 import { maxLineWidth } from '../../logic/text-layout.js';
 
 export function stretchedTextTransform(source, fonts) {

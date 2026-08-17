@@ -1,7 +1,7 @@
 // Операции над слоями: добавить, слить отмеченные/диапазон, сгруппировать, дублировать.
 import { S, blank } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { snapshot, snapshotRasterReferences,
   snapshotStructure } from '../../core/history.js';
 import { cloneGrid, symmetrizeGrid } from '../../logic/raster.js';

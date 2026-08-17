@@ -22,7 +22,7 @@ assert.ok(document.getElementById('t-pencil').title.includes('(B)'), 'tooltip lo
 assert.ok(document.getElementById('cropbar').__fw, 'crop panel is draggable');
 assert.ok(document.getElementById('selbar').__fw, 'selection panel is draggable');
 assert.ok(parseFloat(document.getElementById('sidebar').style.minHeight) >= 80, 'sidebar minimum height applied');
-const i18n = await import('../src/i18n/index.js');
+const i18n = await import('../src/i18n/index.ts');
 i18n.setLocale('en'); assert.ok(document.getElementById('t-pencil').title === 'Pencil (B)', 'language change applied');
 i18n.setLocale('ru'); assert.ok(document.getElementById('t-pencil').title === i18n.t('tool.pencil'), 'language changed back');
 console.log("Boot test passed");

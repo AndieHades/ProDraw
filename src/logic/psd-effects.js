@@ -2,7 +2,7 @@
 // Best-effort и чистый: при любой неожиданности парс прерывается и эффекты
 // просто не импортируются (импорт слоя не падает). Маппинг приблизительный.
 import { rgbToHex } from './color.js';
-import { clamp } from './math.js';
+import { clamp } from './math.ts';
 
 // читалка дескриптора Photoshop из DataView (мутирует локальный p)
 function makeReader(dv, u8, start) {

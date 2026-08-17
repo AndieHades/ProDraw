@@ -2,7 +2,7 @@
 // Tile-слое (экземпляр/тайл), и на обычном слое (пиксельный блок клетки):
 // Add tile / Flip X / Flip Y / Rotate / Select / Fill / Clear. Размер клетки — ctxTileSize.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { snapshot } from '../../core/history.js';
 import { toast, t } from '../../core/dom.js';
 import { markDirty } from '../../core/layer-cache.js';

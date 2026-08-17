@@ -1,7 +1,7 @@
 // Данные-операции переноса слоёв/папок (сам жест — dragRow из drag.js): между
 // собой и внутрь папки. Зеркало fx-drag.js, но для слоёв и групп.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { snapshotStructure } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { folderChain } from '../../core/layers.js';

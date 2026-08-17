@@ -1,8 +1,8 @@
 // Create Tile From Layer: режет активный пиксельный слой на тайлы размера сетки
 // и добавляет непустые в тайлсет (панель тайлов). Кнопка в панели слоёв.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { snapshot } from '../core/history.js';
 import { $, toast, t } from '../core/dom.js';
 import { addTileUnique, createTileset, getTileset } from '../core/tileset.js';
@@ -10,8 +10,8 @@ import { isTilemap, gridTileSize, tilesetForSize, rasterLayer } from '../core/ti
 import { rasterizeTextLayer } from '../core/text-layer.js';
 import { dirtyAll } from '../core/layer-cache.js';
 import { blank } from '../logic/raster.js';
-import { localeValues } from '../i18n/index.js';
-import { TILE_GRID_SIZES } from '../config/tileset.js';
+import { localeValues } from '../i18n/index.ts';
+import { TILE_GRID_SIZES } from '../config/tileset.ts';
 import { openTilemapDialog } from './tilemap-dialog.js';
 import { resizeCanvasForTiles } from './tilemap-create.js';
 

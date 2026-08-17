@@ -1,12 +1,12 @@
 // Жесты по строке слоя. Свайп влево — настраиваемые кнопки действий
-// (config/layer-actions.js). Свайп вправо — выбор слоя цветом (мультивыбор:
+// (config/layer-actions.ts). Свайп вправо — выбор слоя цветом (мультивыбор:
 // смахни несколько). Те же действия есть в контекстном меню (menu.js).
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import { t } from '../../i18n/index.js';
+import * as bus from '../../core/bus.ts';
+import { t } from '../../i18n/index.ts';
 import { attachSwipe } from '../../core/swipe-actions.js';
 import { isDesktop } from '../../core/env.js';
-import { LAYER_SWIPE_ACTIONS } from '../../config/layer-actions.js';
+import { LAYER_SWIPE_ACTIONS } from '../../config/layer-actions.ts';
 import { duplicateLayer, deleteLayerRef, toggleLock, toggleAlphaLock, toggleClip, clearLayerRef } from './ops.js';
 import { pinchActive } from './pinch.js';
 

@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { beforeEach, describe, expect, it } from "vitest";
-import * as bus from "../../src/core/bus.js";
+import * as bus from "../../src/core/bus.ts";
 import { newLayer, S } from "../../src/core/state.js";
 import { beginPixelBatch, beginPixelPatch, cancelPixelPatch, commitPixelPatch, doRedo, doUndo,
   recordPixelBefore, snapshot, snapshotEffects } from "../../src/core/history.js";

@@ -1,13 +1,13 @@
 // Кнопки панелей: инструменты, симметрия,
 // эффекты и экспорт. Кросс-системные операции — через actions.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { $, showMenuForAnchor, toast, t } from '../core/dom.js';
 import { setTool } from '../core/tools.js';
-import { longPress } from '../core/long-press.js';
+import { longPress } from '../ui/gestures/ContextGesture.ts';
 import { ensureSymmetryDefaults } from '../core/layers.js';
-import { ICONS, BRUSH_MODES, LINE_MODES, SHAPE_MODES, SYM_MODES, SYM_TOOLS, FLIP_MODES, CENTER_MODES, ZOOM_MODES } from '../config/toolbar.js';
+import { ICONS, BRUSH_MODES, LINE_MODES, SHAPE_MODES, SYM_MODES, SYM_TOOLS, FLIP_MODES, CENTER_MODES, ZOOM_MODES } from '../config/toolbar.ts';
 
 const TOOLS = ['pencil', 'eraser', 'smudge', 'fill', 'select', 'lasso', 'move', 'adjust'];
 let lastBrushMode = 'normal';
@@ -187,7 +187,7 @@ const moveClick = () => { if (S.rotMode) { actions.run('transform.apply'); activ
 
 export function mount() {
   buildToolChoices();
-  actions.register('tool.pencil', () => brushClick('pencil'));
+  actions.replace('tool.pencil', () => brushClick('pencil'));
   $('t-pencil').onclick = () => actions.run('tool.pencil');
   $('t-eraser').onclick = () => brushClick('eraser');
   $('t-smudge').onclick = () => brushClick('smudge');

@@ -1,7 +1,7 @@
 // Система Export: кнопка рядом с Import → перетаскиваемое окно. Регистрирует
 // именованные действия (универсальный пайплайн); старые команды-совместимости
 // (быстрый PNG/PSD всего проекта, PNG слоя) тоже идут через него — без дублей.
-import * as actions from '../../core/actions.js';
+import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/dom.js';
 import { floatingWindow } from '../../core/floating-window.js';
 import { runExport, exportTargetPng } from './pipeline.js';

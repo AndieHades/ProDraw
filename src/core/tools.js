@@ -1,8 +1,8 @@
 // Активный инструмент: смена + сигнал. Кнопки/курсор/бары реагируют на 'tool',
 // не зная про систему инструмента.
 import { S } from './state.js';
-import * as bus from './bus.js';
-import * as actions from './actions.js';
+import * as bus from './bus.ts';
+import * as actions from './actions.ts';
 
 // какой набор настроек кисти активен (ластик пишет своим, остальные — карандашным)
 export const brushKey = () => (S.tool === 'eraser' ? 'eraser' : 'pencil');

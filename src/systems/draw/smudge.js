@@ -1,7 +1,7 @@
 // Палец: переносит цвет вдоль штриха активной кистью и уважает её форму,
 // Grain, Scatter, непрозрачность, выделение, alpha lock и Tile Mode.
 import { S, G } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { ensureLayer } from '../../core/document.js';
 import { inSel } from '../../core/selection.js';
 import { markDirty } from '../../core/layer-cache.js';

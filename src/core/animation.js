@@ -1,10 +1,10 @@
 import { S, cloneFx, cloneLayer } from './state.js';
-import * as bus from './bus.js';
+import * as bus from './bus.ts';
 import { dirtyAll } from './layer-cache.js';
 import { paintStack } from './composite.js';
 import { makeCanvas } from './canvas.js';
-import { ANIMATION } from '../config/animation.js';
-import { t } from '../i18n/index.js';
+import { ANIMATION } from '../config/animation.ts';
+import { t } from '../i18n/index.ts';
 import {
   activeFrameId as modelActiveFrameId, activeTimeline as modelActiveTimeline,
   collectUnusedFrames, insertFrameId, makeAnimator, makeFrameMeta, makeTimeline,

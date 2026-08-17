@@ -2,15 +2,15 @@
 // отдельно от обычной сетки Grid. Выбор Tile-слоя подстраивает Tileset Grid
 // под размер его тайлов.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { snapshot } from '../core/history.js';
 import { toast, t } from '../core/dom.js';
 import { dirtyAll } from '../core/layer-cache.js';
 import { createTileset } from '../core/tileset.js';
 import { canvasSizeForTiles, expandCanvas } from '../core/document.js';
 import { makeTilemapLayer, rasterLayer, isTilemap } from '../core/tilemap.js';
-import { TILE_GRID_SIZES } from '../config/tileset.js';
+import { TILE_GRID_SIZES } from '../config/tileset.ts';
 import { openTilemapDialog } from './tilemap-dialog.js';
 
 // подстроить Tileset Grid под размер тайлов активного Tile-слоя

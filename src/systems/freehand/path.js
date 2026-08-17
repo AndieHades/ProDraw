@@ -2,8 +2,8 @@
 // координатах сетки. Ничего не знает о масках и операциях выделения — только
 // геометрия пути и близость к стартовой точке (для замыкания/подсветки).
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import { LASSO_CLOSE_PX } from '../../config/lasso.js';
+import * as bus from '../../core/bus.ts';
+import { LASSO_CLOSE_PX } from '../../config/lasso.ts';
 
 const last = (pts) => pts[pts.length - 1];
 // порог замыкания в клетках: экранные px → клетки по текущему зуму (минимум одна клетка)

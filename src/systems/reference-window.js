@@ -2,11 +2,11 @@
 // Eyedropper reads rendered pixels from #refcv through systems/eyedropper.
 import { $, toast, t } from '../core/dom.js';
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
+import * as bus from '../core/bus.ts';
 import { floatingWindow } from '../core/floating-window.js';
 import { makeCanvas, syncCanvasSize } from '../core/canvas.js';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../core/reference-board.js';
-import { C } from '../styles/canvas-colors.js';
+import { C } from '../styles/canvas-colors.ts';
 import { copyRefs, pasteRef, saveRef } from './reference-window-clipboard.js';
 import { bindDetachDrag, detachedOpen, focusDetached, syncDetached } from './reference-window-detached.js';
 import { bindReferenceDrop, isImageFile } from './reference-window-drop.js';

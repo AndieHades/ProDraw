@@ -2,7 +2,7 @@
 // кончика) в сетку занятости. Без DOM — рисует панель/плитки.
 import { coverageToMask, maskRound } from './brush-mask.js';
 import { brushFootprint } from './brush-stamp.js';
-import { BRUSH_MASK } from '../config/brush-import.js';
+import { BRUSH_MASK } from '../config/brush-import.ts';
 
 // Иконка кисти N×N: реальный следующий отпечаток, центрированный в плитке.
 export function stampIcon(brush, N, size = N, cx = 0, cy = 0) {

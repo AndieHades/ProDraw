@@ -2,12 +2,12 @@
 // Continuous — один мазок с авто-замыканием на отпускании; Segment — контур по
 // частям, замыкается возвратом к стартовой точке. Отмена — Escape/кнопка панели.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { registerTool } from '../../core/canvas-handlers.js';
 import { beginPath, addPoint, resetPath, pathActive, nearStart } from './path.js';
 import { closePath } from './apply.js';
-import { clamp } from '../../logic/math.js';
+import { clamp } from '../../logic/math.ts';
 
 const clampX = (x) => clamp(x, 0, S.W - 1);
 const clampY = (y) => clamp(y, 0, S.H - 1);

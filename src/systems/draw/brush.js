@@ -8,7 +8,7 @@ import { mirrorPoints } from '../../logic/symmetry.js';
 import { paintCell } from './cells.js';
 import { ppVisit } from './pixel-perfect.js';
 import { brushMask, grainAt, stampSize, planDab } from '../../logic/brush-stamp.js';
-import { BP_SMAX } from '../../config/limits.js';
+import { BP_SMAX } from '../../config/limits.ts';
 
 let cTok = -1, cSize = -1, cMask = null; const state = { acc: 0 }; // кеш маски + счётчик spacing
 export function resetScatter() { state.acc = 0; } // в начале штриха

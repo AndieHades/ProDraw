@@ -1,5 +1,5 @@
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { ensureGrid, setGridVisible } from '../core/grid.js';
 
 export function openGridPop() {

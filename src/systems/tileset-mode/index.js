@@ -1,8 +1,8 @@
 // Tilemap workspace: когда активен Tilemap-слой, автоматически показывает
 // панель тайлсета, сетку клеток и контекстные операции по клетке.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { showMenuAt, toast, t } from '../../core/dom.js';
 import { setTool } from '../../core/tools.js';
 import { gridAt } from '../../core/viewport.js';

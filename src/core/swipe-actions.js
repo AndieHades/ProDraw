@@ -2,7 +2,7 @@
 // края, «липкая»). Вправо → разовый жест opts.onSwipeRight (резинка + откат).
 // Реагирует только на горизонталь (вертикаль оставляем перетаскиванию строк).
 // Переиспользуемо: «Новый холст», слои. Открыта только одна строка.
-import { DRAG_THRESHOLD } from '../config/timings.js';
+import { DRAG_THRESHOLD } from '../config/timings.ts';
 
 let openFront = null;
 export function closeSwipe() { if (openFront) { openFront.style.transform = ''; openFront._open = false; openFront = null; } }

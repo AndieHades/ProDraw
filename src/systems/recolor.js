@@ -1,8 +1,8 @@
 // Замена цвета по всему документу. Палитра сохраняет исходные цвета; новый цвет
 // добавляется в конец, если его там ещё нет.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch, recordPixelBefore,
   snapshot, snapshotRasterReferences } from '../core/history.js';
 import { eqc } from '../logic/color.js';

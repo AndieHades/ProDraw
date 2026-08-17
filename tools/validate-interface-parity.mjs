@@ -3,9 +3,10 @@ import { readFile } from "node:fs/promises";
 const html = await readFile("index.html", "utf8");
 const styles = await readFile("src/styles/app.css", "utf8");
 const app = await readFile("src/app.js", "utf8");
+const layout = await readFile("src/ui/shell/PreservedShellLayout.ts", "utf8");
 const layers = await readFile("src/systems/layers/index.js", "utf8");
 const layerList = await readFile("src/systems/layers/list.js", "utf8");
-const panels = await readFile("src/systems/panels.js", "utf8");
+const panels = await readFile("src/ui/shell/PanelOrderPresenter.ts", "utf8");
 const manifest = JSON.parse(await readFile("public/manifest.webmanifest", "utf8"));
 const errors = [];
 
@@ -48,8 +49,8 @@ for (const marker of ["new-sprites", "new-frames", "new.sprites", "new.gameFrame
 for (const part of requiredStyleParts) {
   if (!styles.includes(part)) errors.push(`original CSS part is missing: ${part}`);
 }
-if (!app.includes("floatingWindow($('palbar')") ||
-    !app.includes("floatingWindow($('sidebar')")) {
+if (!app.includes("mountPreservedShellLayout") ||
+    !layout.includes('element("palbar")') || !layout.includes('element("sidebar")')) {
   errors.push("palette and brush controls must keep floating-window behavior");
 }
 if (!layers.includes("floatingWindow($('lay-pop')") || !layerList.includes("dragRow(")) {
@@ -67,8 +68,8 @@ if (JSON.stringify(sidebarOrder) !== JSON.stringify(expectedSidebarOrder)) {
 for (const retired of ["pp", "stab"]) {
   if (sidebar.includes(`id="${retired}"`)) errors.push(`#${retired} is retired from sidebar`);
 }
-if (!panels.includes("panelOrderV2") || !panels.includes("'t-smudge'") ||
-    !panels.includes("'t-text'")) {
+if (!panels.includes("panelOrderV2") || !panels.includes('"t-smudge"') ||
+    !panels.includes('"t-text"')) {
   errors.push("movable two-column sidebar must persist Smudge and Text order");
 }
 for (const owner of ["layersUI", "gallery", "reference"]) {

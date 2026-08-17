@@ -2,7 +2,7 @@
 import { S } from '../../core/state.js';
 import { folderChain } from '../../core/layers.js';
 import { t } from '../../core/dom.js';
-import { localeValues } from '../../i18n/index.js';
+import { localeValues } from '../../i18n/index.ts';
 
 const inSubtree = (L, fid) => folderChain(L.fid).some((f) => f.id === fid); // слой лежит в поддереве папки
 export const folderLayers = (f) => S.layers.filter((L) => inSubtree(L, f.id));

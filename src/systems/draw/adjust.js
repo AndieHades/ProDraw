@@ -4,8 +4,8 @@ import { inSel } from '../../core/selection.js';
 import { markDirty } from '../../core/layer-cache.js';
 import { $, showMenuForAnchor, t } from '../../core/dom.js';
 import { setTool } from '../../core/tools.js';
-import * as bus from '../../core/bus.js';
-import { ADJUST_MODES, ICONS } from '../../config/toolbar.js';
+import * as bus from '../../core/bus.ts';
+import { ADJUST_MODES, ICONS } from '../../config/toolbar.ts';
 import { strokeSeen } from './seen.js';
 import { recordPixelBefore } from '../../core/history.js';
 

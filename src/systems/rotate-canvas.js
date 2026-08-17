@@ -1,7 +1,7 @@
 // Поворот содержимого документа на 90° по часовой без изменения размера холста.
 import { S, blank } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { snapshotDocumentRemap } from '../core/history.js';
 import { dirtyAll } from '../core/layer-cache.js';
 import { applyLayerRemap, remappedLayer } from '../core/document-layer-remap.js';

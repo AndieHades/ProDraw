@@ -1,18 +1,18 @@
 // Регистрация обработчиков холста для инструментов рисования. Ввод вызывает
 // down/move/up; координаты клетки приходят готовыми из системы ввода.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { registerTool } from '../../core/canvas-handlers.js';
 import { ensureLayer } from '../../core/document.js';
 import { toast, t } from '../../core/dom.js';
-import { SHAPE_SNAP_MS } from '../../config/timings.js';
+import { SHAPE_SNAP_MS } from '../../config/timings.ts';
 import { stamp } from './stamp.js';
 import { line, commitLine, commitContour, contourDab, contourStroke } from './shapes.js';
 import { beginStroke, afterStroke, cancelStroke } from './stroke.js';
 import { qsBegin, qsMove, qsRelease } from './quickshape.js';
 import { shadingActive } from './shading.js';
-import { clamp } from '../../logic/math.js';
+import { clamp } from '../../logic/math.ts';
 import { smudge } from './smudge.js';
 import { floodAt } from './fill.js';
 import { beginRasterStroke, cancelRasterStroke, finishRasterStroke,

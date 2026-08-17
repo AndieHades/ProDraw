@@ -3,12 +3,12 @@
 // drag для переноса и переупорядочивания. Верх списка = перёд стека (как у слоёв):
 // порядок в .effects (последний = поверх) рисуется сверху вниз.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { snapshotEffects } from '../../core/history.js';
 import { t } from '../../core/dom.js';
 import { EYE, layList, layDragSquelch } from './list.js';
-import { onDoubleTap, onContext } from '../../core/long-press.js';
+import { onDoubleTap, onContext } from '../../ui/gestures/ContextGesture.ts';
 import { dragRow } from './drag.js';
 import { selectRange } from './range-select.js';
 

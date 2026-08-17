@@ -1,13 +1,13 @@
 // Левая полоса кисти: размер сверху, пипетка по центру, прозрачность снизу.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { $ } from '../core/dom.js';
 import { brushKey } from '../core/tools.js';
 import { doUndo, doRedo } from '../core/history.js';
 import { saveBrushPrefs } from '../core/brush-prefs.js';
-import { BP_SMAX, BP_SIZE_CURVE } from '../config/limits.js';
-import { clamp01, clampRound } from '../logic/math.js';
+import { BP_SMAX, BP_SIZE_CURVE } from '../config/limits.ts';
+import { clamp01, clampRound } from '../logic/math.ts';
 import { nextFloatingZ } from '../core/floating-window.js';
 
 const curBrush = brushKey;

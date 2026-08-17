@@ -1,16 +1,16 @@
 import { $, toast } from '../core/dom.js';
-import { commitNumericField, isNumericLiteral, numericFieldValue, setNumericField } from '../core/numeric-field.js';
-import * as actions from '../core/actions.js';
-import { CUSTOM_CANVAS_DEFAULT } from '../config/defaults.js';
-import { MAX_SIZE } from '../config/limits.js';
-import { clampRound } from '../logic/math.js';
+import { commitNumericField, isNumericLiteral, numericFieldValue, setNumericField } from '../core/numeric-field.ts';
+import * as actions from '../core/actions.ts';
+import { CUSTOM_CANVAS_DEFAULT } from '../config/defaults.ts';
+import { MAX_SIZE } from '../config/limits.ts';
+import { clampRound } from '../logic/math.ts';
 import { createNewWork } from './gallery/doc.js';
 import { hide as hideGallery, show as showGallery,
   whenReady as whenGalleryReady } from './gallery/index.js';
 import { buildPresetLists, presetLabel } from './new-canvas/list.js';
 import { newCanvasBackground } from './new-canvas/background.js';
 import { isCreatingCanvas, setCreatingCanvas } from './new-canvas/creation-state.js';
-import { t } from '../i18n/index.js';
+import { t } from '../i18n/index.ts';
 const STORE = 'customSizes';
 let editIdx = null, linked = false, ratio = 1, mode = 'rgba', nameCustom = false;
 let suppressOutsideClick = false, prepareTask = Promise.resolve(true);

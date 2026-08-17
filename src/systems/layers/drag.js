@@ -4,13 +4,13 @@ import { S } from '../../core/state.js';
 import { $ } from '../../core/dom.js';
 import { dragGhost } from '../../core/drag-ghost.js';
 import { dropZone, makeDropGap } from '../../core/drop-gap.js';
-import { DROP_GAP_HOLD_MS } from '../../config/drag-drop.js';
+import { DROP_GAP_HOLD_MS } from '../../config/drag-drop.ts';
 import { setSquelch } from './list.js';
 import { pinchActive } from './pinch.js';
 import { fxDrop, fxBlock } from './fx-drag.js';
 import { dragBlock, canIntoFolder, layDrop } from './lay-drop.js';
 import { rmbSweep } from './rmb-sweep.js';
-import { FOLDER_HOLD_MS, LIFT_MS } from '../../config/timings.js';
+import { FOLDER_HOLD_MS, LIFT_MS } from '../../config/timings.ts';
 
 // взят ли элемент уже в выделение — тогда тащим весь набор, не сбрасывая выбор
 function inSelection(info) {

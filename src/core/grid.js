@@ -1,5 +1,5 @@
 import { S } from './state.js';
-import { clampRound } from '../logic/math.js';
+import { clampRound } from '../logic/math.ts';
 
 const clampStep = (v) => clampRound(+v || 1, 1, 128);
 const clampOpacity = (v) => clampRound(+v || 70, 5, 100);

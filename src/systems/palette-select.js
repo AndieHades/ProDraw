@@ -3,10 +3,10 @@
 // в palette.js; обратная связь идёт через колбэки rebuild()/setActive(),
 // заданные initPaletteSelect (без кольцевых импортов).
 import { S } from '../core/state.js';
-import * as actions from '../core/actions.js';
+import * as actions from '../core/actions.ts';
 import { $, toast, t, copyText, showMenuAt } from '../core/dom.js';
 import { rgbToHex, eqc } from '../logic/color.js';
-import { LONG_PRESS_MS } from '../config/timings.js';
+import { LONG_PRESS_MS } from '../config/timings.ts';
 import { dropZone, makeDropGap } from '../core/drop-gap.js';
 
 let swHold = null, palDrag = null, palSquelch = false, ctxIdx = -1, ctxIdxs = [];

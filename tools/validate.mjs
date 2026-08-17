@@ -14,6 +14,7 @@ await runNpmScripts([
   "validate:cutover-fixtures",
   "validate:desktop",
   "validate:raster-entry",
+  "validate:shell-catalog",
   "build:bundle"
 ]);
 console.log("Full repository validation passed.");

@@ -1,8 +1,8 @@
 // Инструменты «линия» и «прямоугольник»: интерполяция Брезенхемом и фиксация
 // превью в слой (углы целы — pp молчит при stroke=false).
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { bres, parseKey, rectEdges, rectFill, ellipseEdges, ellipseFill } from '../../logic/raster.js';
 import { maskRound } from '../../logic/brush-mask.js';
 import { stamp } from './stamp.js';

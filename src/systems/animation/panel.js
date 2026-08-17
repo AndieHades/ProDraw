@@ -1,6 +1,6 @@
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { $, t } from '../../core/dom.js';
 import { floatingWindow } from '../../core/floating-window.js';
 import { ensureAnimator, activeTimeline, createFrame, createTimeline, renameTimeline, setTimelineFps, setTimelineMode, switchTimeline } from '../../core/animation.js';

@@ -3,12 +3,12 @@
 // (Переименовать/Дублировать/Удалить). Открывается ПКМ/долгим нажатием по кисти.
 // Параметры — на кисть (сохраняются), размер — общий инструмента.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { $ } from '../../core/dom.js';
 import { floatingWindow } from '../../core/floating-window.js';
 import { saveBrushPrefs } from '../../core/brush-prefs.js';
-import { BP_SMAX } from '../../config/limits.js';
-import { BRUSH_SETTINGS } from '../../config/brush-import.js';
+import { BP_SMAX } from '../../config/limits.ts';
+import { BRUSH_SETTINGS } from '../../config/brush-import.ts';
 import { brushMode, stampSize } from '../../logic/brush-stamp.js';
 import { previewStroke } from '../../logic/brush-preview.js';
 import { fillMask } from '../../core/canvas.js';

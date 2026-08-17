@@ -4,7 +4,7 @@ import { S, blank } from '../../core/state.js';
 import { snapshotRasterReferences } from '../../core/history.js';
 import { markDirty } from '../../core/layer-cache.js';
 import { isSelectionMask } from '../../logic/mask-ops.js';
-import { DENSE_SELECTION_REFERENCE_RATIO } from '../../config/selection-mask.js';
+import { DENSE_SELECTION_REFERENCE_RATIO } from '../../config/selection-mask.ts';
 
 const coversCanvas = () => !S.selMask && S.sel && S.sel.x0 === 0 && S.sel.y0 === 0 &&
   S.sel.x1 === S.W - 1 && S.sel.y1 === S.H - 1;

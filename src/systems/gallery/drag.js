@@ -2,7 +2,7 @@
 // лёгкий призрак — только увеличенная картинка превью без подписей. Сетка во время
 // драга не перекомпоновывается (никакого gap) — точку вставки считаем по курсору и
 // применяем одним ре-рендером на отпускании, чтобы большие галереи не дёргались.
-import { DRAG_THRESHOLD, FOLDER_HOLD_MS } from '../../config/timings.js';
+import { DRAG_THRESHOLD, FOLDER_HOLD_MS } from '../../config/timings.ts';
 import { $ } from '../../core/dom.js';
 import { dropZone } from '../../core/drop-gap.js';
 

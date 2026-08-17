@@ -1,20 +1,20 @@
 // Конвертация картинки в пиксель-арт: дискретизация → палитра → чистка →
 // предпросмотр; применение создаёт новый документ. Чистые алгоритмы — в logic.
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { rgb, eqc } from '../../logic/color.js';
 import { sampleGrid } from '../../logic/sample.js';
 import { medianCut, nearest, paletteFromGrid } from '../../logic/quantize.js';
 import { cloneGrid } from '../../logic/raster.js';
 import { makeCanvas, syncCanvasSize } from '../../core/canvas.js';
-import { C } from '../../styles/canvas-colors.js';
+import { C } from '../../styles/canvas-colors.ts';
 import { symmetrizeV, despeckle, cropEmpty } from '../../logic/cleanup.js';
 import { setTool } from '../../core/tools.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { addImageLayerTop } from '../../core/document.js';
 import { snapshot } from '../../core/history.js';
-import { MAX_LAYERS } from '../../config/limits.js';
+import { MAX_LAYERS } from '../../config/limits.ts';
 import { $, toast, t } from '../../core/dom.js';
 
 let impData = null, impGrid = null, importMode = 'replace'; // 'replace' — новый проект; 'layer' — верхним слоем

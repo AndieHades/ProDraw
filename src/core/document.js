@@ -1,7 +1,7 @@
 // Структурные операции над холстом-документом (примитив для многих систем).
 // Меняет размеры/слои, сдвигает запасные пиксели, сбрасывает выделение.
 import { S, blank, newLayer } from './state.js';
-import * as bus from './bus.js';
+import * as bus from './bus.ts';
 import { translateRaster } from '../logic/raster-remap.js';
 import { isTextLayer, moveTextSource } from '../logic/text-model.js';
 import { dirtyAll, markDirty } from './layer-cache.js';
@@ -9,7 +9,7 @@ import { applyLayerRemap } from './document-layer-remap.js';
 import { effectExpansion, needsEffectExpansion } from './effect-expansion.js';
 import { snapshot, snapshotDocumentRemap } from './history.js';
 import { toast, t } from './dom.js';
-import { MAX_SIZE, ZOOM_MIN, ZOOM_MAX } from '../config/limits.js';
+import { MAX_SIZE, ZOOM_MIN, ZOOM_MAX } from '../config/limits.ts';
 import { isTilemap, rasterLayer, remapToCanvas } from './tilemap.js';
 import { expandStoredFrames, cropStoredFrames } from './animation-canvas.js';
 

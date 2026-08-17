@@ -1,8 +1,8 @@
 // HSV-пикер в углу: тап по кружку — открыть, перетащить на холст — залить
 // активным цветом. Активный цвет хранится в S; смену разносит событие 'palette'.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { $, t, toast, copyText } from '../core/dom.js';
 import { rgb, rgbToHex, rgbToHsv, hsvToRgb, hexToRgb } from '../logic/color.js';
 import { initColorHistory, rememberUsedColor, clearColorHistory } from './color-history.js';

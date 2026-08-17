@@ -3,13 +3,13 @@
 // курсора плавно меняет размер кисти. Работает поверх любого инструмента
 // рисования — не меняет инструмент, не блокирует штрих. Правит лишь size.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { $ } from '../core/dom.js';
 import { brushKey } from '../core/tools.js';
 import { saveBrushPrefs } from '../core/brush-prefs.js';
-import { BP_SMAX } from '../config/limits.js';
-import { SENS_PRESETS, DIRECTIONS } from '../config/brush-resize.js';
+import { BP_SMAX } from '../config/limits.ts';
+import { SENS_PRESETS, DIRECTIONS } from '../config/brush-resize.ts';
 import { eventKey } from '../logic/key-code.js';
 
 const STORE = 'brushResize';

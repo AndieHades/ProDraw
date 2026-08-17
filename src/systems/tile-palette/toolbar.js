@@ -2,11 +2,11 @@
 // tile, Random (кубик), менеджер и удаление тайла. Иконки — SVG в
 // стиле проекта. Кнопки можно переставлять зажатым ПКМ/долгим тапом (attachReorder).
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
-import * as actions from '../../core/actions.js';
+import * as bus from '../../core/bus.ts';
+import * as actions from '../../core/actions.ts';
 import { setTool } from '../../core/tools.js';
 import { t } from '../../core/dom.js';
-import { attachReorder } from '../../core/reorder-drag.js';
+import { attachReorder } from '../../ui/shell/ReorderGesture.ts';
 
 const STORE = 'tileToolbarOrder4';
 let squelchUntil = 0;

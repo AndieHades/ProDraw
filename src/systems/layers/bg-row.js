@@ -2,9 +2,9 @@
 // перетаскивается, без эффектов; выбирается только в одиночку. Контекст-меню —
 // общее #lctx (kind='background'): Залить активным цветом / Очистить (прозрачный).
 import { S } from '../../core/state.js';
-import * as bus from '../../core/bus.js';
+import * as bus from '../../core/bus.ts';
 import { t } from '../../core/dom.js';
-import { menuGesture } from '../../core/long-press.js';
+import { menuGesture } from '../../ui/gestures/ContextGesture.ts';
 import { rgb } from '../../logic/color.js';
 import { EYE } from './list.js';
 import { openLctx } from './menu.js';

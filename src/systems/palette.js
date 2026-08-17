@@ -2,15 +2,15 @@
 // «использованные». Интерактив (выделение/drag/контекст-меню) — в
 // palette-select.js. Перекраска/выбор по цвету — через actions.
 import { S } from '../core/state.js';
-import * as bus from '../core/bus.js';
-import * as actions from '../core/actions.js';
+import * as bus from '../core/bus.ts';
+import * as actions from '../core/actions.ts';
 import { $, toast, t } from '../core/dom.js';
 import { rgb, rgbToHex, hexToRgb, eqc } from '../logic/color.js';
 import { sortPalette } from '../logic/palette-sort.js';
 import { setTool } from '../core/tools.js';
 import { initPaletteSelect, wireSwatch, clearPaletteSelection, selectedPaletteColors, validSel } from './palette-select.js';
 import { usedColorKeys } from './palette-used-colors.js';
-import { attachReorder } from '../core/reorder-drag.js';
+import { attachReorder } from '../ui/shell/ReorderGesture.ts';
 
 let showUsed = false;
 const COLOR_TOOLS = new Set(['pencil', 'fill', 'line', 'rect', 'ellipse']);
