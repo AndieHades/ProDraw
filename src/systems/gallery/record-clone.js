@@ -2,6 +2,7 @@ import { cloneFx, cloneLayer } from '../../core/state.js';
 import { ANIMATION } from '../../config/animation.js';
 import { AUTOSAVE_CLONE_YIELD_ROWS, AUTOSAVE_IDLE_TIMEOUT_MS } from '../../config/timings.js';
 import { normalizeAnimator } from '../../logic/animation-data.js';
+import { cloneGrid, sparseGridStats } from '../../logic/raster.js';
 
 export function yieldToGalleryIdle() {
   return new Promise((resolve) => {
@@ -13,6 +14,12 @@ export function yieldToGalleryIdle() {
 
 export async function cloneGridIdle(grid, bounds, isCurrent,
   yieldWork = yieldToGalleryIdle) {
+  if (!isCurrent()) return null;
+  // The canonical raster backing already knows its stored rows/cells. Walking
+  // every empty A4 row through requestIdleCallback made a blank New document
+  // look frozen for seconds and could leave the dialog busy. Clone it directly
+  // in O(painted cells); dense compatibility grids keep the cancellable path.
+  if (sparseGridStats(grid)) return cloneGrid(grid);
   const output = new Array(grid.length);
   for (let y = 0; y < grid.length; y++) {
     if (!isCurrent()) return null;
