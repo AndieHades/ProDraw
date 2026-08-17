@@ -2,9 +2,7 @@ import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
 import * as actions from '../../core/actions.js';
 import { $, t } from '../../core/dom.js';
-import { snapshot } from '../../core/history.js';
 import { menuGesture } from '../../core/long-press.js';
-import { inlineRename, nameRenameGesture } from '../../core/inline-rename.js';
 import { layerCanvas } from '../../core/layer-cache.js';
 import { makeCanvas } from '../../core/canvas.js';
 import { C } from '../../styles/canvas-colors.js';
@@ -18,7 +16,12 @@ import { folderLayers, folderStackPos, activeOpacityRef } from './helpers.js';
 import { appendEffects } from './fx-rows.js';
 import { bgRow } from './bg-row.js';
 import { syncLayerActionButtons } from './actions-bar.js';
+import { metadataNameSpan, startInlineRename as startMetadataRename,
+  wireMetadataSymmetry, wireMetadataVisibility } from './row-metadata.js';
 
+export function startInlineRename(span, ref) {
+  startMetadataRename(span, ref, layList);
+}
 const INDENT = 16; // отступ на уровень вложенности
 
 export const EYE = '<svg viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.6"/><path class="slash" d="M4 4l16 16"/></svg>'; // глаз = видимость
@@ -31,30 +34,15 @@ const TILE_IC = '<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height
 const TEXT_IC = '<b>T</b>';
 export let layDragSquelch = false;
 export const setSquelch = (v) => { layDragSquelch = v; };
-
 function thumbFor(i) { const th = makeCanvas(40, 40); th.className = 'lth';
   const tx = th.getContext('2d'); tx.imageSmoothingEnabled = false; tx.fillStyle = C.checkA; tx.fillRect(0, 0, 40, 40); tx.fillStyle = C.checkB;
   for (let yy = 0; yy < 5; yy++) for (let xx = 0; xx < 5; xx++) if ((xx + yy) & 1) tx.fillRect(xx * 8, yy * 8, 8, 8);
   const k = Math.min(40 / S.W, 40 / S.H), w2 = Math.max(1, Math.round(S.W * k)), h2 = Math.max(1, Math.round(S.H * k));
   tx.drawImage(layerCanvas(i), (40 - w2) / 2, (40 - h2) / 2, w2, h2); return th; }
-
-export function startInlineRename(span, ref) {
-  inlineRename(span, ref.name, (v) => { if (v) { snapshot(); ref.name = v; } layList(); });
-}
-
-function nameSpan(text, isActive, ref) { const nm = document.createElement('span'); nm.className = 'lname'; nm.textContent = text;
-  nameRenameGesture(nm, { isActive: () => !!(isActive && isActive()), rename: () => startInlineRename(nm, ref) });
-  return nm; }
-
 function folderCountSpan(f) {
   const n = folderLayers(f).length;
   if (!n) return null;
   const c = document.createElement('span'); c.className = 'fcount'; c.textContent = n; return c; // разделитель '· ' — в CSS (.fcount::before)
-}
-
-function wireVis(vis, obj) {
-  vis.addEventListener('pointerdown', (e) => e.stopPropagation());
-  vis.addEventListener('click', (e) => { e.stopPropagation(); snapshot(); obj.visible = !obj.visible; vis.classList.toggle('off', !obj.visible); bus.emit('visibility'); bus.emit('render'); });
 }
 
 function folderRow(f, depth) {
@@ -68,12 +56,11 @@ function folderRow(f, depth) {
   const car = document.createElement('button'); car.className = 'caret' + (f.open ? ' open' : ''); car.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>';
   car.addEventListener('pointerdown', (e) => e.stopPropagation());
   car.addEventListener('click', (e) => { e.stopPropagation(); if (layDragSquelch) return; f.open = !f.open; layList(); }); // раскрыть/свернуть — выбор не меняем
-  const nm = nameSpan(f.name, () => f.id === S.selFolder && !S.fxCur, f), cnt = folderCountSpan(f);
-  const vis = document.createElement('button'); vis.className = 'eye' + (f.visible ? '' : ' off'); vis.innerHTML = EYE; wireVis(vis, f);
+  const nm = metadataNameSpan(f.name, () => f.id === S.selFolder && !S.fxCur, f, layList), cnt = folderCountSpan(f);
+  const vis = document.createElement('button'); vis.className = 'eye' + (f.visible ? '' : ' off'); vis.innerHTML = EYE; wireMetadataVisibility(vis, f);
   fr.append(car, nm); if (cnt) fr.append(cnt);
   if (S.sym || S.symH || S.symD1 || S.symD2) { const sy = document.createElement('button'); sy.className = 'eye lsym' + (f.symLock ? ' off' : ''); sy.innerHTML = SYM_IC;
-    sy.addEventListener('pointerdown', (e) => e.stopPropagation());
-    sy.addEventListener('click', (ev) => { ev.stopPropagation(); snapshot(); f.symLock = !f.symLock; sy.classList.toggle('off', f.symLock); bus.emit('render'); }); fr.append(sy); }
+    wireMetadataSymmetry(sy, f); fr.append(sy); }
   fr.append(vis);
   fr.addEventListener('click', (ev) => { if (layDragSquelch) return;
     S.bgSel = false;
@@ -105,8 +92,8 @@ function layerRow(L, i, depth) {
   const isCurPrim = i === S.cur && !S.selFolder && !S.fxCur && !S.bgSel;
   const row = document.createElement('div'); row.className = 'lrow' + (isCurPrim ? ' on' : S.marked.has(i) ? ' marked' : '') + (L.clip ? ' clip' : '') + (L.kind === 'tilemap' ? ' tmap' : '');
   row.dataset.li = i; row.style.marginLeft = depth * INDENT + 'px';
-  const nm = nameSpan(L.name, () => i === S.cur && !S.selFolder && !S.fxCur && !S.bgSel, L);
-  const vis = document.createElement('button'); vis.className = 'eye' + (L.visible ? '' : ' off'); vis.innerHTML = EYE; wireVis(vis, L); // глаз = видимость
+  const nm = metadataNameSpan(L.name, () => i === S.cur && !S.selFolder && !S.fxCur && !S.bgSel, L, layList);
+  const vis = document.createElement('button'); vis.className = 'eye' + (L.visible ? '' : ' off'); vis.innerHTML = EYE; wireMetadataVisibility(vis, L); // глаз = видимость
   if (L.clip) { const ar = document.createElement('i'); ar.className = 'clip-arrow'; ar.innerHTML = CLIP_IC; row.append(ar); } // обтравка: стрелка + сдвиг
   row.append(thumbFor(i), nm); // миниатюра + имя
   if (L.kind === 'tilemap') { const tl = document.createElement('button'); tl.className = 'eye ltile'; tl.innerHTML = TILE_IC; tl.title = t('menu.convertLayer'); // клик запекает Tilemap обратно в обычный слой
@@ -114,8 +101,7 @@ function layerRow(L, i, depth) {
   if (L.kind === 'text') { const tx = document.createElement('button'); tx.className = 'eye ltext'; tx.innerHTML = TEXT_IC; tx.title = t('tool.text');
     tx.addEventListener('pointerdown', (e) => e.stopPropagation()); tx.addEventListener('click', (ev) => { ev.stopPropagation(); actions.run('text.editLayer', i); }); row.append(tx); }
   if (S.sym || S.symH || S.symD1 || S.symD2) { const sy = document.createElement('button'); sy.className = 'eye lsym' + (L.symLock ? ' off' : ''); sy.innerHTML = SYM_IC; // симметрия на слое (можно выключить)
-    sy.addEventListener('pointerdown', (e) => e.stopPropagation());
-    sy.addEventListener('click', (ev) => { ev.stopPropagation(); snapshot(); L.symLock = !L.symLock; sy.classList.toggle('off', L.symLock); bus.emit('render'); }); row.append(sy); }
+    wireMetadataSymmetry(sy, L); row.append(sy); }
   if (L.reference) { const rf = document.createElement('button'); rf.className = 'eye lref'; rf.innerHTML = REF_IC;
     rf.addEventListener('pointerdown', (e) => e.stopPropagation()); rf.addEventListener('click', (ev) => { ev.stopPropagation(); toggleReference(L); }); row.append(rf); }
   if (L.lock || L.alphaLock) { const fl = document.createElement('button'); fl.className = 'eye'; fl.innerHTML = L.lock ? LOCK_IC : ALPHA_IC; // замок/альфа — клик снимает

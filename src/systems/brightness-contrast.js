@@ -3,11 +3,14 @@
 import { S, newEffect } from '../core/state.js';
 import * as bus from '../core/bus.js';
 import * as actions from '../core/actions.js';
-import { snapshot, cloneGrid, addUndoGuard } from '../core/history.js';
-import { dirtyAll } from '../core/layer-cache.js';
+import { beginPixelBatch, commitPixelPatch,
+  snapshot, snapshotEffects, addUndoGuard } from '../core/history.js';
+import { captureAdjustmentLayers, writeAdjustmentLayers } from '../core/adjustment-preview.js';
 import { $, t } from '../core/dom.js';
-import { adjustColor, adjustmentParams } from '../logic/adjustment.js';
+import { adjustmentParams } from '../logic/adjustment.js';
 import { activeTarget } from './effects/shared.js';
+import { controlsToParams, setControls, syncLabels } from './brightness-contrast/form.js';
+import { beginCanvasReference } from './brightness-contrast/reference.js';
 
 let bcBackup = null;
 let bcSession = null; // { target, eff, isNew, original }
@@ -21,31 +24,6 @@ const targetForLayerScope = () => {
   return target && target.effects ? target : S.layers[S.cur];
 };
 
-function controlsToParams() {
-  return adjustmentParams({
-    brightness: $('bc-bri').value,
-    contrast: $('bc-con').value,
-    saturation: $('bc-sat').value,
-    hue: $('bc-hue').value,
-  });
-}
-
-function setControls(p = {}) {
-  const v = adjustmentParams(p);
-  $('bc-bri').value = v.brightness;
-  $('bc-con').value = v.contrast;
-  $('bc-sat').value = v.saturation;
-  $('bc-hue').value = v.hue;
-  syncLabels();
-}
-
-function syncLabels() {
-  $('bc-briv').textContent = $('bc-bri').value;
-  $('bc-conv').textContent = $('bc-con').value;
-  $('bc-satv').textContent = $('bc-sat').value;
-  $('bc-huev').textContent = $('bc-hue').value;
-}
-
 function syncScopeUi() {
   $('bc-title').textContent = t(bcScope === 'canvas' ? 'bc.titleCanvas' : 'fx.adjustment');
   $('bc-scope').style.display = bcLockScope ? 'none' : '';
@@ -54,8 +32,7 @@ function syncScopeUi() {
 
 function restoreCanvas() {
   if (!bcBackup) return;
-  for (const b of bcBackup) { b.L.grid = cloneGrid(b.grid); b.L.ext = new Map(b.ext); }
-  bcBackup = null; dirtyAll(); bus.emit('render');
+  writeAdjustmentLayers(bcBackup); bcBackup = null; bus.emit('render');
 }
 
 function cancelAdjustment() {
@@ -67,7 +44,7 @@ function cancelAdjustment() {
 
 function beginCanvas() {
   restoreCanvas(); cancelAdjustment();
-  bcBackup = S.layers.map((L) => ({ L, grid: cloneGrid(L.grid), ext: new Map(L.ext) }));
+  bcBackup = captureAdjustmentLayers();
   bcPreview();
 }
 
@@ -91,10 +68,7 @@ export function bcPreview() {
   const params = controlsToParams();
   if (bcScope === 'canvas') {
     if (!bcBackup) return;
-    for (const b of bcBackup) { const L = b.L;
-      for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) { const c = b.grid[y][x]; L.grid[y][x] = c ? adjustColor(c, params) : null; }
-      L.ext = new Map(); for (const [k, c] of b.ext) L.ext.set(k, adjustColor(c, params)); }
-    dirtyAll(); bus.emit('render'); return;
+    writeAdjustmentLayers(bcBackup, params); bus.emit('render'); return;
   }
   if (!bcSession) return;
   bcSession.eff.params = { ...bcSession.eff.params, ...params };
@@ -133,13 +107,18 @@ export function bcApply() {
   if (bcScope === 'canvas') {
     if (!bcBackup) return;
     const params = controlsToParams(), backup = bcBackup;
-    restoreCanvas(); snapshot(); bcBackup = backup; setControls(params); bcPreview();
+    restoreCanvas(); const indices = backup.map(({ index }) => index);
+    const local = backup.every(({ L }) => L.kind === 'pixel' && !L.ext.size) &&
+      beginPixelBatch(indices);
+    if (!local && !beginCanvasReference(backup, indices)) snapshot();
+    writeAdjustmentLayers(backup, params, local);
+    if (local) commitPixelPatch();
     bcBackup = null; bcLayerTargets = null; bcLockScope = false; $('bcpop').classList.remove('on'); bus.emitDoc(); return;
   }
   if (!bcSession) return;
   const { target, eff, isNew, original } = bcSession, cur = adjustmentParams(eff.params);
-  if (isNew) { snapshot(); target.effects.push(eff); S.fxDraft = null; }
-  else { eff.params = { ...original }; snapshot(); eff.params = cur; }
+  if (isNew) { snapshotEffects(target); target.effects.push(eff); S.fxDraft = null; }
+  else { eff.params = { ...original }; snapshotEffects(target); eff.params = cur; }
   bcSession = null; bcLayerTargets = null; bcLockScope = false; $('bcpop').classList.remove('on'); bus.emitDoc();
 }
 

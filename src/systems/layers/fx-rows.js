@@ -5,7 +5,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
 import * as actions from '../../core/actions.js';
-import { snapshot } from '../../core/history.js';
+import { snapshotEffects } from '../../core/history.js';
 import { t } from '../../core/dom.js';
 import { EYE, layList, layDragSquelch } from './list.js';
 import { onDoubleTap, onContext } from '../../core/long-press.js';
@@ -36,7 +36,7 @@ function effectRow(target, eff, depth) {
   const nm = document.createElement('span'); nm.className = 'lname'; nm.textContent = t('fx.' + eff.type);
   const vis = document.createElement('button'); vis.className = 'eye' + (eff.visible === false ? ' off' : ''); vis.innerHTML = EYE;
   vis.addEventListener('pointerdown', (e) => e.stopPropagation());
-  vis.addEventListener('click', (e) => { e.stopPropagation(); snapshot(); eff.visible = eff.visible === false;
+  vis.addEventListener('click', (e) => { e.stopPropagation(); snapshotEffects(target); eff.visible = eff.visible === false;
     vis.classList.toggle('off', eff.visible === false); row.classList.toggle('fxoff', eff.visible === false); bus.emit('visibility'); bus.emit('render'); });
   row.append(star, nm, vis);
   row.addEventListener('click', (e) => { e.stopPropagation(); if (layDragSquelch) return;

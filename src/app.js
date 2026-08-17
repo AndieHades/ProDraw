@@ -15,7 +15,6 @@ import * as grid from './systems/grid.js';
 import * as tile from './systems/tile.js';
 import * as symmetryLines from './systems/symmetry-lines.js';
 import * as layersUI from './systems/layers/index.js';
-import * as brushLibrary from './systems/brush-library/index.js';
 import * as fontLibrary from './systems/font-library/index.js';
 import * as importSys from './systems/import/index.js';
 import * as importEditor from './systems/import/editor.js';
@@ -71,7 +70,7 @@ import './systems/tile-variants.js';
 import './systems/tilemap-export.js';
 import './systems/tilemap-paint/index.js';
 
-const MOUNTS = [palette, brushBar, brushResize, colorPicker, toolbars, grid, symmetryLines, layersUI, brushLibrary, fontLibrary, importSys, importEditor, exportSys, palManager, shading, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, toolpops, xMirror, tile, tilePalette, tilemapDialog, tilemapCreate, tilemapOverlay, tilesetMode, tileFromLayer, tilesetManager, textTool];
+const MOUNTS = [palette, brushBar, brushResize, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, palManager, shading, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, toolpops, xMirror, tile, tilePalette, tilemapDialog, tilemapCreate, tilemapOverlay, tilesetMode, tileFromLayer, tilesetManager, textTool];
 
 const px = (v, fallback = 0) => { const n = parseFloat(v); return Number.isFinite(n) ? n : fallback; };
 function sidebarMetrics() {
@@ -135,8 +134,9 @@ export function start() {
     onClose: () => $('palbar').classList.add('closed'), // крестик прячет палитру; вернуть — кружком цвета
     onHeaderDblClick: resetPaletteWindow,
     onResize: resizePaletteWindow });
-  resizeSidebar(px(window.getComputedStyle($('sidebar')).width, 50), sidebarMinHeight(50));
-  floatingWindow($('sidebar'), { grip: $('sb-grip'), handle: $('sb-rsz'), storeKey: 'sbwin', minW: 38, clampRight: 46, clampBottom: 60,
+  const defaultSidebarWidth = px(window.getComputedStyle($('sidebar')).width, 90);
+  resizeSidebar(defaultSidebarWidth, sidebarMinHeight(defaultSidebarWidth));
+  floatingWindow($('sidebar'), { grip: $('sb-grip'), handle: $('sb-rsz'), storeKey: 'sbwin-v2', minW: 38, clampRight: 46, clampBottom: 60,
     onResize: resizeSidebar }); // сайдбар — в общем порядке: последний тронутый сверху (без alwaysOnTop)
   $('topbar').addEventListener('pointerdown', () => { $('topbar').style.zIndex = nextFloatingZ(); }, true); // верхняя панель — в общий порядок, поднимается по тапу
   for (const id of ['selbar', 'cropbar', 'rotbar']) {

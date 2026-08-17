@@ -3,16 +3,12 @@ import * as bus from '../../core/bus.js';
 import * as actions from '../../core/actions.js';
 import { $, showMenuAt, t, toast } from '../../core/dom.js';
 import { floatingWindow } from '../../core/floating-window.js';
-import { snapshot } from '../../core/history.js';
-import { makeCanvas } from '../../core/canvas.js';
-import { markDirty } from '../../core/layer-cache.js';
-import { updateTextLayerGrid } from '../../core/text-layer.js';
-import { loadFonts, fontById, importFontFile, renameFont, deleteFont } from '../../core/font-store.js';
+import { loadFonts, importFontFile, renameFont, deleteFont } from '../../core/font-store.js';
 import { loadTextPrefs, saveTextPrefs } from '../../core/text-prefs.js';
-import { TEXT_IMPORT, TEXT_LETTER_SPACING, TEXT_LINE_SPACING, TEXT_SIZE, TEXT_STRETCH } from '../../config/text.js';
+import { TEXT_IMPORT, TEXT_LETTER_SPACING, TEXT_LINE_SPACING, TEXT_SIZE } from '../../config/text.js';
 import { rgbToHex } from '../../logic/color.js';
-import { clamp } from '../../logic/math.js';
-import { maxLineWidth } from '../../logic/text-layout.js';
+import { applyTextChange, snapshotTextChange } from './text-change.js';
+import { stretchedTextTransform } from './stretch.js';
 
 let fonts = [], prefs = loadTextPrefs(), menuFont = null, live = null;
 const activeText = () => S.layers[S.cur] && S.layers[S.cur].kind === 'text' ? S.layers[S.cur] : null;
@@ -28,9 +24,7 @@ function applyPatch(patch, hist = true) {
   const L = activeText();
   prefs = saveTextPrefs({ ...prefs, ...patch });
   if (L) {
-    if (hist) snapshot();
-    L.text = { ...L.text, ...patch };
-    updateTextLayerGrid(L, S.W, S.H, fonts); markDirty(S.cur);
+    applyTextChange(L, patch, fonts, hist);
     bus.emit('layers'); bus.emit('render');
   }
   syncControls(); renderFonts();
@@ -38,21 +32,13 @@ function applyPatch(patch, hist = true) {
 
 function applyTextPatch(patch) {
   const L = activeText(); if (!L) return;
-  snapshot(); L.text = { ...L.text, ...patch };
-  updateTextLayerGrid(L, S.W, S.H, fonts); markDirty(S.cur);
+  applyTextChange(L, patch, fonts);
   bus.emit('layers'); bus.emit('render'); syncControls();
-}
-
-function textWidth(src) {
-  const ctx = makeCanvas(1, 1).getContext('2d'), f = fontById(src.fontId, fonts);
-  ctx.font = `${src.size}px ${f.family}`;
-  return maxLineWidth(src, (line) => ctx.measureText(line).width);
 }
 
 function stretchText() {
   const L = activeText(); if (!L) return;
-  const sx = clamp(L.text.box.w / textWidth(L.text), TEXT_STRETCH.minScale, TEXT_STRETCH.maxScale);
-  applyTextPatch({ transform: { ...L.text.transform, scaleX: sx } });
+  applyTextPatch({ transform: stretchedTextTransform(L.text, fonts) });
 }
 
 function syncRange(id, value, conf) {
@@ -115,7 +101,8 @@ function menuAct(act) {
 }
 
 function setColor(hex) { applyPatch({ color: hex }, false); }
-function openColor() { snapshot(); actions.run('color.for', current().color, setColor); }
+function openColor() { snapshotTextChange(activeText());
+  actions.run('color.for', current().color, setColor); }
 function syncOpenColor() {
   if (activeText() && $('colpop').classList.contains('on') && !$('fx-edit').classList.contains('on')) actions.run('color.for', current().color, setColor);
 }
@@ -130,7 +117,7 @@ function open(force = false) {
 function bindRange(id, key) {
   $(id).addEventListener('pointerdown', () => { live = null; });
   $(id).addEventListener('input', () => {
-    if (activeText() && live !== id) { snapshot(); live = id; }
+    if (activeText() && live !== id) { snapshotTextChange(activeText()); live = id; }
     applyPatch({ [key]: +$(id).value }, false);
   });
   $(id).addEventListener('change', () => { live = null; });

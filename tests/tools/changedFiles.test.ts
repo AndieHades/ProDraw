@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { repositoryChangedFiles } from "../../tools/changed-files.mjs";
 
 const temporaryDirectories: string[] = [];
+const GIT_INTEGRATION_TIMEOUT_MS = 15_000;
 
 function git(cwd: string, args: readonly string[]): void {
   execFileSync("git", args, { cwd, stdio: "ignore" });
@@ -31,5 +32,5 @@ describe("repositoryChangedFiles", () => {
     await writeFile(path.join(root, "src", "new.ts"), "export {};\n");
 
     expect(repositoryChangedFiles(root)).toEqual(["docs/note.md", "src/new.ts"]);
-  });
+  }, GIT_INTEGRATION_TIMEOUT_MS);
 });

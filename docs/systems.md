@@ -18,11 +18,19 @@
 
 ## Current runtime inventory
 
-`src/main.ts` и `src/app/RasterEditorApp.ts` — единственная точка композиции
-drawing, viewport, autosave и export systems. `RasterEditorSession` владеет
-изменяемыми `RasterDocument`, `TileHistory`, viewport и выбранной кистью. UI
-отправляет `EditorCommand` и получает скопированные editor/layer/canvas view
-models; mutable document/history в presenters не передаются.
+Текущая Windows/web-поставка временно запускает восстановленный оригинальный
+shell по цепочке `index.html` → `src/legacy-entry.js` → `src/app.js`. Этот bridge
+остаётся production-путём до завершения `F3-R/UI-R`: он сохраняет gallery,
+layers, palette, reference и drag/drop, пока их владельцы по одному переводятся
+на typed RGBA contracts. Его dense grid не является целевой моделью и не может
+получать новые pixel-art зависимости.
+
+Параллельный target runtime начинается в `src/main.ts` и
+`src/app/RasterEditorApp.ts`. Там `RasterEditorSession` владеет изменяемыми
+`RasterDocument`, `TileHistory`, viewport и выбранной кистью. UI отправляет
+`EditorCommand` и получает скопированные editor/layer/canvas view models;
+mutable document/history в presenters не передаются. После parity transfer эта
+композиция заменит bridge за тем же оригинальным DOM, а не новым интерфейсом.
 
 `src/core/brush-library` владеет загрузкой наборов и ревизиями нативных пресетов;
 `src/ui/brushes` только отображает команды. В Windows `desktop/brush-ipc.mjs`
@@ -49,8 +57,9 @@ tile canvases до смены presentation revision. `TileHistory` ограни�
 [`performance-budgets`](project/performance-budgets.md).
 
 Архитектурные фикстуры запрещают DOM-типы в `src/contracts`, импорт mutable
-document/persistence в UI и композицию runtime systems вне `src/app`. Старый
-`src/app.js` вокруг глобального `S` не загружается и остаётся read-only oracle до
-явного parity transfer и удаления в R6.
+document/persistence в UI и композицию target systems вне `src/app`. Временный
+`src/app.js` вокруг глобального `S` проверяется legacy/module-int gates как
+production recovery bridge; после доказанного parity transfer он становится
+read-only oracle и удаляется только в R6.
 
 После `R6` этот раздел заменяется сгенерированным индексом production systems.

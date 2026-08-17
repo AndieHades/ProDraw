@@ -5,6 +5,8 @@ export const PERFORMANCE_BUDGETS = Object.freeze({
   warmCompositeP95Milliseconds: 16,
   pointerKernelP95Milliseconds: 8,
   inputToPresentP95Milliseconds: 16,
+  boundedEffectP95Milliseconds: 40,
+  structuralHistoryP95Milliseconds: 8,
   changedSerializationMilliseconds: 250,
   unchangedSerializationMilliseconds: 16,
   maximumTraceAllocatedBytes: 8 * 1024 * 1024,

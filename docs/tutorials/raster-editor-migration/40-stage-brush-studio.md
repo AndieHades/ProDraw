@@ -19,10 +19,11 @@ pressure/tilt produce smooth repeatable strokes on A4/4K documents.
   roundness, hardness, stabilization and pressure/tilt curves.
 - `R3.4` Use one renderer for document strokes, preview cards and scratch pad.
 - `R3.5` Add import/duplicate/rename/delete/reset/export and atomic persistence.
-- `R3.6` Build the Procreate-like set rail and brush grid with persistent folders,
-  drag/reorder, Recent, Favorites and one-time bundled `Main` seeding.
-- `R3.7` Match `04-brush-studio-ui-reference.md`: two-pane library, named live
-  stroke rows and compact resizable three-column Studio with draft Cancel/Apply.
+- `R3.6` Preserve the original compact floating brush grid with large circular
+  Shape+Grain tip imprints and its drag/reorder gestures; keep persistent physical folders,
+  Recent/Favorites metadata and one-time bundled `Main` seeding behind it.
+- `R3.7` Match `04-brush-studio-ui-reference.md`: original library shell plus a
+  compact resizable three-column Studio with draft Cancel/Apply.
 - `R3.8` Include only Stroke Path, Stabilization, Taper, Shape, Grain, Rendering,
   Dynamics, Huion Stylus, Properties, Preview and About sections.
 - `R3.9` Add screenshot-defined Stroke Path and Stabilization controls exactly;
@@ -168,3 +169,22 @@ The real-device procedure and evidence record are owned by
   91 TypeScript, 128 retained legacy and 5 performance tests; packaged smoke passed.
 - F5 trace checkpoint `4be1980` records actual/coalesced Windows Ink and exports
   it natively; 94 TypeScript, 128 legacy and 5 performance tests passed.
+- Current interactive repair: exported `shapeInverted`, `textureInverted` and
+  `textureContrast` are now applied while decoding Procreate Shape/Grain sources,
+  so Freckles, Screentone, Net and other source-backed brushes no longer render
+  with reversed masks. The hot sampler caches brush trig/seed data per loaded
+  preset; Brush Studio captures that same loaded brush for the whole stroke.
+- Drawing Pad presentation and stylus diagnostics are frame-coalesced. The
+  preserved production shell keeps fractional/coalesced Huion samples, loads the
+  persisted active brush before first input and rasterizes only the changed layer
+  rectangle. Automated gates cover source polarity/contrast, one-frame pad
+  presentation and a one-pixel dirty-region update; final acceptance remains the
+  manual Huion trace/device matrix plus the R2.11 tile-document cutover.
+- Source-fidelity checkpoint: Procreate Grain is retained at native 2048 px and
+  converted once into an area-filtered logical tile using `textureScale / 16`.
+  Screentone and Net no longer double their pattern period or lose thin dots and
+  diagonals during 256 px pre-downsampling. Known bundled shape identities stop
+  collapsing into one generic circle; the preserved shell cursor is an unfilled
+  alpha contour that retains inner holes and separate islands. Automated contour,
+  grain-period, archive-setting and production-spacing gates are present; visual
+  sign-off remains a packaged Windows/Huion check.

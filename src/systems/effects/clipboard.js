@@ -3,7 +3,7 @@
 // выбранные слои. Перенос/переупорядочивание — drag в списке (layers/fx-drag).
 import { S, cloneFx } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
-import { snapshot } from '../../core/history.js';
+import { snapshotEffects } from '../../core/history.js';
 import { $, showMenuBeside, toast, t } from '../../core/dom.js';
 import { openFxEdit } from './settings.js';
 import { convertFxToLayer } from './convert.js';
@@ -12,7 +12,8 @@ import { pasteTargets, getFxClip, setFxClip, ownerOf, selectedEffects } from './
 let ref = null; // { target, eff } — по какой строке открыто меню
 const refresh = () => { bus.emitDoc(); };
 
-export function deleteFx() { const list = selectedEffects(); if (!list.length) return; snapshot();
+export function deleteFx() { const list = selectedEffects(); if (!list.length) return;
+  snapshotEffects([...new Set(list.map(ownerOf).filter(Boolean))]);
   const top = list[list.length - 1], o0 = ownerOf(top); // что выбрать после: эффект НАД верхним удаляемым
   const above = o0 ? o0.effects[o0.effects.indexOf(top) + 1] : null;
   for (const e of list) { const o = ownerOf(e); if (o) { const i = o.effects.indexOf(e); if (i >= 0) o.effects.splice(i, 1); } }
@@ -21,7 +22,8 @@ export function deleteFx() { const list = selectedEffects(); if (!list.length) r
     if (oi >= 0) { S.cur = oi; S.selFolder = null; } else if (o0) S.selFolder = o0.id; }
   refresh(); }
 
-export function duplicateFx() { const list = selectedEffects(); if (!list.length) return; snapshot(); const made = new Set();
+export function duplicateFx() { const list = selectedEffects(); if (!list.length) return;
+  snapshotEffects([...new Set(list.map(ownerOf).filter(Boolean))]); const made = new Set();
   for (const e of list) { const o = ownerOf(e); if (!o) continue; const i = o.effects.indexOf(e); const c = cloneFx([e])[0];
     o.effects.splice(i + 1, 0, c); made.add(c); }
   S.fxSel = made; S.fxCur = [...made][0] || null; refresh(); }
@@ -36,7 +38,7 @@ export function copyEffectsOf(target) { const list = (target && target.effects) 
 export const hasFxClipboard = () => getFxClip().length > 0;
 
 export function pasteFx() { const clip = getFxClip(); if (!clip.length) { toast(t('toast.noFxClipboard')); return; }
-  const targets = pasteTargets(); if (!targets.length) return; snapshot();
+  const targets = pasteTargets(); if (!targets.length) return; snapshotEffects(targets);
   for (const tg of targets) tg.effects.push(...cloneFx(clip)); refresh(); toast(t('toast.fxPasted')); }
 
 export function openFxMenu(x, y, target, eff) {

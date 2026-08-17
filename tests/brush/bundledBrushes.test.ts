@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
 import { decodeProcreateBrush } from "../../src/core/brush/procreateBrush";
+import { brushTipCoverage } from "../../src/logic/brush/brushCoverage";
 import { sourceAsset } from "../../src/logic/brush/brushSourceAsset";
 
 describe("bundled brush catalog", () => {
@@ -12,7 +13,7 @@ describe("bundled brush catalog", () => {
     expect(BUNDLED_BRUSHES.every(({ sourceUrl }) => sourceUrl.length > 0)).toBe(true);
   });
 
-  it("isolates a real archive decode and reports honest fallbacks", async () => {
+  it("isolates a real archive decode and preserves its built-in shape", async () => {
     const preset = BUNDLED_BRUSHES.find(({ fileName }) =>
       fileName === "lineart.brush");
     expect(preset).toBeDefined();
@@ -29,6 +30,9 @@ describe("bundled brush catalog", () => {
     expect(loaded.compatibility.archiveName).toBe("LINEART");
     expect(loaded.stabilization.streamlineAmount).toBeCloseTo(0.6453877687);
     expect(loaded.stabilization.stabilizationAmount).toBeCloseTo(0.0584949069);
+    expect(loaded.shape.sourceName).toBe("Brush-Pocket-Brick.png");
+    expect(brushTipCoverage(loaded, 0.8, 0.8)).toBe(0);
+    expect(brushTipCoverage(loaded, 0.8, 0)).toBeGreaterThan(0);
     expect(loaded.warnings).toContain("built-in-shape-fallback");
     expect(loaded.warnings.every((warning) => !warning.startsWith("archive-fallback")))
       .toBe(true);

@@ -49,6 +49,13 @@ export interface BrushDynamics {
   readonly tiltToSize: number;
 }
 
+export interface BrushShapeSettings {
+  readonly hardness: number;
+  readonly angle: number;
+  readonly roundness: number;
+  readonly sourceName?: string;
+}
+
 export interface BrushSmudgeSettings {
   readonly flow: number;
   readonly pickup: number;
@@ -77,7 +84,7 @@ export interface BrushPreset {
   readonly strokePath: BrushStrokePath;
   readonly stabilization: BrushStabilization;
   readonly taper: { readonly start: number; readonly end: number; readonly pressure: number };
-  readonly shape: { readonly hardness: number; readonly angle: number; readonly roundness: number };
+  readonly shape: BrushShapeSettings;
   readonly grain: { readonly strength: number; readonly scale: number };
   readonly rendering: { readonly flow: number; readonly opacity: number };
   readonly dynamics: BrushDynamics;

@@ -16,6 +16,8 @@ export class RasterEdit {
   readonly #onClose: () => void;
   readonly #touched = new Map<string, TouchedTile>();
   #closed = false;
+  #lastTileX = -1;
+  #lastTileY = -1;
 
   constructor(surface: RasterSurface, label: string, onClose: () => void = () => undefined) {
     this.#surface = surface;
@@ -72,6 +74,8 @@ export class RasterEdit {
     this.assertOpen();
     const tileX = pixelTileCoordinate(x, this.#surface.tileSize);
     const tileY = pixelTileCoordinate(y, this.#surface.tileSize);
+    if (tileX === this.#lastTileX && tileY === this.#lastTileY) return;
+    this.#lastTileX = tileX; this.#lastTileY = tileY;
     const key = tileKey(tileX, tileY);
     if (!this.#touched.has(key)) {
       this.#touched.set(key, { x: tileX, y: tileY,

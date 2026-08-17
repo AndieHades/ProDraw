@@ -1,4 +1,5 @@
 import type { FileFilter, PlatformPort } from "../contracts/platform";
+import type { BrushDecoderPort } from "../contracts/brushDecoder";
 
 function acceptValue(filters?: readonly FileFilter[]): string {
   return filters?.flatMap((filter) => filter.extensions)
@@ -20,10 +21,11 @@ async function openWithInput(filters?: readonly FileFilter[]) {
   });
 }
 
-export function createWebPlatform(): PlatformPort {
+export function createWebPlatform(brushDecoder: BrushDecoderPort): PlatformPort {
   return {
     kind: "web",
     brushStorage: null,
+    brushDecoder,
     async openBinary(filters) {
       const file = await openWithInput(filters);
       if (!file) return null;

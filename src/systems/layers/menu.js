@@ -4,12 +4,14 @@ import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
 import * as actions from '../../core/actions.js';
 import { $, showMenuBeside } from '../../core/dom.js';
-import { snapshot } from '../../core/history.js';
-import { markDirty } from '../../core/layer-cache.js';
 import { t } from '../../i18n/index.js';
 import { folderLayers } from './helpers.js';
 import { isTilemap } from '../../core/tilemap.js';
-import { clearLayerContent, duplicateLayer, duplicateFolder, symmetrizeLayerRefs, toggleLock, toggleAlphaLock, toggleClip, toggleReference, deleteLayerRef, deleteFolder } from './ops.js';
+import { clearLayerRefs, duplicateLayer, duplicateFolder, symmetrizeLayerRefs,
+  toggleLock, toggleAlphaLock, toggleClip, toggleReference, deleteLayerRef,
+  deleteFolder, ungroupFolder } from './ops.js';
+import { renameMetadata } from './metadata.js';
+import { fillWholeLayerRefs } from './fill.js';
 
 let lctxRef = null, renRef = null;
 const targets = () => (!lctxRef ? [] : (lctxRef.kind === 'folder' ? folderLayers(lctxRef.ref) : [lctxRef.ref])).filter((L) => S.layers.includes(L));
@@ -59,13 +61,9 @@ export function mountMenu() {
   $('lctx-select').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer') { curTo(lctxRef.ref); actions.run('selection.layer'); } };
   $('lctx-invert').onclick = () => { close(); if (canInvert()) { curTo(lctxRef.ref); actions.run('selection.invert'); } };
   $('lctx-fill').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'background') { actions.run('bg.fill'); return; }
-    const ts = targets(); if (!ts.length) return; snapshot(); const a = [S.active[0], S.active[1], S.active[2], 255];
-    for (const L of ts) { for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) L.grid[y][x] = a.slice(); L.ext = new Map(); markDirty(S.layers.indexOf(L)); }
-    actions.run('color.used', S.active); bus.emitDoc(); };
+    fillWholeLayerRefs(targets(), S.active); };
   $('lctx-clear').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'background') { actions.run('bg.clear'); return; }
-    const ts = targets(); if (!ts.length) return; snapshot();
-    let changed = false; for (const L of ts) changed = clearLayerContent(L) || changed;
-    if (changed) bus.emitDoc(); };
+    clearLayerRefs(targets()); };
   $('lctx-symm').onclick = () => { close(); symmetrizeLayerRefs(targets()); };
   $('lctx-rotate').onclick = () => { close(); const ts = targets(); if (ts.length) actions.run('transform.enterTargets', ts); };
   $('lctx-copy-fx').onclick = () => { close(); if (canCopyFx()) actions.run('fx.copyAll', lctxRef.ref); };
@@ -81,11 +79,11 @@ export function mountMenu() {
   $('lctx-del').onclick = () => { close(); if (!lctxRef) return; if (lctxRef.kind === 'folder') deleteFolder(lctxRef.ref); else deleteLayerRef(lctxRef.ref); };
   $('lctx-png-full').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer') actions.run('export.layer', lctxRef.ref, false); };
   $('lctx-png-tight').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer') actions.run('export.layer', lctxRef.ref, true); };
-  $('lctx-ung').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'folder') { snapshot(); const f = lctxRef.ref; // расформировать: содержимое — на уровень выше
-    S.layers.forEach((L) => { if (L.fid === f.id) L.fid = f.parent ?? null; });
-    S.folders.forEach((sf) => { if (sf.parent === f.id) sf.parent = f.parent ?? null; });
-    S.folders = S.folders.filter((x) => x !== f); bus.emitDoc(); } };
-  $('ren-ok').onclick = () => { if (renRef) { const v = $('ren-name').value.trim(); if (v) { snapshot(); renRef.name = v.slice(0, 24); bus.emit('layers'); } } renRef = null; $('ren-ovl').classList.remove('on'); };
+  $('lctx-ung').onclick = () => { close();
+    if (lctxRef?.kind === 'folder') ungroupFolder(lctxRef.ref); };
+  $('ren-ok').onclick = () => { if (renRef) { const v = $('ren-name').value.trim();
+    if (v && renameMetadata(renRef, v.slice(0, 24))) bus.emit('layers'); }
+    renRef = null; $('ren-ovl').classList.remove('on'); };
   $('ren-cancel').onclick = () => { renRef = null; $('ren-ovl').classList.remove('on'); };
   $('ren-name').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('ren-ok').click(); });
 }

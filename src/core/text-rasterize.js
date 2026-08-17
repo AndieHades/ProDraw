@@ -1,16 +1,20 @@
 import { S } from './state.js';
 import * as bus from './bus.js';
-import { snapshot } from './history.js';
+import { snapshotRasterReferences } from './history.js';
 import { markDirty } from './layer-cache.js';
-import { rasterizeTextLayer } from './text-layer.js';
+import { rasterizeTextLayer, textLayerBounds } from './text-layer.js';
 import { isTextLayer } from '../logic/text-model.js';
+import { gridBoundsMetadata, setGridBounds } from '../logic/raster.js';
 
 export function rasterizeTextAt(index, opts = {}) {
   const L = S.layers[index];
   if (!isTextLayer(L)) return false;
-  if (opts.history) snapshot();
+  if (opts.history && !snapshotRasterReferences([index])) return false;
+  const damage = textLayerBounds(L, S.W, S.H);
   rasterizeTextLayer(L, S.W, S.H, opts.fonts);
-  markDirty(index);
+  const bounds = gridBoundsMetadata(L.grid);
+  markDirty(index, damage);
+  if (bounds) setGridBounds(L.grid, bounds.bounds, bounds.exact);
   if (opts.emit) bus.emitDoc();
   return true;
 }
@@ -22,10 +26,14 @@ export function rasterizeTextTargets(targets, opts = {}) {
 }
 
 export function rasterizeMatchingText(predicate, opts = {}) {
-  let hit = false;
-  S.layers.forEach((L, i) => {
-    if (isTextLayer(L) && predicate(L, i)) hit = rasterizeTextAt(i, { ...opts, emit: false }) || hit;
+  const indices = [];
+  S.layers.forEach((layer, index) => {
+    if (isTextLayer(layer) && predicate(layer, index)) indices.push(index);
   });
+  if (!indices.length || (opts.history && !snapshotRasterReferences(indices))) return false;
+  let hit = false;
+  for (const index of indices) hit = rasterizeTextAt(index,
+    { ...opts, history: false, emit: false }) || hit;
   if (hit && opts.emit) bus.emitDoc();
   return hit;
 }

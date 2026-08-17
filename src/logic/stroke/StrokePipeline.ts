@@ -1,9 +1,16 @@
 import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
 import type { StrokeSample } from "../../contracts/stroke";
-import { interpolateStrokeSegment } from "./interpolateStroke";
-import { applyStylusResponse } from "./pressureResponse";
-import { strokeRandom } from "../brush/strokeRandom";
-import { StrokeStabilizer } from "./StrokeStabilizer";
+import { interpolateStrokeSegment } from "./interpolateStroke.ts";
+import { applyStylusResponse } from "./pressureResponse.ts";
+import { strokeRandom } from "../brush/strokeRandom.ts";
+import { StrokeStabilizer } from "./StrokeStabilizer.ts";
+import rasterConfig from "../../config/brush-raster.json" with { type: "json" };
+
+export function rasterDabSpacing(size: number, requested: number): number {
+  return Math.max(rasterConfig.dabSpacing.minimumPixels,
+    Math.max(1, size) * rasterConfig.dabSpacing.minimumSizeRatio,
+    Math.max(1, size) * requested);
+}
 
 export class StrokePipeline {
   readonly #brush: BrushPreset | LoadedBrush;
@@ -19,7 +26,7 @@ export class StrokePipeline {
   constructor(brush: BrushPreset | LoadedBrush, size: number) {
     this.#brush = brush;
     this.#size = Math.max(1, size);
-    this.#spacing = Math.max(0.25, size * brush.strokePath.spacing);
+    this.#spacing = rasterDabSpacing(size, brush.strokePath.spacing);
     this.#stabilizer = new StrokeStabilizer(brush.stabilization, size);
   }
 
@@ -38,7 +45,8 @@ export class StrokePipeline {
       const spacing = this.#spacing * (1 + (strokeRandom(this.#brush.id,
         this.#segment, 1) * 2 - 1) * this.#brush.strokePath.spacingJitter);
       const interpolated = this.#last
-        ? interpolateStrokeSegment(this.#last, point, Math.max(0.25, spacing)) : [point];
+        ? interpolateStrokeSegment(this.#last, point,
+          rasterDabSpacing(this.#size, spacing / this.#size)) : [point];
       for (const [index, sample] of interpolated.entries()) {
         output.push(this.plan(sample, finishing && index === interpolated.length - 1));
       }

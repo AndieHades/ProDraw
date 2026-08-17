@@ -22,19 +22,26 @@ export function rotFrame(m) { if (!m) return null;
     { kind: 'scale-y', sign: 1, p: { x: (p[2].x + p[3].x) / 2, y: (p[2].y + p[3].y) / 2 } },
     { kind: 'scale-x', sign: -1, p: { x: (p[3].x + p[0].x) / 2, y: (p[3].y + p[0].y) / 2 } } ] }; }
 
-export function rotBuildCells(m, src) { const f = rotFrame(m), xs = f.p.map((p) => p.x), ys = f.p.map((p) => p.y);
+function sourceFrame(m, bounds) { if (!bounds) return rotFrame(m);
+  const x0 = bounds.minx, y0 = bounds.miny, x1 = bounds.maxx + 1, y1 = bounds.maxy + 1;
+  const p = [rotLocalToWorld(m, x0, y0), rotLocalToWorld(m, x1, y0),
+    rotLocalToWorld(m, x1, y1), rotLocalToWorld(m, x0, y1)]; return { p };
+}
+
+export function rotBuildCells(m, src, sourceBounds = null) { const f = sourceFrame(m, sourceBounds), xs = f.p.map((p) => p.x), ys = f.p.map((p) => p.y);
   const x0 = Math.floor(Math.min(...xs)) - 1, x1 = Math.ceil(Math.max(...xs)) + 1, y0 = Math.floor(Math.min(...ys)) - 1, y1 = Math.ceil(Math.max(...ys)) + 1;
   const cells = []; let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
   for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
     const q = rotWorldToLocal(m, x + 0.5, y + 0.5), sx = Math.floor(q.x), sy = Math.floor(q.y);
     if (sx < 0 || sy < 0 || sx >= m.b.w || sy >= m.b.h) continue;
-    const c = src[sy][sx]; if (!c) continue;
+    const c = src[sy]?.[sx]; if (!c) continue;
     cells.push([x, y, c]); if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
   return cells.length ? { cells, minx, miny, maxx, maxy } : null; }
 
 // результат трансформации + его зеркальные копии (m.sym = {sx,sy}); источник —
 // одна сторона, зеркала достраиваются → перенос/масштаб/поворот выходят симметричными
-export function rotBuildCellsSym(m, src, W, H) { const r = rotBuildCells(m, src), sx = m.sym && m.sym.sx, sy = m.sym && m.sym.sy;
+export function rotBuildCellsSym(m, src, W, H, sourceBounds = null) {
+  const r = rotBuildCells(m, src, sourceBounds), sx = m.sym && m.sym.sx, sy = m.sym && m.sym.sy;
   if (!r || (!sx && !sy)) return r;
   const seen = new Set(), cells = []; let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
   const put = (x, y, c) => { if (x < 0 || y < 0 || x >= W || y >= H) return; const k = x + ',' + y; if (seen.has(k)) return; seen.add(k);

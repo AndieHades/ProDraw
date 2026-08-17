@@ -2,7 +2,7 @@
 // собой и внутрь папки. Зеркало fx-drag.js, но для слоёв и групп.
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
-import { snapshot } from '../../core/history.js';
+import { snapshotStructure } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { folderChain } from '../../core/layers.js';
 import { topOfFolder, folderLayers, folderInsertIndex, clearFolderEmptyPos, rememberEmptyFolderPositions } from './helpers.js';
@@ -30,7 +30,7 @@ export function layDrop(src, row, into, below) { const tIsFolder = row.classList
     if (tL && block.includes(tL)) return;
     const movedIdx = block.map((L) => S.layers.indexOf(L)).filter((i) => i >= 0);
     const restoreEmptyFolders = rememberEmptyFolderPositions(movedIdx);
-    snapshot();
+    snapshotStructure();
     for (const L of block) { const i = S.layers.indexOf(L); if (i >= 0) S.layers.splice(i, 1); }
     const dstFid = tIsFolder ? (into ? tFid : null) : (tL ? tL.fid : null);
     for (const L of block) L.fid = dstFid;
@@ -43,7 +43,7 @@ export function layDrop(src, row, into, below) { const tIsFolder = row.classList
     const tL = tIsFolder ? null : S.layers[+row.dataset.li], tFid = tIsFolder ? +row.dataset.fid : null;
     if (tIsFolder && foldersToMove.some((f) => f.id === +row.dataset.fid)) return;
     if (foldersToMove.some((f) => (tL && folderChain(tL.fid).some((x) => x.id === f.id)) || (tFid != null && folderChain(tFid).some((x) => x.id === f.id)))) return;
-    snapshot(); const block = [];
+    snapshotStructure(); const block = [];
     for (let i = S.layers.length - 1; i >= 0; i--) if (foldersToMove.some((f) => folderChain(S.layers[i].fid).some((x) => x.id === f.id))) block.unshift(S.layers.splice(i, 1)[0]);
     const newParent = tIsFolder ? (into ? tFid : (S.folders.find((f) => f.id === tFid)?.parent ?? null)) : (tL ? (tL.fid ?? null) : null);
     for (const f of foldersToMove) f.parent = newParent;
@@ -54,4 +54,4 @@ export function layDrop(src, row, into, below) { const tIsFolder = row.classList
     for (const f of foldersToMove) if (block.length) delete f.emptyPos;
     clearFolderEmptyPos(newParent);
     S.cur = Math.min(S.cur, S.layers.length - 1); S.markedFolders = new Set(foldersToMove.map((f) => f.id)); S.selFolder = foldersToMove[0] ? foldersToMove[0].id : null; S.marked.clear(); }
-  dirtyAll(); bus.emitDoc(); }
+  dirtyAll({ preserveGridBounds: true }); bus.emitDoc(); }

@@ -8,8 +8,8 @@ import { $, toast, t } from '../core/dom.js';
 import { rgb, rgbToHex, hexToRgb, eqc } from '../logic/color.js';
 import { sortPalette } from '../logic/palette-sort.js';
 import { setTool } from '../core/tools.js';
-import { effVis } from '../core/layers.js';
 import { initPaletteSelect, wireSwatch, clearPaletteSelection, selectedPaletteColors, validSel } from './palette-select.js';
+import { usedColorKeys } from './palette-used-colors.js';
 import { attachReorder } from '../core/reorder-drag.js';
 
 let showUsed = false;
@@ -25,17 +25,10 @@ function syncShadingButton() {
   btn.classList.toggle('on', on); btn.disabled = !on && !canStart;
 }
 
-function usedColorKeys() { const keys = new Set();
-  for (let i = 0; i < S.layers.length; i++) { const L = S.layers[i]; if (!L || !effVis(i) || L.opacity <= 0) continue;
-    for (const row of L.grid) for (const c of row) if (c && c[3] > 0) keys.add(colorKey(c));
-    for (const c of (L.ext || new Map()).values()) if (c && c[3] > 0) keys.add(colorKey(c)); }
-  return keys;
-}
-
 // «использованные» в реальном времени: при включённом showUsed обновляем только
 // классы .used на готовых свотчах (без пересборки DOM каждый кадр рисования)
 function refreshUsed() {
-  if (!showUsed) return;
+  if (!showUsed || S.stroke) return;
   const used = usedColorKeys();
   for (const b of $('pal').querySelectorAll('.sw:not(.plus)')) {
     const c = S.palette[+b.dataset.i]; b.classList.toggle('used', !!(c && used.has(colorKey(c))));

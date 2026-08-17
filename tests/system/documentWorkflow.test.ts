@@ -7,6 +7,7 @@ import type { PlatformPort } from "../../src/contracts/platform";
 import { createRasterDocument } from "../../src/core/document/createRasterDocument";
 import { DocumentRepository } from "../../src/core/persistence/DocumentRepository";
 import { decodeNativeDocument } from "../../src/core/persistence/nativeDocumentFile";
+import { decodeProcreateBrush } from "../../src/core/brush/procreateBrush";
 
 describe("document workflow", () => {
   it("guards replacement, reuses Save path and flushes before close", async () => {
@@ -24,6 +25,7 @@ describe("document workflow", () => {
       return true;
     });
     const platform: PlatformPort = { kind: "windows", brushStorage: null,
+      brushDecoder: { decode: decodeProcreateBrush },
       openBinary: async () => openedBytes ? { name: "Reopened.prodraw",
         location: "C:\\Art\\Reopened.prodraw", bytes: openedBytes } : null, saveBinary,
       writeBinary, confirmDiscard: async () => confirm,

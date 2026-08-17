@@ -7,6 +7,7 @@ import { setTool } from '../../core/tools.js';
 import * as bus from '../../core/bus.js';
 import { ADJUST_MODES, ICONS } from '../../config/toolbar.js';
 import { strokeSeen } from './seen.js';
+import { recordPixelBefore } from '../../core/history.js';
 
 const mix = (a, b, t) => Math.max(0, Math.min(255, Math.round(a + (b - a) * t)));
 const byMode = (mode) => ADJUST_MODES.find((m) => m.mode === mode) || ADJUST_MODES[0];
@@ -61,23 +62,34 @@ function buildChoice() {
   }
 }
 
-export function adjustCell(x, y) {
+function writeCell(x, y) {
   if (x < 0 || y < 0 || x >= S.W || y >= S.H || !inSel(x, y)) return;
   if (S.layers[S.cur].lock) return;
   const key = y * S.W + x; if (strokeSeen.has(key)) return; strokeSeen.add(key);
   const g = G(), c = g[y][x]; if (!c) return;
   const a = c.length > 3 ? c[3] : 255, t = S.adjAmt / 100;
   const target = targetColor(c);
-  g[y][x] = [mix(c[0], target[0], t), mix(c[1], target[1], t), mix(c[2], target[2], t), a]; markDirty(S.cur);
+  recordPixelBefore(S.cur, x, y, c);
+  g[y][x] = [mix(c[0], target[0], t), mix(c[1], target[1], t), mix(c[2], target[2], t), a];
+  return true;
+}
+
+export function adjustCell(x, y) {
+  if (writeCell(x, y)) markDirty(S.cur, { minx: x, miny: y, maxx: x, maxy: y });
 }
 
 export function adjustStamp(x, y) {
   const sz = S.brushes.pencil.size, off = sz >> 1, sa = symA(), sha = symHA();
+  let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+  const put = (px, py) => { if (!writeCell(px, py)) return;
+    if (px < minx) minx = px; if (px > maxx) maxx = px;
+    if (py < miny) miny = py; if (py > maxy) maxy = py; };
   for (let dy = 0; dy < sz; dy++) for (let dx = 0; dx < sz; dx++) { const xx = x - off + dx, yy = y - off + dy;
-    adjustCell(xx, yy); const mx = S.W - 1 - xx, my = S.H - 1 - yy;
-    if (sa && mx !== xx) adjustCell(mx, yy);
-    if (sha && my !== yy) adjustCell(xx, my);
-    if (sa && sha && mx !== xx && my !== yy) adjustCell(mx, my); }
+    put(xx, yy); const mx = S.W - 1 - xx, my = S.H - 1 - yy;
+    if (sa && mx !== xx) put(mx, yy);
+    if (sha && my !== yy) put(xx, my);
+    if (sa && sha && mx !== xx && my !== yy) put(mx, my); }
+  if (maxx >= minx) markDirty(S.cur, { minx, miny, maxx, maxy });
 }
 
 export function mount() {

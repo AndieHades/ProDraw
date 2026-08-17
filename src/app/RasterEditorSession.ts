@@ -5,6 +5,7 @@ import type { DocumentSessionSnapshot } from "../contracts/persistence";
 import type { RasterSize } from "../contracts/raster";
 import type { ViewState } from "../contracts/view";
 import type { BrushLibraryStoragePort } from "../contracts/brushStorage";
+import type { BrushDecoderPort } from "../contracts/brushDecoder";
 import { VIEW_INPUT } from "../config/input";
 import { BrushCatalog } from "../core/brush/BrushCatalog";
 import { createRasterDocument } from "../core/document/createRasterDocument";
@@ -27,9 +28,9 @@ export class RasterEditorSession {
     brushStorage: BrushLibraryStoragePort | null,
     session: DocumentSessionSnapshot = {
       revision: 0, savedRevision: 0, nativeLocation: null
-    }) {
+    }, decoder?: BrushDecoderPort) {
     this.#document = document;
-    this.#catalog = new BrushCatalog(brushStorage);
+    this.#catalog = new BrushCatalog(brushStorage, decoder);
     this.#brush = brush;
     this.#view = fitView(document.descriptor, viewport);
     this.#session = session;

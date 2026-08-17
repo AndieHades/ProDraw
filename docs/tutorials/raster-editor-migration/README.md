@@ -2,25 +2,33 @@
 
 Status: `in_progress`
 
-Evidence baseline: `main@6bcfdaa`, 2026-08-16.
+Evidence baseline: `main@cea5370`, 2026-08-16.
 
 Canonical owner: this package.
 
 ## Resume Here
 
-- Current stage: `R2 — original interface and feature parity recovery`
+- Current stage: `R2 / R2.11 — typed RGBA owner cutover behind the restored UI`
 - Status: `in_progress`
-- Last completed stage: repair slice `F4`; F5 input and trace checkpoints are complete
-- Next action: restore the original living shell around `RasterEditorApp`, then
-  finish the physical Huion matrix and behaviour parity through F6..F9
+- Last completed stage: `F3-R1..F3-R5` and the bounded P1
+  merge/document-remap recovery; F5 input and trace checkpoints remain complete
+- Next action: replace the temporary `src/app.js` grid bridge one owner at a
+  time with typed `RasterSurface`/`RasterEdit`/`TileHistory` contracts while
+  preserving the restored DOM, panels and drag/drop behavior exactly
 - Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace;
-  R2 product acceptance is revoked until the original UI is restored
-- Working paths: `index.html`, `src/ui`, `src/styles`, `src/config`,
-  `tests/system`, `test/module-int.mjs`
-- Last checks: F5 trace checkpoint full validate passed with 94 TS, 128 retained legacy
-  and 5 performance tests. Packaged renderer smoke loaded all 12 brushes, 8
-  Shape/Grain resources and the RGBA scenario.
-- Last updated: `2026-08-16, main@4be1980`
+  R2 engine acceptance remains revoked until the restored UI uses typed RGBA owners
+- Working paths: `src/app.js`, `src/raster-main.ts`, `src/core`, `src/systems`,
+  `src/ui`, `tests/system`, `tests/performance`, `test/module-int.mjs`
+- Last checks: focused checks pass for brush 22, bounded effects/bulk/autosave/
+  render 20, selection 11, text 16, transform 11, text callers 22, palette 3,
+  sparse backing 18, effect surfaces 21, document remap 8 and layer merge 12.
+  Legacy 128 unit, storage/reconnect, 441 module-integration and module-boot
+  checks passed; the gallery New/Open matrix covers startup, immediate create,
+  rapid repeat input, persistence and active-stroke cancellation;
+  the aggregate TypeScript suite passed 80 files/202 checks and the sequential
+  performance suite passed 17 files/52 checks. `npm run validate` and a fresh
+  packaged Windows smoke passed (`12` brushes, `8` sources, alpha `255`).
+- Last updated: `2026-08-17, gallery New/Open lifecycle hardened after main@cea5370`
 
 ## Product Outcome
 
@@ -36,10 +44,11 @@ Included:
 - `BRH-01`: 12 кистей `src/app-folders/brushes/main` загружаются и рисуют.
 - `BRH-02`: Brush Studio управляет shape, grain, spacing, flow, opacity,
   scatter, angle, roundness, pressure, tilt и stabilization.
-- `BRH-03`: библиотека повторяет Procreate-модель наборов: папки, порядок,
-  drag/reorder, rename/duplicate/import/export, recent и favorites.
-- `BRH-04`: Brush Library/Studio follows the recorded two-pane/three-column
-  reference UI and omits Wet Mix, Color Dynamics and Materials.
+- `BRH-03`: библиотека сохраняет исходную компактную панель ProDraw, круглые
+  engine-превью с видимыми названиями и прежний drag/reorder; физические папки продолжают владеть
+  файлами, дубликат остаётся рядом с исходной кистью.
+- `BRH-04`: original compact Brush Library plus three-column Brush Studio follow
+  the recorded UI and omit Wet Mix, Color Dynamics and Materials.
 - `STB-01`: стабилизация уровня Procreate предлагает StreamLine, trajectory
   stabilization, motion filtering и pressure smoothing без потери точки/хвоста.
 - `SMG-01`: отдельный инструмент Smudge («Палец») смешивает локальный пигмент
@@ -105,10 +114,11 @@ Excluded:
 6. [`06-live-audit-2026-08-16.md`](06-live-audit-2026-08-16.md)
 7. [`07-remediation-plan.md`](07-remediation-plan.md)
 8. The current stage chapter
-9. [`41-huion-device-matrix.md`](41-huion-device-matrix.md) for F5 evidence
-10. [`08-interface-feature-parity.md`](08-interface-feature-parity.md) for the
+9. [`09-production-performance-audit-2026-08-16.md`](09-production-performance-audit-2026-08-16.md)
+10. [`41-huion-device-matrix.md`](41-huion-device-matrix.md) for F5 evidence
+11. [`08-interface-feature-parity.md`](08-interface-feature-parity.md) for the
     original UI and complete non-pixelizer behaviour oracle
-11. [`90-verification.md`](90-verification.md)
+12. [`90-verification.md`](90-verification.md)
 
 ## Delivery Order
 

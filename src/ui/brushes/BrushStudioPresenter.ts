@@ -15,6 +15,7 @@ import {
 import { requiredElement } from "../dom/query";
 import { BrushControlPresenter } from "./BrushControlPresenter";
 import { BrushStudioPad } from "./BrushStudioPad";
+import { BrushStudioStylusDiagnostics } from "./BrushStudioStylusDiagnostics";
 import { BrushStudioTracePresenter } from "./BrushStudioTracePresenter";
 import { BrushSourceLibraryPresenter } from "./BrushSourceLibraryPresenter";
 
@@ -22,7 +23,8 @@ export class BrushStudioPresenter {
   readonly #dialog = requiredElement<HTMLDialogElement>("#brush-studio-dialog");
   readonly #name = requiredElement<HTMLElement>("#studio-brush-name");
   readonly #sections = requiredElement<HTMLElement>("#studio-sections");
-  readonly #diagnostics = requiredElement<HTMLElement>("#stylus-diagnostics");
+  readonly #diagnostics = new BrushStudioStylusDiagnostics(
+    requiredElement<HTMLElement>("#stylus-diagnostics"));
   readonly #controls: BrushControlPresenter;
   readonly #pad: BrushStudioPad;
   readonly #sourceLibrary: BrushSourceLibraryPresenter;
@@ -45,11 +47,7 @@ export class BrushStudioPresenter {
       (kind) => this.openSource(kind));
     this.#sourceLibrary = new BrushSourceLibraryPresenter(getBrushes, load);
     this.#pad = new BrushStudioPad(requiredElement("#studio-pad"),
-      () => this.renderingBrush(), (sample) => {
-        this.#diagnostics.textContent = `${t("studio.pressure")} ${sample.pressure.toFixed(2)} · ` +
-          `${t("studio.tilt")} ${sample.tiltX}° / ${sample.tiltY}° · ` +
-          `${t("studio.buttons")} ${sample.buttons}`;
-      });
+      () => this.renderingBrush(), (sample) => this.#diagnostics.show(sample));
     new BrushStudioTracePresenter(requiredElement("#studio-pad"),
       () => this.renderingBrush(), saveTrace);
     requiredElement("#studio-apply").addEventListener("click", () => void this.apply());

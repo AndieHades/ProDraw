@@ -1,6 +1,7 @@
 import type {
   BrushLibraryStoragePort, DesktopBrushStorageBridge
 } from "./brushStorage";
+import type { BrushDecoderPort } from "./brushDecoder";
 
 export type PlatformKind = "web" | "windows";
 
@@ -36,6 +37,7 @@ export interface ConfirmDiscardRequest {
 export interface PlatformPort {
   readonly kind: PlatformKind;
   readonly brushStorage: BrushLibraryStoragePort | null;
+  readonly brushDecoder: BrushDecoderPort;
   openBinary(filters?: readonly FileFilter[]): Promise<OpenedBinaryFile | null>;
   saveBinary(request: SaveBinaryRequest): Promise<SavedBinaryFile | null>;
   writeBinary(location: string, bytes: Uint8Array<ArrayBuffer>): Promise<boolean>;

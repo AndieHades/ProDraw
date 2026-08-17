@@ -1,7 +1,9 @@
 import { ruBrushSource } from "./ruBrushSource";
+import { ruCanvasPreset } from "./ruCanvasPreset";
 
 export const ru = {
   ...ruBrushSource,
+  ...ruCanvasPreset,
   "action.new": "Новый холст",
   "action.open": "Открыть",
   "action.save": "Сохранить",

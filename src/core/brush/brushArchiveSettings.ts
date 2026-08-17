@@ -8,10 +8,11 @@ const supported = new Set([
   "dynamicsFalloff", "plotSmoothing", "plotMovingAverageStabilization",
   "plotFFTSmoothingAmount", "plotFFTSmoothingBias", "taperStartLength",
   "taperEndLength", "taperPressure", "shapeScatter", "shapeAngle",
-  "shapeRoundness", "grainDepth", "textureScale", "dynamicsGlazedFlow",
+  "shapeRoundness", "shapeInverted", "grainDepth", "textureScale",
+  "textureInverted", "textureContrast", "textureBrightness", "dynamicsGlazedFlow",
   "maxOpacity", "dynamicsPressureSize", "dynamicsPressureOpacity",
   "dynamicsTiltSize", "smudgeStrength", "smudgePickup", "smudgeFlow",
-  "maxSize", "minSize"
+  "maxSize", "minSize", "bundledShapePath"
 ]);
 const metadata = /^(?:\$class|name|version|author|creation|bundled|saved|preview|hover|erase|paint|color|signature)/i;
 const excluded = /(?:wet|mix|bleed|hue|saturation|brightness|lightness|darkness|secondaryColor|metallic|roughness|height)/i;
@@ -37,6 +38,18 @@ function angle(value: number): number {
   return ((value + Math.PI) % turn + turn) % turn - Math.PI;
 }
 
+function bundledShape(root: Readonly<Record<string, BinaryPlistValue>>): string | undefined {
+  const value = root.bundledShapePath;
+  return typeof value === "string" && value !== "$null" ? value : undefined;
+}
+
+function bundledHardness(name: string | undefined, fallback: number): number {
+  if (!name) return fallback;
+  if (/preset-hard/i.test(name)) return 1;
+  if (/preset-soft|ultra-soft/i.test(name)) return 0;
+  return fallback;
+}
+
 export interface ArchiveBrushResult {
   readonly preset: BrushPreset;
   readonly compatibility: BrushCompatibilityReport;
@@ -47,6 +60,7 @@ export function applyBrushArchiveSettings(
   root: Readonly<Record<string, BinaryPlistValue>>,
   hasGrainAsset: boolean
 ): ArchiveBrushResult {
+  const shapeSource = bundledShape(root);
   const maximumSizeValue = numeric(root, "maxSize", -1);
   const maximumSize = maximumSizeValue > 0
     ? clamp(maximumSizeValue * 1_000, 1, 2_000) : preset.properties.maximumSize;
@@ -81,8 +95,10 @@ export function applyBrushArchiveSettings(
       end: clamp(numeric(root, "taperEndLength", preset.taper.end), 0, 1),
       pressure: clamp(numeric(root, "taperPressure", preset.taper.pressure), 0, 1) },
     shape: { ...preset.shape,
+      hardness: bundledHardness(shapeSource, preset.shape.hardness),
       angle: angle(numeric(root, "shapeAngle", preset.shape.angle)),
-      roundness: clamp(numeric(root, "shapeRoundness", preset.shape.roundness), 0.05, 1) },
+      roundness: clamp(numeric(root, "shapeRoundness", preset.shape.roundness), 0.05, 1),
+      ...(shapeSource ? { sourceName: shapeSource } : {}) },
     grain: { strength: hasGrainAsset
       ? clamp(numeric(root, "grainDepth", preset.grain.strength), 0, 1)
       : preset.grain.strength,

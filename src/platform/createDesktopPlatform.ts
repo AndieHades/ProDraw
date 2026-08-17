@@ -1,8 +1,13 @@
 import type { DesktopBridge, PlatformPort } from "../contracts/platform";
+import type { BrushDecoderPort } from "../contracts/brushDecoder";
 
-export function createDesktopPlatform(bridge: DesktopBridge): PlatformPort {
+export function createDesktopPlatform(
+  bridge: DesktopBridge,
+  brushDecoder: BrushDecoderPort
+): PlatformPort {
   return {
     kind: "windows",
+    brushDecoder,
     brushStorage: {
       ensureSeeded: (setName, files) => bridge.brushStorage.ensureSeeded(setName,
         files.map((file) => ({ fileName: file.fileName, bytes: file.bytes.buffer }))),

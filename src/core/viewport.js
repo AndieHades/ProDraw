@@ -3,5 +3,8 @@
 import { S } from './state.js';
 import { $ } from './dom.js';
 
-export function gridAt(clientX, clientY) { const r = $('cv').getBoundingClientRect();
-  return [Math.floor((clientX - r.left - S.view.ox) / S.view.zoom), Math.floor((clientY - r.top - S.view.oy) / S.view.zoom)]; }
+export function canvasAt(clientX, clientY) { const r = $('cv').getBoundingClientRect();
+  return [(clientX - r.left - S.view.ox) / S.view.zoom,
+    (clientY - r.top - S.view.oy) / S.view.zoom]; }
+export function gridAt(clientX, clientY) { const [x, y] = canvasAt(clientX, clientY);
+  return [Math.floor(x), Math.floor(y)]; }

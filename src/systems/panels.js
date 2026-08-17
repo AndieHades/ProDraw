@@ -4,15 +4,15 @@
 import { $ } from '../core/dom.js';
 import { attachReorder } from '../core/reorder-drag.js';
 
-const STORE = 'panelOrder';
+const STORE = 'panelOrderV2';
 const PANELS = ['tb-left', 'tb-right', 'sidebar']; // контейнеры с переставляемыми кнопками
 const DROP = PANELS.map((id) => '#' + id).join(',');
 const ID_MIGRATIONS = { bc: 'img-settings', mono: null };
 const ALLOWED = {
   'tb-left': new Set(['docsbtn', 'imp-btn', 'export-btn', 'prev', 'refbtn']),
   'tb-right': new Set(['layers', 'activewrap']),
-  sidebar: new Set(['t-pencil', 't-eraser', 't-fill', 't-shape', 't-move', 't-adjust', 't-select', 't-lasso',
-    'sym', 'tile-btn', 'pp', 'stab', 'flip-h', 'crop', 'center', 'zoom']),
+  sidebar: new Set(['t-pencil', 't-eraser', 't-smudge', 't-fill', 't-move', 'crop', 't-select', 't-lasso',
+    'flip-h', 'sym', 't-shape', 't-adjust', 'tile-btn', 'center', 't-text', 'zoom']),
 };
 // кнопки, переехавшие в панель слоёв (#lay-act-top): старый сохранённый порядок
 // тулбара не должен утаскивать их обратно appendChild-ом

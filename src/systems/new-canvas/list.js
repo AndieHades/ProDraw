@@ -1,9 +1,10 @@
-// Списки пресетов «Новый холст»: Sprites, Frames и Saved.
+// Списки обычных растровых холстов и сохранённых пользовательских размеров.
 import { $, showMenuAt } from '../../core/dom.js';
 import { t } from '../../i18n/index.js';
-import { SPRITE_PRESETS, GAME_FRAME_PRESETS } from '../../config/presets.js';
+import { DIGITAL_CANVAS_PRESETS, PRINT_SOCIAL_CANVAS_PRESETS } from '../../config/presets.js';
 
 const dim = (p) => `${p.w} x ${p.h}`;
+export const presetLabel = (p) => p.labelKey ? t(p.labelKey) : p.label || dim(p);
 
 function menuForSaved(e, i, handlers) {
   e.preventDefault(); e.stopPropagation();
@@ -23,8 +24,10 @@ function menuForSaved(e, i, handlers) {
 function row(p, savedIdx, handlers) {
   const el = document.createElement(savedIdx == null ? 'button' : 'div');
   el.className = 'new-row' + (savedIdx == null ? '' : ' saved'); if (el.tagName === 'BUTTON') el.type = 'button';
-  const name = document.createElement('span'); name.className = 'new-name'; name.textContent = p.label || dim(p);
-  const size = document.createElement('span'); size.className = 'new-size'; size.textContent = savedIdx == null ? '›' : dim(p);
+  if (p.id) el.dataset.presetId = p.id;
+  const name = document.createElement('span'); name.className = 'new-name';
+  name.textContent = presetLabel(p); if (p.labelKey) name.dataset.i18n = p.labelKey;
+  const size = document.createElement('span'); size.className = 'new-size'; size.textContent = dim(p);
   el.append(name, size); el.onclick = () => handlers.create(p);
   if (savedIdx != null) {
     const dots = document.createElement('button'); dots.type = 'button'; dots.className = 'new-dots'; dots.textContent = '...';
@@ -40,7 +43,7 @@ function fillStack(id, list, handlers, saved = false) {
 }
 
 export function buildPresetLists(saved, handlers) {
-  fillStack('new-sprites', SPRITE_PRESETS, handlers);
-  fillStack('new-frames', GAME_FRAME_PRESETS, handlers);
+  fillStack('new-digital', DIGITAL_CANVAS_PRESETS, handlers);
+  fillStack('new-print-social', PRINT_SOCIAL_CANVAS_PRESETS, handlers);
   fillStack('new-saved', saved, handlers, true);
 }

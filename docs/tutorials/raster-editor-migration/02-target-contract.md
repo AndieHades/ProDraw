@@ -59,7 +59,7 @@ Presets are data with pixel width/height and optional physical size/DPI:
 
 - Game screens: 1920×1080, 1920×1200, 2560×1440, 2560×1600, 3840×2160.
 - Print at 300 DPI: A5 1748×2480 and A4 2480×3508, both orientations.
-- Social: 1080×1080, 1080×1350 and Reels/Stories 1080×1920.
+- Social: Instagram 1:1 1080×1080, Instagram 3:4 1080×1440 and Reels/Stories 1080×1920.
 - Art: 2048×2048 and 4096×4096; custom validates side and pixel budget.
 
 ## Image-quality invariant

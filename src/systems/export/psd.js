@@ -3,11 +3,14 @@
 // сохраняем визуал и структуру). Объявляет свои возможности для UI.
 import { S } from '../../core/state.js';
 import { folderFx } from '../../core/effects-render.js';
+import { materializeEffectSurface } from '../../core/effect-surface.js';
 import { flattenNodes, leafCanvas, splitChannels } from './render.js';
 import { writePsd } from './psd-write.js';
 
 const leafDesc = (n) => ({ name: n.name, opacity: Math.round((n.opacity ?? 1) * 255), hidden: !n.visible, clip: false, lsct: 0, data: splitChannels(leafCanvas(n), S.W, S.H) });
-const rasterDesc = (name, canvas) => ({ name, opacity: 255, hidden: false, clip: false, lsct: 0, data: splitChannels(canvas, S.W, S.H) });
+const rasterDesc = (name, surface) => ({ name, opacity: 255, hidden: false,
+  clip: false, lsct: 0, data: splitChannels(
+    materializeEffectSurface(surface, S.W, S.H), S.W, S.H) });
 const divider = (lsct, name, hidden) => ({ name, opacity: 255, hidden: !!hidden, clip: false, lsct, data: null });
 
 // дерево → плоский список слоёв (низ→верх) с разделителями групп

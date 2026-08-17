@@ -20,6 +20,16 @@ describe("brush coverage controls", () => {
     expect(brushTipCoverage(rotated, 0, 0.7)).toBeGreaterThan(0);
   });
 
+  it("keeps unsupported built-in tips smooth instead of inventing square geometry", () => {
+    const round = brush({ shape: { hardness: 1, angle: 0, roundness: 1,
+      sourceName: "Brush-Preset-Hard.png" } });
+    const brick = brush({ shape: { hardness: 1, angle: 0, roundness: 1,
+      sourceName: "Brush-Pocket-Brick.png" } });
+    expect(brushTipCoverage(round, 0.8, 0.8)).toBe(0);
+    expect(brushTipCoverage(brick, 0.8, 0.8)).toBe(0);
+    expect(brushTipCoverage(brick, 0.8, 0)).toBeGreaterThan(0);
+  });
+
   it("uses grain scale to change texture sampling", () => {
     const fine = brush({ grain: { strength: 1, scale: 0.2 } });
     const broad = brush({ grain: { strength: 1, scale: 5 } });

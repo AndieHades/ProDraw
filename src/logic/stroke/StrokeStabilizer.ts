@@ -1,6 +1,6 @@
 import type { BrushStabilization } from "../../contracts/brush";
 import type { StrokeSample } from "../../contracts/stroke";
-import { POINTER_INPUT } from "../../config/input";
+import { POINTER_INPUT } from "../../config/input.ts";
 
 const clamp01 = (value: number): number => Math.max(0, Math.min(1, value));
 const mix = (left: number, right: number, amount: number): number =>

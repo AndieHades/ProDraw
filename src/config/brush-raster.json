@@ -1,0 +1,13 @@
+{
+  "sourceMaximumSide": 512,
+  "grainDecodeMaximumSide": 2048,
+  "grainScaleDivisor": 16,
+  "radialMaskCache": {
+    "minimumDiameter": 256,
+    "maximumPixels": 300000
+  },
+  "dabSpacing": {
+    "minimumPixels": 1,
+    "minimumSizeRatio": 0.01
+  }
+}

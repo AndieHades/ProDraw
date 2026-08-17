@@ -2,13 +2,19 @@
 // контур маски). Бег пунктира — чистый CSS (stroke-dashoffset), без цикла
 // перерисовок; рендер лишь обновляет геометрию путей и ручки выделения.
 import { S } from '../../core/state.js';
-import { parseKey } from '../../logic/raster.js';
+import { selectionBoundaryEdges } from '../../logic/mask-ops.js';
+import { SELECTION_ANTS } from '../../config/selection-ants.js';
 
 let svg = null, bgP = null, fgP = null, handlesG = null;
 const NS = 'http://www.w3.org/2000/svg';
 
 function el() { if (svg) return svg;
   svg = document.createElementNS(NS, 'svg'); svg.id = 'sel-ants';
+  svg.style.setProperty('--ants-dash', SELECTION_ANTS.dashPx + 'px');
+  svg.style.setProperty('--ants-gap', SELECTION_ANTS.gapPx + 'px');
+  svg.style.setProperty('--ants-cycle', SELECTION_ANTS.dashPx + SELECTION_ANTS.gapPx + 'px');
+  svg.style.setProperty('--ants-period', SELECTION_ANTS.periodMs + 'ms');
+  svg.style.setProperty('--ants-line-width', SELECTION_ANTS.lineWidthPx + 'px');
   bgP = document.createElementNS(NS, 'path'); bgP.setAttribute('class', 'bg');
   fgP = document.createElementNS(NS, 'path'); fgP.setAttribute('class', 'fg');
   handlesG = document.createElementNS(NS, 'g'); handlesG.setAttribute('class', 'handles');
@@ -16,11 +22,10 @@ function el() { if (svg) return svg;
 
 // контур маски: только внешние грани клеток (как в оверлеях ранее)
 function maskPath(ox, oy, z, dx, dy) { const seg = [];
-  for (const k of S.selMask) { const [x, y] = parseKey(k); const sx = ox + x * z + dx, sy = oy + y * z + dy;
-    if (!S.selMask.has(x + ',' + (y - 1))) seg.push('M' + sx + ' ' + sy + 'H' + (sx + z));
-    if (!S.selMask.has(x + ',' + (y + 1))) seg.push('M' + sx + ' ' + (sy + z) + 'H' + (sx + z));
-    if (!S.selMask.has((x - 1) + ',' + y)) seg.push('M' + sx + ' ' + sy + 'V' + (sy + z));
-    if (!S.selMask.has((x + 1) + ',' + y)) seg.push('M' + (sx + z) + ' ' + sy + 'V' + (sy + z)); }
+  for (const [x0, y0, x1, y1] of selectionBoundaryEdges(S.selMask)) {
+    const sx0 = ox + x0 * z + dx, sy0 = oy + y0 * z + dy;
+    const sx1 = ox + x1 * z + dx, sy1 = oy + y1 * z + dy;
+    seg.push('M' + sx0 + ' ' + sy0 + (y0 === y1 ? 'H' + sx1 : 'V' + sy1)); }
   return seg.join(''); }
 
 function drawHandles(sel, ox, oy, z, dx, dy) {

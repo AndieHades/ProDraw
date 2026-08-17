@@ -4,7 +4,6 @@ import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
 import * as actions from '../../core/actions.js';
 import { $, showMenuAt, t } from '../../core/dom.js';
-import { snapshot } from '../../core/history.js';
 import { effVis } from '../../core/layers.js';
 import { floatingWindow } from '../../core/floating-window.js';
 import { layList } from './list.js';
@@ -13,6 +12,7 @@ import { mountActionBars } from './actions-bar.js';
 import { mountPinch } from './pinch.js';
 import { mountMenu } from './menu.js';
 import './fill.js'; // регистрирует action 'layer.dropColorAt'
+import { snapshotOpacity } from './metadata.js';
 
 const vw = () => window.innerWidth || document.documentElement.clientWidth || 1024;
 const vh = () => window.innerHeight || document.documentElement.clientHeight || 768;
@@ -39,7 +39,7 @@ function expandLayersWindow() {
 export function mount() {
   $('layers').addEventListener('click', () => { const p = $('lay-pop'); const on = p.classList.toggle('on'); $('layers').classList.toggle('on', on); if (on) layList(); });
   mountActionBars();
-  $('lay-op').addEventListener('pointerdown', () => snapshot());
+  $('lay-op').addEventListener('pointerdown', () => snapshotOpacity(activeOpacityRef()));
   $('lay-op').addEventListener('input', () => { const ref = activeOpacityRef(); if (!ref) return; // прозрачность активной строки: слой/папка/эффект/настройка
     ref.opacity = +$('lay-op').value / 100; $('lay-opv').textContent = Math.round(ref.opacity * 100) + '%';
     bus.emit('render'); bus.emit('layers'); });

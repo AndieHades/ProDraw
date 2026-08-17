@@ -1,10 +1,11 @@
-// Раскладка композита: слои в порядке стопки, их эффекты (через layerSrcCanvas),
+// Раскладка композита: слои в порядке стопки, их bounded effect surfaces,
 // обтравка, эффекты папок (под группой и поверх неё) и живые превью move/transform.
 // Единая точка для видимого рендера, экспорта и окна-превью.
 import { S } from './state.js';
 import { effVis, clipBase, folderChain, folderOpacity } from './layers.js';
-import { layerSrcCanvas, clippedShift } from './layer-cache.js';
+import { layerSrcSurface, clippedShift } from './layer-cache.js';
 import { folderFx, folderEffectsFor, layerMoveCanvas } from './effects-render.js';
+import { drawEffectSurface } from './effect-surface.js';
 
 const memberOf = (i, fid) => folderChain(S.layers[i].fid).some((f) => f.id === fid);
 const folderVis = (f) => folderChain(f.id).every((x) => x.visible);
@@ -34,7 +35,8 @@ export function paintStack(ctx, live, opt0 = {}) {
   if (opt0.bg) paintBackground(ctx);
   const iox = live && S.cropMode ? S.cropMode.idx : 0, ioy = live && S.cropMode ? S.cropMode.idy : 0;
   const groups = fxGroups(opt);
-  const drawC = (c, f) => { if (c) { ctx.globalAlpha = f ? folderOpacity(f.id) : 1; ctx.drawImage(c, iox, ioy); } }; // эффекты папки гаснут вместе с её прозрачностью
+  const drawC = (c, f) => { if (c) { ctx.globalAlpha = f ? folderOpacity(f.id) : 1;
+    drawEffectSurface(ctx, c, iox, ioy); } }; // эффекты папки гаснут вместе с её прозрачностью
   for (let i = 0; i < S.layers.length; i++) {
     groups.filter((g) => g.bottom === i).sort((a, b) => depth(a.f) - depth(b.f)).forEach((g) => drawC(folderFx(g.f, 'below'), g.f));
     drawLayer(ctx, i, live, iox, ioy, vis);
@@ -53,9 +55,10 @@ function drawLayer(ctx, i, live, iox, ioy, vis) { const L = S.layers[i]; if (!vi
     return; }
   const md = live ? S.moveDrag : null, di = (md && md.idxs.includes(i)) ? md : null;
   if (cb >= 0) { const db = (md && md.idxs.includes(cb)) ? md : null;
-    ctx.drawImage(clippedShift(i, cb, di ? di.dx : 0, di ? di.dy : 0, db ? db.dx : 0, db ? db.dy : 0), iox, ioy);
-  } else if (di) ctx.drawImage(layerMoveCanvas(i, di.dx, di.dy), iox, ioy); // содержимое+ext+эффекты, пересчитанные для сдвига
-  else ctx.drawImage(layerSrcCanvas(i), iox, ioy);
+    drawEffectSurface(ctx, clippedShift(i, cb, di ? di.dx : 0, di ? di.dy : 0,
+      db ? db.dx : 0, db ? db.dy : 0), iox, ioy);
+  } else if (di) drawEffectSurface(ctx, layerMoveCanvas(i, di.dx, di.dy), iox, ioy);
+  else drawEffectSurface(ctx, layerSrcSurface(i), iox, ioy);
   if (inRot && S.rotMode.selection && i === S.rotMode.idx && S.rotPrev && S.rotPrev.canvas) {
     ctx.globalAlpha = alpha; ctx.drawImage(S.rotPrev.canvas, S.rotPrev.px, S.rotPrev.py, S.rotPrev.ow, S.rotPrev.oh); }
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { BrushPreset } from "../../src/contracts/brush";
 import type { StrokeSample } from "../../src/contracts/stroke";
 import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
-import { StrokePipeline } from "../../src/logic/stroke/StrokePipeline";
+import { rasterDabSpacing, StrokePipeline } from "../../src/logic/stroke/StrokePipeline";
 
 const source = BUNDLED_BRUSHES[0]!;
 const stable: BrushPreset = { ...source,
@@ -24,6 +24,17 @@ function run(brush: BrushPreset): readonly StrokeSample[] {
 }
 
 describe("StrokePipeline brush dynamics", () => {
+  it("bounds production .01 spacing to a continuous raster-safe sample count", () => {
+    expect(rasterDabSpacing(24, 0.01)).toBe(1);
+    expect(rasterDabSpacing(148, 0.01)).toBeCloseTo(1.48);
+    const dense = { ...stable, strokePath: { ...stable.strokePath, spacing: 0.01 } };
+    const pipeline = new StrokePipeline(dense, 24);
+    const first = { ...input[0]!, x: 0, y: 0 };
+    const second = { ...input[0]!, x: 40, y: 0, time: 1 };
+    const plan = [...pipeline.push(first), ...pipeline.push(second)];
+    expect(plan.length).toBeGreaterThanOrEqual(40);
+    expect(plan.length).toBeLessThanOrEqual(42);
+  });
   it("plans jitter and scatter deterministically", () => {
     const dynamic = { ...stable, strokePath: { ...stable.strokePath,
       spacingJitter: 0.8, lateralJitter: 0.7, linearJitter: 0.6, scatter: 0.5 } };

@@ -3,35 +3,17 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.js';
 import { snapshot } from '../core/history.js';
-import { markDirty } from '../core/layer-cache.js';
 import { parseKey } from '../logic/raster.js';
 import { cloneCell } from '../logic/tilemap-data.js';
 import { getTileset } from '../core/tileset.js';
 import { createTileVariantCell } from '../core/tile-variant.js';
 import { isTilemap, inMap, getCell, cellIndex, rasterLayer } from '../core/tilemap.js';
 import { commitFloat } from './selection/float.js';
+import { selectionIntersectsRect } from '../core/selection.js';
+import { SelectionMask, selectionStateFromMask } from '../logic/mask-ops.js';
+import { transformPixelSelection } from './selection/pixel-transform.js';
 
 const key = (x, y) => x + ',' + y;
-const cloneSel = (s) => (s ? { x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1 } : null);
-const cloneMask = (m) => (m ? new Set(m) : null);
-const cloneColor = (c) => (c ? c.slice() : null);
-
-function setSelectionFromPixels(set) {
-  if (!set.size) { S.sel = null; S.selMask = null; return; }
-  let x0 = S.W, y0 = S.H, x1 = -1, y1 = -1;
-  for (const k of set) { const [x, y] = parseKey(k);
-    if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
-  S.sel = { x0, y0, x1, y1 };
-  const full = set.size === (x1 - x0 + 1) * (y1 - y0 + 1);
-  S.selMask = full ? null : set;
-}
-
-function selectedPixels(sel, mask) {
-  const out = [];
-  if (mask) { for (const k of mask) { const [x, y] = parseKey(k); if (x >= 0 && y >= 0 && x < S.W && y < S.H) out.push([x, y]); } return out; }
-  for (let y = sel.y0; y <= sel.y1; y++) for (let x = sel.x0; x <= sel.x1; x++) out.push([x, y]);
-  return out;
-}
 
 function rotPointInRect(x, y, r) {
   const w = r.x1 - r.x0 + 1, h = r.y1 - r.y0 + 1;
@@ -40,30 +22,18 @@ function rotPointInRect(x, y, r) {
   return [r.x0 + h - 1 - ly + dx, r.y0 + lx + dy];
 }
 
-function transformPixelSelection(L, mapPoint) {
-  const sel = cloneSel(S.sel), mask = cloneMask(S.selMask), coords = selectedPixels(sel, mask);
-  const items = coords.map(([x, y]) => ({ x, y, c: cloneColor(L.grid[y] && L.grid[y][x]) }));
-  for (const { x, y } of items) if (L.grid[y] && x >= 0 && x < L.grid[y].length) L.grid[y][x] = null;
-  const nextMask = new Set();
-  for (const it of items) {
-    const [nx, ny] = mapPoint(it.x, it.y, sel);
-    if (nx >= 0 && ny >= 0 && nx < S.W && ny < S.H) {
-      nextMask.add(key(nx, ny));
-      if (it.c) L.grid[ny][nx] = it.c;
-    } else if (it.c) L.ext.set(key(nx, ny), it.c);
-  }
-  markDirty(S.cur); setSelectionFromPixels(nextMask);
-}
-
 function selectedTileCells(L, sel, mask) {
   const ts = getTileset(L.tilemap.tilesetId); if (!ts) return null;
   const cells = new Set(), tm = L.tilemap;
-  if (mask) for (const k of mask) { const [x, y] = parseKey(k), cx = Math.floor(x / ts.tileW), cy = Math.floor(y / ts.tileH);
-    if (inMap(tm, cx, cy)) cells.add(key(cx, cy)); }
-  else {
-    const x0 = Math.max(0, Math.floor(sel.x0 / ts.tileW)), y0 = Math.max(0, Math.floor(sel.y0 / ts.tileH));
-    const x1 = Math.min(tm.mapW - 1, Math.floor(sel.x1 / ts.tileW)), y1 = Math.min(tm.mapH - 1, Math.floor(sel.y1 / ts.tileH));
-    for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) cells.add(key(cx, cy));
+  const firstX = Math.max(0, Math.floor(sel.x0 / ts.tileW));
+  const firstY = Math.max(0, Math.floor(sel.y0 / ts.tileH));
+  const lastX = Math.min(tm.mapW - 1, Math.floor(sel.x1 / ts.tileW));
+  const lastY = Math.min(tm.mapH - 1, Math.floor(sel.y1 / ts.tileH));
+  for (let cy = firstY; cy <= lastY; cy++) for (let cx = firstX; cx <= lastX; cx++) {
+    const rect = { x0: cx * ts.tileW, y0: cy * ts.tileH,
+      x1: Math.min(S.W - 1, (cx + 1) * ts.tileW - 1),
+      y1: Math.min(S.H - 1, (cy + 1) * ts.tileH - 1) };
+    if (!mask || selectionIntersectsRect(sel, mask, rect)) cells.add(key(cx, cy));
   }
   if (!cells.size) return null;
   let x0 = tm.mapW, y0 = tm.mapH, x1 = -1, y1 = -1;
@@ -73,12 +43,13 @@ function selectedTileCells(L, sel, mask) {
 }
 
 function setSelectionFromTileCells(cells, ts) {
-  const px = new Set();
+  const rects = [];
   for (const k of cells) { const [cx, cy] = parseKey(k);
     const x0 = cx * ts.tileW, y0 = cy * ts.tileH, x1 = Math.min(S.W, x0 + ts.tileW), y1 = Math.min(S.H, y0 + ts.tileH);
-    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) px.add(key(x, y));
+    rects.push({ x0, y0, x1: x1 - 1, y1: y1 - 1 });
   }
-  setSelectionFromPixels(px);
+  const state = selectionStateFromMask(new SelectionMask(S.W, S.H, rects));
+  S.sel = state?.sel ?? null; S.selMask = state?.mask ?? null;
 }
 
 function variantCell(ts, cell, op) {
@@ -126,7 +97,8 @@ export function flipSelection(horiz) {
     const info = selectedTileCells(L, S.sel, S.selMask); if (!info) return false;
     snapshot();
     transformTileCells(L, info, (cx, cy, r) => (horiz ? [r.x1 - (cx - r.x0), cy] : [cx, r.y1 - (cy - r.y0)]), (ts, cell) => variantCell(ts, cell, horiz ? 'flipH' : 'flipV'));
-  } else { snapshot(); transformPixelSelection(L, (x, y, r) => (horiz ? [r.x1 - (x - r.x0), y] : [x, r.y1 - (y - r.y0)])); }
+  } else if (!transformPixelSelection(L,
+    (x, y, r) => (horiz ? [r.x1 - (x - r.x0), y] : [x, r.y1 - (y - r.y0)]))) return false;
   bus.emit('selection'); bus.emit('render'); bus.emit('layers'); return true;
 }
 
@@ -138,6 +110,6 @@ export function rotateSelection() {
     const info = selectedTileCells(L, S.sel, S.selMask); if (!info) return false;
     snapshot();
     transformTileCells(L, info, rotPointInRect, (ts, cell) => variantCell(ts, cell, 'rot90'));
-  } else { snapshot(); transformPixelSelection(L, rotPointInRect); }
+  } else if (!transformPixelSelection(L, rotPointInRect)) return false;
   bus.emit('selection'); bus.emit('render'); bus.emit('layers'); return true;
 }

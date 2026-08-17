@@ -4,16 +4,19 @@ import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
 import * as actions from '../../core/actions.js';
 import { registerTool } from '../../core/canvas-handlers.js';
-import { snapshot } from '../../core/history.js';
 import { ensureLayer } from '../../core/document.js';
 import { toast, t } from '../../core/dom.js';
 import { SHAPE_SNAP_MS } from '../../config/timings.js';
 import { stamp } from './stamp.js';
 import { line, commitLine, commitContour, contourDab, contourStroke } from './shapes.js';
-import { beginStroke, afterStroke } from './stroke.js';
+import { beginStroke, afterStroke, cancelStroke } from './stroke.js';
 import { qsBegin, qsMove, qsRelease } from './quickshape.js';
 import { shadingActive } from './shading.js';
 import { clamp } from '../../logic/math.js';
+import { smudge } from './smudge.js';
+import { floodAt } from './fill.js';
+import { beginRasterStroke, cancelRasterStroke, finishRasterStroke,
+  moveRasterStroke, hasRasterBrush, rasterStrokeActive } from './raster-brush.js';
 
 let last = null;
 
@@ -40,17 +43,28 @@ function armSnap(gx, gy) { clearTimeout(snapTimer);
 function endSnap() { clearTimeout(snapTimer); snapTimer = null; snapCell = null; snapped = false; }
 
 const brush = {
-  down({ gx, gy }) { ensureLayer(); beginStroke(); qsBegin(gx, gy); stamp(gx, gy); last = [gx, gy]; bus.emit('render'); },
-  move({ gx, gy }) { if (qsMove(gx, gy)) { bus.emit('render'); return; } // QuickShape выровнял форму — raw больше не рисуем
+  down({ gx, gy, rx, ry, e }) { ensureLayer();
+    const localPatch = (hasRasterBrush(S.tool) || S.tool === 'adjust') &&
+      S.layers[S.cur]?.kind === 'pixel';
+    beginStroke(localPatch);
+    if (beginRasterStroke(S.tool, rx ?? gx + .5, ry ?? gy + .5, e)) { last = null; bus.emit('render'); return; }
+    qsBegin(gx, gy); stamp(gx, gy); last = [gx, gy]; bus.emit('render'); },
+  move({ gx, gy, rx, ry, e }) { if (rasterStrokeActive()) { moveRasterStroke(rx ?? gx + .5,
+    ry ?? gy + .5, e); bus.emit('render'); return; }
+    if (qsMove(gx, gy)) { bus.emit('render'); return; } // QuickShape выровнял форму — raw больше не рисуем
     if (last) line(last[0], last[1], gx, gy); else stamp(gx, gy); last = [gx, gy]; bus.emit('render'); },
-  up() { qsRelease(); S.stroke = false; last = null;
+  up() { if (!finishRasterStroke()) qsRelease(); S.stroke = false; last = null;
     if ((S.tool === 'pencil' && !shadingActive()) || (S.tool === 'adjust' && S.adjMode === 'colorize')) actions.run('color.used', S.active);
     afterStroke(); bus.emit('render'); }, // удержал → коммитит ровную форму, иначе raw остаётся
+  cancel() { const hadStroke = S.stroke; cancelRasterStroke(); qsRelease();
+    if (hadStroke) { S.stroke = true; cancelStroke(); }
+    last = null; bus.emit('render'); },
 };
 
 const shape = {
   down({ gx, gy }) { ensureLayer(); if (lineContour()) { const x = clampX(gx), y = clampY(gy);
-    beginStroke(); S.linePath = { pts: [[x, y]] }; contourDab(x, y); bus.emit('render'); return; }
+    beginStroke(S.layers[S.cur]?.kind === 'pixel', true);
+    S.linePath = { pts: [[x, y]] }; contourDab(x, y); bus.emit('render'); return; }
     S.lineStart = [gx, gy]; S.linePrev = [gx, gy, gx, gy];
     snapCell = [gx, gy]; snapped = false; armSnap(gx, gy); bus.emit('render'); },
   move({ gx, gy, e }) { if (lineContour()) { const pts = S.linePath && S.linePath.pts; if (!pts) return;
@@ -61,11 +75,14 @@ const shape = {
     else if (S.tool === 'line' && e && e.shiftKey) [gx, gy] = snap45(gx, gy);
     S.linePrev = [S.lineStart[0], S.lineStart[1], gx, gy]; bus.emit('render'); },
   up() { endSnap(); if (lineContour()) { commitContour(); return; } if (S.linePrev) commitLine(); },
+  cancel() { endSnap(); S.lineStart = null; S.linePrev = null; S.linePath = null;
+    if (S.stroke) cancelStroke(); bus.emit('render'); },
 };
 
-const fill = { down({ gx, gy }) { ensureLayer(); snapshot(); stamp(gx, gy); actions.run('color.used', S.active); bus.emit('render'); afterStroke(); } };
+const fill = { down({ gx, gy }) { if (!S.bgSel) ensureLayer(); floodAt(gx, gy); afterStroke(); } };
 
 for (const t of ['pencil', 'eraser', 'adjust']) registerTool(t, brush);
+registerTool('smudge', smudge);
 for (const t of ['line', 'rect', 'ellipse']) registerTool(t, shape);
 registerTool('fill', fill);
 bus.on('before-tool-change', () => { if (S.linePath) commitContour(); });

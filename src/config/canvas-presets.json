@@ -1,0 +1,16 @@
+[
+  { "id": "fhd", "labelKey": "canvasPreset.fhd", "width": 1920, "height": 1080, "dpi": 72, "category": "screen" },
+  { "id": "fhd-tall", "labelKey": "canvasPreset.fhdTall", "width": 1920, "height": 1200, "dpi": 72, "category": "screen" },
+  { "id": "qhd", "labelKey": "canvasPreset.qhd", "width": 2560, "height": 1440, "dpi": 72, "category": "screen" },
+  { "id": "qhd-tall", "labelKey": "canvasPreset.qhdTall", "width": 2560, "height": 1600, "dpi": 72, "category": "screen" },
+  { "id": "uhd", "labelKey": "canvasPreset.uhd", "width": 3840, "height": 2160, "dpi": 72, "category": "screen" },
+  { "id": "a5-p", "labelKey": "canvasPreset.a5Portrait", "width": 1748, "height": 2480, "dpi": 300, "category": "print" },
+  { "id": "a5-l", "labelKey": "canvasPreset.a5Landscape", "width": 2480, "height": 1748, "dpi": 300, "category": "print" },
+  { "id": "a4-p", "labelKey": "canvasPreset.a4Portrait", "width": 2480, "height": 3508, "dpi": 300, "category": "print" },
+  { "id": "a4-l", "labelKey": "canvasPreset.a4Landscape", "width": 3508, "height": 2480, "dpi": 300, "category": "print" },
+  { "id": "instagram-square", "labelKey": "canvasPreset.instagramSquare", "width": 1080, "height": 1080, "dpi": 72, "category": "social" },
+  { "id": "instagram-portrait", "labelKey": "canvasPreset.instagramPortrait", "width": 1080, "height": 1440, "dpi": 72, "category": "social" },
+  { "id": "reels", "labelKey": "canvasPreset.reels", "width": 1080, "height": 1920, "dpi": 72, "category": "social" },
+  { "id": "art-2k", "labelKey": "canvasPreset.art2k", "width": 2048, "height": 2048, "dpi": 72, "category": "art" },
+  { "id": "art-4k", "labelKey": "canvasPreset.art4k", "width": 4096, "height": 4096, "dpi": 72, "category": "art" }
+]

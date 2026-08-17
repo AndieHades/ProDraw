@@ -8,20 +8,31 @@ import { DocumentCompositor } from "../../src/core/editor/DocumentCompositor";
 import { TileHistory } from "../../src/core/history/TileHistory";
 import { fitView } from "../../src/logic/view/viewTransform";
 import { StrokePipeline } from "../../src/logic/stroke/StrokePipeline";
+import type { CoverageMap, LoadedBrush } from "../../src/contracts/brush";
+import { emptyBrushCompatibility } from "../../src/core/brush/procreateBrush";
 
 const percentile = (values: readonly number[], fraction: number): number =>
   [...values].sort((left, right) => left - right)[
     Math.min(values.length - 1, Math.floor(values.length * fraction))
   ] ?? 0;
 
+function productionBrush(): LoadedBrush {
+  const base = BUNDLED_BRUSHES.find(({ name }) => name === "Base Color") ??
+    BUNDLED_BRUSHES[0];
+  if (!base) throw new Error("Bundled brush fixture is unavailable");
+  const map: CoverageMap = { width: 8, height: 8,
+    data: new Uint8Array(64).fill(255) };
+  return { ...base, strokePath: { ...base.strokePath, spacing: 0.01 },
+    shapeMap: map, grainMap: map, nativeShapeMap: map, nativeGrainMap: map,
+    compatibility: emptyBrushCompatibility(), warnings: [] };
+}
+
 describe("raster input and retention budgets", () => {
   it("keeps a 240 Hz A4 stroke and presentation within their budgets", () => {
     const ids = ["trace-document", "trace-layer"];
     const document = createRasterDocument({ name: "Trace", width: 2480, height: 3508,
       dpi: 300, layerName: "Paint" }, () => ids.shift() ?? "trace-extra");
-    const brush = BUNDLED_BRUSHES.find(({ name }) => name === "Base Color") ??
-      BUNDLED_BRUSHES[0];
-    if (!brush) throw new Error("Bundled brush fixture is unavailable");
+    const brush = productionBrush();
     const history = new TileHistory();
     const edit = history.begin(document.editableSurface(), "240 Hz trace");
     const pipeline = new StrokePipeline(brush, 24);

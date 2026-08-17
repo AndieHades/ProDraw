@@ -10,10 +10,11 @@
 
     /* «бегущие муравьи» выделения — SVG поверх холста, анимация чистым CSS */
     #sel-ants { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
-    #sel-ants .bg { fill: none; stroke: var(--ants-bg); stroke-width: 1.5; }
-    #sel-ants .fg { fill: none; stroke: var(--ants-fg); stroke-width: 1.5; stroke-dasharray: 6 4;
+    #sel-ants .bg { fill: none; stroke: var(--ants-bg); stroke-width: var(--ants-line-width); }
+    #sel-ants .fg { fill: none; stroke: var(--ants-fg); stroke-width: var(--ants-line-width);
+      stroke-dasharray: var(--ants-dash) var(--ants-gap);
       animation: ants-run var(--ants-period) linear infinite; }
     #sel-ants .handles circle { fill: var(--accent); stroke: var(--cv-fg); stroke-width: 1.6; }
-    @keyframes ants-run { to { stroke-dashoffset: -10; } }
+    @keyframes ants-run { to { stroke-dashoffset: calc(-1 * var(--ants-cycle)); } }
 
 

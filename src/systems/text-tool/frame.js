@@ -1,8 +1,9 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
-import { snapshot } from '../../core/history.js';
+import { snapshotRasterReferences } from '../../core/history.js';
 import { markDirty } from '../../core/layer-cache.js';
-import { updateTextLayerGrid } from '../../core/text-layer.js';
+import { textDamageBounds, updateTextLayerGrid } from '../../core/text-layer.js';
+import { cloneTextSource } from '../../logic/text-model.js';
 import { C } from '../../styles/canvas-colors.js';
 
 let boxDrag = null;
@@ -53,12 +54,18 @@ const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
 function applyBoxDrag(gx, gy) {
   const { src, layer, box, side } = boxDrag, q = localPoint(src, gx, gy), next = { ...box };
+  const before = cloneTextSource(src);
   if (side.includes('l')) { const d = clamp(Math.round(q.x), 0, box.w - 1); next.x = box.x + d; next.w = box.w - d; }
   if (side.includes('r')) next.w = Math.max(1, Math.round(q.x));
   if (side.includes('t')) { const d = clamp(Math.round(q.y), 0, box.h - 1); next.y = box.y + d; next.h = box.h - d; }
   if (side.includes('b')) next.h = Math.max(1, Math.round(q.y));
   src.box = next;
-  if (layer) { updateTextLayerGrid(layer, S.W, S.H, fontsFn()); markDirty(S.layers.indexOf(layer)); }
+  if (layer) {
+    layer.text = cloneTextSource(src);
+    updateTextLayerGrid(layer, S.W, S.H, fontsFn(), before);
+    boxDrag.src = layer.text;
+    markDirty(S.layers.indexOf(layer), textDamageBounds(before, layer.text, S.W, S.H));
+  }
   placeFn(); bus.emit('render'); if (layer) bus.emit('layers');
 }
 
@@ -74,7 +81,7 @@ export const frameHandler = {
     const side = frameHit(gx, gy);
     if (!side) return false;
     const src = sourceFn(), layer = layerFn();
-    if (layer && !editingFn()) snapshot();
+    if (layer && !editingFn()) snapshotRasterReferences([S.layers.indexOf(layer)]);
     boxDrag = { side, src, layer, box: { ...src.box } };
     return true;
   },

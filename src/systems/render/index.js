@@ -6,18 +6,23 @@ import * as bus from '../../core/bus.js';
 import * as actions from '../../core/actions.js';
 import { $ } from '../../core/dom.js';
 import { paintStack } from '../../core/composite.js';
-import { ZOOM_MIN, ZOOM_MAX } from '../../config/limits.js';
+import { ZOOM_MIN, ZOOM_MAX, VIEW_FIT_MARGIN_MIN, VIEW_FIT_MARGIN_RATIO } from '../../config/limits.js';
 import { C } from '../../styles/canvas-colors.js';
 import { hexToRgb } from '../../logic/color.js';
 import { clamp01 } from '../../logic/math.js';
 import { makeCanvas, syncCanvasSize } from '../../core/canvas.js';
+import { contentRevision, takeCompositeDamage } from '../../core/layer-cache.js';
+import { LegacyCompositeCache } from '../../core/render/LegacyCompositeCache.ts';
+import { isIncrementalCompositeSafe } from '../../core/render/LegacyCompositeDamage.ts';
 import { drawOverlays } from './overlays.js';
 import { drawBrushCursor } from './cursor.js';
 import { updateAnts } from './ants.js';
 
 const cv = $('cv'), ctx = cv.getContext('2d');
 const buf = makeCanvas(1, 1); // композит слой+эффекты в пиксельном масштабе (размер ставится по кадру)
+const compositeCache = new LegacyCompositeCache();
 const ZOOM_STEP = 0.5;
+let renderFrame = null;
 const gridOpacity = (v) => clamp01((+v || 70) / 100);
 function gridStroke(hex, opacity) {
   const c = hexToRgb(hex || '#4aa3ff');
@@ -33,7 +38,16 @@ function drawGrid(stepX, stepY, stroke, W, H, ox, oy, z) {
   ctx.stroke();
 }
 
+function repaintCompositeRegion(context, bounds) {
+  const x = bounds.minx, y = bounds.miny;
+  const width = bounds.maxx - x + 1, height = bounds.maxy - y + 1;
+  context.save(); context.beginPath(); context.rect(x, y, width, height); context.clip();
+  context.clearRect(x, y, width, height);
+  paintStack(context, true, { bg: true }); context.restore();
+}
+
 export function render() {
+  if (renderFrame !== null) { cancelAnimationFrame(renderFrame); renderFrame = null; }
   const W = S.W, H = S.H;
   const dpr = window.devicePixelRatio || 1, cw = cv.clientWidth, chh = cv.clientHeight;
   syncCanvasSize(cv, cw, chh, dpr);
@@ -45,9 +59,22 @@ export function render() {
   const bx0 = ox - (tile ? tw : 0), by0 = oy - (tile ? th : 0), bw = tw * (tile ? 3 : 1), bh = th * (tile ? 3 : 1);
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 5; ctx.shadowOffsetY = 2; // = --win-shadow: одинаковая тень во всём приложении
   ctx.fillStyle = C.doc; ctx.fillRect(bx0, by0, bw, bh); ctx.restore(); // холст — ровный серый без шахматки (как в Procreate)
-  if (buf.width !== W || buf.height !== H) { buf.width = W; buf.height = H; }
-  const bx = buf.getContext('2d'); bx.imageSmoothingEnabled = false; bx.clearRect(0, 0, W, H);
-  paintStack(bx, true, { bg: true }); // фон + слои + эффекты слоёв/папок + живые превью move/transform/crop
+  ctx.save(); ctx.strokeStyle = C.edge; ctx.lineWidth = 1;
+  ctx.strokeRect(bx0 + .5, by0 + .5, Math.max(0, bw - 1), Math.max(0, bh - 1)); ctx.restore();
+  const resized = buf.width !== W || buf.height !== H;
+  if (resized) { buf.width = W; buf.height = H; compositeCache.invalidate(); }
+  const bx = buf.getContext('2d'); bx.imageSmoothingEnabled = false;
+  const candidate = compositeCache.candidate(S, contentRevision());
+  const damage = takeCompositeDamage();
+  if (!compositeCache.isHit(candidate)) {
+    const partial = !resized && compositeCache.canPatch(candidate) &&
+      isIncrementalCompositeSafe(S, damage);
+    if (partial) repaintCompositeRegion(bx, damage.bounds);
+    else { bx.clearRect(0, 0, W, H);
+      paintStack(bx, true, { bg: true }); } // эффекты/папки/live preview → полный fallback
+    compositeCache.commit(candidate);
+  }
+  bus.emit('composite-ready', { canvas: buf, width: W, height: H });
   ctx.save(); ctx.beginPath(); ctx.rect(bx0, by0, bw, bh); ctx.clip(); // итог клипуется блоком тайлов
   for (const j of rng) for (const i of rng) ctx.drawImage(buf, ox + i * tw, oy + j * th, tw, th);
   ctx.restore();
@@ -60,9 +87,16 @@ export function render() {
   updateAnts(ox, oy, z); // «бегущие муравьи» — SVG поверх холста, бег анимирует CSS
 }
 
+export function requestRender() {
+  if (renderFrame !== null) return;
+  renderFrame = requestAnimationFrame(() => { renderFrame = null; render(); });
+}
+
 export function fitView() {
-  const cw = cv.clientWidth, chh = cv.clientHeight, pad = 24;
-  S.view.zoom = Math.max(1, Math.floor(Math.min((cw - pad * 2) / S.W, (chh - pad * 2) / S.H)));
+  const cw = cv.clientWidth, chh = cv.clientHeight;
+  const pad = Math.max(VIEW_FIT_MARGIN_MIN, Math.min(cw, chh) * VIEW_FIT_MARGIN_RATIO);
+  const fitted = Math.min((cw - pad * 2) / S.W, (chh - pad * 2) / S.H);
+  S.view.zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, fitted));
   S.view.ox = Math.round((cw - S.W * S.view.zoom) / 2);
   S.view.oy = Math.round((chh - S.H * S.view.zoom) / 2);
   render();
@@ -88,7 +122,7 @@ export function zoomStep(dir) {
 }
 
 // система сама подписывается на сигналы (app.js только импортирует систему)
-bus.on('render', render);
+bus.on('render', requestRender);
 bus.on('fit', fitView);
 window.addEventListener('resize', fitView);
 actions.register('view.fit', fitView);

@@ -4,7 +4,7 @@ export type CanvasPresetCategory = "screen" | "print" | "social" | "art";
 
 export interface CanvasPreset extends RasterSize {
   readonly id: string;
-  readonly label: string;
+  readonly labelKey: string;
   readonly dpi: number;
   readonly category: CanvasPresetCategory;
 }

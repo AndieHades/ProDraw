@@ -7,7 +7,8 @@ import * as actions from '../../core/actions.js';
 import { $ } from '../../core/dom.js';
 import { selHit } from '../../core/selection.js';
 import { toolHandler, modeHandler, globalHandlers } from '../../core/canvas-handlers.js';
-import { gridAt } from '../../core/viewport.js';
+import { canvasAt, gridAt } from '../../core/viewport.js';
+import { actualPointerEvents } from '../../core/input/actualPointerEvents.ts';
 import { STABILIZE, DRAG_THRESHOLD } from '../../config/timings.js';
 import { ZOOM_MIN, ZOOM_MAX } from '../../config/limits.js';
 import { CURSOR_TOOLS } from '../../config/cursor.js';
@@ -15,6 +16,7 @@ import { mountGestures } from './gestures.js';
 
 const cv = () => $('cv');
 export const toGrid = (e) => gridAt(e.clientX, e.clientY);
+export const toCanvas = (e) => canvasAt(e.clientX, e.clientY);
 const activeMode = () => (S.cropMode ? modeHandler('crop') : S.rotMode ? modeHandler('transform') : null);
 const capture = (id) => { try { cv().setPointerCapture(id); } catch (e) {} };
 const inWorkArea = (gx, gy) => (S.tile && S.tile.on)
@@ -25,25 +27,35 @@ const startPan = (e) => {
 };
 
 let rdrag = null, drawing = false, stabPt = null, activeGlobal = null;
+let activePointerId = null;
+function rememberInput(e) { const pen = e?.pointerType === 'pen';
+  S.hoverInput = { pressure: pen && e.pressure > 0 ? Math.min(1, e.pressure) : 1,
+    tiltX: pen ? e.tiltX || 0 : 0, tiltY: pen ? e.tiltY || 0 : 0,
+    pointerType: e?.pointerType || 'mouse' }; }
+function releaseCapture(e) { const id = e?.pointerId ?? activePointerId;
+  if (id == null || (activePointerId != null && id !== activePointerId)) return;
+  activePointerId = null; try { cv().releasePointerCapture(id); } catch (error) {} }
 function smooth(e) { if (!S.stabOn) return [e.clientX, e.clientY];
   if (!stabPt) { stabPt = { x: e.clientX, y: e.clientY }; return [e.clientX, e.clientY]; }
   stabPt.x += (e.clientX - stabPt.x) * STABILIZE; stabPt.y += (e.clientY - stabPt.y) * STABILIZE; return [stabPt.x, stabPt.y]; }
 
-export function down(e) { if (e.pointerId != null) capture(e.pointerId);
+export function down(e) { rememberInput(e);
+  if (e.pointerId != null) { activePointerId = e.pointerId; capture(e.pointerId); }
   if (e.pointerType === 'mouse' && e.button === 2 && S.rotMode) { bus.emit('transform-menu', e); return; }
-  const [gx, gy] = toGrid(e);
+  const [rx, ry] = toCanvas(e), gx = Math.floor(rx), gy = Math.floor(ry);
   if (e.pointerType === 'mouse' && !S.cropMode && !S.rotMode
       && (e.button === 1 || e.button === 2 || (e.button === 0 && !inWorkArea(gx, gy)))) {
     startPan(e); return; }
   if (e.pointerType === 'mouse' && e.button && !(S.cropMode && e.button === 2)) return;
   stabPt = { x: e.clientX, y: e.clientY };
-  const m = activeMode(); if (m) { m.down({ gx, gy, e }); drawing = true; return; }
-  for (const gh of globalHandlers()) if (gh.down && gh.down({ gx, gy, e })) { activeGlobal = gh; drawing = true; return; }
+  const m = activeMode(); if (m) { m.down({ gx, gy, rx, ry, e }); drawing = true; return; }
+  for (const gh of globalHandlers()) if (gh.down && gh.down({ gx, gy, rx, ry, e })) { activeGlobal = gh; drawing = true; return; }
   if (S.sel && S.tool !== 'select' && S.tool !== 'lasso' && !selHit(gx, gy)) { actions.run('select.none'); return; } // лассо строит контур поверх существующего выделения (add/subtract/intersect)
-  const h = toolHandler(S.tool); if (h && h.down) { h.down({ gx, gy, e }); drawing = true; }
+  const h = toolHandler(S.tool); if (h && h.down) { h.down({ gx, gy, rx, ry, e }); drawing = true; }
 }
 
 export function move(e) {
+  rememberInput(e);
   if (e.pointerType !== 'touch') { const [hx, hy] = toGrid(e); // в Tile Mode курсор виден над всем блоком 3×3
     const over = inWorkArea(hx, hy);
     S.hoverPx = over ? [hx, hy] : null;
@@ -58,31 +70,46 @@ export function move(e) {
   const m = activeMode();
   if (m) { const [gx, gy] = toGrid(e); if (drawing) m.move({ gx, gy, e }); else if (m.hover) m.hover({ gx, gy, e }); return; }
   const h = toolHandler(S.tool);
-  if (drawing && h && h.move) { const [sx, sy] = smooth(e); const r = cv().getBoundingClientRect();
-    h.move({ gx: Math.floor((sx - r.left - S.view.ox) / S.view.zoom), gy: Math.floor((sy - r.top - S.view.oy) / S.view.zoom), e }); }
+  if (drawing && h && h.move) { const r = cv().getBoundingClientRect();
+    for (const actual of actualPointerEvents(e)) { const [sx, sy] = smooth(actual);
+      const rx = (sx - r.left - S.view.ox) / S.view.zoom;
+      const ry = (sy - r.top - S.view.oy) / S.view.zoom;
+      h.move({ gx: Math.floor(rx), gy: Math.floor(ry), rx, ry, e: actual }); } }
   else if (e.pointerType !== 'touch') bus.emit('render'); // перерисовка контура кисти
 }
 
-export function up(e) {
-  if (e && e.pointerId != null) { try { cv().releasePointerCapture(e.pointerId); } catch (er) {} }
-  if (rdrag) { if (e && !rdrag.moved && rdrag.btn === 2) // на Tilemap ПКМ вызывает меню клетки (не перехватывается выделением)
-    bus.emit(!(S.tileset && S.tileset.on) && S.sel && !S.selFloat ? 'selection-menu' : 'canvas-menu', e); rdrag = null; return; }
+export function up(e) { try {
+  if (rdrag) { if (e && !rdrag.moved && rdrag.btn === 2)
+    bus.emit(!(S.tileset && S.tileset.on) && S.sel && !S.selFloat ? 'selection-menu' : 'canvas-menu', e);
+    rdrag = null; return; }
   if (activeGlobal) { if (activeGlobal.up) activeGlobal.up({ e }); activeGlobal = null; drawing = false; return; }
   stabPt = null;
   const m = activeMode(); if (m) { if (drawing && m.up) m.up({ e }); drawing = false; return; }
   const h = toolHandler(S.tool); if (drawing && h && h.up) h.up({ e }); drawing = false;
+  } finally { releaseCapture(e); }
+}
+
+export function cancel(e) {
+  const wasDrawing = drawing, owner = activeGlobal || activeMode() || toolHandler(S.tool);
+  drawing = false; activeGlobal = null; rdrag = null; stabPt = null;
+  try { if (wasDrawing && owner?.cancel) owner.cancel({ e }); }
+  finally { releaseCapture(e); bus.emit('render'); }
 }
 
 export function mount() {
   const c = cv();
+  bus.on('document-transition', () => {
+    if (drawing || rdrag || activePointerId != null) cancel();
+  });
   c.addEventListener('contextmenu', (e) => e.preventDefault());
   c.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'touch') down(e); });
   c.addEventListener('pointermove', (e) => { if (e.pointerType !== 'touch') move(e); });
   c.addEventListener('pointerup', (e) => { if (e.pointerType !== 'touch') up(e); });
-  c.addEventListener('pointercancel', (e) => { if (e.pointerType !== 'touch') up(e); });
-  const endStroke = () => { if (drawing || rdrag) up(); }; // скриншот/alt-tab крадут pointerup — не оставляем слой «висеть» на курсоре
-  window.addEventListener('blur', endStroke);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) endStroke(); });
+  c.addEventListener('pointercancel', (e) => { if (e.pointerType !== 'touch') cancel(e); });
+  c.addEventListener('lostpointercapture', (e) => { if (e.pointerType !== 'touch') cancel(e); });
+  window.addEventListener('blur', () => { if (drawing || rdrag || activePointerId != null) cancel(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden &&
+    (drawing || rdrag || activePointerId != null)) cancel(); });
   c.addEventListener('pointerleave', () => { if (S.hoverPx) { S.hoverPx = null; bus.emit('render'); } });
   window.addEventListener('pointermove', (e) => { if (S.hoverPx && e.target !== c) { S.hoverPx = null; bus.emit('render'); } }); // курсор кисти виден только над холстом
   c.addEventListener('wheel', (e) => { e.preventDefault(); const r = c.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;

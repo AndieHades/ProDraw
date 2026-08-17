@@ -2,6 +2,8 @@
 // Чистая логика без DOM/state. Старые sx/sy сохраняют поведение по центру,
 // дополнительный opts включает произвольные оси и диагонали.
 import { parseKey } from './raster.js';
+import { isSelectionMask } from './selection-mask.js';
+import { symmetrizeSelectionMask } from './selection-symmetry.js';
 
 const finite = (v) => Number.isFinite(v);
 const inBounds = (x, y, W, H) => x >= 0 && y >= 0 && x < W && y < H;
@@ -49,7 +51,13 @@ export function mirrorPoints(x, y, W, H, sx, sy, opts = null) {
   return out; }
 
 // маска + все её зеркальные копии (mapSelectionMask)
-export function expandMask(mask, W, H, sx, sy, opts = null) { if (!sx && !sy && !(opts && (opts.x || opts.y || opts.d1 || opts.d2))) return new Set(mask);
+export function expandMask(mask, W, H, sx, sy, opts = null) {
+  const config = { ...(opts || {}), x: sx || opts?.x, y: sy || opts?.y };
+  const active = config.x || config.y || config.d1 || config.d2;
+  if (isSelectionMask(mask)) {
+    return active ? symmetrizeSelectionMask(mask, symmetryAxes(W, H, config)) : mask.clone();
+  }
+  if (!active) return new Set(mask);
   const out = new Set();
   for (const k of mask) { const [x, y] = parseKey(k);
     for (const [mx, my] of mirrorPoints(x, y, W, H, sx, sy, opts)) out.add(mx + ',' + my); }

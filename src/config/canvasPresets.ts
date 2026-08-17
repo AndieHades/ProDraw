@@ -1,32 +1,24 @@
 import type { CanvasPreset, CanvasValidation } from "../contracts/canvasPreset";
 import { RASTER_LIMITS } from "./raster";
+import presetData from "./canvas-presets.json" with { type: "json" };
 
-const screen = (id: string, label: string, width: number, height: number): CanvasPreset =>
-  ({ id, label, width, height, dpi: 72, category: "screen" });
-const print = (id: string, label: string, width: number, height: number): CanvasPreset =>
-  ({ id, label, width, height, dpi: 300, category: "print" });
-const social = (id: string, label: string, width: number, height: number): CanvasPreset =>
-  ({ id, label, width, height, dpi: 72, category: "social" });
-const art = (id: string, side: number): CanvasPreset =>
-  ({ id, label: `${side} × ${side}`, width: side, height: side,
-    dpi: 72, category: "art" });
-
-export const CANVAS_PRESETS: readonly CanvasPreset[] = Object.freeze([
-  screen("fhd", "Full HD", 1920, 1080),
-  screen("fhd-tall", "WUXGA", 1920, 1200),
-  screen("qhd", "QHD", 2560, 1440),
-  screen("qhd-tall", "WQXGA", 2560, 1600),
-  screen("uhd", "4K UHD", 3840, 2160),
-  print("a5-p", "A5 · портрет", 1748, 2480),
-  print("a5-l", "A5 · альбом", 2480, 1748),
-  print("a4-p", "A4 · портрет", 2480, 3508),
-  print("a4-l", "A4 · альбом", 3508, 2480),
-  social("instagram-square", "Instagram · пост 1:1", 1080, 1080),
-  social("instagram-portrait", "Instagram · пост 4:5", 1080, 1350),
-  social("reels", "Reels / Stories · 9:16", 1080, 1920),
-  art("art-2k", 2048),
-  art("art-4k", 4096)
+const categories = new Set<CanvasPreset["category"]>([
+  "screen", "print", "social", "art"
 ]);
+
+function readPreset(value: (typeof presetData)[number]): CanvasPreset {
+  if (!categories.has(value.category as CanvasPreset["category"])) {
+    throw new Error(`Unknown canvas preset category: ${value.category}`);
+  }
+  if (!value.labelKey.startsWith("canvasPreset.")) {
+    throw new Error(`Unknown canvas preset label: ${value.labelKey}`);
+  }
+  return { ...value, category: value.category as CanvasPreset["category"] };
+}
+
+export const CANVAS_PRESETS: readonly CanvasPreset[] = Object.freeze(
+  presetData.map(readPreset)
+);
 
 export function validateCanvasSize(width: number, height: number): CanvasValidation {
   const integers = Number.isInteger(width) && Number.isInteger(height);

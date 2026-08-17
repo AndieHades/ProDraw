@@ -20,7 +20,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "npm run test:legacy && npm run test:ts && npm run test:performance",
-    "test:legacy": "node test/no-cyrillic.mjs && node test/unit.mjs && node test/storage.mjs",
+    "test:legacy": "node test/no-cyrillic.mjs && node test/unit.mjs && node test/storage.mjs && node test/module-int.mjs && node test/module-boot.mjs",
     "test:ts": "vitest run --exclude tests/performance/**",
     "test:performance": "vitest run tests/performance --maxWorkers=1 --no-file-parallelism",
     "smoke:desktop": "node tools/smoke-packaged-desktop.mjs",
@@ -30,6 +30,7 @@
     "validate:desktop": "node tools/validate-desktop-shell.mjs",
     "validate:docs": "node tools/validate-docs.mjs",
     "validate:hooks": "node tools/validate-hooks.mjs",
+    "validate:interface": "node tools/validate-interface-parity.mjs",
     "validate:lines": "node tools/check-line-limit.mjs",
     "validate:raster-entry": "node tools/validate-raster-entry.mjs",
     "validate:changed": "node tools/validate-changed.mjs"

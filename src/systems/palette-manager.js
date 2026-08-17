@@ -3,24 +3,26 @@ import { S } from '../core/state.js';
 import * as bus from '../core/bus.js';
 import { $, showMenuAt, toast, t } from '../core/dom.js';
 import { createLibraryDialog } from '../core/library-dialog.js';
-import { paintStack } from '../core/composite.js';
-import { compositeAt } from '../core/layer-cache.js';
-import { makeCanvas } from '../core/canvas.js';
+import { compositeAt, contentRevision } from '../core/layer-cache.js';
+import { PaletteCompositeCache } from '../core/palette-composite-cache.js';
+import { paletteFromCanvasSource, paletteFromImageData,
+  paletteFromImageSource, paletteFromPointSource } from '../core/palette-sampling.js';
 import { rgb, eqc } from '../logic/color.js';
-import { exactPaletteFromRgba, samplesFromRgba, sourcePaletteFromSamples } from '../logic/quantize.js';
 import { sortPalette } from '../logic/palette-sort.js';
 import { defaultPalette } from '../config/palette.js';
+import { CANVAS_PALETTE_LIMIT, FILE_PALETTE_LIMIT,
+  PALETTE_EXACT_LIMIT } from '../config/palette-sampling.js';
 import { initPaletteCreateChoice, refreshPaletteCreateChoice } from './palette-create-choice.js';
 import { allFolderPalettes, deletePaletteFromFolder, isPaletteImageFile, savePaletteToFolder } from '../core/palette-files.js';
 
 const STORE = 'palettes';
-const EXACT_LIMIT = 512, EXACT_MAX_PIXELS = 2_000_000, SAMPLE_MAX_SIDE = 220, QUANT_COLORS = 64;
-const FILE_PALETTE_LIMIT = 128, CANVAS_PALETTE_LIMIT = 48;
 const palStore = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } };
 const saveStore = (o) => { try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (e) {} };
 const isImageFile = isPaletteImageFile;
 const hasFileTransfer = (dt) => dt && Array.from(dt.types || []).includes('Files');
 let dlg = null, folderCache = [];
+const compositeCache = new PaletteCompositeCache();
+bus.on('composite-ready', (source) => compositeCache.accept(source, S, contentRevision()));
 
 function dialog() { if (dlg) return dlg;
   dlg = createLibraryDialog({ overlayId: 'pal-ovl', sheetId: 'pal-sheet', titleKey: 'dialog.palettes',
@@ -76,36 +78,15 @@ function palListUI() { const box = dialog().list; box.innerHTML = '';
   if (!entries.length) { box.innerHTML = '<p class="hint" style="margin:10px 2px">' + t('palette.none') + '</p>'; return; }
   for (const p of entries) appendPaletteRow(box, p); }
 
-export function paletteFromImageData(data, limit = EXACT_LIMIT) {
-  const exact = exactPaletteFromRgba(data, limit);
-  if (!exact.overflow) return exact.colors.slice(0, limit);
-  const samples = samplesFromRgba(data);
-  return samples.length ? sourcePaletteFromSamples(samples, limit === EXACT_LIMIT ? QUANT_COLORS : limit) : [];
-}
-
-function readImagePalette(im, limit = EXACT_LIMIT) {
-  const exact = im.naturalWidth * im.naturalHeight <= EXACT_MAX_PIXELS;
-  const k = exact ? 1 : Math.min(1, SAMPLE_MAX_SIDE / Math.max(im.naturalWidth, im.naturalHeight));
-  const w = Math.max(1, Math.round(im.naturalWidth * k)), h = Math.max(1, Math.round(im.naturalHeight * k));
-  const c = makeCanvas(w, h);
-  const x = c.getContext('2d'); x.imageSmoothingEnabled = k < 1; x.drawImage(im, 0, 0, w, h);
-  return paletteFromImageData(x.getImageData(0, 0, w, h).data, limit);
-}
-
-function fallbackCanvasPalette() { const seen = new Set(), pal = [];
-  for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) { const c = compositeAt(x, y); if (!c) continue;
-    const k = c[0] + ',' + c[1] + ',' + c[2]; if (seen.has(k)) continue;
-    seen.add(k); pal.push(c); }
-  return pal;
-}
-
-export function paletteFromCanvas() {
-  const c = makeCanvas(S.W, S.H);
-  const x = c.getContext('2d'); x.imageSmoothingEnabled = false; paintStack(x, false);
-  const pal = paletteFromImageData(x.getImageData(0, 0, S.W, S.H).data, CANVAS_PALETTE_LIMIT);
-  if (pal.length) return sortPalette(pal);
-  const fallback = fallbackCanvasPalette();
-  return sortPalette(fallback.length > CANVAS_PALETTE_LIMIT ? sourcePaletteFromSamples(fallback, CANVAS_PALETTE_LIMIT) : fallback);
+export { paletteFromImageData };
+export function paletteFromCanvas(options = {}) {
+  const source = compositeCache.current(S, contentRevision());
+  const result = source
+    ? paletteFromCanvasSource(source.canvas, S.W, S.H,
+      { ...options, limit: CANVAS_PALETTE_LIMIT, smoothing: false })
+    : paletteFromPointSource(S.W, S.H, compositeAt,
+      { ...options, limit: CANVAS_PALETTE_LIMIT });
+  return result.cancelled ? [] : sortPalette(result.colors);
 }
 
 function showDropChoice(pal, pt) {
@@ -118,12 +99,12 @@ function showDropChoice(pal, pt) {
   m.append(head, add, create); showMenuAt(m, pt.x, pt.y, true);
 }
 
-export function paletteFromImageFile(file, mode = 'replace', pt = null, limit = EXACT_LIMIT) {
+export function paletteFromImageFile(file, mode = 'replace', pt = null, limit = PALETTE_EXACT_LIMIT) {
   if (!isImageFile(file)) { toast(t('toast.notImage')); return; }
   const url = URL.createObjectURL(file), im = new Image();
   im.onerror = () => { URL.revokeObjectURL(url); toast(t('toast.imgOpenFail')); };
   im.onload = () => { URL.revokeObjectURL(url);
-    const pal = readImagePalette(im, limit); if (!pal.length) { toast(t('toast.imgEmpty')); return; }
+    const pal = paletteFromImageSource(im, limit); if (!pal.length) { toast(t('toast.imgEmpty')); return; }
     if (mode === 'ask') showDropChoice(pal, pt || { x: innerWidth / 2, y: innerHeight / 2 }); else replaceFromImage(pal); };
   im.src = url;
 }

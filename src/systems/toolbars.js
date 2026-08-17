@@ -1,4 +1,4 @@
-// Кнопки панелей: инструменты, переключатели (симметрия/pp/стабилизация),
+// Кнопки панелей: инструменты, симметрия,
 // эффекты и экспорт. Кросс-системные операции — через actions.
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.js';
@@ -6,11 +6,10 @@ import * as actions from '../core/actions.js';
 import { $, showMenuForAnchor, toast, t } from '../core/dom.js';
 import { setTool } from '../core/tools.js';
 import { longPress } from '../core/long-press.js';
-import { saveBrushPrefs } from '../core/brush-prefs.js';
 import { ensureSymmetryDefaults } from '../core/layers.js';
 import { ICONS, BRUSH_MODES, LINE_MODES, SHAPE_MODES, SYM_MODES, SYM_TOOLS, FLIP_MODES, CENTER_MODES, ZOOM_MODES } from '../config/toolbar.js';
 
-const TOOLS = ['pencil', 'eraser', 'fill', 'select', 'lasso', 'move', 'adjust'];
+const TOOLS = ['pencil', 'eraser', 'smudge', 'fill', 'select', 'lasso', 'move', 'adjust'];
 let lastBrushMode = 'normal';
 let lastShapeMode = { kind: 'shape', tool: 'rect', fill: false };
 let lastSymChoice = { kind: 'flag', flag: 'sym' };
@@ -172,10 +171,6 @@ function syncToolButtons() {
   $('cv').style.cursor = S.tool === 'move' ? 'move' : ''; // пипетка (bb-pick «on», body.picking) — на Eyedropper System
 }
 
-// кнопки флагов кисти (Pixel Perfect / стабилизация) — синхрон с состоянием
-function syncBrushFlags() { $('pp').classList.toggle('on', S.ppOn); $('stab').classList.toggle('on', S.stabOn); }
-function toggle(flag, btnId, onKey, offKey, save = false) { S[flag] = !S[flag]; if (save) saveBrushPrefs(S);
-  $(btnId).classList.toggle('on', S[flag]); bus.emit('render'); toast(t(S[flag] ? onKey : offKey)); }
 function toggleSym(flag) { const m = SYM_MODES.find((x) => x.flag === flag); if (!m) return;
   ensureSymmetryDefaults();
   S.symEnabled = true;
@@ -193,6 +188,7 @@ export function mount() {
   buildToolChoices();
   $('t-pencil').onclick = () => brushClick('pencil');
   $('t-eraser').onclick = () => brushClick('eraser');
+  $('t-smudge').onclick = () => brushClick('smudge');
   longPress($('t-pencil'), () => actions.run('ui.brushLibrary', 'pencil')); // ПКМ/долгое нажатие — галерея кистей
   longPress($('t-eraser'), () => actions.run('ui.brushLibrary', 'eraser'));
   $('t-shape').onclick = () => (shapeToolActive() ? activateDefaultBrush() : activateShapeMode());
@@ -206,9 +202,6 @@ export function mount() {
 
   $('sym').onclick = activateLastSymChoice;
   $('sym').addEventListener('contextmenu', (e) => { e.preventDefault(); showToolChoice('sym-choice', e.currentTarget); });
-  $('pp').onclick = () => toggle('ppOn', 'pp', 'toast.ppOn', 'toast.ppOff', true);
-  $('stab').onclick = () => toggle('stabOn', 'stab', 'toast.stabOn', 'toast.stabOff', true);
-
   $('flip-h').onclick = () => { const m = currentFlipMode(); actions.run(m.action); };
   $('flip-h').addEventListener('contextmenu', (e) => { e.preventDefault(); showToolChoice('flip-choice', e.currentTarget); });
   $('img-settings').onclick = () => actions.run('effect.bc', null, null, { scope: S.bgSel ? 'canvas' : 'layer' }); // фон → весь документ, слой/папка → к выбранному
@@ -218,12 +211,10 @@ export function mount() {
   $('zoom').onclick = () => { const m = currentZoomMode(); actions.run(m.action); };
   $('zoom').addEventListener('contextmenu', (e) => { e.preventDefault(); showToolChoice('zoom-choice', e.currentTarget); });
 
-  syncBrushFlags(); syncModeButtons();
+  syncModeButtons();
   bus.on('tool', syncToolButtons); bus.on('selection', syncToolButtons); bus.on('shading', syncToolButtons);
-  bus.on('brush-flags', syncBrushFlags); syncToolButtons();
+  syncToolButtons();
 }
 
 actions.register('toggle.symV', () => { lastSymChoice = { kind: 'flag', flag: 'sym' }; toggleSym('sym'); });
 actions.register('toggle.symH', () => { lastSymChoice = { kind: 'flag', flag: 'symH' }; toggleSym('symH'); });
-actions.register('toggle.pixelPerfect', () => $('pp').click());
-actions.register('toggle.stabilize', () => $('stab').click());

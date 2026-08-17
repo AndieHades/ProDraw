@@ -8,6 +8,7 @@ import { symmetryConfig, effVis } from '../../core/layers.js';
 import { mirrorPoints } from '../../logic/symmetry.js';
 import { clamp01 } from '../../logic/math.js';
 import { C } from '../../styles/canvas-colors.js';
+import { layerContentBounds } from '../../core/layer-cache.js';
 
 function diagSegment(W, H, kind, val) {
   const pts = [], x0 = -0.5, x1 = W - 0.5, y0 = -0.5, y1 = H - 0.5, eps = 1e-6;
@@ -80,10 +81,13 @@ export function drawOverlays(ctx, ox, oy, z) {
   // Ручки активного выделения рисует SVG ants-layer поверх пунктирной рамки.
   if (S.lassoPath && S.lassoPath.pts.length) drawLasso(ctx, ox, oy, z);
   if (S.replaceMode) { const replaceColors = Array.isArray(S.replaceMode.from && S.replaceMode.from[0]) ? S.replaceMode.from : [S.replaceMode.from];
-    ctx.fillStyle = 'rgba(61,139,253,.5)';
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      let hit = false; for (let i = 0; i < S.layers.length; i++) { if (!effVis(i)) continue; const c = S.layers[i].grid[y][x]; if (c && replaceColors.some((f) => eqc(c, f))) { hit = true; break; } }
-      if (hit) ctx.fillRect(ox + x * z, oy + y * z, z, z); } }
+    const hits = new Set(); ctx.fillStyle = 'rgba(61,139,253,.5)';
+    for (let i = 0; i < S.layers.length; i++) { if (!effVis(i)) continue;
+      const bounds = layerContentBounds(i); if (!bounds) continue;
+      for (let y = bounds.miny; y <= bounds.maxy; y++) for (let x = bounds.minx; x <= bounds.maxx; x++) {
+        const c = S.layers[i].grid[y][x]; if (c && replaceColors.some((f) => eqc(c, f))) hits.add(y * W + x); } }
+    for (const key of hits) { const x = key % W, y = Math.floor(key / W);
+      ctx.fillRect(ox + x * z, oy + y * z, z, z); } }
   if (S.cropMode) { const c = S.cropMode, x = ox + c.x0 * z, y = oy + c.y0 * z, w = (c.x1 - c.x0 + 1) * z, h = (c.y1 - c.y0 + 1) * z;
     ctx.fillStyle = 'rgba(0,0,0,.45)';
     ctx.fillRect(ox, oy, W * z, y - oy); ctx.fillRect(ox, y + h, W * z, oy + H * z - y - h);

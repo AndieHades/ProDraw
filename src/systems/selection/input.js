@@ -2,21 +2,37 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
 import { symA, symHA } from '../../core/layers.js';
-import { snapshot } from '../../core/history.js';
 import { registerTool } from '../../core/canvas-handlers.js';
 import { selHit } from '../../core/selection.js';
 import { $, toast, t } from '../../core/dom.js';
 import { normSel, symmetrizeSelection, selHasPixels, deselect, maskFromCells } from './model.js';
-import { liftSelection, liftSelectionSym, commitFloat, symFloatBounds } from './float.js';
+import { beginLiftHistory, liftSelection, liftSelectionSym,
+  commitFloat, symFloatBounds } from './float.js';
+import { SelectionMask } from '../../logic/mask-ops.js';
 
 let selDrag = null, hinted = false;
 
 // Tile Mode: рамка, вышедшая за край, заворачивается в маску (выделение через шов).
-const tileRectWraps = (ax, ay, bx, by) => Math.min(ax, bx) < 0 || Math.min(ay, by) < 0 || Math.max(ax, bx) >= S.W || Math.max(ay, by) >= S.H;
-function setWrappedRect(ax, ay, bx, by) { const x0 = Math.min(ax, bx), y0 = Math.min(ay, by), x1 = Math.max(ax, bx), y1 = Math.max(ay, by), set = new Set();
-  for (let dy = 0; dy <= y1 - y0 && dy < S.H; dy++) for (let dx = 0; dx <= x1 - x0 && dx < S.W; dx++)
-    set.add((((x0 + dx) % S.W) + S.W) % S.W + ',' + ((((y0 + dy) % S.H) + S.H) % S.H));
-  maskFromCells(set); }
+const tileRectWraps = (ax, ay, bx, by) => Math.min(ax, bx) < 0 ||
+  Math.min(ay, by) < 0 || Math.max(ax, bx) >= S.W || Math.max(ay, by) >= S.H;
+const modulo = (value, size) => ((value % size) + size) % size;
+function wrappedSpans(start, end, size) {
+  const length = Math.min(size, end - start + 1);
+  const first = modulo(start, size);
+  const last = first + length - 1;
+  return last < size ? [[first, last]] : [[first, size - 1], [0, last - size]];
+}
+function setWrappedRect(ax, ay, bx, by) {
+  const x0 = Math.min(ax, bx), y0 = Math.min(ay, by);
+  const x1 = Math.max(ax, bx), y1 = Math.max(ay, by);
+  const rects = [];
+  for (const [left, right] of wrappedSpans(x0, x1, S.W)) {
+    for (const [top, bottom] of wrappedSpans(y0, y1, S.H)) {
+      rects.push({ x0: left, y0: top, x1: right, y1: bottom });
+    }
+  }
+  maskFromCells(new SelectionMask(S.W, S.H, rects));
+}
 
 function squareEnd(sx, sy, gx, gy) {
   const dx = gx - sx, dy = gy - sy;
@@ -39,8 +55,11 @@ function down({ gx, gy, e }) {
   if (S.sel && e) { const zn = selZone(e);
     if (zn) { const sX = !!(S.selMask && symA()), sY = !!(S.selMask && symHA());
       if (S.selFloat && S.selFloat.symItems) commitFloat(); // sym-фрагмент масштабируем уже осевшим
-      if (!S.selFloat) { snapshot(); liftSelection(); }     // обычный плавающий масштабируется «в воздухе»
-      selDrag = { mode: 'scale', zn, src: new Map(S.selFloat.cells), sw: S.selFloat.w, sh: S.selFloat.h, x0: S.sel.x0, y0: S.sel.y0, x1: S.sel.x1, y1: S.sel.y1, symX: sX, symY: sY }; return; } }
+      if (!S.selFloat) { beginLiftHistory(); liftSelection(); } // обычный фрагмент масштабируется «в воздухе»
+      selDrag = { mode: 'scale', zn, src: new Map(S.selFloat.cells),
+        sw: S.selFloat.w, sh: S.selFloat.h, x0: S.sel.x0, y0: S.sel.y0,
+        x1: S.sel.x1, y1: S.sel.y1, symX: sX, symY: sY,
+        li: S.selFloat.li, cow: S.selFloat.cow }; return; } }
   const inSel = selHit(gx, gy);
   if (S.selFloat && inSel) { // фрагмент уже в воздухе — продолжаем нести, не трогая слой
     if (S.selFloat.symItems) selDrag = { mode: 'move', sx: gx, sy: gy, lifted: true, moved: false, bdx: S.selFloat.dx, bdy: S.selFloat.dy };
@@ -70,7 +89,8 @@ function scaleMove(gx, gy) { const d = selDrag; let nw = d.sw, nh = d.sh, nx0 = 
       if ((d.symX && x * 2 > nw - 1) || (d.symY && y * 2 > nh - 1)) continue;
       const xs = d.symX ? [x, nw - 1 - x] : [x], ys = d.symY ? [y, nh - 1 - y] : [y];
       for (const xx of xs) for (const yy of ys) sm.set(xx + ',' + yy, c); } cells = sm; }
-  S.selFloat = { cells, w: nw, h: nh, x: nx0, y: ny0, ox: nx0, oy: ny0 };
+  S.selFloat = { cells, w: nw, h: nh, x: nx0, y: ny0, ox: nx0, oy: ny0,
+    li: d.li, cow: d.cow };
   S.sel = { x0: nx0, y0: ny0, x1: nx0 + nw - 1, y1: ny0 + nh - 1 }; bus.emit('selection'); bus.emit('render'); }
 
 function move({ gx, gy, e }) { if (!selDrag) return;
@@ -80,7 +100,7 @@ function move({ gx, gy, e }) { if (!selDrag) return;
     const [ex, ey] = e && e.shiftKey ? squareEnd(selDrag.sx, selDrag.sy, gx, gy) : [gx, gy];
     if (S.tile && S.tile.on && tileRectWraps(selDrag.sx, selDrag.sy, ex, ey)) setWrappedRect(selDrag.sx, selDrag.sy, ex, ey);
     else { S.selMask = null; S.sel = normSel(selDrag.sx, selDrag.sy, ex, ey); } }
-  else { if (!selDrag.lifted) { if (gx === selDrag.sx && gy === selDrag.sy) return; snapshot();
+  else { if (!selDrag.lifted) { if (gx === selDrag.sx && gy === selDrag.sy) return; beginLiftHistory();
       if (selDrag.sym) liftSelectionSym(selDrag.sx, selDrag.sy); else liftSelection(); selDrag.lifted = true; }
     if (S.selFloat.symItems) { S.selFloat.dx = (selDrag.bdx || 0) + gx - selDrag.sx; S.selFloat.dy = (selDrag.bdy || 0) + gy - selDrag.sy; symFloatBounds(); }
     else { S.selFloat.x = S.selFloat.ox + (gx - selDrag.sx); S.selFloat.y = S.selFloat.oy + (gy - selDrag.sy);

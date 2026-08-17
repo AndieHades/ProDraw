@@ -3,8 +3,7 @@
 // применение эффекта к другому слою/папке. Верх списка = верх стека (как у слоёв).
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
-import { snapshot } from '../../core/history.js';
-import { dirtyAll } from '../../core/layer-cache.js';
+import { snapshotEffects } from '../../core/history.js';
 
 const ownerIndex = (eff) => { for (const L of S.layers) { const i = L.effects.indexOf(eff); if (i >= 0) return [L, i]; }
   for (const f of S.folders) { const i = (f.effects || []).indexOf(eff); if (i >= 0) return [f, i]; } return [null, -1]; };
@@ -23,6 +22,7 @@ export function fxDrop(blk, row, below) { let owner, at;
   if (row.classList.contains('fxrow')) { if (blk.includes(row.__eff)) return;
     const [o, j] = ownerIndex(row.__eff); if (!o) return; owner = o; at = below ? j : j + 1; }
   else { owner = rowTarget(row); if (!owner) return; if (!owner.effects) owner.effects = []; at = owner.effects.length; }
-  snapshot();
+  const previous = blk.map((eff) => ownerIndex(eff)[0]).filter(Boolean);
+  snapshotEffects([...new Set([...previous, owner])]);
   for (const e of blk) { const [o, k] = ownerIndex(e); if (o) { o.effects.splice(k, 1); if (o === owner && k < at) at--; } }
-  owner.effects.splice(at, 0, ...blk); dirtyAll(); bus.emitDoc(); } // dirtyAll — гарантированно сбросить кеш эффектов на старом и новом владельце
+  owner.effects.splice(at, 0, ...blk); bus.emitDoc(); }

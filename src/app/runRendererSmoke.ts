@@ -37,7 +37,9 @@ export async function runRendererSmoke(
   if (platform.kind !== "windows" || !platform.brushStorage || !window.prodrawDesktop) {
     throw new Error("Desktop preload bridge is unavailable");
   }
-  if (!document.querySelector("#paint-canvas")) throw new Error("Raster workspace did not mount");
+  if (!document.querySelector("#paint-canvas, #cv")) {
+    throw new Error("Editor workspace did not mount");
+  }
   const mainSet = library.snapshot.sets.find(({ name }) => name === "Main");
   const brush = mainSet?.brushes[0];
   if (!mainSet || !brush) throw new Error("Bundled brush catalog is empty");
@@ -49,7 +51,7 @@ export async function runRendererSmoke(
   const brushBytes = await platform.brushStorage.readFile("Main", brush.fileName);
   if (!brushBytes.byteLength) throw new Error("Seeded brush cannot be read through IPC");
   const brushes = library.snapshot.sets.flatMap(({ brushes }) => brushes);
-  const brushCatalog = new BrushCatalog(platform.brushStorage);
+  const brushCatalog = new BrushCatalog(platform.brushStorage, platform.brushDecoder);
   const resources = await new BrushSourceCatalog().collect(brushes,
     (candidate) => brushCatalog.load(candidate));
   if (resources.filter(({ kind }) => kind === "shape").length < 3 ||

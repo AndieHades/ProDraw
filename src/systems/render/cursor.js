@@ -1,94 +1,100 @@
-// Brush Cursor Renderer: курсор = предпросмотр следующего отпечатка кисти.
-// Берёт форму/размер активной кисти, текущий цвет и непрозрачность из S и
-// рисует реальную форму под указателем. Силуэт кеша пересчитывается только при
-// смене кисти/размера; цвет/opacity/позиция — дёшево при отрисовке.
+// Курсор кисти: только прозрачный Photoshop-подобный контур фактического
+// следующего отпечатка. Обводит внешний край, отверстия и отдельные островки.
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
 import * as actions from '../../core/actions.js';
-import { rgb } from '../../logic/color.js';
 import { BP_SMAX } from '../../config/limits.js';
-import { CURSOR_MODES, CURSOR_TOOLS } from '../../config/cursor.js';
+import { CURSOR_ALPHA_THRESHOLD, CURSOR_LINE_WIDTH,
+  CURSOR_MODES, CURSOR_TOOLS } from '../../config/cursor.js';
 import { footprintMask, footprintRotation } from '../../logic/brush-cursor.js';
-import { makeCanvas, paintCanvas, fillMask } from '../../core/canvas.js';
+import { alphaContour } from '../../logic/brush/alphaContour.ts';
+import { brushCoverageSampler } from '../../logic/brush/brushCoverage.ts';
+import { brushCursorMask } from '../../core/brush/brushCursorMask.ts';
 import { C } from '../../styles/canvas-colors.js';
 
-const RING = () => C.fg; // курсор без чёрной обводки — только светлый контур-прицел (токен темы)
-const SHADING_FILL = 'rgba(190,190,190,.72)', SHADING_OP = 0.45;
-const shadingOn = () => S.shading && S.shading.on && S.shading.colors && S.shading.colors.length > 1;
-
-// под какой инструмент берём кисть/цвет/opacity (что реально положит штамп)
 function inputs() {
-  const t = S.tool; if (!CURSOR_TOOLS.includes(t)) return null;
-  if (t === 'eraser') return { sb: S.stampBrush.eraser, size: S.brushes.eraser.size, fill: '#fff', op: S.brushes.eraser.op };
-  if (t === 'adjust') return { sb: S.stampBrush.pencil, size: S.brushes.pencil.size, fill: '#fff', op: 0.35 };
-  if (t === 'pencil' && shadingOn()) return { sb: S.stampBrush.pencil, size: S.brushes.pencil.size, fill: SHADING_FILL, op: SHADING_OP };
-  return { sb: S.stampBrush.pencil, size: S.brushes.pencil.size, fill: rgb(S.active), op: S.brushes.pencil.op };
+  const tool = S.tool; if (!CURSOR_TOOLS.includes(tool)) return null;
+  const source = tool === 'eraser' ? 'eraser' : 'pencil';
+  return { sb: S.stampBrush[source], size: S.brushes[source].size };
 }
 
-// кеш формы: маска отпечатка + (лениво) силуэт m.w×m.h (1 клетка = 1 px) +
-// перекрашенные копии по цвету. Инвалидация только при смене кисти/размера.
-let cKey = '', cMask = null, cShape = null; const tints = new Map();
-function grainPhase(sb) { const p = S.hoverPx, g = sb && sb.grain;
-  return g && p ? '|' + (((p[0] % g.w) + g.w) % g.w) + ',' + (((p[1] % g.h) + g.h) % g.h) : ''; }
-function ensureMask(sb, size) {
-  const p = S.hoverPx || [0, 0], key = (sb ? sb.tok : 'sq') + '|' + size + grainPhase(sb);
-  if (key !== cKey) { cKey = key; cMask = footprintMask(sb, size, BP_SMAX, p[0], p[1]); cShape = null; tints.clear(); }
-  return cMask;
-}
-function silhouette() {
-  if (cShape || !cMask) return cShape; const m = cMask;
-  cShape = paintCanvas(m.w, m.h, (d) => fillMask(d, m.data, m.w, m.h, [255, 255, 255, 255]));
-  return cShape;
+const mod = (value, period) => period > 0
+  ? ((Math.floor(value) % period) + period) % period : 0;
+function stylusSample(x, y) { const input = S.hoverInput || {};
+  return { x, y, pressure: Number.isFinite(input.pressure) ? input.pressure : 1,
+    tiltX: input.tiltX || 0, tiltY: input.tiltY || 0, time: 0 }; }
+
+let cacheKey = '', cache = null;
+function loadedContour(loaded, size, x, y) {
+  const sampler = brushCoverageSampler(loaded), sample = stylusSample(x, y);
+  const pressure = Math.round(sample.pressure * 100), tiltX = Math.round(sample.tiltX / 2);
+  const tiltY = Math.round(sample.tiltY / 2);
+  const phase = sampler.textureWidth
+    ? `${mod(x, sampler.textureWidth)},${mod(y, sampler.textureHeight)}` : 'plain';
+  const key = `${loaded.id}@${loaded.revision}|${size}|${pressure}|${tiltX},${tiltY}|${phase}`;
+  if (key === cacheKey && cache) return cache;
+  const mask = brushCursorMask(loaded, size, sample);
+  cacheKey = key; cache = { mask,
+    segments: alphaContour(mask, CURSOR_ALPHA_THRESHOLD), rotation: 0 };
+  return cache;
 }
 
-// перекраска силуэта в цвет fill — кеш по цвету, переиспользуем готовый bitmap
-function tinted(shape, fill) {
-  let cv = tints.get(fill); if (cv) return cv;
-  cv = makeCanvas(shape.width, shape.height);
-  const cx = cv.getContext('2d'); cx.drawImage(shape, 0, 0); cx.globalCompositeOperation = 'source-in';
-  cx.fillStyle = fill; cx.fillRect(0, 0, cv.width, cv.height); tints.set(fill, cv); return cv;
+function legacyContour(sb, size, x, y) {
+  const phase = sb?.grain ? `${mod(x, sb.grain.w)},${mod(y, sb.grain.h)}` : 'plain';
+  const key = `${sb ? sb.tok : 'square'}|${size}|${phase}`;
+  if (key === cacheKey && cache) return cache;
+  const mask = footprintMask(sb, size, BP_SMAX, x, y);
+  if (!mask) return null;
+  const alpha = { width: mask.w, height: mask.h,
+    data: Uint8Array.from(mask.data, (value) => value ? 255 : 0) };
+  cacheKey = key; cache = { mask: { ...alpha,
+    offsetX: -(mask.w >> 1), offsetY: -(mask.h >> 1) },
+    segments: alphaContour(alpha, CURSOR_ALPHA_THRESHOLD),
+    rotation: footprintRotation(sb) };
+  return cache;
 }
 
-function blit(ctx, cv, x, y, w, h, rot, flip) {
-  if (!rot && !flip) { ctx.drawImage(cv, x, y, w, h); return; }
-  ctx.save(); ctx.translate(x + w / 2, y + h / 2); if (rot) ctx.rotate(rot); if (flip) ctx.scale(-1, 1);
-  ctx.drawImage(cv, -w / 2, -h / 2, w, h); ctx.restore();
+function drawSegments(ctx, contour, ox, oy, z, x, y) {
+  const { mask, segments, rotation } = contour;
+  const scale = mask.scale || 1, segmentZoom = z * scale;
+  const left = ox + (x + mask.offsetX) * z;
+  const top = oy + (y + mask.offsetY) * z;
+  ctx.save();
+  if (rotation || S.xMirror) { ctx.translate(left + mask.width * segmentZoom / 2,
+    top + mask.height * segmentZoom / 2);
+    if (rotation) ctx.rotate(rotation); if (S.xMirror) ctx.scale(-1, 1);
+    ctx.translate(-mask.width * segmentZoom / 2, -mask.height * segmentZoom / 2); }
+  ctx.globalCompositeOperation = 'difference';
+  ctx.strokeStyle = C.fg; ctx.lineWidth = CURSOR_LINE_WIDTH;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
+  const offsetX = rotation || S.xMirror ? 0 : left;
+  const offsetY = rotation || S.xMirror ? 0 : top;
+  for (const edge of segments) { ctx.moveTo(offsetX + edge.x1 * segmentZoom,
+    offsetY + edge.y1 * segmentZoom);
+    ctx.lineTo(offsetX + edge.x2 * segmentZoom, offsetY + edge.y2 * segmentZoom); }
+  ctx.stroke(); ctx.restore();
 }
 
-// форма отпечатка реальным цветом/непрозрачностью кисти — без обводки
-function drawShape(ctx, m, left, top, z, fill, op, rot) {
-  const shape = silhouette(); if (!shape || !fill) return;
-  ctx.imageSmoothingEnabled = false; ctx.globalAlpha = op;
-  blit(ctx, tinted(shape, fill), left, top, m.w * z, m.h * z, rot, S.xMirror); ctx.globalAlpha = 1; // зажатый X — превью отзеркалено по горизонтали
-}
-
-function drawRing(ctx, cx, cy, r) {
-  ctx.strokeStyle = RING(); ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
-}
-
-// маленький прицел по центру отпечатка — точка наводки, не закрывает пиксель
 function drawReticle(ctx, cx, cy) {
-  const a = 5, g = 1.5; ctx.lineCap = 'round'; ctx.strokeStyle = RING(); ctx.lineWidth = 1.2; ctx.beginPath();
-  ctx.moveTo(cx - a, cy); ctx.lineTo(cx - g, cy); ctx.moveTo(cx + g, cy); ctx.lineTo(cx + a, cy);
-  ctx.moveTo(cx, cy - a); ctx.lineTo(cx, cy - g); ctx.moveTo(cx, cy + g); ctx.lineTo(cx, cy + a); ctx.stroke();
+  const arm = 5, gap = 1.5; ctx.globalCompositeOperation = 'difference';
+  ctx.strokeStyle = C.fg; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(cx - arm, cy); ctx.lineTo(cx - gap, cy);
+  ctx.moveTo(cx + gap, cy); ctx.lineTo(cx + arm, cy);
+  ctx.moveTo(cx, cy - arm); ctx.lineTo(cx, cy - gap);
+  ctx.moveTo(cx, cy + gap); ctx.lineTo(cx, cy + arm); ctx.stroke();
 }
 
 export function drawBrushCursor(ctx, ox, oy, z) {
-  if (!S.hoverPx || S.cropMode || S.selFloat || !S.layers[S.cur]) return; // нет активного слоя (остался только фон) — курсора кисти нет
-  const cx = ox + (S.hoverPx[0] + 0.5) * z, cy = oy + (S.hoverPx[1] + 0.5) * z;
+  if (!S.hoverPx || S.cropMode || S.selFloat || !S.layers[S.cur]) return;
+  const [x, y] = S.hoverPx, cx = ox + (x + .5) * z, cy = oy + (y + .5) * z;
   if (S.eyedrop.active) { ctx.save(); drawReticle(ctx, cx, cy); ctx.restore(); return; }
-  const inp = inputs(); if (!inp) return;
-  const m = ensureMask(inp.sb, inp.size); if (!m) return;
-  const left = ox + (S.hoverPx[0] - (m.w >> 1)) * z, top = oy + (S.hoverPx[1] - (m.h >> 1)) * z;
-  const r = Math.max(m.w, m.h) * z / 2;
-  ctx.save();
-  if (S.cursorMode === 'circle') drawRing(ctx, cx, cy, r);
-  else drawShape(ctx, m, left, top, z, inp.fill, inp.op, footprintRotation(inp.sb));
-  drawReticle(ctx, cx, cy); // прицел поверх — точная наводка
-  ctx.restore();
+  const input = inputs(); if (!input) return;
+  const contour = input.sb?.loaded
+    ? loadedContour(input.sb.loaded, input.size, x, y)
+    : legacyContour(input.sb, input.size, x, y);
+  if (contour) drawSegments(ctx, contour, ox, oy, z, x, y);
 }
 
 actions.register('cursor.cycleMode', () => {
-  S.cursorMode = CURSOR_MODES[(CURSOR_MODES.indexOf(S.cursorMode) + 1) % CURSOR_MODES.length];
-  bus.emit('cursor'); bus.emit('render');
+  S.cursorMode = CURSOR_MODES[0]; bus.emit('cursor'); bus.emit('render');
 });

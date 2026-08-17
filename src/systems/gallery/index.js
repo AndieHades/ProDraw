@@ -4,20 +4,27 @@ import * as bus from '../../core/bus.js';
 import * as actions from '../../core/actions.js';
 import { $ } from '../../core/dom.js';
 import { imageData, looksPixelArt } from '../../core/image.js';
-import { newWorkFromImage, newWorkFromLayers, beginConvertedWork, saveCurrent, autosave, openWork } from './doc.js';
-import { listAll } from './store.js';
+import { newWorkFromImage, newWorkFromLayers, beginConvertedWork, saveCurrent,
+  autosave, autosaveInputStarted } from './doc.js';
 import { configure, render, goBack, setSelecting, isSelecting, stackSelected, dupSelected, delSelected } from './screen.js';
 import { readPsd } from '../../logic/psd.js';
 
+let galleryChange = 0, readyTask = Promise.resolve(true), mounted = false;
 function setGalleryOpen(on) {
   $('gallery').classList.toggle('on', on);
   document.body.classList.toggle('gallery-open', on);
 }
 
-export function show() { saveCurrent(); render(); setGalleryOpen(true); }
+async function finishShow(change) { const saved = await saveCurrent();
+  if (change !== galleryChange) return false;
+  await render(); return saved && change === galleryChange; }
+export function show() { const change = ++galleryChange; setGalleryOpen(true);
+  bus.emit('document-transition');
+  readyTask = finishShow(change).catch(() => false); return readyTask; }
+export const whenReady = () => readyTask;
 // выходя в эдитор, гасим ВСЕ галерейные оверлеи (.gallery-only) — системно, без
 // списка id: новый галерейный элемент с этим классом закрывается автоматически
-export function hide() { setGalleryOpen(false);
+export function hide() { galleryChange++; setGalleryOpen(false);
   document.querySelectorAll('.gallery-only.on').forEach((el) => el.classList.remove('on')); }
 
 function pick(accept, fn) { const i = document.createElement('input'); i.type = 'file'; i.accept = accept;
@@ -32,6 +39,7 @@ function importPsd() { pick('.psd,image/vnd.adobe.photoshop', async (f) => { try
   if (psd && psd.layers.length) { hide(); newWorkFromLayers(psd.W, psd.H, psd.layers, f.name.replace(/\.psd$/i, '')); } } catch (e) {} }); }
 
 export async function mount() {
+  if (mounted) return whenReady(); mounted = true;
   configure({ onOpen: hide });
   $('gal-photo').onclick = photo; $('gal-import').onclick = importPsd;
   $('gal-select').onclick = () => setSelecting(!isSelecting());
@@ -40,8 +48,7 @@ export async function mount() {
   $('docsbtn').onclick = show;
   actions.register('gallery.hide', hide); // конвертер/импорт после «Применить» уводят с галереи в редактор
   actions.register('gallery.importDrop', fromFile); // drop картинки в галерею → новый проект (через Pixelize)
+  bus.on('stroke-begin', autosaveInputStarted);
   bus.on('snapshot', autosave); bus.on('layers', autosave); bus.on('reference', autosave); bus.on('grid', autosave);
-  try { const docs = (await listAll()).filter((d) => d.kind !== 'folder'); // последнюю работу грузим под галереей (для «продолжить»)
-    if (docs.length) { const last = docs.sort((a, b) => b.updated - a.updated)[0]; await openWork(last.id); } } catch (e) {}
-  show(); // на старте всегда открываем галерею, что бы ни случилось при чтении
+  await show(); // старт не открывает скрытый документ: пользователь явно выбирает файл или New
 }

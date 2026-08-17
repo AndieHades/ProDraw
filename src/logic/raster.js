@@ -1,12 +1,10 @@
 // Чистые операции над пиксельной сеткой — размеры берём из самой сетки,
 // без DOM и без глобального состояния.
 export const parseKey = (k) => { const ci = k.indexOf(','); return [+k.slice(0, ci), +k.slice(ci + 1)]; };
-
-// пустая сетка W×H (все клетки null) — общий конструктор для слоёв и tilemap
-export const blank = (w, h) => Array.from({ length: h }, () => new Array(w).fill(null));
-
-// глубокая копия сетки: клетка = [r,g,b,a] или null
-export const cloneGrid = (g) => g.map((r) => r.map((c) => (c ? c.slice() : null)));
+import { gridBounds } from './raster-grid.js';
+export { blank, cloneGrid, conservativeGridBounds, forgetGridBounds, gridBounds,
+  gridBoundsMetadata, noteGridBounds, setGridBounds } from './raster-grid.js';
+export { sparseGridStats } from './sparse-grid-stats.js';
 
 // альфа-смешивание source-over: s поверх d, sa — доп. множитель альфы источника (0..1)
 export function blendOver(s, d, sa) {
@@ -19,14 +17,6 @@ export function blendOver(s, d, sa) {
 
 // смешать пиксель t (с непрозрачностью op) поверх b — для слияния слоёв
 export const mergeCells = (b, t, op) => (t ? blendOver(t, b, op) : (b ? b.slice() : null));
-
-// охватывающий прямоугольник непустых клеток (или null)
-export function gridBounds(g) {
-  const H = g.length, W = g[0].length; let minx = W, miny = H, maxx = -1, maxy = -1;
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (g[y][x]) {
-    if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
-  return maxx < 0 ? null : { minx, miny, maxx, maxy };
-}
 
 // охват непрозрачных пикселей RGBA-буфера W×H (или null, если всё прозрачно) —
 // общий расчёт границ для Trim/экспорта; учитывает любые запечённые эффекты.

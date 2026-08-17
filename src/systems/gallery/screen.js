@@ -1,6 +1,6 @@
 // Экран галереи: рендер плиток (работы/папки), переименование двойным кликом,
 // режим выбора, складывание (drag/наложение) и переупорядочивание.
-import { $, showMenuAt } from '../../core/dom.js';
+import { $, showMenuAt, toast } from '../../core/dom.js';
 import { t, getLocale } from '../../i18n/index.js';
 import { childrenOf, renameItem, removeItem, createFolder, moveToFolder, duplicateItem, setOrder, getItem, nextFolderName, folderStats } from './store.js';
 import { openWork } from './doc.js';
@@ -62,7 +62,8 @@ function toggleSelect(id) {
 
 function dragIds(id) { return selected.has(id) && selected.size > 1 ? [...selected] : [id]; }
 
-async function openItem(id) { if (await openWork(id) && onOpen) onOpen(); }
+async function openItem(id) { if (await openWork(id)) { if (onOpen) onOpen(); }
+  else toast(t('toast.documentOpenFailed')); }
 export function goBack() { viewFolder = null; render(); }
 
 // начать переименование плитки по id (после создания папки сразу даём ввести имя)
@@ -99,7 +100,7 @@ async function tileEl(d) {
   if (d.kind === 'folder') { const st = await folderStats(d.id); sub.textContent = t('gallery.files', { n: st.files }); tm.textContent = relTime(st.updated); }
   else { sub.textContent = `${d.W}×${d.H} px`; tm.textContent = relTime(d.updated); } // размеры и время — на разных строках
   cap.append(nm, sub, tm); tile.append(thumb, cap);
-  thumb.onclick = (e) => { if (e.ctrlKey || e.metaKey) { rangeSelect(d.id); return; }
+  tile.onclick = (e) => { if (e.ctrlKey || e.metaKey) { rangeSelect(d.id); return; }
     if (selecting) { toggleSelect(d.id); return; }
     const open = () => { if (d.kind === 'folder') { viewFolder = d.id; render(); } else openItem(d.id); };
     // десктоп: «клевок» уже отыграл на hover — открываем сразу; тач: даём клевку

@@ -2,12 +2,12 @@
 // Меняет размеры/слои, сдвигает запасные пиксели, сбрасывает выделение.
 import { S, blank, newLayer } from './state.js';
 import * as bus from './bus.js';
-import { parseKey, gridBounds } from '../logic/raster.js';
+import { translateRaster } from '../logic/raster-remap.js';
 import { isTextLayer, moveTextSource } from '../logic/text-model.js';
-import { effectReach } from '../logic/layer-effects.js';
-import { folderChain } from './layers.js';
 import { dirtyAll, markDirty } from './layer-cache.js';
-import { snapshot } from './history.js';
+import { applyLayerRemap } from './document-layer-remap.js';
+import { effectExpansion, needsEffectExpansion } from './effect-expansion.js';
+import { snapshot, snapshotDocumentRemap } from './history.js';
 import { toast, t } from './dom.js';
 import { MAX_SIZE, ZOOM_MIN, ZOOM_MAX } from '../config/limits.js';
 import { isTilemap, rasterLayer, remapToCanvas } from './tilemap.js';
@@ -23,44 +23,37 @@ function keepCanvasScreenSize(oldW, oldH, newW, newH) {
   S.view.oy = Math.round(cy - (newH * S.view.zoom) / 2);
 }
 
+function translateLayer(layer, dx, dy, width, height, preserveGrid = false) {
+  const raster = translateRaster(layer.grid, layer.ext, dx, dy, width, height,
+    { preserveGrid });
+  return applyLayerRemap(layer, raster,
+    { moveText: (text) => moveTextSource(text, dx, dy) });
+}
+
+function rerasterTilemaps(x0, y0) {
+  S.layers.forEach((layer, index) => { if (!isTilemap(layer)) return;
+    remapToCanvas(layer, x0, y0, S.W, S.H); rasterLayer(index); });
+}
+
 // добавить пустые ряды/колонки по краям (во все слои); рисунок визуально на месте
 export function expandCanvas(pl, pt, pr, pb) {
   if (!(pl || pt || pr || pb)) return;
   const oldW = S.W, oldH = S.H;
   S.W += pl + pr; S.H += pt + pb;
-  for (let i = 0; i < S.layers.length; i++) { const L = S.layers[i], g = L.grid, out = [];
-    for (let y = 0; y < S.H; y++) { const row = new Array(S.W).fill(null);
-      const sy = y - pt; if (sy >= 0 && sy < g.length) for (let x = 0; x < g[sy].length; x++) row[x + pl] = g[sy][x];
-      out.push(row); }
-    const ne = new Map(); // запасные пиксели за краем: сдвигаем и впитываем попавшие в холст
-    for (const [k, c] of L.ext) { const [kx, ky] = parseKey(k), ax = kx + pl, ay = ky + pt;
-      if (ax >= 0 && ay >= 0 && ax < S.W && ay < S.H) out[ay][ax] = c; else ne.set(ax + ',' + ay, c); }
-    L.grid = out; L.ext = ne; if (isTextLayer(L)) L.text = moveTextSource(L.text, pl, pt);
-    if (isTilemap(L)) { remapToCanvas(L, -pl, -pt, S.W, S.H); rasterLayer(i); } }
+  S.layers.forEach((layer) => translateLayer(layer, pl, pt, S.W, S.H));
+  rerasterTilemaps(-pl, -pt);
   S.view.ox -= pl * S.view.zoom; S.view.oy -= pt * S.view.zoom;
   expandStoredFrames(pl, pt, oldW, oldH, S.W, S.H);
-  S.sel = null; bus.emit('selection'); dirtyAll();
-}
-
-// границы силуэта цели (слой или папка) в координатах холста; null — если пусто
-function targetBounds(target) {
-  if ('grid' in target) return gridBounds(target.grid);
-  let b = null; // папка: объединить границы слоёв поддерева
-  for (const L of S.layers) { if (!folderChain(L.fid).some((f) => f.id === target.id)) continue;
-    const lb = gridBounds(L.grid); if (!lb) continue;
-    b = b ? { minx: Math.min(b.minx, lb.minx), miny: Math.min(b.miny, lb.miny), maxx: Math.max(b.maxx, lb.maxx), maxy: Math.max(b.maxy, lb.maxy) } : lb; }
-  return b;
+  S.sel = null; bus.emit('selection'); dirtyAll({ preserveGridBounds: true });
 }
 
 // при применении эффекта раздвинуть холст ровно настолько, чтобы эффект влез
 // по краям (обводка/свечение/тень не обрезались). Без своего snapshot —
 // вызывается под общим снимком применения. true — если холст вырос.
+export { effectExpansion, needsEffectExpansion };
 export function expandForEffects(target) {
-  if (!target || !target.effects || !target.effects.length) return false;
-  const b = targetBounds(target); if (!b) return false;
-  const R = effectReach(target.effects);
-  const pl = Math.max(0, R.l - b.minx), pt = Math.max(0, R.t - b.miny);
-  const pr = Math.max(0, b.maxx + R.r - (S.W - 1)), pb = Math.max(0, b.maxy + R.b - (S.H - 1));
+  const margin = effectExpansion(target);
+  const { pl, pt, pr, pb } = margin;
   if (!(pl || pt || pr || pb)) return false;
   expandCanvas(pl, pt, pr, pb); bus.emitDoc();
   toast(t('toast.canvasSize', { w: S.W, h: S.H })); return true;
@@ -69,22 +62,16 @@ export function expandForEffects(target) {
 // кадрировать холст прямоугольником (может выходить за край — тогда обрезает/
 // расширяет); отрезанное уходит в запас ext, чтобы не теряться
 export function applyCropRect(x0, y0, x1, y1) {
-  snapshot();
+  if (!snapshotDocumentRemap()) snapshot();
   const oldW = S.W, oldH = S.H;
   const nw = x1 - x0 + 1, nh = y1 - y0 + 1;
-  for (const L of S.layers) { const ne = new Map();
-    const out = Array.from({ length: nh }, () => new Array(nw).fill(null));
-    for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) { const c = L.grid[y][x]; if (!c) continue;
-      const nx2 = x - x0, ny2 = y - y0;
-      if (nx2 >= 0 && ny2 >= 0 && nx2 < nw && ny2 < nh) out[ny2][nx2] = c; else ne.set(nx2 + ',' + ny2, c); }
-    for (const [k, c] of L.ext) { const [kx, ky] = parseKey(k), ax = kx - x0, ay = ky - y0;
-      if (ax >= 0 && ay >= 0 && ax < nw && ay < nh) { if (!out[ay][ax]) out[ay][ax] = c; } else ne.set(ax + ',' + ay, c); }
-    L.grid = out; L.ext = ne; if (isTextLayer(L)) L.text = moveTextSource(L.text, -x0, -y0);
-    if (isTilemap(L)) remapToCanvas(L, x0, y0, nw, nh); }
-  S.W = nw; S.H = nh; keepCanvasScreenSize(oldW, oldH, nw, nh); S.sel = null;
+  S.W = nw; S.H = nh;
+  S.layers.forEach((layer) => translateLayer(layer, -x0, -y0,
+    nw, nh, true));
+  rerasterTilemaps(x0, y0);
+  keepCanvasScreenSize(oldW, oldH, nw, nh); S.sel = null;
   cropStoredFrames(x0, y0, oldW, oldH, nw, nh);
-  S.layers.forEach((L, i) => { if (isTilemap(L)) rasterLayer(i); });
-  bus.emit('selection'); dirtyAll(); bus.emitDoc();
+  bus.emit('selection'); dirtyAll({ preserveGridBounds: true }); bus.emitDoc();
   toast(t('toast.canvasSize', { w: S.W, h: S.H }));
 }
 
@@ -111,13 +98,11 @@ export function addImageLayerTop(w, h, d, name) {
 // сдвинуть содержимое слоя на (dx,dy); ушедшее за край — в запас ext
 // wrap — тороидальный сдвиг (Tile Mode): уехавшее за край возвращается с другой
 // стороны, ext не копится (тайл самодостаточен).
-export function shiftLayerGrid(L, dx, dy, wrap = false) { const ng = blank(S.W, S.H), ne = new Map();
-  const put = (x, y, c) => { let nx = x + dx, ny = y + dy;
-    if (wrap) { ng[((ny % S.H) + S.H) % S.H][((nx % S.W) + S.W) % S.W] = c; return; }
-    if (nx >= 0 && ny >= 0 && nx < S.W && ny < S.H) ng[ny][nx] = c; else ne.set(nx + ',' + ny, c); };
-  for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) { const c = L.grid[y][x]; if (c) put(x, y, c.slice()); }
-  for (const [k, c] of L.ext) { const [px, py] = parseKey(k); put(px, py, c.slice()); }
-  L.grid = ng; L.ext = ne; if (isTextLayer(L)) L.text = moveTextSource(L.text, dx, dy); }
+export function shiftLayerGrid(L, dx, dy, wrap = false) {
+  const raster = translateRaster(L.grid, L.ext, dx, dy, S.W, S.H, { wrap });
+  L.grid = raster.grid; L.ext = raster.ext;
+  if (isTextLayer(L)) L.text = moveTextSource(L.text, dx, dy);
+}
 
 // очистить текущий слой; false — если уже пуст
 export function clearLayer() {

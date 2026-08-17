@@ -1,10 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import type { DesktopBridge, PlatformPort } from "../../src/contracts/platform";
 import { selectPlatform } from "../../src/platform/selectPlatform";
+import { decodeProcreateBrush } from "../../src/core/brush/procreateBrush";
 
 const web: PlatformPort = {
   kind: "web",
   brushStorage: null,
+  brushDecoder: { decode: decodeProcreateBrush },
   openBinary: vi.fn(async () => null),
   saveBinary: vi.fn(async () => null),
   writeBinary: vi.fn(async () => false),

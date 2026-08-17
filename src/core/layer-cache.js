@@ -2,27 +2,81 @@
 // markDirty. Здесь же сборка композита — единственная точка композита в проекте.
 import { S } from './state.js';
 import { effVis, clipBase } from './layers.js';
-import { parseKey } from '../logic/raster.js';
-import { layerFxCanvas, layerRenderEffects } from './effects-render.js';
+import { conservativeGridBounds, forgetGridBounds, noteGridBounds, parseKey } from '../logic/raster.js';
+import { layerFxSurface, layerPlainSurface,
+  layerRenderEffects } from './effects-render.js';
 import { paintStack } from './composite.js';
 import { makeCanvas, paintCanvas } from './canvas.js';
+import { materializeEffectSurface } from './effect-surface.js';
+import { clipEffectSurface } from './effect-clip-surface.js';
+import { LegacyCompositeDamageTracker } from './render/LegacyCompositeDamage.ts';
 
-let lcs = []; const dirtySet = new Set(), revs = [], extCache = [];
-let revAll = 0; // глобальный счётчик инвалидации — для подписи кеша эффектов
-export const markDirty = (i) => { dirtySet.add(i); revs[i] = (revs[i] || 0) + 1; revAll++; };
-export function dirtyAll() { lcs = []; extCache.length = 0; dirtySet.clear(); revs.length = 0; revAll++; }
+let lcs = []; const dirtySet = new Set(), fullDirty = new Set(), dirtyBounds = new Map();
+const revs = [], extCache = [];
+let generation = 0, contentRev = 0;
+const compositeDamage = new LegacyCompositeDamageTracker();
+export const markDirty = (i, bounds = null) => {
+  dirtySet.add(i);
+  compositeDamage.noteLayer(i, bounds);
+  const layer = S.layers[i];
+  if (!bounds) { fullDirty.add(i); dirtyBounds.delete(i);
+    if (layer) forgetGridBounds(layer.grid); }
+  else if (!fullDirty.has(i)) {
+    const before = dirtyBounds.get(i);
+    dirtyBounds.set(i, before ? { minx: Math.min(before.minx, bounds.minx),
+      miny: Math.min(before.miny, bounds.miny), maxx: Math.max(before.maxx, bounds.maxx),
+      maxy: Math.max(before.maxy, bounds.maxy) } : { ...bounds });
+    if (layer) noteGridBounds(layer.grid, bounds);
+  }
+  revs[i] = (revs[i] || 0) + 1; contentRev++;
+};
+export function dirtyAll({ preserveGridBounds = false } = {}) { if (!preserveGridBounds) {
+    for (const layer of S.layers) forgetGridBounds(layer.grid); }
+  lcs = []; extCache.length = 0; dirtySet.clear();
+  fullDirty.clear(); dirtyBounds.clear(); revs.length = 0;
+  compositeDamage.invalidate(); generation++; contentRev++; }
 // версия содержимого слоя i (растёт при правках) — подпись для кеша эффектов
-export const layerRev = (i) => (revs[i] || 0) + revAll;
-// источник для композита: слой с эффектами рисуется через fx-канвас, иначе как есть
-export const layerSrcCanvas = (i) => layerRenderEffects(i).length ? layerFxCanvas(i) : layerFloatCanvas(i);
+export const layerRev = (i) => generation + ':' + (revs[i] || 0);
+export const contentRevision = () => contentRev;
+export const takeCompositeDamage = () => compositeDamage.take(S.W, S.H);
+export function layerContentBounds(i) {
+  const layer = S.layers[i]; if (!layer) return null;
+  return conservativeGridBounds(layer.grid);
+}
+// Common render path consumes bounded effect surfaces. Full materialization is
+// retained only as an explicit compatibility/export boundary.
+export const layerSrcSurface = (i) => layerRenderEffects(i).length
+  ? layerFxSurface(i) : layerFloatCanvas(i);
+export const layerSrcCanvas = (i) => materializeEffectSurface(
+  layerSrcSurface(i), S.W, S.H);
 
-export function layerCanvas(i) { let c = lcs[i];
+function rasterRegion(context, grid, bounds) {
+  const minx = Math.max(0, bounds.minx), miny = Math.max(0, bounds.miny);
+  const maxx = Math.min(S.W - 1, bounds.maxx), maxy = Math.min(S.H - 1, bounds.maxy);
+  if (maxx < minx || maxy < miny) return;
+  const width = maxx - minx + 1, height = maxy - miny + 1;
+  const image = context.createImageData(width, height);
+  for (let y = miny; y <= maxy; y++) for (let x = minx; x <= maxx; x++) {
+    const color = grid[y][x]; if (!color) continue;
+    const offset = ((y - miny) * width + x - minx) * 4;
+    image.data[offset] = color[0]; image.data[offset + 1] = color[1];
+    image.data[offset + 2] = color[2]; image.data[offset + 3] = color.length > 3 ? color[3] : 255;
+  }
+  context.putImageData(image, minx, miny);
+}
+
+export function layerCanvas(i) { let c = lcs[i], rebuild = !c;
   if (!c) { c = makeCanvas(S.W, S.H); lcs[i] = c; dirtySet.add(i); }
-  if (c.width !== S.W || c.height !== S.H) { c.width = S.W; c.height = S.H; dirtySet.add(i); }
-  if (dirtySet.has(i)) { const x = c.getContext('2d'), id = x.createImageData(S.W, S.H), g = S.layers[i].grid;
-    for (let y = 0; y < S.H; y++) for (let xx = 0; xx < S.W; xx++) { const cc = g[y][xx]; if (!cc) continue;
-      const o = (y * S.W + xx) * 4; id.data[o] = cc[0]; id.data[o + 1] = cc[1]; id.data[o + 2] = cc[2]; id.data[o + 3] = cc.length > 3 ? cc[3] : 255; }
-    x.putImageData(id, 0, 0); dirtySet.delete(i); }
+  if (c.width !== S.W || c.height !== S.H) { c.width = S.W; c.height = S.H;
+    dirtySet.add(i); rebuild = true; }
+  if (dirtySet.has(i)) { const context = c.getContext('2d'), grid = S.layers[i].grid;
+    const partial = !rebuild && !fullDirty.has(i), bounds = partial
+      ? dirtyBounds.get(i) : layerContentBounds(i);
+    if (!partial && !rebuild) context.clearRect(0, 0, S.W, S.H);
+    if (partial && bounds) context.clearRect(bounds.minx, bounds.miny,
+      bounds.maxx - bounds.minx + 1, bounds.maxy - bounds.miny + 1);
+    if (bounds) rasterRegion(context, grid, bounds);
+    dirtySet.delete(i); fullDirty.delete(i); dirtyBounds.delete(i); }
   return c; }
 
 // запас ext (то, что за краем холста) слоя i, упакованный в canvas по своим
@@ -58,11 +112,11 @@ export function clippedCanvas(i, base) { return clippedShift(i, base, 0, 0, 0, 0
 // то же, но слой и база могут быть сдвинуты раздельно (в пикселях сетки) —
 // нужно для живого превью Move: маска едет вместе с базой, а не «застывает»
 export function clippedShift(i, base, dix, diy, dbx, dby) {
-  const c = makeCanvas(S.W, S.H);
-  const x = c.getContext('2d'); x.imageSmoothingEnabled = false;
-  x.drawImage(layerSrcCanvas(i), dix, diy); // слой с его эффектами, обрезанный по силуэту базы
-  const ex = layerExtCanvas(i); if (ex) x.drawImage(ex.canvas, ex.ox + dix, ex.oy + diy); // запас из-за края едет вместе со слоем
-  x.globalCompositeOperation = 'destination-in'; x.drawImage(layerFloatCanvas(base), dbx, dby); return c; }
+  const source = layerRenderEffects(i).length ? layerFxSurface(i) : layerPlainSurface(i);
+  return clipEffectSurface({ source,
+    sourceDx: dix, sourceDy: diy, extra: layerExtCanvas(i),
+    mask: layerPlainSurface(base), maskDx: dbx, maskDy: dby,
+    documentBounds: { minx: 0, miny: 0, maxx: S.W - 1, maxy: S.H - 1 } }); }
 
 // итоговый цвет точки (x,y) по всем видимым слоям, либо null
 export function compositeAt(x, y) { let r = 0, g = 0, b = 0, a = 0;

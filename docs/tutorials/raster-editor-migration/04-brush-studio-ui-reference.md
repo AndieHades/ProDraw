@@ -1,21 +1,25 @@
 # Brush Library and Studio UI Reference
 
-Source: sixteen user-provided Procreate screenshots, 2026-08-16. This chapter
-records the required information so implementation does not depend on chat or
-external image paths.
+Source: sixteen user-provided Procreate screenshots plus the user's correction
+to preserve the original ProDraw brush panel, 2026-08-16. This chapter records
+the required information so implementation does not depend on chat or external
+image paths.
 
 ## Brush library layout
 
-- A compact floating dark panel opens from the active paint tool.
-- Header shows the library name with a disclosure control and a large add button.
-- Left rail is a vertically scrollable list of rounded set rows. `Recent` is a
-  smart row at the top; normal sets use a brush-mark icon.
-- Selected set is a high-contrast blue rounded rectangle. Unselected sets are
-  quiet charcoal cards with readable names that may wrap to two lines.
-- Right pane is a vertically scrollable brush list for the selected set.
-- Each brush row shows its name and a wide horizontal live stroke preview, not
-  only a tip thumbnail. Soft, grainy, opaque and line brushes must look distinct.
-- Selected brush becomes one blue rounded row containing both name and preview.
+- The exact original compact, movable and resizable ProDraw `brush-pop` remains
+  the library shell; the later two-pane replacement is rejected.
+- The body is the original quick-scanning grid of brush tiles. Each tile shows a
+  large Photoshop-style circular tip imprint rendered by the production brush
+  engine from the real Shape and Grain. The imprint fills the circle so its
+  texture and soft, hard or broken edge remain legible; never squeeze a long
+  QuickLook stroke into the circle or substitute a generic glyph.
+- The brush name is always visible directly below its circular preview; selected
+  brush keeps the original high-contrast blue tile. Long names use ellipsis plus
+  their complete title/accessible name without turning the library into rows.
+- Original mouse/pen/touch drag-and-drop reorders tiles and persists their order.
+- Physical set folders remain the ownership/persistence model, but they must not
+  force a replacement of this compact library shell.
 - The workspace top rail keeps Brush, Smudge, Eraser, Layers and active colour
   visually distinct while the library is open.
 - Brush Studio owns per-brush stabilization; there is no duplicate global
@@ -25,13 +29,14 @@ external image paths.
   survives restart. The complete order is owned by
   [`05-tool-panel-ui-reference.md`](05-tool-panel-ui-reference.md).
 
-The target may adapt exact pixel dimensions for Windows, but must preserve this
-information hierarchy, quick scanning and one-click set/brush selection.
+The target may adapt exact pixel dimensions for Windows, but must preserve the
+original panel geometry, quick scanning and one-click brush selection.
 
 ## Brush Studio shell
 
 Brush Studio is a compact resizable Windows floating window, approximately
-900×620 by default and never forced fullscreen. It retains three columns:
+1040×720 by default and never forced fullscreen. This default is large enough
+for the navigation list without a cosmetic scrollbar. It retains three columns:
 
 1. left navigation of property sections;
 2. middle controls for the selected section;
@@ -45,7 +50,7 @@ one new preset revision and refreshes every preview.
 
 - Single LMB selects a brush without opening settings.
 - Double LMB on a brush row opens its compact Brush Studio window.
-- RMB opens a pointer-anchored menu with `Duplicate` and `Delete`.
+- RMB opens a pointer-anchored menu in this order: `Edit`, `Duplicate`, `Delete`.
 - Pen double-tap/context-button equivalents use the same commands; touch keeps
   an accessible long-press alternative without changing desktop semantics.
 - Delete requires confirmation and uses the app's recoverable trash policy.
@@ -192,8 +197,10 @@ Bleed is omitted with Wet Mix. A missing Apple-only signal is never simulated.
 
 ## Acceptance
 
-- Set and brush selection are each one direct click/tap.
-- Long names remain identifiable without collapsing the preview width.
+- Brush selection is one direct click/tap in the original compact grid.
+- Every brush has a large real tip imprint and a visible name below it; long
+  names remain identifiable without collapsing the preview width. Screentone
+  previews visibly retain their dots/grid instead of becoming a solid disc.
 - Drawing Pad and document strokes match for the same actual samples and preset.
 - Keyboard/pen/touch can reach Cancel/Apply and all sliders.
 - Resizing preserves the hierarchy via responsive panes, not overlapping UI;

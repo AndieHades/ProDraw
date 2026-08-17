@@ -83,7 +83,10 @@ export function parsePresetFile(
       end: clamp(taper?.end, 0, 1, 0), pressure: clamp(taper?.pressure, 0, 1, 0) },
     shape: { hardness: clamp(shape?.hardness, 0, 1, base.shape.hardness),
       angle: clamp(shape?.angle, -Math.PI, Math.PI, 0),
-      roundness: clamp(shape?.roundness, 0.05, 1, 1) },
+      roundness: clamp(shape?.roundness, 0.05, 1, 1),
+      ...(typeof shape?.sourceName === "string"
+        ? { sourceName: shape.sourceName.slice(0, 200) }
+        : base.shape.sourceName ? { sourceName: base.shape.sourceName } : {}) },
     grain: { strength: clamp(grain?.strength, 0, 1, base.grain.strength),
       scale: clamp(grain?.scale, 0.05, 10, 1) },
     rendering: { flow: clamp(rendering?.flow, 0.01, 1, base.rendering.flow),

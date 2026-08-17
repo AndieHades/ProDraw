@@ -14,5 +14,5 @@ export function setTool(id) {
   bus.emit('tool', id); bus.emit('render');
 }
 
-for (const t of ['pencil', 'eraser', 'select', 'lasso', 'line', 'rect', 'ellipse', 'move', 'adjust']) actions.register('tool.' + t, () => setTool(t));
+for (const t of ['pencil', 'eraser', 'smudge', 'select', 'lasso', 'line', 'rect', 'ellipse', 'move', 'adjust']) actions.register('tool.' + t, () => setTool(t));
 actions.register('tool.fill', () => { if (S.bgSel) actions.run('bg.fill'); else if (S.sel) actions.run('selection.fill'); else setTool('fill'); });

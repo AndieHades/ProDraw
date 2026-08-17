@@ -29,5 +29,7 @@ Huion/touch/Smudge → `F6` R4 → `F7..F8` R5 → `F9` R6. Полные зав�
 проверки и commit boundaries находятся в
 [`07-remediation-plan.md`](../tutorials/raster-editor-migration/07-remediation-plan.md).
 
-Текущий repair checkpoint: `F3` завершён в `bab3c4c` и `6f9ec00`; следующий
-срез — `F4`: truthful `.brush` decode, параметры и единый renderer.
+Текущий repair checkpoint: `F3-R1..F3-R5`, brush truth и bounded P1 recovery
+интегрированы и прошли aggregate/package gates в рабочем дереве после
+`main@cea5370`. Следующий срез — `R2.11`: typed RGBA owner cutover за полностью
+сохранённым исходным UI; физический Huion trace остаётся acceptance-блокером F5.

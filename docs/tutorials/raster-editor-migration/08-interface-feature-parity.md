@@ -29,22 +29,22 @@ have a behavioural test.
 
 | Surface | Required legacy behaviour | Target owner | Status |
 | --- | --- | --- | --- |
-| Shell | translucent top bar, exact SVG language, movable two-column tool panel, Procreate brush bar, status | `UI-R` | missing |
-| Floating UI | movable/resizable layers, palette, brush, font, preview, reference and settings panels | `UI-R` | missing |
-| Gallery | documents/folders in one grid; open, select, stack, duplicate, rename, delete and thumbnails | `F7` | missing |
+| Shell | translucent top bar, exact SVG language, movable tool panel, Procreate brush bar, status | `UI-R` | original live; typed wiring pending |
+| Floating UI | movable/resizable layers, palette, brush, font, preview, reference and settings panels | `UI-R` | original live; typed wiring pending |
+| Gallery | documents/folders in one grid; open, immediate empty-file persistence, select, stack, duplicate, rename, delete and thumbnails | `F7` | gallery-first boot and full Open/New lifecycle hardened; RGBA port pending |
 | Documents | New/Open/Save/Save As, dirty guard, recovery, recent directory and presets | `F2`, `F7` | partial |
 | Import | photo/file insert or new document, positioning and rotation; no pixelizer | `F7`, `F8` | missing |
 | Export | PNG, PSD, selected layers/folders, whole canvas/by contour and separate files | `F7`, `F8` | partial |
-| Brushes | folder library, Recent/Favourites, drag, duplicate/delete, `.brush`, Studio and sources | `F4` | engine done; shell missing |
-| Brush bar | vertical size/opacity, eyedropper, undo/redo and live value popover | `UI-R`, `F5` | missing |
-| Colour | wheel/SV, HEX, previous/current, history, palettes, used colours, shading and T/S/G | `F8` | missing |
-| Layers | folders, multi-select, reorder, visibility, opacity, blend, lock, alpha, clipping and reference | `F7` | minimal |
-| Layer actions | add, duplicate, group, merge, clear, delete, symmetry, effects and contextual save | `F7` | minimal |
+| Brushes | original compact grid, circular engine previews with names, drag, Edit/Duplicate/Delete, `.brush`, Studio and sources | `F4` | original shell + typed Studio live; RGBA owner pending |
+| Brush bar | vertical size/opacity, eyedropper, undo/redo and live value popover | `UI-R`, `F5` | original live; RGBA port pending |
+| Colour | wheel/SV, HEX, previous/current, history, palettes, used colours, shading and T/S/G | `F8` | original live; RGBA port pending |
+| Layers | folders, multi-select, reorder, visibility, opacity, blend, lock, alpha, clipping and reference | `F7` | original live; RGBA port pending |
+| Layer actions | add, duplicate, group, merge, clear, delete, symmetry, effects and contextual save | `F7` | original live; export repair pending |
 | Selection | rectangle/lasso, invert, copy/cut/paste/delete/deselect, move/transform and new layer | `F7` | missing |
 | Transform | move, scale, rotate, flip, centre and crop without cumulative resampling | `F6` | missing |
 | Liquify | immutable-source displacement preview and one high-quality Apply | `F6` | missing |
 | Paint tools | Brush, Eraser, Smudge, Fill, Shapes, Dodge and symmetry with raster Undo | `F5`, `F8` | partial |
-| View tools | pan, zoom, rotate, tile preview, centre, actual size, Preview and Reference | `F6`, `UI-R` | partial |
+| View tools | pan, zoom, rotate, tile preview, centre, actual size, visible canvas edge, Preview and Reference | `F6`, `UI-R` | original Preview/Reference live; initial fit/zoom floor repaired, RGBA port pending |
 | Text | editable text layers, canvas editor, font import/library, alignment, colour and stretch | `F8` | missing |
 | Tile suite | tile mode, palette, variants, selection, map creation/edit/export and layer conversion | `F8` | missing |
 | Animation | frame strip, playback, onion skin, frame operations and export | `F8` | missing |
@@ -56,16 +56,17 @@ have a behavioural test.
 ### `UI-R0` — freeze the oracle
 
 1. Keep `a040fc4:index.html`, legacy CSS tokens/icons and module-int scenarios as
-   read-only reference until every row above is accepted.
-2. Add a checked parity manifest so deleting or hiding a legacy workflow cannot
-   silently pass validation.
+   read-only reference until every row above is accepted. The exact shell is
+   restored in production through `src/main.ts` during the transition.
+2. `validate:interface` checks the permanent shell, CSS parts and drag/drop,
+   floating-window, resize and reorder wiring.
 3. Revoke R2 product acceptance; the engine cutover remains valid, the shell
    cutover does not.
 
 ### `UI-R1` — restore the living shell
 
-1. Rebuild the original top bar, brush bar, floating layer/palette windows and
-   gallery composition around `RasterEditorApp`.
+1. Replace legacy state owners behind the restored top bar, brush bar, floating
+   layer/palette windows and gallery without replacing their markup or CSS.
 2. Restore the exact requested two-column order: Brush/Eraser, Smudge/Fill,
    Move/Crop, Selection/Lasso, Flip/Symmetry, Shapes/Dodge, Tile/Centre,
    Text/Actual Size.
@@ -73,13 +74,20 @@ have a behavioural test.
    saved panel positions. Brush Studio stays compact.
 4. Wire all already-working document, brush, input, history and view commands to
    their original controls before adding new tool logic.
+5. Initial Fit leaves a visible workspace margin and canvas edge; wheel/pinch may
+   zoom large FHD/A4/4K canvases below 100% instead of treating 100% as a floor.
+6. `VIEW-02` (pending): the toolbar magnifier/Actual Size button cycles through
+   predictable 20% zoom steps and never jumps directly from 5% to 50%. Mouse-wheel
+   zoom is already correct and must remain unchanged. Test the button sequence,
+   displayed value, centring and min/max clamping independently from the wheel.
 
 ### `UI-R2` — close behaviour parity
 
-Implement missing rows through `F6..F9`; never load `src/app.js` in production
-and never adapt the sparse pixel-grid state into the RGBA document. Extract pure
-legacy behaviour where useful, then put mutation behind typed commands and one
-document/session owner.
+Implement missing rows through `F6..F9`. `src/app.js` is a temporary recovery
+bridge, not the target engine; retire it only after each visible workflow has a
+typed RGBA owner and parity evidence. Never adapt sparse pixel-grid state into
+the RGBA document. Extract pure legacy behaviour where useful, then put mutation
+behind typed commands and one document/session owner.
 
 ## Verification and commit boundaries
 
@@ -89,6 +97,12 @@ document/session owner.
 - DOM order and accessibility assertions for every permanent control
 - behavioural parity scenarios for every legacy action before marking its row
   done
+- gallery Open/New ordering test: a delayed open cannot replace a newer blank document
+- gallery-first boot test: the canvas cannot flash before storage recovery completes
+- New matrix: gallery `+`, editor command, immediate click during gallery preparation,
+  rapid double click, empty-file persistence and IndexedDB reconnect
+- startup never opens the newest file behind the gallery; an unfinished stroke is
+  cancelled before a document transition and save failure remains visible/retryable
 - visual Windows checks at 100%, 125%, 150% and 200% display scale
 - full validate, packaged renderer smoke and a fresh install smoke at closure
 - R6 may delete the legacy oracle only after every non-excluded row is `done`

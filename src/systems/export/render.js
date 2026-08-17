@@ -2,8 +2,9 @@
 // переиспользуется с фильтром состава и флагом скрытых слоёв. Без своих циклов.
 import { S } from '../../core/state.js';
 import { paintStack } from '../../core/composite.js';
-import { layerSrcCanvas } from '../../core/layer-cache.js';
+import { layerSrcSurface } from '../../core/layer-cache.js';
 import { makeCanvas as cv } from '../../core/canvas.js';
+import { drawEffectSurface } from '../../core/effect-surface.js';
 import { collectIdx } from './tree.js';
 
 // склейка набора узлов в один canvas W×H (эффекты слоёв/папок и обтравка — внутри paintStack).
@@ -17,7 +18,7 @@ export function flattenNodes(nodes, showHidden, withBg = false) {
 // canvas одного слоя со своими (запечёнными) эффектами
 export function leafCanvas(node) {
   const c = cv(S.W, S.H), x = c.getContext('2d'); x.imageSmoothingEnabled = false;
-  x.drawImage(layerSrcCanvas(node.idx), 0, 0); return c;
+  drawEffectSurface(x, layerSrcSurface(node.idx)); return c;
 }
 
 // RGBA-буфер canvas → планарные каналы {0:R,1:G,2:B,3:A} по W×H (для PSD)

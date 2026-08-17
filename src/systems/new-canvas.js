@@ -1,24 +1,25 @@
-import { $ } from '../core/dom.js';
+import { $, toast } from '../core/dom.js';
 import { commitNumericField, isNumericLiteral, numericFieldValue, setNumericField } from '../core/numeric-field.js';
 import * as actions from '../core/actions.js';
-import { t } from '../i18n/index.js';
 import { MAX_SIZE } from '../config/limits.js';
 import { clampRound } from '../logic/math.js';
-import { rgb } from '../logic/color.js';
-import { newWork } from './gallery/doc.js';
-import { hide as hideGallery, show as showGallery } from './gallery/index.js';
-import { buildPresetLists } from './new-canvas/list.js';
+import { createNewWork } from './gallery/doc.js';
+import { hide as hideGallery, show as showGallery,
+  whenReady as whenGalleryReady } from './gallery/index.js';
+import { buildPresetLists, presetLabel } from './new-canvas/list.js';
+import { newCanvasBackground } from './new-canvas/background.js';
+import { isCreatingCanvas, setCreatingCanvas } from './new-canvas/creation-state.js';
+import { t } from '../i18n/index.js';
 
 const STORE = 'customSizes';
-const BGS = [{ label: 'new.bgTransparent', color: null }, { label: 'new.bgWhite', color: [255, 255, 255] }, { label: 'new.bgBlack', color: [0, 0, 0] }];
-let editIdx = null, linked = false, ratio = 1, bgIdx = 0, mode = 'rgba', nameCustom = false, suppressOutsideClick = false;
+let editIdx = null, linked = false, ratio = 1, mode = 'rgba', nameCustom = false;
+let suppressOutsideClick = false, prepareTask = Promise.resolve(true);
 const custom = () => { try { return JSON.parse(localStorage.getItem(STORE)) || []; } catch (e) { return []; } };
 const saveCustom = (a) => { try { localStorage.setItem(STORE, JSON.stringify(a)); } catch (e) {} };
 const dim = (p) => `${p.w} x ${p.h}`;
 const clampSize = (v) => clampRound(v, 2, MAX_SIZE);
 const panel = () => $('new-ovl')?.querySelector('.new-panel');
 const isOpen = () => $('new-ovl')?.classList.contains('on');
-const bgColor = () => BGS[bgIdx].color;
 const dimValue = (id) => numericFieldValue($(id), 64);
 const currentDimName = () => dim({ w: dimValue('new-w'), h: dimValue('new-h') });
 const syncName = (force = false) => { if (force || !nameCustom) $('new-name-in').value = currentDimName(); };
@@ -30,17 +31,13 @@ function setMode(next) {
   $('new-mode-gray').classList.toggle('on', mode === 'grayscale');
 }
 
-function syncBg() {
-  const st = BGS[bgIdx], sw = $('new-bg-swatch');
-  sw.classList.toggle('transparent', !st.color);
-  sw.style.background = st.color ? rgb(st.color) : '';
-  $('new-bg-text').textContent = t(st.label);
-}
-
-function createDoc(p) {
-  $('new-ovl').classList.remove('on');
-  hideGallery();
-  newWork(p.w, p.h, p.label, bgColor(), mode);
+async function createDoc(p) { if (isCreatingCanvas()) return false; setCreatingCanvas(true);
+  try { await prepareTask;
+    const created = await createNewWork(p.w, p.h, presetLabel(p), newCanvasBackground.color(), mode);
+    if (!created) { toast(t('toast.documentCreateFailed')); return false; }
+    $('new-ovl').classList.remove('on'); hideGallery(); return true;
+  } catch (error) { toast(t('toast.documentCreateFailed')); return false; }
+  finally { setCreatingCanvas(false); }
 }
 
 function buildLists() { buildPresetLists(custom(), { create: createDoc, edit: editCustom, remove: removeCustom }); }
@@ -95,24 +92,24 @@ function editCustom(i) {
 
 function removeCustom(i) { const a = custom(); a.splice(i, 1); saveCustom(a); buildLists(); }
 
-function createCustom() {
+function createCustom() { if (isCreatingCanvas()) return false;
   const entry = readCustom(); if (!entry) return;
   if ($('new-save').checked) persistPreset(entry);
   else editIdx = null;
   createDoc(entry);
 }
 
-function closeDlg() { editIdx = null; $('new-ovl').classList.remove('on'); }
+function closeDlg() { if (isCreatingCanvas()) return; editIdx = null; $('new-ovl').classList.remove('on'); }
 
 function openDlg(ensureGallery = true) {
-  if (ensureGallery) showGallery();
-  syncName();
-  buildLists(); syncBg(); setMode(mode);
+  if (isCreatingCanvas()) return; prepareTask = ensureGallery ? showGallery() : whenGalleryReady();
+  editIdx = null; nameCustom = false; newCanvasBackground.reset(); syncName(true);
+  buildLists(); setMode(mode);
   const ovl = $('new-ovl'); ovl.dataset.openedAt = Date.now(); ovl.classList.add('on');
 }
 
 function closeOutside(e) {
-  if (!isOpen()) return;
+  if (!isOpen() || isCreatingCanvas()) return;
   const target = e.target, p = panel(), r = p?.getBoundingClientRect();
   const inPanel = r && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
   if (p?.contains(target) || inPanel || target.closest?.('#rowctx') || target.closest?.('#gal-new') || target.closest?.('#new')) return;
@@ -121,7 +118,7 @@ function closeOutside(e) {
 
 function bindOpen(el, ensureGallery) {
   if (!el) return; let suppressClick = 0;
-  el.onclick = (e) => { if (Date.now() < suppressClick) { e.preventDefault(); return; } isOpen() ? closeDlg() : openDlg(ensureGallery); };
+  el.onclick = (e) => { if (isCreatingCanvas() || Date.now() < suppressClick) { e.preventDefault(); return; } isOpen() ? closeDlg() : openDlg(ensureGallery); };
   el.addEventListener('touchend', (e) => {
     e.preventDefault(); suppressClick = Date.now() + 500; setTimeout(() => { isOpen() ? closeDlg() : openDlg(ensureGallery); }, 0);
   }, { passive: false });
@@ -133,7 +130,7 @@ export function mount() {
   actions.register('doc.new', () => openDlg(true));
   $('new-create').onclick = createCustom;
   $('new-link').onclick = () => setLinked(!linked);
-  $('new-bg').onclick = () => { bgIdx = (bgIdx + 1) % BGS.length; syncBg(); };
+  $('new-bg').onclick = () => newCanvasBackground.next();
   $('new-mode-rgba').onclick = () => setMode('rgba');
   $('new-mode-gray').onclick = () => setMode('grayscale');
   for (const [id, which] of [['new-w', 'w'], ['new-h', 'h']]) {
@@ -148,5 +145,5 @@ export function mount() {
     if (suppressOutsideClick) { suppressOutsideClick = false; e.preventDefault(); e.stopPropagation(); return; }
     closeOutside(e);
   }, true);
-  syncBg(); setMode('rgba');
+  newCanvasBackground.reset(); setMode('rgba');
 }

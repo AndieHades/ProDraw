@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { S, MAX_LAYERS, blank, newLayer, cloneLayer, G } from '../src/core/state.js';
 import * as bus from '../src/core/bus.js';
 import { hexToRgb, rgbToHex, rgb, eqc, rgbToHsv, hsvToRgb } from '../src/logic/color.js';
-import { parseKey, blendOver, mergeCells, gridBounds, alphaBounds, boundsWithExt, symmetrizeGrid, rectFill, ellipseEdges, ellipseFill, cloneGrid } from '../src/logic/raster.js';
+import { parseKey, blendOver, mergeCells, gridBounds, noteGridBounds, alphaBounds, boundsWithExt, symmetrizeGrid, rectFill, ellipseEdges, ellipseFill, cloneGrid } from '../src/logic/raster.js';
 import { clamp, clamp01, clamp255, clampRound, evalNumericField, isNumericLiteral } from '../src/logic/math.js';
 import { floodRegion } from '../src/logic/flood.js';
 import { parsePsdEffects } from '../src/logic/psd-effects.js';
@@ -65,7 +65,9 @@ t('raster: parseKey', () => { assert.deepEqual(parseKey('3,7'), [3, 7]); assert.
 t("unit case 007", () => { assert.deepEqual(blendOver([255, 0, 0], null, 1), [255, 0, 0, 255]); });
 t('raster: blendOver 50%', () => { assert.deepEqual(blendOver([255, 255, 255], [0, 0, 0, 255], 0.5), [128, 128, 128, 255]); });
 t("unit case 008", () => { assert.equal(mergeCells(null, null, 1), null); assert.deepEqual(mergeCells(null, [9, 9, 9, 255], 1), [9, 9, 9, 255]); });
-t('raster: gridBounds', () => { const g = blank(8, 8); assert.equal(gridBounds(g), null); g[2][5] = [1, 1, 1, 255]; assert.deepEqual(gridBounds(g), { minx: 5, miny: 2, maxx: 5, maxy: 2 }); });
+t('raster: gridBounds', () => { const g = blank(8, 8); assert.equal(gridBounds(g), null); g[2][5] = [1, 1, 1, 255];
+  noteGridBounds(g, { minx: 5, miny: 2, maxx: 5, maxy: 2 });
+  assert.deepEqual(gridBounds(g), { minx: 5, miny: 2, maxx: 5, maxy: 2 }); });
 t("unit case 009", () => {
   const W = 4, H = 4, d = new Uint8Array(W * H * 4); assert.equal(alphaBounds(d, W, H), null);
   const set = (x, y) => { d[(y * W + x) * 4 + 3] = 255; }; set(1, 2); set(3, 1);
@@ -556,7 +558,13 @@ const APOLLO_46 = [
 ];
 t("unit case 095", () => { assert.ok(MAX_LAYERS >= 1 && ZOOM_MAX > ZOOM_MIN); });
 t("unit case 096", () => { assert.ok(historyCap(100) >= historyCap(50000) && historyCap(50000) >= historyCap(200000)); });
-t("unit case 097", () => { assert.ok(SIZE_PRESETS.length > 0); for (const p of SIZE_PRESETS) assert.ok(p.w > 0 && p.h > 0 && p.label); assert.ok(DEFAULT_DOC.w > 0 && DEFAULT_DOC.h > 0); });
+t("unit case 097", () => { assert.ok(SIZE_PRESETS.length > 0); for (const p of SIZE_PRESETS) {
+  assert.ok(p.w > 0 && p.h > 0 && p.labelKey); assert.ok(ru[p.labelKey] && en[p.labelKey]); }
+  assert.equal(SIZE_PRESETS.some((p) => p.w < 1000 || p.h < 1000), false);
+  assert.ok(SIZE_PRESETS.some((p) => p.w === 1920 && p.h === 1080));
+  assert.ok(SIZE_PRESETS.some((p) => p.w === 2480 && p.h === 3508));
+  assert.ok(SIZE_PRESETS.some((p) => p.w === 1080 && p.h === 1920));
+  assert.ok(DEFAULT_DOC.w > 0 && DEFAULT_DOC.h > 0); });
 t("unit case 098", () => { const p = defaultPalette(); assert.deepEqual(DEFAULT_PALETTE_HEX, APOLLO_46);
   assert.equal(DEFAULT_ACTIVE, 0); assert.equal(p.length, 46); assert.ok(DEFAULT_ACTIVE < p.length); assert.deepEqual(p[0], [23, 32, 56]); assert.deepEqual(p[p.length - 1], [235, 237, 233]); });
 t("unit case 099", () => { assert.equal(S.palette.length, DEFAULT_PALETTE_HEX.length); assert.deepEqual(S.active, defaultPalette()[DEFAULT_ACTIVE]); });

@@ -6,6 +6,7 @@ await runNpmScripts([
   "test",
   "validate:docs",
   "validate:hooks",
+  "validate:interface",
   "validate:lines",
   "validate:architecture",
   "validate:cycles",

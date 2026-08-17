@@ -2,116 +2,365 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <meta name="theme-color" content="#17181c" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d0d10" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
   <title>ProDraw</title>
+  <link rel="stylesheet" href="src/styles/tokens.css" />
+  <link rel="stylesheet" href="src/styles/app.css" />
+  <link rel="stylesheet" href="src/styles/animations.css" />
 </head>
-<body>
-  <div id="app" class="workspace">
-    <header class="topbar">
-      <div class="brand"><span class="brand-mark">P</span><span>ProDraw</span></div>
-      <nav class="file-actions" data-i18n-aria-label="group.document">
-        <button id="new-document" data-i18n="action.new"></button>
-        <button id="open-document" data-i18n="action.open"></button>
-        <button id="save-document" data-i18n="action.save"></button>
-        <button id="save-document-as" data-i18n="action.saveAs"></button>
-        <button id="export-png" data-i18n="action.export"></button>
-      </nav>
-      <nav class="history-actions" data-i18n-aria-label="group.history">
-        <button id="undo" data-i18n-title="action.undo" class="icon-button">↶</button>
-        <button id="redo" data-i18n-title="action.redo" class="icon-button">↷</button>
-      </nav>
-      <nav id="drawing-tool-panel" class="tool-actions floating-tool-panel" data-i18n-aria-label="group.tools">
-        <button id="move-tool-panel" class="tool-panel-grip" data-i18n-title="panel.move">⠿</button>
-        <button id="tool-brush" class="selected" data-i18n="tool.brush"></button>
-        <button id="tool-eraser" data-i18n="tool.eraser"></button>
-        <button id="tool-smudge" data-i18n="tool.smudge"></button>
-      </nav>
-      <nav class="view-actions" data-i18n-aria-label="group.view">
-        <button id="view-rotate-left" data-i18n-title="view.rotateLeft" class="icon-button">↺</button>
-        <button id="view-fit" data-i18n="view.fit"></button>
-        <button id="view-rotate-right" data-i18n-title="view.rotateRight" class="icon-button">↻</button>
-      </nav>
-    </header>
+<body class="gallery-open">
+  <canvas id="cv"></canvas>
 
-    <aside class="brush-controls panel">
-      <button id="open-brushes" class="brush-chip">
-        <span class="brush-dot"></span><span id="active-brush-name"></span>
-      </button>
-      <label><span data-i18n="brush.size"></span><output id="brush-size-value"></output>
-        <input id="brush-size" type="range" min="1" max="500" value="24" />
+  <header id="topbar">
+    <div class="tb-group" id="tb-left">
+      <button id="docsbtn" data-i18n-title="tool.gallery"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button>
+      <button id="imp-btn" data-i18n-title="tool.importMenu"><svg viewBox="0 0 24 24"><rect x="3.5" y="11" width="17" height="9" rx="2.5"/><path d="M12 3v8.5"/><path d="M8.5 8L12 11.5 15.5 8"/></svg></button>
+      <button id="export-btn" data-i18n-title="tool.exportMenu"><svg viewBox="0 0 24 24"><rect x="3.5" y="11" width="17" height="9" rx="2.5"/><path d="M12 11.5V3"/><path d="M8.5 6.5L12 3 15.5 6.5"/></svg></button>
+      <div class="tb-sep" id="tb-sep-l"></div>
+      <button id="prev" data-i18n-title="tool.preview"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><rect x="12.5" y="11.5" width="5" height="4.5" rx="1" fill="currentColor" stroke="none"/></svg></button>
+      <button id="refbtn" data-i18n-title="tool.reference"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M3.5 8h17"/><circle cx="9" cy="13" r="1.4" fill="currentColor" stroke="none"/><path d="M5.5 19l4-4 2.6 2.6 2.2-2.2 4.2 3.6"/></svg></button>
+    </div>
+    <div class="tb-group" id="tb-right">
+      <button id="layers" data-i18n-title="tool.layers"><svg viewBox="0 0 24 24"><path d="M12 3.5l8.5 4.5L12 12.5 3.5 8 12 3.5z"/><path d="M4.5 12.5L12 16.5l7.5-4"/><path d="M4.5 16.5L12 20.5l7.5-4"/></svg></button>
+      <button id="activewrap" data-i18n-title="tool.color"><span id="active"></span></button>
+    </div>
+  </header>
+
+  <aside id="sidebar">
+    <div id="sb-grip" data-i18n-title="ui.dragPanel"></div>
+    <button id="t-pencil" class="on" data-i18n-title="tool.pencil"><svg viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.6L16.6 4.7a2.05 2.05 0 0 1 2.9 2.9L8.3 18.8l-3.8.7z"/><path d="M14.7 6.6l2.9 2.9"/></svg></button>
+    <button id="t-eraser" data-i18n-title="tool.eraser"><svg viewBox="0 0 24 24"><path d="M8.7 18.7H6.3L4 16.4a1.9 1.9 0 0 1 0-2.7l8.6-8.6a1.9 1.9 0 0 1 2.7 0l4 4a1.9 1.9 0 0 1 0 2.7l-7 6.9z"/><path d="M9.3 8.3l6.4 6.4"/><path d="M12.5 20.5H20"/></svg></button>
+    <button id="t-smudge" data-i18n-title="tool.smudge"><svg viewBox="0 0 24 24"><path d="M8.2 20c-1.8-1.6-3.2-3.8-2.6-5.2.4-1 1.5-1 2.3-.2l1.2 1.1V7.2a1.5 1.5 0 0 1 3 0v5.2-7a1.5 1.5 0 0 1 3 0v7.3-5.9a1.5 1.5 0 0 1 3 0v7.7c0 3.6-2.2 5.5-5.5 5.5H8.2z"/></svg></button>
+    <button id="t-fill" data-i18n-title="tool.fill"><svg viewBox="0 0 24 24"><path d="M11.3 3.8l7 7-6.2 6.2a1.9 1.9 0 0 1-2.7 0l-4.3-4.3a1.9 1.9 0 0 1 0-2.7l6.2-6.2z"/><path d="M4.6 12.5h12.2"/><path d="M19.9 14.6s1.6 2 1.6 3.1a1.6 1.6 0 0 1-3.2 0c0-1.1 1.6-3.1 1.6-3.1z"/></svg></button>
+    <button id="t-move" data-i18n-title="tool.move"><svg viewBox="0 0 24 24"><path d="M12 3.5v17M3.5 12h17"/><path d="M8.5 7L12 3.5 15.5 7M8.5 17l3.5 3.5 3.5-3.5M7 8.5 3.5 12 7 15.5M17 8.5l3.5 3.5-3.5 3.5"/></svg></button>
+    <button id="crop" data-i18n-title="side.crop"><svg viewBox="0 0 24 24"><path d="M6 2.5V18h15.5"/><path d="M2.5 6H18v15.5"/></svg></button>
+    <button id="t-select" data-i18n-title="tool.select"><svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="15" height="15" rx="2.5" stroke-dasharray="3.5 3"/></svg></button>
+    <button id="t-lasso" data-i18n-title="tool.lasso"><svg viewBox="0 0 24 24"><path d="M4 13c0-5 4-8.5 8.5-8.5S20 7.5 20 11.5c0 3-2.5 4.5-4.5 4.5-1.5 0-2.5-1-2.5-2s.8-1.8 1.8-1.8" stroke-dasharray="3 2.6"/><path d="M9 18.5a2 2 0 1 1-2.6-1.9" stroke-dasharray="2.6 2.4"/></svg></button>
+    <button id="flip-h" data-i18n-title="side.transformCanvas"><svg viewBox="0 0 24 24"><path d="M12 4v16" stroke-dasharray="2 2"/><path d="M8 8l-4 4 4 4"/><path d="M16 8l4 4-4 4"/><path d="M18.5 6.5A6.5 6.5 0 0 0 7.5 5"/><path d="M7.5 2.5V5h2.5"/></svg></button>
+    <button id="sym" data-i18n-title="side.symmetry"><svg viewBox="0 0 24 24"><path d="M12 4v16" stroke-dasharray="3 3"/><path d="M8 8l-4 4 4 4"/><path d="M16 8l4 4-4 4"/></svg></button>
+    <button id="t-shape" data-i18n-title="tool.rect"><svg viewBox="0 0 24 24"><rect x="4.5" y="6.5" width="15" height="11" rx="1.5"/></svg></button>
+    <button id="t-adjust" data-i18n-title="adj.dodge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></button>
+    <button id="tile-btn" data-i18n-title="side.tile"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="17" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="17" width="4.5" height="4.5" rx="1"/><rect x="17" y="17" width="4.5" height="4.5" rx="1"/></svg></button>
+    <button id="center" data-i18n-title="side.center"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/></svg></button>
+    <button id="t-text" data-i18n-title="tool.text"><svg viewBox="0 0 24 24"><path d="M5 5.5h14M12 5.5v13M8.5 18.5h7"/></svg></button>
+    <button id="zoom" data-i18n-title="tool.realSize"><svg viewBox="0 0 24 24"><text x="12" y="15.5" text-anchor="middle" font-size="9.5" font-weight="800" fill="currentColor" stroke="none">1:1</text></svg></button>
+    <div id="sb-rsz" data-i18n-title="ui.resizePanel"><svg viewBox="0 0 24 24"><path d="M19 13l-6 6M19 17.5L16.5 20"/></svg></div>
+  </aside>
+
+  <div id="tctx">
+    <button id="tctx-hide" data-i18n="tctx.hide"></button>
+    <button id="tctx-conf" data-i18n="tctx.conf"></button>
+  </div>
+  <div id="brush-choice" class="tool-choice"></div>
+  <div id="shape-choice" class="tool-choice"></div>
+  <div id="sym-choice" class="tool-choice"></div>
+  <div id="flip-choice" class="tool-choice"></div>
+  <div id="center-choice" class="tool-choice"></div>
+  <div id="zoom-choice" class="tool-choice"></div>
+  <div id="adjust-choice" class="tool-choice"></div>
+  <div id="pal-new-choice" class="tool-choice"></div>
+
+  <div id="tools-ovl" class="ovl"><div class="sheet">
+    <h3 data-i18n="dialog.panels"></h3>
+    <p class="hint" style="margin:0 2px" data-i18n="hint.panels"></p>
+    <div id="tools-list"></div>
+    <div class="iact"><button id="tools-reset" class="txtbtn" data-i18n="btn.resetPanels"></button><button id="tools-close" data-i18n="btn.done" class="txtbtn primary"></button></div>
+  </div></div>
+
+  <div id="cropbar" class="crop-panel">
+    <header class="crop-head"><h3 data-i18n="crop.canvasSize"></h3></header>
+    <section class="crop-custom">
+      <h4 data-i18n="crop.custom"></h4>
+      <div class="crop-toolrow">
+        <button id="crop-sym" type="button" data-i18n-title="crop.center"><svg viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2"/><path d="M12 2v3.5M12 18.5V22M2 12h3.5M18.5 12H22"/></svg></button>
+        <button id="crop-units" type="button" data-i18n-title="crop.units"><svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="15" height="15" rx="2"/><path d="M9.5 4.5v15M14.5 4.5v15M4.5 9.5h15M4.5 14.5h15"/></svg></button>
+        <button id="crop-trim" type="button" data-i18n-title="side.trim"><svg viewBox="0 0 24 24"><rect x="7.5" y="7.5" width="9" height="9" rx="1"/><path d="M4 7.5V4.5h3M20 7.5V4.5h-3M4 16.5v3h3M20 16.5v3h-3"/></svg></button>
+      </div>
+      <label class="crop-checkrow">
+        <input id="crop-grid-visible" type="checkbox" />
+        <span></span>
+        <b data-i18n="crop.gridVisible"></b>
       </label>
-      <label><span id="brush-opacity-label" data-i18n="brush.opacity"></span><output id="brush-opacity-value"></output>
-        <input id="brush-opacity" type="range" min="1" max="100" value="100" />
-      </label>
-      <label class="color-control"><span data-i18n="brush.color"></span>
-        <input id="brush-color" type="color" value="#171717" />
-      </label>
-      <label class="finger-paint-control"><span data-i18n="input.fingerPaint"></span>
-        <input id="finger-paint" type="checkbox" /></label>
-    </aside>
-
-    <main class="canvas-shell"><canvas id="paint-canvas"></canvas></main>
-
-    <aside class="layers-panel panel">
-      <header><strong data-i18n="layers.title"></strong>
-        <button id="add-layer" data-i18n-title="layers.add" class="icon-button">＋</button>
-      </header>
-      <div id="layer-list" class="layer-list"></div>
-    </aside>
-
-    <footer class="statusbar">
-      <span id="document-status"></span><span id="view-status"></span>
-    </footer>
+      <div id="crop-cell-size-row" class="crop-cell-size">
+        <label><span data-i18n="crop.cellSize"></span><input id="crop-cell-size" type="text" inputmode="text" spellcheck="false" /></label>
+      </div>
+      <div class="crop-grid-fields">
+        <label><span id="crop-wl" data-i18n="label.width"></span><input id="crop-w" type="text" inputmode="text" spellcheck="false" /></label>
+        <button id="crop-link" class="new-link crop-link" type="button" data-i18n-title="new.lockRatio"><svg viewBox="0 0 24 24"><path d="M9.5 8H8a4 4 0 0 0 0 8h1.5"/><path d="M14.5 8H16a4 4 0 0 1 0 8h-1.5"/><path d="M8.5 12h7"/></svg></button>
+        <label><span id="crop-hl" data-i18n="label.height"></span><input id="crop-h" type="text" inputmode="text" spellcheck="false" /></label>
+      </div>
+      <span id="crop-px" class="crop-px"></span>
+      <div class="crop-actions iact">
+        <button id="crop-cancel" type="button" class="txtbtn" data-i18n="btn.cancel"></button>
+        <button id="crop-ok" type="button" class="txtbtn primary" data-i18n="btn.apply"></button>
+      </div>
+    </section>
   </div>
 
-  <dialog id="new-document-dialog" class="modal new-document-dialog">
-    <form method="dialog">
-      <header><h2 data-i18n="new.title"></h2><button value="cancel" class="icon-button">×</button></header>
-      <div id="preset-list" class="preset-list"></div>
-      <fieldset><legend data-i18n="new.custom"></legend>
-        <label><span data-i18n="new.width"></span><input id="custom-width" type="number" min="1" max="8192" value="1920" /></label>
-        <label><span data-i18n="new.height"></span><input id="custom-height" type="number" min="1" max="8192" value="1080" /></label>
-        <label><span data-i18n="new.dpi"></span><input id="custom-dpi" type="number" min="1" max="1200" value="72" /></label>
-      </fieldset>
-      <p id="new-error" class="dialog-error" role="alert"></p>
-      <footer><button value="cancel" data-i18n="action.cancel"></button>
-        <button id="create-document" value="default" data-i18n="action.create" class="primary"></button></footer>
-    </form>
-  </dialog>
 
-  <dialog id="brush-library-dialog" class="modal brush-library-dialog">
-    <form method="dialog"><header><h2 data-i18n="brush.library"></h2>
-      <span><button id="add-brush" type="button" data-i18n-title="brush.add" class="icon-button">＋</button>
-        <button id="add-brush-set" type="button" data-i18n-title="brush.addSet" class="icon-button">▣＋</button>
-        <button id="import-brush" type="button" data-i18n-title="brush.import" class="icon-button">⇩</button>
-        <button id="export-brush" type="button" data-i18n-title="brush.export" class="icon-button">⇧</button>
-        <button id="reset-brush" type="button" data-i18n-title="brush.reset" class="icon-button">↺</button>
-        <button id="restore-brush-trash" type="button" data-i18n-title="brush.restoreTrash" class="icon-button">♲</button>
-        <button id="reveal-brush-folder" type="button" data-i18n-title="brush.revealFolder" class="icon-button">⌂</button>
-        <button value="cancel" class="icon-button">×</button></span></header>
-      <div class="brush-library-body"><nav id="brush-set-list"></nav>
-        <div id="brush-list" class="brush-list"></div></div>
-      <div id="brush-context-menu" class="context-menu" hidden>
-        <button type="button" data-action="favorite"></button>
-        <button type="button" data-action="duplicate" data-i18n="brush.duplicate"></button>
-        <button type="button" data-action="delete" data-i18n="brush.delete"></button>
-      </div>
-      <div id="brush-set-context-menu" class="context-menu" hidden>
-        <button type="button" data-action="rename" data-i18n="brush.rename"></button>
-        <button type="button" data-action="delete" data-i18n="brush.deleteSet"></button>
-      </div>
-    </form>
-  </dialog>
+  <div id="brushbar">
+    <div class="vsl bb-size" id="bp-size-sl"><div class="vsl-fill" id="bp-size-fill"></div><div class="vsl-knob" id="bp-size-knob"></div></div>
+    <button id="bb-pick" data-i18n-title="tool.pick"><svg viewBox="0 0 24 24"><path d="M15.4 4.3l.9-.9a2.33 2.33 0 0 1 3.3 3.3l-.9.9"/><path d="M13.3 6.4l4.3 4.3"/><path d="M15.1 9.2L6.9 17.4c-.5.5-2.5 1.1-3.2.8-.3-.7.3-2.7.8-3.2l8.2-8.2 2.4 2.4z"/></svg></button>
+    <div class="vsl bb-op" id="bp-op-sl"><div class="vsl-fill" id="bp-op-fill"></div><div class="vsl-knob" id="bp-op-knob"></div></div>
+    <div class="bb-sep"></div>
+    <button id="bb-undo" data-i18n-title="edit.undo"><svg viewBox="0 0 24 24"><path d="M4.5 9H12a5.5 5.5 0 1 1 0 11H9"/><path d="M8 5.5L4.5 9 8 12.5"/></svg></button>
+    <button id="bb-redo" data-i18n-title="edit.redo"><svg viewBox="0 0 24 24"><path d="M19.5 9H12a5.5 5.5 0 1 0 0 11h-3"/><path d="M16 5.5L19.5 9 16 12.5"/></svg></button>
+  </div>
+  <div id="pickflag"><svg viewBox="0 0 24 24"><path d="M15.4 4.3l.9-.9a2.33 2.33 0 0 1 3.3 3.3l-.9.9"/><path d="M13.3 6.4l4.3 4.3"/><path d="M15.1 9.2L6.9 17.4c-.5.5-2.5 1.1-3.2.8-.3-.7.3-2.7.8-3.2l8.2-8.2 2.4 2.4z"/></svg><span data-i18n="tool.pickShort"></span></div>
+  <div id="eyedrop"><span id="eyedrop-found"></span><span id="eyedrop-cur"></span><b id="eyedrop-hex"></b></div>
+  <div id="bb-val"></div>
+  <div id="bcpop" class="toolpop">
+    <div class="bp-head"><span class="bp-title" id="bc-title" data-i18n="pop.bc"></span><button class="win-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="chips" id="bc-scope">
+      <button data-scope="layer" data-i18n="bc.scopeLayer"></button>
+      <button data-scope="canvas" data-i18n="bc.scopeCanvas"></button>
+    </div>
+    <div class="irow"><label data-i18n="label.brightness"></label><input id="bc-bri" type="range" min="-100" max="100" step="1" value="0" /><b id="bc-briv">0</b></div>
+    <div class="irow"><label data-i18n="label.contrast"></label><input id="bc-con" type="range" min="-100" max="100" step="1" value="0" /><b id="bc-conv">0</b></div>
+    <div class="irow"><label data-i18n="label.saturation"></label><input id="bc-sat" type="range" min="-100" max="100" step="1" value="0" /><b id="bc-satv">0</b></div>
+    <div class="irow"><label data-i18n="label.hue"></label><input id="bc-hue" type="range" min="-180" max="180" step="1" value="0" /><b id="bc-huev">0</b></div>
+    <div class="iact"><button id="bc-cancel" data-i18n="btn.cancel" class="txtbtn"></button><button id="bc-apply" data-i18n="btn.apply" class="txtbtn primary"></button></div>
+  </div>
 
-  <dialog id="brush-studio-dialog" class="modal brush-studio-dialog">
+  <div id="adjpop" class="menu">
+    <div class="irow"><input id="adj-amt" type="range" min="1" max="100" step="1" value="8" /><b id="adj-amtv">8%</b></div>
+  </div>
+
+  <div id="lassopop" class="toolpop">
+    <div class="bp-head"><span class="bp-title" data-i18n="lasso.title"></span><button class="win-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="chips" id="lasso-mode">
+      <button data-v="continuous" data-i18n="lasso.continuous"></button>
+      <button data-v="segment" data-i18n="lasso.segment"></button>
+    </div>
+    <div class="chips" id="lasso-op">
+      <button data-v="replace" data-i18n="lasso.new"></button>
+      <button data-v="add" data-i18n="lasso.add"></button>
+      <button data-v="subtract" data-i18n="lasso.subtract"></button>
+      <button data-v="intersect" data-i18n="lasso.intersect"></button>
+    </div>
+  </div>
+
+  <div id="fx-panel">
+    <div class="pop-head" id="fx-head"><span class="pop-title" data-i18n="label.effects"></span>
+      <span class="pop-acts"><button class="win-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span></div>
+    <div id="fx-types">
+      <button data-fx="stroke" data-i18n-title="fx.stroke"><svg viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="1.5" fill="currentColor" stroke="none"/><rect x="3.5" y="3.5" width="17" height="17" rx="3"/></svg></button>
+      <button data-fx="glow" data-i18n-title="fx.glow"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></button>
+      <button data-fx="dropShadow" data-i18n-title="fx.dropShadow"><svg viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="1.5" fill="currentColor" stroke="none"/><rect x="4.5" y="4.5" width="11" height="11" rx="1.5"/></svg></button>
+      <button data-fx="innerShadow" data-i18n-title="fx.innerShadow"><svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="15" height="15" rx="2"/><path d="M6.5 13a6.5 6.5 0 0 1 6.5-6.5"/></svg></button>
+    </div>
+    <div id="fx-rsz" data-i18n-title="ui.resizePanel"><svg viewBox="0 0 24 24"><path d="M19 13l-6 6M19 17.5L16.5 20"/></svg></div>
+  </div>
+
+  <div id="fx-edit" class="toolpop">
+    <div class="bp-head"><span class="bp-title" id="fx-edit-title" data-i18n="label.effect"></span><button class="win-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="irow fxf-size"><label data-i18n="label.size"></label><input id="fx-size" type="range" min="1" max="16" step="1" value="1" /><b id="fx-sizev">1</b></div>
+    <div class="irow fxf-intensity"><label data-i18n="label.intensity"></label><input id="fx-int" type="range" min="5" max="100" step="5" value="80" /><b id="fx-intv">80%</b></div>
+    <div class="irow fxf-offset"><label data-i18n="label.offsetX"></label><input id="fx-dx" type="range" min="-12" max="12" step="1" value="2" /><b id="fx-dxv">2</b></div>
+    <div class="irow fxf-offset"><label data-i18n="label.offsetY"></label><input id="fx-dy" type="range" min="-12" max="12" step="1" value="2" /><b id="fx-dyv">2</b></div>
+    <div class="irow fxf-color"><label data-i18n="label.color"></label><button id="fx-colsw" class="fx-colbtn"></button></div>
+    <div class="iact"><button id="fx-cancel" data-i18n="btn.cancel" class="txtbtn"></button><button id="fx-apply" data-i18n="btn.apply" class="txtbtn primary"></button></div>
+  </div>
+
+  <div id="zoom-status">100%</div>
+  <div id="status">32×32 px</div>
+
+  <footer id="palbar">
+    <div id="palgrip" class="pop-head" data-i18n-title="ui.dragPalette"><span class="pop-title" id="palgrip-label"></span>
+      <span class="pop-acts">
+        <button class="win-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </span>
+    </div>
+    <div id="pal"></div>
+    <div id="pal-act" class="lay-act pal-act">
+      <button id="pal-new" data-i18n-title="palette.new"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></button>
+      <button id="pal-save-open" data-i18n-title="btn.save"><svg viewBox="0 0 24 24"><path d="M5 4.5h12l2 2v13H5z"/><path d="M8 4.5v6h8v-6"/><path d="M8 16.5h8"/></svg></button>
+      <button id="pal-presets" data-i18n-title="palette.presets"><svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="5.5" height="5.5" rx="1.2"/><rect x="14" y="4.5" width="5.5" height="5.5" rx="1.2"/><rect x="4.5" y="14" width="5.5" height="5.5" rx="1.2"/><rect x="14" y="14" width="5.5" height="5.5" rx="1.2"/></svg></button>
+      <button id="pal-shading" data-i18n-title="tool.brushShading"><svg viewBox="0 0 24 24"><path d="M5 17.5c2.2-6.8 7.5-11.2 14-12"/><path d="M5 17.5h14"/><path d="M8 14.5h3.2M11 11.5h3.2M14 8.5h3.2"/></svg></button>
+      <button id="tsg-btn" data-i18n-title="tool.tsg"><svg viewBox="0 0 24 24"><path d="M4.5 17.5h4v-4h-4zM10 17.5h4v-8h-4zM15.5 17.5h4v-12h-4z"/><path d="M6.5 3.5l.8 1.8 1.9.7-1.9.7-.8 1.8-.8-1.8L3.8 6l1.9-.7z"/></svg></button>
+      <button id="pal-used" data-i18n-title="palette.used"><svg viewBox="0 0 24 24"><path d="M4.5 12S7.5 6.5 12 6.5 19.5 12 19.5 12 16.5 17.5 12 17.5 4.5 12 4.5 12z"/><circle cx="12" cy="12" r="2.4"/><circle cx="18" cy="18" r="2.4" fill="currentColor" stroke="none"/></svg></button>
+    </div>
+    <div id="palrsz" data-i18n-title="ui.resizeWindow"><svg viewBox="0 0 24 24"><path d="M19 13l-6 6M19 17.5L16.5 20"/></svg></div>
+  </footer>
+
+  <div id="prevwin">
+    <div id="prevgrip"><span data-i18n="label.preview"></span>
+      <button id="prev-1to1" data-i18n-title="preview.actualSize">1:1</button>
+      <button id="prev-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <canvas id="prevcv"></canvas>
+    <div id="prevrsz" data-i18n-title="ui.resizeWindow"><svg viewBox="0 0 24 24"><path d="M19 13l-6 6M19 17.5L16.5 20"/></svg></div>
+  </div>
+
+  <div id="refwin">
+    <div id="refgrip"><span data-i18n="label.reference"></span>
+      <button id="ref-open" data-i18n-title="reference.openImage"><svg viewBox="0 0 24 24"><path d="M3.5 7A2.5 2.5 0 0 1 6 4.5h4l2 2.5h6A2.5 2.5 0 0 1 20.5 9.5V17a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 17V7z"/></svg></button>
+      <button id="ref-rot" data-i18n-title="reference.rotate90"><svg viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-7-7"/><path d="M9.8 2.6L12.4 5l-2.6 2.4"/></svg></button>
+      <button id="ref-flip" data-i18n-title="reference.flip"><svg viewBox="0 0 24 24"><path d="M12 3.5v17" stroke-dasharray="2.5 3"/><path d="M8.5 7.5v9L3.5 12l5-4.5z"/><path d="M15.5 7.5v9l5-4.5-5-4.5z"/></svg></button>
+      <button id="ref-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <canvas id="refcv"></canvas>
+    <div id="refrsz" data-i18n-title="ui.resizeWindow"><svg viewBox="0 0 24 24"><path d="M19 13l-6 6M19 17.5L16.5 20"/></svg></div>
+  </div>
+
+  <div id="tsg-win">
+    <div id="tsg-grip"><span data-i18n="tsg.title"></span>
+      <button id="tsg-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="tsg-body">
+      <div class="tsg-base"><span id="tsg-baseprev"></span><input id="tsg-basehex" type="text" maxlength="7" spellcheck="false" value="#000000" /><span id="tsg-basecheck"></span></div>
+      <div id="tsg-scales"></div>
+      <div class="tsg-htitle" data-i18n="tsg.harmony"></div>
+      <div class="tsg-harm-btns">
+        <button data-harm="complementary" data-i18n="harm.complementary"></button>
+        <button data-harm="splitComplementary" data-i18n="harm.split"></button>
+        <button data-harm="analogous" data-i18n="harm.analogous"></button>
+        <button data-harm="triadic" data-i18n="harm.triadic"></button>
+      </div>
+      <div id="tsg-harm"></div>
+      <div class="tsg-htitle"><span data-i18n="tsg.selected"></span> · <b id="tsg-selcount">0</b></div>
+      <div id="tsg-selprev"></div>
+      <div class="tsg-act">
+        <button id="tsg-add" class="txtbtn" data-i18n="btn.tsgAdd" data-i18n-title="btn.tsgAddFull"></button>
+        <button id="tsg-create" class="txtbtn" data-i18n="btn.tsgCreate" data-i18n-title="btn.tsgCreateFull"></button>
+        <button id="tsg-clear" class="txtbtn" data-i18n="btn.tsgClear" data-i18n-title="btn.tsgClearFull"></button>
+      </div>
+    </div>
+    <div id="tsg-rsz" data-i18n-title="ui.resizeWindow"><svg viewBox="0 0 24 24"><path d="M19 13l-6 6M19 17.5L16.5 20"/></svg></div>
+  </div>
+
+  <div id="export-ovl" class="ovl"><div id="export-win" class="sheet">
+    <h3 id="export-grip" data-i18n="dialog.export"></h3>
+    <div class="exrow"><label data-i18n="export.scope"></label><div id="ex-scope" class="chips">
+      <button data-val="selected" data-i18n="export.selected"></button>
+      <button data-val="folder" data-i18n="export.folder"></button>
+      <button data-val="project" data-i18n="export.project"></button></div></div>
+    <div class="exrow"><label data-i18n="export.mode"></label><div id="ex-mode" class="chips">
+      <button data-val="flattened" data-i18n="export.flattened"></button>
+      <button data-val="layered" data-i18n="export.layered"></button>
+      <button data-val="separate" data-i18n="export.separateFiles"></button></div></div>
+    <div id="ex-sep">
+      <div class="exrow"><label data-i18n="export.separate"></label><div id="ex-sepmode" class="chips">
+        <button data-val="top" data-i18n="export.top"></button>
+        <button data-val="leaf" data-i18n="export.leaves"></button>
+        <button data-val="folders" data-i18n="export.foldersFlat"></button></div></div>
+      <div class="exrow"><label data-i18n="export.bounds"></label><div id="ex-sepbounds" class="chips">
+        <button data-val="same" data-i18n="export.sameBounds"></button>
+        <button data-val="each" data-i18n="export.trimEach"></button></div></div>
+    </div>
+    <div class="exrow"><label data-i18n="export.format"></label><div id="ex-format" class="chips">
+      <button data-val="png" data-i18n="export.png"></button>
+      <button data-val="psd" data-i18n="export.psd"></button></div></div>
+    <div class="exrow"><label data-i18n="export.canvas"></label><div id="ex-canvas" class="chips">
+      <button data-val="current" data-i18n="export.current"></button>
+      <button data-val="trim" data-i18n="export.trim"></button></div></div>
+    <div class="irow"><label data-i18n="export.hidden"></label><label class="switch"><input id="ex-hidden-in" type="checkbox" /><span></span></label></div>
+    <div class="iact"><button id="ex-cancel" data-i18n="btn.cancel" class="txtbtn"></button><button id="ex-run" data-i18n="btn.export" class="txtbtn primary"></button></div>
+  </div></div>
+
+  <div id="selbar">
+    <button id="sel-copy" data-i18n-title="tool.copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 4.5H6.5A2.5 2.5 0 0 0 4 7v9.5"/></svg></button>
+    <button id="sel-cut" data-i18n-title="tool.cut"><svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.3"/><circle cx="6" cy="17" r="2.3"/><path d="M8.1 8.3L19.5 17M8.1 15.7L19.5 7"/></svg></button>
+    <button id="sel-paste" data-i18n-title="tool.paste"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4.5V3.5A1.5 1.5 0 0 1 10.5 2h3A1.5 1.5 0 0 1 15 3.5v1"/><path d="M12 9.5v7M9 13.5l3 3 3-3"/></svg></button>
+    <button id="sel-del" data-i18n-title="tool.deleteSel"><svg viewBox="0 0 24 24"><path d="M4.5 6.5h15"/><path d="M8 6V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"/><path d="M6.5 6.5l.8 11.7A2 2 0 0 0 9.3 20h5.4a2 2 0 0 0 2-1.8l.8-11.7"/><path d="M10 10.5v6M14 10.5v6"/></svg></button>
+    <button id="sel-off" data-i18n-title="tool.deselect"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+
+  <div id="lay-pop">
+    <div class="pop-head" id="lay-head"><span class="pop-title" data-i18n="label.layers"></span>
+      <span class="pop-acts">
+        <button class="win-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </span>
+    </div>
+    <div id="lay-act-top" class="lay-act lay-act-top">
+      <button id="lay-add" data-i18n-title="menu.newLayer"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></button>
+      <button id="lay-tmap" data-i18n-title="menu.convertTile"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1" fill="currentColor" stroke="none"/><rect x="3.5" y="13.5" width="7" height="7" rx="1" fill="currentColor" stroke="none"/><rect x="13.5" y="13.5" width="7" height="7" rx="1"/></svg></button>
+      <button id="fx-btn" data-i18n-title="tool.effects"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z"/></svg></button>
+      <button id="img-settings" data-i18n-title="side.imageSettings"><svg viewBox="0 0 24 24"><path d="M5 7h14"/><path d="M5 12h14"/><path d="M5 17h14"/><circle cx="9" cy="7" r="2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="11" cy="17" r="2" fill="currentColor" stroke="none"/></svg></button>
+      <button id="lay-group" data-i18n-title="menu.group"><svg viewBox="0 0 24 24"><path d="M3.5 7A2.5 2.5 0 0 1 6 4.5h4l2 2.5h6A2.5 2.5 0 0 1 20.5 9.5V17a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 17V7z"/></svg></button>
+      <button id="lay-alpha" data-i18n-title="menu.alphaLock"><svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="15" height="15" rx="2"/><path d="M12 4.5v15M4.5 12h15"/></svg></button>
+      <button id="lay-clip" data-i18n-title="menu.clip"><svg viewBox="0 0 24 24"><path d="M16 5h-4.5A2.5 2.5 0 0 0 9 7.5V15"/><path d="M5.5 11.5l3.5 4 3.5-4"/></svg></button>
+      <button id="lay-ref" data-i18n-title="label.reference"><svg viewBox="0 0 24 24"><path d="M6 4.5h12v15l-6-3.5-6 3.5z"/><path d="M9 8.5h6M9 12h4"/></svg></button>
+      <button id="lay-clean" data-i18n-title="menu.clearLayer"><svg viewBox="0 0 24 24"><path d="M20 4l-5.5 5.5"/><path d="M11 7.2l5.5 5.5"/><path d="M10.3 8.8C7 12.2 4.4 15.3 3.7 18.9L6.1 17.1 7.7 20 9.7 17 11.3 21.1 13.2 16.8 15.5 13.5Z"/></svg></button>
+    </div>
+    <div id="lay-list"></div>
+    <div class="lay-ops">
+      <b id="lay-opv">100%</b>
+      <input id="lay-op" type="range" min="0" max="100" step="1" value="100" />
+    </div>
+    <div id="lay-act-bottom" class="lay-act lay-act-bottom">
+      <button id="lay-dup" data-i18n-title="menu.dupLayer"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 4.5H6.5A2.5 2.5 0 0 0 4 7v9.5"/></svg></button>
+      <button id="lay-symm" data-i18n-title="menu.symm"><svg viewBox="0 0 24 24"><path d="M12 4v16" stroke-dasharray="2.5 2.5"/><path d="M8.5 8.5L5 12l3.5 3.5M15.5 8.5L19 12l-3.5 3.5"/></svg></button>
+      <button id="lay-merge" data-i18n-title="menu.mergeLayers"><svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="8" height="8" rx="1.6"/><rect x="8" y="8" width="8" height="8" rx="1.6"/><rect x="11.5" y="11.5" width="8" height="8" rx="1.6"/></svg></button>
+      <button id="lay-select" data-i18n-title="menu.selectAll"><svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="15" height="15" rx="2" stroke-dasharray="3.2 3"/></svg></button>
+      <button id="lay-lock" data-i18n-title="menu.lock"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
+      <button id="lay-del" data-i18n-title="menu.deleteLayer"><svg viewBox="0 0 24 24"><path d="M4.5 6.5h15"/><path d="M8 6V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"/><path d="M6.5 6.5l.8 11.7A2 2 0 0 0 9.3 20h5.4a2 2 0 0 0 2-1.8l.8-11.7"/><path d="M10 10.5v6M14 10.5v6"/></svg></button>
+    </div>
+    <div id="lay-rsz" data-i18n-title="ui.resizePanel"><svg viewBox="0 0 24 24"><path d="M19 13l-6 6M19 17.5L16.5 20"/></svg></div>
+  </div>
+
+  <div id="brush-pop">
+    <div class="pop-head" id="brush-head"><span class="pop-title" data-i18n="brush.library"></span>
+      <span class="pop-acts">
+        <button id="brush-add" data-i18n-title="brush.add"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></button>
+        <button class="win-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </span>
+    </div>
+    <div id="brush-body">
+      <div id="brush-list"></div>
+    </div>
+    <div id="brush-rsz" data-i18n-title="ui.resizePanel"><svg viewBox="0 0 24 24"><path d="M19 13l-6 6M19 17.5L16.5 20"/></svg></div>
+  </div>
+  <div id="brush-plus">
+    <button id="brush-from-sel" data-i18n="brush.fromSelection"></button>
+    <button id="brush-import" data-i18n="brush.import"></button>
+    <button id="brush-export" data-i18n="brush.exportLib"></button>
+  </div>
+  <div id="brush-menu" class="menu">
+    <button data-act="edit" data-i18n="menu.edit"></button>
+    <button data-act="duplicate" data-i18n="menu.duplicate"></button>
+    <button data-act="delete" data-i18n="menu.delete"></button>
+  </div>
+  <div id="font-pop">
+    <div class="pop-head" id="font-head"><span class="pop-title" data-i18n="font.library"></span>
+      <span class="pop-acts">
+        <button id="font-add" data-i18n-title="font.add"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></button>
+        <button class="win-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </span>
+    </div>
+    <div id="font-body"><div id="font-list"></div></div>
+    <div class="font-controls">
+      <label class="font-range"><span data-i18n="label.size"></span><input id="font-size" type="range" min="4" max="128" step="1" value="16" /><b id="font-sizev">16 px</b></label>
+      <label class="font-range"><span data-i18n="font.letterSpacing"></span><input id="font-letter" type="range" min="-8" max="32" step="1" value="0" /><b id="font-letterv">0 px</b></label>
+      <label class="font-range"><span data-i18n="font.lineSpacing"></span><input id="font-line" type="range" min="-8" max="64" step="1" value="2" /><b id="font-linev">2 px</b></label>
+    </div>
+    <div class="font-tools">
+      <button id="font-color" data-i18n-title="label.color"></button>
+      <button id="font-upper" data-i18n-title="font.uppercase"><b>TT</b></button>
+      <button id="font-align-left" data-align="left" data-i18n-title="font.alignLeft"><svg viewBox="0 0 24 24"><path d="M5 6h12M5 10h8M5 14h12M5 18h8"/></svg></button>
+      <button id="font-align-center" data-align="center" data-i18n-title="font.alignCenter"><svg viewBox="0 0 24 24"><path d="M6 6h12M8 10h8M6 14h12M8 18h8"/></svg></button>
+      <button id="font-align-right" data-align="right" data-i18n-title="font.alignRight"><svg viewBox="0 0 24 24"><path d="M7 6h12M11 10h8M7 14h12M11 18h8"/></svg></button>
+      <button id="font-stretch" data-i18n-title="font.stretch"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><path d="M7 11h10M5 11l2-2v4l-2-2zM19 11l-2-2v4l2-2z"/></svg></button>
+    </div>
+    <div id="font-rsz" data-i18n-title="ui.resizePanel"><svg viewBox="0 0 24 24"><path d="M19 13l-6 6M19 17.5L16.5 20"/></svg></div>
+  </div>
+  <div id="font-menu" class="menu">
+    <button data-act="rename" data-i18n="menu.rename"></button>
+    <button data-act="delete" data-i18n="menu.delete"></button>
+  </div>
+  <div id="text-editor" contenteditable="true" spellcheck="false"></div>
+  <dialog id="brush-studio-dialog" class="raster-modal brush-studio-dialog">
     <form method="dialog"><header><div><small data-i18n="studio.title"></small>
       <h2 id="studio-brush-name"></h2></div><span>
       <button id="studio-cancel" value="cancel" data-i18n="action.cancel"></button>
       <button id="studio-apply" type="button" class="primary" data-i18n="action.apply"></button>
-    </span></header>
-    <div class="brush-studio-body">
+    </span></header><div class="brush-studio-body">
       <nav id="studio-sections"></nav>
       <section id="studio-controls" class="studio-controls"></section>
       <aside class="drawing-pad"><header data-i18n="studio.drawingPad"></header>
@@ -121,8 +370,7 @@
       </aside>
     </div></form>
   </dialog>
-
-  <dialog id="brush-source-dialog" class="modal brush-source-dialog">
+  <dialog id="brush-source-dialog" class="raster-modal brush-source-dialog">
     <form method="dialog"><header><h2 data-i18n="source.library"></h2>
       <button value="cancel" data-i18n="action.cancel"></button></header>
       <nav><button id="source-tab-shape" type="button" data-i18n="source.shape"></button>
@@ -130,8 +378,7 @@
       <div id="brush-source-grid" class="brush-source-grid"></div>
     </form>
   </dialog>
-
-  <dialog id="delete-brush-dialog" class="modal confirm-dialog">
+  <dialog id="delete-brush-dialog" class="raster-modal confirm-dialog">
     <form method="dialog"><h2 data-i18n="brush.deleteTitle"></h2>
       <p id="delete-brush-message"></p><footer>
         <button value="cancel" data-i18n="action.cancel"></button>
@@ -139,25 +386,168 @@
       </footer></form>
   </dialog>
 
-  <dialog id="brush-set-dialog" class="modal confirm-dialog">
-    <form method="dialog"><h2 id="brush-set-dialog-title" data-i18n="brush.newSetTitle"></h2>
-      <label class="studio-control"><span data-i18n="brush.setName"></span>
-        <input id="brush-set-name" type="text" maxlength="80" /></label>
-      <p id="brush-set-error" class="dialog-error"></p><footer>
-        <button value="cancel" data-i18n="action.cancel"></button>
-        <button id="create-brush-set" type="button" class="primary" data-i18n="action.create"></button>
-      </footer></form>
-  </dialog>
+  <div id="ctx">
+    <button data-act="copy" data-i18n="menu.copyHex"></button>
+    <button data-act="shade" data-i18n="menu.shading"></button>
+    <button data-act="replace" data-i18n="menu.replace"></button>
+    <button data-act="select" data-i18n="menu.selectColor"></button>
+    <button data-act="delete" data-i18n="menu.deleteColor"></button>
+  </div>
+  <div id="swtip"></div>
+  <div id="swdrop"></div>
+  <div id="paldrag"></div>
+  <div id="shade-pop">
+    <div class="pop-head" id="shade-head"><span class="pop-title" id="shade-title" data-i18n="shade.title"></span>
+      <span class="pop-acts"><button id="shade-x" class="win-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span></div>
+    <div id="shade-list"></div>
+    <button id="shade-pick" class="txtbtn" data-i18n="shade.pickColors" data-i18n-title="shade.pickColors"></button>
+    <div id="shade-rsz" data-i18n-title="ui.resizePanel"><svg viewBox="0 0 24 24"><path d="M19 13l-6 6M19 17.5L16.5 20"/></svg></div>
+  </div>
+  <div id="dropmask"><div><span data-i18n="drop.releaseImage"></span><small data-i18n="drop.imageHint"></small></div></div>
 
-  <dialog id="delete-brush-set-dialog" class="modal confirm-dialog">
-    <form method="dialog"><h2 data-i18n="brush.deleteSetTitle"></h2>
-      <p id="delete-brush-set-message"></p><footer>
-        <button value="cancel" data-i18n="action.cancel"></button>
-        <button id="confirm-delete-brush-set" type="button" class="danger" data-i18n="brush.deleteSet"></button>
-      </footer></form>
-  </dialog>
+  <div id="colpop" class="toolpop">
+    <div class="bp-head"><span class="bp-title" data-i18n="pop.color"></span><button class="win-x" data-i18n-title="btn.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div id="col-disc" data-i18n-title="pop.color">
+      <div id="col-wheel"></div>
+      <div id="col-svdisc"></div>
+      <span id="col-hmark"></span>
+      <span id="col-svmark"></span>
+    </div>
+    <div class="col-row"><button id="col-prev-sw" data-i18n-title="label.current"></button><button id="col-sw" data-i18n-title="label.color"></button><input id="col-hex" type="text" maxlength="7" spellcheck="false" />
+      <button id="col-copy" data-i18n-title="menu.copyHex"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 4.5H6.5A2.5 2.5 0 0 0 4 7v9.5"/></svg></button>
+      <button id="col-add" data-i18n-title="btn.addPalette"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></button>
+      <button id="col-commit" data-i18n-title="btn.done"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>
+    </div>
+    <div class="irow"><label data-i18n="label.hue"></label><input id="col-h" type="range" min="0" max="360" step="1" class="hue" /><b id="col-hv">0</b></div>
+    <div class="irow"><label data-i18n="label.saturation"></label><input id="col-s" type="range" min="0" max="100" step="1" /><b id="col-sv">0</b></div>
+    <div class="irow"><label data-i18n="label.brightness"></label><input id="col-v" type="range" min="0" max="100" step="1" /><b id="col-vv">0</b></div>
+    <div class="col-hist-head"><span data-i18n="label.history"></span><button id="col-hist-clear" class="txtbtn" data-i18n="btn.clear"></button></div>
+    <div id="col-hist"></div>
+  </div>
+  <div id="lctx">
+    <button id="lctx-ren" data-i18n="menu.rename"></button>
+    <button id="lctx-dup" data-i18n="menu.dupLayer"></button>
+    <button id="lctx-select" data-i18n="menu.selectAll"></button>
+    <button id="lctx-invert" data-i18n="menu.invert"></button>
+    <button id="lctx-fill" data-i18n="menu.fill"></button>
+    <button id="lctx-clear" data-i18n="menu.clearLayer"></button>
+    <button id="lctx-symm" data-i18n="menu.symm"></button>
+    <button id="lctx-rotate" data-i18n="menu.transform"></button>
+    <button id="lctx-copy-fx" data-i18n="menu.copyEffects"></button>
+    <button id="lctx-paste-fx" data-i18n="menu.pasteEffect"></button>
+    <button id="lctx-mono" data-i18n="menu.mono"></button>
+    <button id="lctx-bc" data-i18n="menu.bc"></button>
+    <button id="lctx-tile" data-i18n="tilemap.settings"></button>
+    <button id="lctx-clip" data-i18n="menu.clip"></button>
+    <button id="lctx-lock" data-i18n="menu.lock"></button>
+    <button id="lctx-alpha" data-i18n="menu.alphaLock"></button>
+    <button id="lctx-ref" data-i18n="label.reference"></button>
+    <button id="lctx-png-full" data-i18n="menu.pngFull"></button>
+    <button id="lctx-png-tight" data-i18n="menu.pngTight"></button>
+    <button id="lctx-del" data-i18n="menu.delete"></button>
+    <button id="lctx-ung" data-i18n="menu.ungroup"></button>
+  </div>
+  <div id="cctx"></div>
+  <div id="sctx">
+    <button id="sctx-off" data-i18n="menu.deselect"></button>
+    <button id="sctx-invert" data-i18n="menu.invert"></button>
+    <button id="sctx-transform" data-i18n="menu.transformSelection"></button>
+    <button id="sctx-copy-layer" data-i18n="menu.copySelectionLayer"></button>
+  </div>
+  <div id="trctx">
+    <button id="trctx-flip-h" data-i18n="menu.flipH"></button>
+    <button id="trctx-flip-v" data-i18n="menu.flipV"></button>
+    <button id="trctx-rot-r" data-i18n="menu.rotateRight"></button>
+    <button id="trctx-rot-l" data-i18n="menu.rotateLeft"></button>
+  </div>
+  <div id="impmenu">
+    <button id="impmenu-photo" data-i18n="import.photo"></button>
+    <button id="impmenu-file" data-i18n="import.file"></button>
+    <button id="impmenu-pix" data-i18n="import.pixelize"></button>
+  </div>
+  <div id="fxctx">
+    <button id="fxctx-edit" data-i18n="menu.edit"></button>
+    <button id="fxctx-aslayer" data-i18n="menu.fxAsLayer"></button>
+    <button id="fxctx-copy" data-i18n="menu.fxCopy"></button>
+    <button id="fxctx-dup" data-i18n="menu.duplicate"></button>
+    <button id="fxctx-del" data-i18n="menu.delete"></button>
+  </div>
+  <div id="setmenu"></div>
+  <div id="rowctx"></div>
 
-  <div id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="/src/main.ts"></script>
+  <div id="ren-ovl" class="ovl"><div class="sheet">
+    <h3 data-i18n="dialog.rename"></h3>
+    <div class="irow"><input id="ren-name" type="text" maxlength="24" style="flex:1" /></div>
+    <div class="iact"><button id="ren-cancel" data-i18n="btn.cancel" class="txtbtn"></button><button id="ren-ok" data-i18n="btn.save" class="txtbtn primary"></button></div>
+  </div></div>
+
+  <div id="imp-ovl" class="ovl"><div id="imp-box" class="sheet">
+    <h3 id="imp-grip" data-i18n="dialog.import"></h3>
+    <canvas id="imp-prev"></canvas>
+    <div class="irow"><label data-i18n="label.rotate90"></label><button id="imp-rot" class="txtbtn" style="height:40px">⟳ 90°</button><span class="hint" data-i18n="hint.beforeSym"></span></div>
+    <div class="irow"><label data-i18n="label.colors"></label><input id="imp-colors" type="range" min="0" max="48" step="1" value="24" /><b id="imp-colorsv">24</b></div>
+    <div class="irow"><label data-i18n="label.detail"></label><input id="imp-cell" type="range" min="0" max="256" step="4" value="0" /><b id="imp-cellv" data-i18n="import.auto"></b></div>
+    <div class="irow"><label data-i18n="label.bgTol"></label><input id="imp-bgtol" type="range" min="0" max="120" step="2" value="30" /><b id="imp-bgtolv">30</b></div>
+    <div class="irow"><label data-i18n="label.clean"></label><span class="hint" data-i18n="hint.despeckle"></span><label class="switch"><input id="imp-clean" type="checkbox" /><span></span></label></div>
+    <div class="irow"><label data-i18n="label.symmetry"></label><span class="hint" data-i18n="hint.staysSym"></span><label class="switch"><input id="imp-sym" type="checkbox" /><span></span></label></div>
+    <div class="iact"><button id="imp-cancel" data-i18n="btn.cancel" class="txtbtn"></button><button id="imp-asis" data-i18n="btn.insertAsIs" class="txtbtn"></button><button id="imp-apply" data-i18n="btn.apply" class="txtbtn primary"></button></div>
+  </div></div>
+
+  <div id="new-ovl" class="ovl gallery-only"><div class="new-panel">
+    <header class="new-head"><h3 data-i18n="dialog.newCanvas"></h3></header>
+    <div id="new-scroll" class="new-scroll">
+      <div class="new-presets">
+        <section class="new-group"><h4 data-i18n="new.digitalCanvases"></h4><div id="new-digital" class="new-stack"></div></section>
+        <section class="new-group"><h4 data-i18n="new.printSocial"></h4><div id="new-print-social" class="new-stack"></div></section>
+      </div>
+      <section class="new-saved"><h4 data-i18n="new.saved"></h4><div id="new-saved" class="new-stack"></div></section>
+    </div>
+    <section class="new-custom">
+      <h4 data-i18n="new.custom"></h4>
+      <div class="new-name-field"><span data-i18n="label.name"></span><input id="new-name-in" type="text" maxlength="24" value="64 x 64" /></div>
+      <div class="new-custom-grid">
+        <label><span data-i18n="label.width"></span><input id="new-w" type="text" inputmode="text" spellcheck="false" value="64" /></label>
+        <button id="new-link" class="new-link" data-i18n-title="new.lockRatio"><svg viewBox="0 0 24 24"><path d="M9.5 8H8a4 4 0 0 0 0 8h1.5"/><path d="M14.5 8H16a4 4 0 0 1 0 8h-1.5"/><path d="M8.5 12h7"/></svg></button>
+        <label><span data-i18n="label.height"></span><input id="new-h" type="text" inputmode="text" spellcheck="false" value="64" /></label>
+        <button id="new-bg" class="new-bg" type="button" data-i18n-title="new.background"><span id="new-bg-swatch"></span><em id="new-bg-text"></em></button>
+      </div>
+      <label class="new-save"><input id="new-save" type="checkbox" /><span></span><b data-i18n="new.savePreset"></b></label>
+      <div class="new-mode"><span data-i18n="new.colorMode"></span><div>
+        <button id="new-mode-rgba" type="button" class="on" data-i18n="new.modeRgba"></button>
+        <button id="new-mode-gray" type="button" data-i18n="new.modeGray"></button>
+      </div></div>
+      <button id="new-create" class="txtbtn primary" data-i18n="btn.create"></button>
+    </section>
+  </div></div>
+
+  <div id="ovl" class="ovl"><div id="ovlbox" class="sheet">
+    <h3 data-i18n="dialog.done"></h3>
+    <p data-i18n="ovl.saveHint"></p>
+    <img id="ovlimg" data-i18n-alt="label.result" />
+    <div><button id="ovlclose" data-i18n="btn.close" class="txtbtn primary"></button></div>
+  </div></div>
+
+  <div id="gallery" class="on">
+    <header id="gal-top">
+      <span id="gal-left"><button id="gal-back" style="display:none">‹</button><span id="gal-title">Pixel Heart</span></span>
+      <div class="gal-actions">
+        <button id="gal-stack" data-i18n="gallery.stack" style="display:none"></button>
+        <button id="gal-dup" data-i18n="gallery.duplicate" style="display:none"></button>
+        <button id="gal-del" data-i18n="gallery.delete" style="display:none"></button>
+        <button id="gal-select" data-i18n="gallery.select"></button>
+        <button id="gal-import" data-i18n="gallery.import"></button>
+        <button id="gal-photo" data-i18n="gallery.photo"></button>
+        <span class="gal-icons">
+          <button id="gal-settings" data-i18n-title="ui.settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+          <button id="gal-new" data-i18n-title="gallery.new"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        </span>
+      </div>
+    </header>
+    <div id="gal-grid"></div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script type="module" src="/src/legacy-entry.js"></script>
 </body>
 </html>

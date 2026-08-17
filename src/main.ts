@@ -1,27 +1,19 @@
-import "./styles/raster-tokens.css";
-import "./styles/raster-base.css";
-import "./styles/raster-workspace.css";
-import "./styles/raster-dialogs.css";
-import { createPlatform } from "./app/createPlatform";
-import { createInitialDocument } from "./app/createInitialDocument";
-import { RasterEditorApp } from "./app/RasterEditorApp";
+import "./styles/brush-studio-shell.css";
+import type { CompactBrushShellPort } from "./ui/brushes/CompactBrushShellPort";
+import { DocumentRepository } from "./core/persistence/DocumentRepository";
 import {
   rendererSmokeRequested, reportRendererSmokeFailure, runRendererSmoke
 } from "./app/runRendererSmoke";
-import { BUNDLED_BRUSHES } from "./config/bundledBrushes";
-import { BrushLibraryService } from "./core/brush-library/BrushLibraryService";
-import { DocumentRepository } from "./core/persistence/DocumentRepository";
+import { mountCompactBrushLibrary } from "./app/mountCompactBrushLibrary";
 
-async function bootstrap(): Promise<void> {
-  const repository = new DocumentRepository();
-  const initial = await createInitialDocument(repository);
-  const platform = createPlatform();
-  const brushes = await BrushLibraryService.create(platform.brushStorage, BUNDLED_BRUSHES);
-  new RasterEditorApp(platform, repository, initial, brushes);
-  if (rendererSmokeRequested()) await runRendererSmoke(platform, repository, brushes);
+export async function mountOriginalInterfaceBridge(shell: CompactBrushShellPort): Promise<void> {
+  try {
+    const mounted = await mountCompactBrushLibrary(shell);
+    if (rendererSmokeRequested()) {
+      await runRendererSmoke(mounted.platform, new DocumentRepository(), mounted.library);
+    }
+  } catch (error: unknown) {
+    if (rendererSmokeRequested()) reportRendererSmokeFailure(error);
+    else throw error;
+  }
 }
-
-void bootstrap().catch((error: unknown) => {
-  if (rendererSmokeRequested()) reportRendererSmokeFailure(error);
-  else console.error("ProDraw bootstrap failed", error);
-});

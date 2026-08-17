@@ -10,3 +10,7 @@ export const PINCH_MERGE = 0.55;    // щипок строк слоёв до э�
 export const TOAST_MS = 2000;       // сколько висит всплывающее уведомление
 export const FOLDER_HOLD_MS = 650;  // удержание над папкой при перетаскивании → принять внутрь
 export const SHAPE_SNAP_MS = 420;   // удержание фигуры на месте → ровный квадрат/круг
+export const AUTOSAVE_DELAY_MS = 800; // пауза после изменения до сохранения
+export const AUTOSAVE_STROKE_RETRY_MS = 100; // не клонировать большой холст внутри штриха
+export const AUTOSAVE_IDLE_TIMEOUT_MS = 500; // крайний срок idle-слота для записи
+export const AUTOSAVE_CLONE_YIELD_ROWS = 8; // строки между уступками event loop

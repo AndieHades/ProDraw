@@ -28,8 +28,33 @@ with bundled brushes, layers and undo, then save and export exact-size PNG.
 - `R2.5` Connect coalesced pointer samples, pressure size/opacity and eraser. ✅
 - `R2.6` Connect layers, undo/redo and non-destructive pan/zoom/rotate view. ✅
 - `R2.7` Add exact required canvas presets/custom validation and PNG export. ✅
+  The restored original dialog now consumes the same canonical preset data as
+  TypeScript and contains no Sprite/Frame categories.
 - `R2.8` Cut `index.html` to the TS app; raster engine ✅, original UI parity ❌
 - `R2.9` Add current-format autosave/reopen and browser/desktop smoke. ✅
+- `R2.10` While the approved legacy shell remains mounted, coalesce presentation
+  to one animation frame, preserve fractional/coalesced pen samples and update
+  only the brush dirty rectangle instead of rebuilding the full W×H layer. ✅
+- `R2.11` Remove the temporary grid-backed document seam entirely: the restored
+  layer/gallery/reference UI must become a view/controller over `RasterDocument`,
+  `RasterSurface` and byte-bounded tile history. This owns the remaining full
+  snapshot on legacy-shell pointer-down and is required before R2 can close.
+- `R2.12` Store built-in canvas names as locale keys and update every visible
+  preset immediately on RU/EN switch while preserving user-authored names. ✅
+- `R2.13` Replace the legacy shell's full-canvas snapshot for brush and Smudge
+  gestures with a reversible touched-pixel patch; A5 pointer-down must remain
+  proportional to the stroke footprint rather than document area. ✅
+- `R2.14` Keep A5 interaction proportional to changed pixels: reuse the
+  committed composite for cursor/view-only frames, combine repeated dab hits,
+  cap production `.01` spacing to a continuous raster-safe interval, defer
+  gallery autosave until pen-up and keep layer revisions local. ✅
+- `R2.15` Restore source-faithful Screentone and cursor output: retain native
+  2048 px Grain, area-filter the Procreate `textureScale / 16` periodic tile,
+  apply inversion/contrast/brightness, recognize bundled hard/soft/brick/oval
+  shape identities, and draw a transparent alpha-boundary cursor with holes
+  and islands instead of a filled disc. ✅ automated; manual Huion check pending
+- `R2.16` Every user-created canvas starts with a visible white Background;
+  imported and reopened documents preserve their authored transparency. ✅
 
 ## Edge cases
 
@@ -42,6 +67,12 @@ custom documents explain the pixel/memory limit; export never changes artwork.
 Each required preset creates exact dimensions/DPI. Each of 12 entries selects
 and leaves a non-empty RGBA dirty region. Undo restores identical tile bytes;
 redo restores the stroke. No app entrypoint imports pixelizer/grid/tilemap.
+The visually selected persisted brush is loaded before the first stroke, and a
+production-shell A4 trace must not rebuild a full-size layer per pointer sample.
+Brush/Smudge undo on A5 stores only first-before values for touched pixels.
+Pointer hover never rebuilds the committed W×H composite. Screentone and Net
+Screentone repeat at their archive-derived periods (about 10 px and 12 px), and
+the brush cursor contains contour strokes only—no filled preview pixels.
 
 ## Completion record
 

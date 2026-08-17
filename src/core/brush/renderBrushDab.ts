@@ -1,8 +1,11 @@
 import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
 import type { RgbaColor } from "../../contracts/raster";
 import type { BrushRenderSettings, StrokeSample } from "../../contracts/stroke";
-import { brushTexture, brushTipCoverage } from "../../logic/brush/brushCoverage";
+import { brushCoverageSampler } from "../../logic/brush/brushCoverage.ts";
 import type { RasterEdit } from "../history/RasterEdit";
+import { visitRadialDab } from "./radialDab.ts";
+
+export type BrushDabVisitor = (x: number, y: number, opacity: number) => void;
 
 export function pressureBrushSize(
   brush: BrushPreset | LoadedBrush,
@@ -25,6 +28,18 @@ export function renderBrushDab(
   settings: BrushRenderSettings,
   color: RgbaColor
 ): void {
+  visitBrushDab(brush, sample, settings, (x, y, opacity) => {
+    if (settings.erase) edit.erasePixel(x, y, opacity);
+    else edit.blendPixel(x, y, color, opacity);
+  });
+}
+
+export function visitBrushDab(
+  brush: BrushPreset | LoadedBrush,
+  sample: StrokeSample,
+  settings: BrushRenderSettings,
+  visit: BrushDabVisitor
+): void {
   const size = pressureBrushSize(brush, settings.size, sample);
   const radius = size / 2;
   const minimumX = Math.floor(sample.x - radius - 1);
@@ -33,17 +48,24 @@ export function renderBrushDab(
   const maximumY = Math.ceil(sample.y + radius + 1);
   const pressureOpacity = 1 - brush.dynamics.opacityByPressure +
     brush.dynamics.opacityByPressure * sample.pressure;
+  const sampler = brushCoverageSampler(brush);
+  const baseOpacity = settings.opacity * brush.rendering.opacity *
+    brush.rendering.flow * pressureOpacity;
+  if (baseOpacity <= 0) return;
+  if (sampler.radialEdge !== null && !sampler.textured) {
+    visitRadialDab(sample, radius, [minimumX, maximumX, minimumY, maximumY],
+      sampler.radialEdge, baseOpacity, visit);
+    return;
+  }
   for (let y = minimumY; y <= maximumY; y += 1) {
+    const normalizedY = (y + 0.5 - sample.y) / radius;
     for (let x = minimumX; x <= maximumX; x += 1) {
       const normalizedX = (x + 0.5 - sample.x) / radius;
-      const normalizedY = (y + 0.5 - sample.y) / radius;
-      const coverage = brushTipCoverage(brush, normalizedX, normalizedY);
+      const coverage = sampler.tip(normalizedX, normalizedY);
       if (coverage <= 0) continue;
-      const opacity = settings.opacity * brush.rendering.opacity * brush.rendering.flow *
-        pressureOpacity * coverage *
-        brushTexture(brush, x, y);
-      if (settings.erase) edit.erasePixel(x, y, opacity);
-      else edit.blendPixel(x, y, color, opacity);
+      const opacity = baseOpacity * coverage *
+        (sampler.textured ? sampler.texture(x, y) : 1);
+      if (opacity > 0) visit(x, y, opacity);
     }
   }
 }

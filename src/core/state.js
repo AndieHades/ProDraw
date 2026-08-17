@@ -10,6 +10,7 @@ import { LASSO_DEFAULT } from '../config/lasso.js';
 import { BRUSH_RESIZE } from '../config/brush-resize.js';
 import { EYEDROPPER } from '../config/eyedropper.js';
 import { CURSOR } from '../config/cursor.js';
+import { DEFAULT_CANVAS_BACKGROUND } from '../config/canvas-background.js';
 import { loadBrushPrefs } from './brush-prefs.js';
 import { cloneGrid, blank } from '../logic/raster.js';
 import { cloneTilemap } from '../logic/tilemap-data.js';
@@ -29,7 +30,9 @@ export const newLayer = (name, w, h) => ({ name, grid: blank(w, h), opacity: 1, 
 export const cloneLayer = (L, overrides = {}) => ({
   name: L.name, opacity: L.opacity, visible: L.visible, fid: L.fid,
   clip: !!L.clip, lock: !!L.lock, alphaLock: !!L.alphaLock, reference: !!L.reference, symLock: !!L.symLock,
-  ext: new Map(L.ext), grid: cloneGrid(L.grid), effects: cloneFx(L.effects),
+  ext: new Map([...(L.ext || [])].map(([key, cell]) =>
+    [key, Array.isArray(cell) ? cell.slice() : cell])), grid: Object.prototype.hasOwnProperty.call(overrides, 'grid')
+    ? overrides.grid : cloneGrid(L.grid), effects: cloneFx(L.effects),
   kind: L.kind || 'pixel', text: L.text ? cloneTextSource(L.text) : undefined,
   tilemap: L.tilemap ? cloneTilemap(L.tilemap) : undefined,
   tilemapSettings: L.tilemapSettings ? { ...L.tilemapSettings } : undefined, ...overrides,
@@ -47,7 +50,8 @@ const brushPrefs = loadBrushPrefs(BRUSH_DEFAULTS(), FLAGS_DEFAULT);
 export const S = {
   W: DEFAULT_DOC.w, H: DEFAULT_DOC.h, layerSeq: 1, docName: '',
   layers: [newLayer(t('layer.name') + ' 1', DEFAULT_DOC.w, DEFAULT_DOC.h)], cur: 0,
-  bg: { color: null, visible: true }, bgSel: false, // фон-слой Background: цвет (null=прозрачный) и видимость; bgSel — выбран ли он
+  bg: { color: [...DEFAULT_CANVAS_BACKGROUND.color],
+    visible: DEFAULT_CANVAS_BACKGROUND.visible }, bgSel: false,
   folders: [], folderSeq: 0, marked: new Set(), selFolder: null, markedFolders: new Set(),
   fxSel: new Set(), fxCur: null, fxDraft: null, // выделенные строки эффектов + черновик окна
 
@@ -79,11 +83,11 @@ export const S = {
   lineMode: 'line', shapeTool: 'rect',
   fillShape: { rect: false, ellipse: false }, // режимы общей кнопки фигур: контур/заливка
   brushes: brushPrefs.brushes, stampBrush: { pencil: null, eraser: null }, // активная кисть-штамп по инструменту (null = квадрат)
-  ppOn: brushPrefs.flags.pixelPerfect, stabOn: brushPrefs.flags.stabilize, stroke: false,
+  ppOn: false, stabOn: false, stroke: false,
   adjMode: ADJUST_DEFAULT.mode, adjAmt: ADJUST_DEFAULT.amount,
   sel: null, selMask: null, selFloat: null,
   lassoMode: LASSO_DEFAULT.mode, lassoOp: LASSO_DEFAULT.op, lassoPath: null,
-  cursorMode: CURSOR.mode, // Cursor Preview Mode: real | circle | hybrid
+  cursorMode: CURSOR.mode, // прозрачный контур реального отпечатка
   brushResize: { ...BRUSH_RESIZE, capturing: false }, // жест Brush Size Modifier (настройки + захват клавиши)
   eyedrop: { ...EYEDROPPER, capturing: false }, // Eyedropper System (Hot Key + захват клавиши)
   referenceBoard: defaultReferenceBoard(),
@@ -93,7 +97,8 @@ export const S = {
   // (system-private мелочь вроде ppPath/strokeSeen живёт внутри своих систем)
   qsShape: null, // QuickShape: распознанная ровная форма для превью/коммита
   cropMode: null, rotMode: null, rotPrev: null, rotQuad: null, moveDrag: null,
-  hoverPx: null, lineStart: null, linePrev: null, linePath: null,
+  hoverPx: null, hoverInput: { pressure: 1, tiltX: 0, tiltY: 0, pointerType: 'mouse' },
+  lineStart: null, linePrev: null, linePath: null,
   replaceMode: null,
 };
 

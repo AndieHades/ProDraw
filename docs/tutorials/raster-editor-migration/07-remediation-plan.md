@@ -3,8 +3,7 @@
 - Status: `ready`
 - Evidence baseline: `main@6bcfdaa`, 2026-08-16
 - Audit: [`06-live-audit-2026-08-16.md`](06-live-audit-2026-08-16.md)
-- Implementation authority: granted by the user's `выполняй` instruction on
-  2026-08-16
+- Implementation authority: user's `выполняй`, 2026-08-16
 
 ## Outcome and ordering rule
 
@@ -18,6 +17,7 @@ second product roadmap.
 | `F1` | architecture foundation | commands/view models plus end-to-end harness | `F0` | done |
 | `F2` | pull forward R5 safety | crash-safe multi-document session | `F1` | done |
 | `F3` | finish R3 performance | bounded render/history/autosave/export | `F1`, `F2` | done |
+| `F3-R` | repair restored production | [bounded bridge/cutover](09-production-performance-audit-2026-08-16.md) | `F3`, `UI-R` | in progress |
 | `F4` | finish R3 brushes | truthful `.brush` engine and library workflow | `F1`, `F3` | done |
 | `UI-R` | repair R2 | original UI and complete non-pixelizer feature parity | `F4` | in progress |
 | `F5` | finish R3 tablet | robust Huion/touch/stabilizer/Smudge path | `F3`, `F4`, `UI-R` | pending device |

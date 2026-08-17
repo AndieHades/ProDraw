@@ -1,5 +1,5 @@
 /* --- библиотека кистей (панель в стиле слоёв) --- */
-#brush-pop { --brush-tile-min: 64px; --brush-default-cols: 6; position: fixed; display: none; z-index: 31; width: 304px; max-width: calc(100vw - 20px); overflow: hidden;
+#brush-pop { --brush-tile-min: 98px; --brush-default-cols: 4; position: fixed; display: none; z-index: 31; width: 434px; max-width: calc(100vw - 20px); overflow: hidden;
   box-sizing: border-box; top: calc(env(safe-area-inset-top, 0px) + 70px); left: 50%; transform: translateX(-50%);
   background: var(--panel); border: 1px solid var(--line); border-radius: var(--win-radius); box-shadow: var(--win-shadow); }
 #brush-pop.on { display: block; animation: pop .18s ease-out; }
@@ -7,10 +7,14 @@
 #brush-list { overflow-y: auto; min-height: 0; display: grid; grid-template-columns: repeat(auto-fill, var(--brush-tile-min)); justify-content: start; align-content: start; gap: var(--gap);
   max-height: calc(100vh - env(safe-area-inset-top, 0px) - 120px); }
 /* плитка кисти — как иконка переносного тулбара */
-.btile { display: grid; place-items: center; width: var(--brush-tile-min); aspect-ratio: 1; padding: 7px; box-sizing: border-box; border-radius: var(--r-xl);
+.btile { display: grid; grid-template-rows: 74px auto; place-items: center; gap: 4px; width: var(--brush-tile-min); min-height: 100px; padding: 6px; box-sizing: border-box; border-radius: var(--r-xl);
   background: var(--row); color: var(--txt2); cursor: pointer; -webkit-user-select: none; user-select: none; }
 .btile.on { background: var(--accent); color: var(--on-accent); }
-.btile-ic { width: 100%; aspect-ratio: 1; image-rendering: pixelated; }
+.btile-ic { width: 74px; height: 74px; overflow: hidden; border-radius: 50%;
+  background: var(--surface); image-rendering: auto; }
+.bname { display: block; width: 100%; overflow: hidden; color: var(--txt); font-size: var(--type-system);
+  line-height: 1.15; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+.btile.on .bname { color: var(--on-accent); }
 .btile.reordering { opacity: .3; }
 .bname.editing { outline: none; background: var(--surface); color: var(--txt); border-radius: var(--r-xs); padding: 0 4px; box-shadow: 0 0 0 1px var(--accent); cursor: text; }
 #brush-rsz { position: absolute; right: 2px; bottom: 2px; width: 26px; height: 26px; color: var(--txt2); cursor: nwse-resize; }

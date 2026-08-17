@@ -18,7 +18,13 @@ assert.equal((await listDocs()).length, 1);
 await removeDoc('d1');
 assert.equal((await listDocs()).length, 0);
 
-console.log("Storage document CRUD passed");
+await new Promise((resolve, reject) => { const request = indexedDB.deleteDatabase('pixelheart');
+  request.onsuccess = resolve; request.onerror = () => reject(request.error); });
+await saveDoc({ ...rec, id: 'd2', name: 'Reconnected' });
+assert.equal((await getDoc('d2')).name, 'Reconnected');
+await removeDoc('d2');
+
+console.log("Storage document CRUD and reconnect passed");
 
 
 const set = { id: 's1', name: 'Pixel', order: 0 };

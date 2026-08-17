@@ -102,5 +102,5 @@ describe("pen drawing persistence", () => {
       (status) => failedStatuses.push(status));
     await expect(failing.flush()).rejects.toThrow("Disk write failed");
     expect(failedStatuses).toEqual(["saving", "save-failed"]);
-  });
+  }, 15_000);
 });

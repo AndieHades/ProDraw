@@ -1,7 +1,7 @@
 import type { CanvasPreset } from "../../contracts/canvasPreset";
 import type { EditorCommandDispatch } from "../../contracts/editorCommands";
 import { CANVAS_PRESETS, validateCanvasSize } from "../../config/canvasPresets";
-import { t } from "../../i18n/raster/translate";
+import { t, type MessageKey } from "../../i18n/raster/translate";
 import { requiredElement } from "../dom/query";
 
 export class NewDocumentPresenter {
@@ -34,7 +34,7 @@ export class NewDocumentPresenter {
     button.type = "button";
     button.className = "preset-button";
     const name = document.createElement("strong");
-    name.textContent = preset.label;
+    name.textContent = t(preset.labelKey as MessageKey);
     const details = document.createElement("small");
     details.textContent = `${preset.width} × ${preset.height} · ${preset.dpi} DPI`;
     button.append(name, details);

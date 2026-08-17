@@ -3,12 +3,12 @@
 // общее #lctx (kind='background'): Залить активным цветом / Очистить (прозрачный).
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
-import { snapshot } from '../../core/history.js';
 import { t } from '../../core/dom.js';
 import { menuGesture } from '../../core/long-press.js';
 import { rgb } from '../../logic/color.js';
 import { EYE } from './list.js';
 import { openLctx } from './menu.js';
+import { toggleBackgroundVisibility } from './metadata.js';
 
 export function selectBackground() { // фон выбирается один, сбрасывая всё остальное
   S.bgSel = true; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null; S.fxSel.clear(); S.fxCur = null;
@@ -21,7 +21,8 @@ export function bgRow() {
   const nm = document.createElement('span'); nm.className = 'lname'; nm.textContent = t('layer.background');
   const vis = document.createElement('button'); vis.className = 'eye' + (S.bg.visible ? '' : ' off'); vis.innerHTML = EYE; // фон можно скрыть
   vis.addEventListener('pointerdown', (e) => e.stopPropagation());
-  vis.addEventListener('click', (e) => { e.stopPropagation(); snapshot(); S.bg.visible = !S.bg.visible; vis.classList.toggle('off', !S.bg.visible); bus.emit('render'); });
+  vis.addEventListener('click', (e) => { e.stopPropagation(); if (!toggleBackgroundVisibility()) return;
+    vis.classList.toggle('off', !S.bg.visible); bus.emit('render'); });
   row.append(sw, nm, vis);
   row.addEventListener('click', selectBackground);
   menuGesture(row, (x, y) => { selectBackground(); openLctx(x, y, 'background', null); }, '.eye'); // ПКМ/долгий тап → общее меню (фон)

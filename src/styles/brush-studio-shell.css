@@ -1,0 +1,62 @@
+/* Raster Brush Studio inside the preserved original ProDraw shell. */
+dialog.raster-modal {
+  padding: 0; color: var(--txt); background: var(--panel-solid);
+  border: 1px solid var(--line); border-radius: var(--win-radius); box-shadow: var(--win-shadow);
+}
+dialog.raster-modal::backdrop { background: rgba(4, 5, 8, .65); backdrop-filter: blur(5px); }
+.raster-modal form > header, .raster-modal form > footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-bottom: 1px solid var(--line);
+}
+.raster-modal form > footer { justify-content: flex-end; gap: 10px; border: 0; border-top: 1px solid var(--line); }
+.raster-modal h2 { margin: 0; font-size: var(--type-dialog-title); }
+.raster-modal button[data-i18n] { width: auto; min-width: 44px; padding: 0 14px; }
+.raster-modal button.primary { background: var(--accent); color: var(--on-accent); }
+.raster-modal button.danger { color: var(--on-accent); background: var(--danger); }
+.brush-studio-dialog {
+  width: min(1040px, calc(100vw - 64px)); height: min(720px, calc(100vh - 64px));
+  min-width: min(820px, calc(100vw - 24px)); min-height: min(600px, calc(100vh - 24px));
+  max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); resize: both; overflow: hidden;
+}
+.brush-studio-dialog form { display: grid; grid-template-rows: auto 1fr; width: 100%; height: 100%; }
+.brush-studio-dialog form > header span { display: flex; gap: 6px; }
+.brush-studio-dialog small { color: var(--txt2); }
+.brush-studio-body { display: grid; grid-template-columns: 190px 300px minmax(240px, 1fr); min-height: 0; }
+.brush-studio-body > nav { padding: 10px; overflow: auto; border-right: 1px solid var(--line); }
+.brush-studio-body > nav button { display: block; width: 100%; text-align: left; }
+.brush-studio-body button.selected { background: var(--accent); color: var(--on-accent); }
+.studio-controls { display: grid; align-content: start; gap: 16px; padding: 16px; overflow: auto; }
+.studio-control { display: grid; grid-template-columns: 1fr auto; gap: 6px; color: var(--txt2); }
+.studio-control output { color: var(--txt); }
+.studio-control input[type="range"] { grid-column: 1 / -1; }
+.studio-control input[type="text"], .studio-control select {
+  grid-column: 1 / -1; height: 40px; padding: 0 10px; color: var(--txt);
+  background: var(--row); border: 1px solid var(--line); border-radius: var(--r-md);
+}
+.studio-source { display: grid; gap: 10px; }
+.studio-source header { display: flex; align-items: center; justify-content: space-between; }
+.studio-source canvas { width: 100%; height: 140px; object-fit: contain;
+  border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.drawing-pad { display: grid; grid-template-rows: auto 1fr auto auto; min-width: 0; padding: 10px; background: var(--cv-prev-bg); }
+.drawing-pad > header { padding: 6px; color: var(--txt2); }
+#studio-pad { width: 100%; height: 100%; min-height: 210px; border-radius: var(--r-md); background: var(--surface); touch-action: none; }
+.stylus-diagnostics { min-height: 24px; padding-top: 6px; color: var(--txt2); font-size: var(--type-system); }
+.stylus-trace-actions { display: flex; gap: 6px; }
+.stylus-trace-actions button { flex: 1; width: auto; min-width: 0; padding: 8px 10px;
+  white-space: normal; line-height: 1.2; }
+.brush-source-dialog { width: min(660px, calc(100vw - 48px)); height: min(580px, calc(100vh - 64px)); }
+.brush-source-dialog form { display: grid; grid-template-rows: auto auto 1fr; height: 100%; }
+.brush-source-dialog nav { display: flex; gap: 10px; padding: 10px 16px; }
+.brush-source-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start; gap: 10px; padding: 16px; overflow: auto; }
+.source-card { display: grid; gap: 6px; min-width: 0; width: 100%; height: auto; text-align: left; }
+.source-card canvas { width: 100%; aspect-ratio: 1; object-fit: contain;
+  border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.source-card span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.confirm-dialog { width: min(420px, calc(100vw - 40px)); }
+.confirm-dialog form { padding: 16px; }
+#brush-list .btile-ic { border-radius: 50%; background: var(--surface); image-rendering: auto; object-fit: contain; }
+@media (max-width: 780px) {
+  .brush-studio-body { grid-template-columns: 150px 1fr; }
+  .drawing-pad { display: none; }
+}

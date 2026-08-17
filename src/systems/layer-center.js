@@ -3,7 +3,7 @@
 import { S, blank } from '../core/state.js';
 import * as bus from '../core/bus.js';
 import * as actions from '../core/actions.js';
-import { snapshot } from '../core/history.js';
+import { snapshot, snapshotRasterReferences } from '../core/history.js';
 import { boundsWithExt } from '../logic/raster.js';
 import { shiftLayerGrid } from '../core/document.js';
 import { markDirty } from '../core/layer-cache.js';
@@ -26,7 +26,8 @@ export function centerLayer() {
   const ty = S.sel ? (S.sel.y0 + S.sel.y1 + 1) / 2 : S.H / 2;
   const dx = Math.round(tx - cx), dy = Math.round(ty - cy);
   if (!dx && !dy) { toast(t('toast.centered')); return; }
-  snapshot(); shiftLayerGrid(L, dx, dy); markDirty(S.cur); // вне холста — в ext, объект не теряется
+  if (!snapshotRasterReferences([S.cur])) snapshot();
+  markDirty(S.cur); shiftLayerGrid(L, dx, dy); // вне холста — в ext, объект не теряется
   bus.emit('render'); bus.emit('layers'); toast(t('toast.centered'));
 }
 
@@ -43,7 +44,8 @@ export function fitLayerShortSide() {
     const sy = b.miny + Math.min(sh - 1, Math.floor(y * sh / nh));
     const c = layerCell(L, sx, sy); if (c) putCell(grid, ext, ox + x, oy + y, c.slice());
   }
-  snapshot(); L.grid = grid; L.ext = ext; markDirty(S.cur);
+  if (!snapshotRasterReferences([S.cur])) snapshot();
+  markDirty(S.cur); L.grid = grid; L.ext = ext;
   bus.emit('render'); bus.emit('layers'); toast(t('toast.fitShortSide'));
 }
 

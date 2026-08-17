@@ -3,8 +3,8 @@
 import { S, newEffect } from '../../core/state.js';
 import * as bus from '../../core/bus.js';
 import * as actions from '../../core/actions.js';
-import { snapshot, addUndoGuard } from '../../core/history.js';
-import { expandForEffects } from '../../core/document.js';
+import { snapshot, snapshotEffects, addUndoGuard } from '../../core/history.js';
+import { expandForEffects, needsEffectExpansion } from '../../core/document.js';
 import { $, t } from '../../core/dom.js';
 import { EFFECT_FIELDS } from '../../config/defaults.js';
 import { rgbToHex } from '../../logic/color.js';
@@ -58,8 +58,10 @@ export function openFxEdit(target, eff) {
 
 export function fxCancel() { if (!ses) return; revert(); close(); bus.emitDoc(); }
 export function fxApply() { if (!ses) return; const { target, eff, isNew, original } = ses;
-  if (isNew) { snapshot(); target.effects.push(eff); S.fxDraft = null; }
-  else { const cur = { ...eff.params }; eff.params = { ...original }; snapshot(); eff.params = cur; }
+  if (isNew) { const expands = needsEffectExpansion(target, [...target.effects, eff]);
+    (expands ? snapshot : snapshotEffects)(target); target.effects.push(eff); S.fxDraft = null; }
+  else { const cur = { ...eff.params }, expands = needsEffectExpansion(target);
+    eff.params = { ...original }; (expands ? snapshot : snapshotEffects)(target); eff.params = cur; }
   expandForEffects(target); // если эффекту не хватает места — раздвинуть холст под тем же снимком
   close(); bus.emitDoc(); }
 

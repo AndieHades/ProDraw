@@ -1,8 +1,10 @@
 import type { ru } from "./ru";
 import { enBrushSource } from "./enBrushSource";
+import { enCanvasPreset } from "./enCanvasPreset";
 
 export const en: Record<keyof typeof ru, string> = {
   ...enBrushSource,
+  ...enCanvasPreset,
   "action.new": "New canvas",
   "action.open": "Open",
   "action.save": "Save",

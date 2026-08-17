@@ -7,7 +7,7 @@ export const DEFAULT_KEYMAP = {
   b: 'tool.pencil', e: 'tool.eraser', f: 'tool.fill',
   m: 'tool.select', u: 'tool.line', k: 'tool.rect', q: 'tool.ellipse',
   // переключатели и панели
-  l: 'ui.layers', p: 'toggle.pixelPerfect', t: 'toggle.stabilize', 'shift+t': 'tool.text',
+  l: 'ui.layers', 'shift+t': 'tool.text',
   s: 'toggle.symV', 'shift+s': 'toggle.symH', o: 'fx.panel',
   // холст и слой
   h: 'layer.flipH', v: 'layer.flipV', r: 'canvas.rotate', c: 'canvas.crop', n: 'doc.new',

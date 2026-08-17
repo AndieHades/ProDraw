@@ -26,10 +26,12 @@ const actions = await import('../src/core/actions.js');
 const kbd = await import('../src/systems/keyboard/index.js');
 const { setTool } = await import('../src/core/tools.js');
 const { stamp } = await import('../src/systems/draw/stamp.js');
+const { createCellPainter } = await import('../src/systems/draw/cells.js');
 const stroke = await import('../src/systems/draw/stroke.js');
-const { flood, dropColorAt } = await import('../src/systems/draw/fill.js');
+const { flood, floodAt, dropColorAt } = await import('../src/systems/draw/fill.js');
 const { commitLine, commitContour } = await import('../src/systems/draw/shapes.js');
 const { SHAPE_SNAP_MS } = await import('../src/config/timings.js');
+const { ZOOM_MIN } = await import('../src/config/limits.js');
 const { rotateCanvas } = await import('../src/systems/rotate-canvas.js');
 const { flipLayer } = await import('../src/systems/flip.js');
 const { trimCanvas } = await import('../src/systems/trim.js');
@@ -97,6 +99,7 @@ const { layList } = await import('../src/systems/layers/list.js');
 const fontLib = await import('../src/systems/font-library/index.js');
 const textTool = await import('../src/systems/text-tool/index.js');
 const lops = await import('../src/systems/layers/ops.js');
+const layerFill = await import('../src/systems/layers/fill.js');
 const fxdrag = await import('../src/systems/layers/fx-drag.js');
 const i18n = await import('../src/i18n/index.js');
 const { showMenuAt, showMenuForAnchor } = await import('../src/core/dom.js');
@@ -141,6 +144,8 @@ const reset4 = () => { S.W = 4; S.H = 4; S.cur = 0; S.folders = []; S.marked = n
 
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('  ok   ' + name); };
 const ta = async (name, fn) => { await fn(); n++; console.log('  ok   ' + name); };
+const waitUntil = async (predicate, timeout = 500) => { const end = Date.now() + timeout;
+  while (!predicate() && Date.now() < end) await new Promise((resolve) => setTimeout(resolve, 5)); };
 let textUiMounted = false;
 function mountTextUi() {
   if (!textUiMounted) { fontLib.mount(); textTool.mount(); textUiMounted = true; }
@@ -175,6 +180,35 @@ S.layers[0].grid[1][2] = [10, 20, 30, 255];
 cache.dirtyAll();
 
 t("module-int case 001", () => { const c = cache.layerCanvas(0); assert.equal(c.width, 4); assert.equal(c.height, 4); });
+t("layer-cache: brush updates only its dirty rectangle", () => { resetWH(64, 64);
+  const canvas = cache.layerCanvas(0), context = canvas.getContext('2d');
+  const original = context.createImageData, sizes = [];
+  context.createImageData = (w, h) => { sizes.push([w, h]); return original(w, h); };
+  const painter = createCellPainter(false); painter.paint(23, 27, 1); painter.flush();
+  cache.layerCanvas(0); context.createImageData = original;
+  assert.deepEqual(sizes.at(-1), [1, 1]);
+  resetWH(4, 4); S.layers[0].grid[1][2] = [10, 20, 30, 255]; cache.dirtyAll(); });
+t("layer-cache: one dirty layer does not invalidate every layer revision", () => {
+  resetWH(4, 4); const own = cache.layerRev(0), other = cache.layerRev(1);
+  const content = cache.contentRevision(); cache.markDirty(0, { minx: 1, miny: 1, maxx: 1, maxy: 1 });
+  assert.notEqual(cache.layerRev(0), own); assert.equal(cache.layerRev(1), other);
+  assert.ok(cache.contentRevision() > content);
+  S.layers[0].grid[1][2] = [10, 20, 30, 255]; cache.dirtyAll();
+});
+t("cell painter combines repeated hits into one source-over write", () => {
+  resetWH(8, 8); S.active = [30, 60, 90]; let writes = 0;
+  const row = S.layers[0].grid[2]; S.layers[0].grid[2] = new Proxy(row, {
+    set(target, property, value) { if (property === '3') writes++; target[property] = value; return true; },
+  });
+  const painter = createCellPainter(false);
+  painter.paint(3, 2, .2); painter.paint(3, 2, .3); assert.equal(writes, 0);
+  painter.flush(); assert.equal(writes, 1);
+  assert.deepEqual(S.layers[0].grid[2][3], [30, 60, 90, 112]);
+  S.layers[0].grid[2][3] = [30, 60, 90, 200]; writes = 0;
+  const eraser = createCellPainter(true); eraser.paint(3, 2, .2); eraser.paint(3, 2, .3); eraser.flush();
+  assert.equal(writes, 1); assert.deepEqual(S.layers[0].grid[2][3], [30, 60, 90, 112]);
+  resetWH(4, 4); S.layers[0].grid[1][2] = [10, 20, 30, 255]; cache.dirtyAll();
+});
 t("module-int case 002", () => { assert.deepEqual(cache.compositeAt(2, 1), [10, 20, 30]); assert.equal(cache.compositeAt(0, 0), null); });
 t("module-int case 003", () => { let drew = 0; cache.compositeLayers({ globalAlpha: 1, drawImage() { drew++; } }); assert.ok(drew >= 1); });
 t("module-int case 004", () => { S.layers[0].visible = false; cache.dirtyAll(); let drew = 0; cache.compositeLayers({ globalAlpha: 1, drawImage() { drew++; } }); S.layers[0].visible = true; assert.equal(drew, 0); });
@@ -191,6 +225,36 @@ t("module-int case 007", () => {
 });
 t("module-int case 008", () => { history.doRedo(); assert.deepEqual(S.layers[0].grid[0][0], [9, 9, 9, 255]); history.doUndo(); });
 t("module-int case 009", () => { let hit = 0; const off = bus.on('snapshot', () => hit++); history.snapshot(); off(); assert.equal(hit, 1); });
+t("pixel patch: commit emits once, while a no-op preserves redo", () => {
+  resetWH(4, 4); S.layers[0].kind = 'pixel'; S.undoStack = []; S.redoStack = [{ sentinel: true }];
+  let hits = 0; const off = bus.on('snapshot', () => hits++);
+  assert.equal(history.beginPixelPatch(), true); assert.equal(S.undoStack.length, 0); assert.equal(hits, 0);
+  history.recordPixelBefore(0, 1, 1, null); S.layers[0].grid[1][1] = null;
+  assert.equal(history.commitPixelPatch(), false); assert.equal(S.redoStack.length, 1); assert.equal(hits, 0);
+  assert.equal(history.beginPixelPatch(), true); history.recordPixelBefore(0, 1, 1, null);
+  S.layers[0].grid[1][1] = [4, 5, 6, 255]; assert.equal(history.commitPixelPatch(), true);
+  off(); assert.equal(S.undoStack.length, 1); assert.equal(S.redoStack.length, 0); assert.equal(hits, 1);
+});
+t("pixel patch: snapshot finalizes the active patch in LIFO order", () => {
+  resetWH(4, 4); S.layers[0].kind = 'pixel'; S.undoStack = []; S.redoStack = [];
+  history.beginPixelPatch(); history.recordPixelBefore(0, 0, 0, null);
+  S.layers[0].grid[0][0] = [1, 2, 3, 255]; history.snapshot();
+  assert.equal(S.undoStack[0].kind, 'pixel-patch'); assert.equal(S.undoStack.length, 2);
+  S.layers[0].grid[0][1] = [8, 8, 8, 255]; history.doUndo();
+  assert.deepEqual(S.layers[0].grid[0][0], [1, 2, 3, 255]); assert.equal(S.layers[0].grid[0][1], null);
+  history.doUndo(); assert.equal(S.layers[0].grid[0][0], null);
+});
+t("stroke history uses a text reference but keeps the tilemap fallback", () => {
+  for (const kind of ['text', 'tilemap']) { resetWH(8, 8);
+    if (kind === 'text') S.layers = [textLayer.makeTextLayer('T', 8, 8,
+      { value: 'T', size: 6 }, { x: 1, y: 1 })];
+    else S.layers[0].kind = kind;
+    S.undoStack = []; assert.equal(history.beginPixelPatch(), false);
+    stroke.beginStroke(true);
+    assert.equal(S.undoStack.at(-1)?.kind,
+      kind === 'text' ? 'raster-reference-patch' : undefined);
+    stroke.cancelStroke(); assert.equal(S.undoStack.length, 0); }
+});
 t("module-int case 010", () => {
   let guarded = 0; history.setUndoGuard(() => { guarded++; return true; });
   history.snapshot(); S.layers[0].grid[1][1] = [1, 1, 1, 255]; history.doUndo();
@@ -340,6 +404,34 @@ t('text-layer: pixel actions rasterize but Move keeps live text', () => {
   const h = toolHandler('move'); h.down({ gx: 0, gy: 0, e: {} }); h.move({ gx: 4, gy: 2, e: {} }); h.up({});
   assert.equal(T.kind, 'text'); assert.deepEqual([T.text.box.x, T.text.box.y], [6, 5]);
 });
+t('text-layer: brush rasterization and pixels share one Undo entry', () => {
+  resetWH(32, 16); S.active = [9, 8, 7];
+  const L = textLayer.makeTextLayer('Hi', S.W, S.H,
+    { value: 'Hi', size: 8, color: '#ffffff' }, { x: 2, y: 3 });
+  const textGrid = L.grid; S.layers = [L]; S.cur = 0; S.undoStack = [];
+  stroke.beginStroke(); const painter = createCellPainter(false);
+  painter.paint(20, 10, 1); painter.flush(); S.stroke = false; stroke.afterStroke();
+  const pixelGrid = L.grid;
+  assert.equal(S.undoStack.length, 1);
+  assert.equal(S.undoStack[0].kind, 'raster-reference-patch');
+  history.doUndo(); assert.equal(L.kind, 'text'); assert.equal(L.grid, textGrid);
+  history.doRedo(); assert.equal(L.kind, 'pixel'); assert.equal(L.grid, pixelGrid);
+});
+t('text-layer: layer panel fill and clear each use one reference Undo', () => {
+  resetWH(32, 16); let L = textLayer.makeTextLayer('Hi', S.W, S.H,
+    { value: 'Hi', size: 8, color: '#ffffff' }, { x: 2, y: 3 });
+  let textGrid = L.grid; S.layers = [L]; S.undoStack = [];
+  layerFill.fillLayerRefs([L], [9, 8, 7]);
+  assert.equal(L.kind, 'pixel'); assert.equal(S.undoStack.length, 1);
+  assert.equal(S.undoStack[0].kind, 'raster-reference-patch');
+  history.doUndo(); assert.equal(L.kind, 'text'); assert.equal(L.grid, textGrid);
+  L = textLayer.makeTextLayer('Bye', S.W, S.H,
+    { value: 'Bye', size: 8 }, { x: 2, y: 3 });
+  textGrid = L.grid; S.layers = [L]; S.cur = 0; S.undoStack = [];
+  assert.equal(lops.clearLayerRefs([L]), true);
+  assert.equal(L.kind, 'pixel'); assert.equal(S.undoStack.length, 1);
+  history.doUndo(); assert.equal(L.kind, 'text'); assert.equal(L.grid, textGrid);
+});
 t('text-layer: alpha lock and tilemap conversion rasterize text', () => {
   resetWH(16, 16); mountTextUi();
   const L = textLayer.makeTextLayer('Hi', S.W, S.H, { value: 'Hi', size: 8, color: '#ffffff' }, { x: 1, y: 1 });
@@ -417,7 +509,14 @@ t("module-int case 019", () => { reset4();
   assert.equal(ants.querySelectorAll('.handles circle').length, 0);
   S.rotMode = null; S.rotQuad = null;
 });
-t("module-int case 020", () => { reset4(); render.fitView(); assert.ok(S.view.zoom >= 1); });
+t("module-int case 020", () => {
+  const cv = document.getElementById('cv');
+  Object.defineProperty(cv, 'clientWidth', { configurable: true, value: 800 });
+  Object.defineProperty(cv, 'clientHeight', { configurable: true, value: 600 });
+  resetWH(1000, 700); render.fitView();
+  assert.ok(S.view.zoom >= ZOOM_MIN && S.view.zoom < 1);
+  assert.ok(S.view.ox > 0 && S.view.oy > 0);
+});
 t("module-int case 021", () => { reset4();
   const cv = document.getElementById('cv');
   Object.defineProperty(cv, 'clientWidth', { configurable: true, value: 800 });
@@ -440,7 +539,6 @@ t("module-int case 022", () => { reset4();
 });
 t("module-int case 023", () => { reset4();
   S.tool = 'pencil'; S.hoverPx = [2, 2]; S.cursorMode = 'real'; render.render();
-  S.cursorMode = 'circle'; render.render();
   S.tool = 'eraser'; S.cursorMode = 'real'; render.render();
   S.stampBrush.pencil = { tok: 7, cov: null, params: {} }; S.tool = 'pencil'; render.render();
   S.hoverPx = null; S.stampBrush.pencil = null; assert.ok(true); });
@@ -452,20 +550,16 @@ t("module-int case 024", () => { reset4();
   assert.equal(ops.drawImage, 0); assert.ok(ops.lineTo > 0);
   S.eyedrop.active = false; S.hoverPx = null; S.brushes.pencil.size = 1; });
 t("module-int case 025", () => { reset4();
-  const fills = [], proto = HTMLCanvasElement.prototype, orig = proto.getContext;
-  proto.getContext = function (...args) { const ctx = orig.apply(this, args);
-    return new Proxy(ctx, { set(tg, p, v) { if (p === 'fillStyle') fills.push(v); tg[p] = v; return true; } }); };
-  try {
-    const ctx = { save() {}, restore() {}, beginPath() {}, moveTo() {}, lineTo() {}, stroke() {}, arc() {}, drawImage() {} };
-    S.tool = 'pencil'; S.hoverPx = [2, 2]; S.cursorMode = 'real'; S.active = [255, 0, 0]; S.brushes.pencil.size = 3; S.brushes.pencil.op = 1;
-    S.shading = { colors: [[0, 0, 0], [255, 255, 255]], on: true, open: true, picking: false };
-    drawBrushCursor(ctx, 0, 0, 10);
-    assert.ok(fills.includes('rgba(190,190,190,.72)')); assert.ok(!fills.includes('rgb(255,0,0)'));
-  } finally { proto.getContext = orig; S.shading = { colors: [], on: false, open: false, picking: false }; S.hoverPx = null; S.brushes.pencil.size = 1; S.brushes.pencil.op = 1; }
+  const ops = { lineTo: 0, fill: 0, drawImage: 0 };
+  const ctx = { save() {}, restore() {}, beginPath() {}, moveTo() {}, stroke() {},
+    lineTo() { ops.lineTo++; }, fill() { ops.fill++; }, drawImage() { ops.drawImage++; } };
+  S.tool = 'pencil'; S.hoverPx = [2, 2]; S.cursorMode = 'real'; S.brushes.pencil.size = 3;
+  drawBrushCursor(ctx, 0, 0, 10);
+  assert.ok(ops.lineTo > 0); assert.equal(ops.fill, 0); assert.equal(ops.drawImage, 0);
+  S.hoverPx = null; S.brushes.pencil.size = 1;
 });
 t("module-int case 026", () => { reset4();
-  S.cursorMode = 'real'; actions.run('cursor.cycleMode'); assert.equal(S.cursorMode, 'circle');
-  actions.run('cursor.cycleMode'); assert.equal(S.cursorMode, 'real'); });
+  S.cursorMode = 'real'; actions.run('cursor.cycleMode'); assert.equal(S.cursorMode, 'real'); });
 
 const ev = (code, mods = {}) => ({ code, target: document.body, preventDefault() {}, ...mods });
 t("module-int case 027", () => {
@@ -650,6 +744,15 @@ t("module-int case 066", () => { resetWH(8, 8);
   const inside = S.layers.find((L) => L.name === 'inside'); assert.equal(inside.visible, false); assert.equal(inside.fid, grp.id);
   assert.equal(inside.effects.length, 1); assert.equal(inside.effects[0].type, 'stroke'); });
 t("module-int case 067", () => { resetWH(4, 4); S.layers[0].grid[1][1] = [200, 50, 10, 255]; monoAll(); const c = S.layers[0].grid[1][1]; assert.ok(c[0] === c[1] && c[1] === c[2]); });
+t('monochrome rasterizes text with one reference-backed Undo', () => {
+  resetWH(16, 16); const L = textLayer.makeTextLayer('Color', S.W, S.H,
+    { value: 'A', size: 8, color: '#c8320a' }, { x: 2, y: 3 });
+  const grid = L.grid; S.layers = [L]; S.undoStack = []; monoAll();
+  assert.equal(L.kind, 'pixel'); assert.equal(S.undoStack.length, 1);
+  assert.equal(S.undoStack[0].kind, 'raster-reference-patch');
+  history.doUndo(); assert.equal(L.kind, 'text'); assert.equal(L.grid, grid);
+  history.doRedo(); assert.equal(L.kind, 'pixel');
+});
 
 t("module-int case 068", () => { const mask = fxlogic.maskFromGrid([[null, null, null], [null, [1, 1, 1, 1], null], [null, null, null]], 3, 3);
   const px = fxlogic.strokePixels(mask, 3, 3, { size: 1 }); assert.ok(px.some(([x, y]) => x === 0 && y === 1)); });
@@ -701,6 +804,17 @@ t("module-int case 077", () => { resetWH(4, 4);
   recolorAll([[9, 9, 9], [8, 8, 8]], [200, 100, 50]);
   assert.deepEqual(S.layers[0].grid[1][1], [200, 100, 50]); assert.deepEqual(S.layers[0].grid[2][2], [200, 100, 50]);
   assert.deepEqual(S.palette, [[9, 9, 9], [8, 8, 8], [200, 100, 50]]);
+  assert.equal(S.undoStack.at(-1).kind, 'pixel-batch'); history.doUndo();
+  assert.deepEqual(S.layers[0].grid[1][1], [9, 9, 9, 255]); history.doRedo();
+});
+t('recolor rasterizes text with one reference-backed Undo', () => {
+  resetWH(16, 16); const L = textLayer.makeTextLayer('White', S.W, S.H,
+    { value: 'A', size: 8, color: '#ffffff' }, { x: 2, y: 3 });
+  const grid = L.grid; S.layers = [L]; S.undoStack = [];
+  recolorAll([255, 255, 255], [20, 30, 40]);
+  assert.equal(L.kind, 'pixel'); assert.equal(S.undoStack.length, 1);
+  assert.equal(S.undoStack[0].kind, 'raster-reference-patch');
+  history.doUndo(); assert.equal(L.kind, 'text'); assert.equal(L.grid, grid);
 });
 t("module-int case 078", () => { resetWH(8, 8); S.layers[0].grid[3][3] = [1, 1, 1, 255]; S.layers[0].grid[3][4] = [1, 1, 1, 255];
   freeRotateLayer(S.layers[0], Math.PI / 4, 4); assert.ok(true); });
@@ -719,6 +833,16 @@ t("module-int case 080", () => { resetWH(4, 4); S.undoStack.length = 0; S.redoSt
   bc.openBcPop(null, null, { scope: 'canvas' }); document.getElementById('bc-bri').value = '100'; document.getElementById('bc-con').value = '0';
   bc.bcApply(); assert.ok(S.layers[0].grid[1][1][0] > 150);
   history.doUndo(); assert.deepEqual(S.layers[0].grid[1][1], [100, 100, 100, 255]); });
+t('canvas adjustment rasterizes text with one reference-backed Undo', () => {
+  resetWH(16, 16); const L = textLayer.makeTextLayer('Gray', S.W, S.H,
+    { value: 'A', size: 8, color: '#646464' }, { x: 2, y: 3 });
+  const grid = L.grid; S.layers = [L]; S.undoStack = []; S.redoStack = [];
+  bc.openBcPop(null, null, { scope: 'canvas' });
+  document.getElementById('bc-bri').value = '50'; bc.bcApply();
+  assert.equal(L.kind, 'pixel'); assert.equal(S.undoStack.length, 1);
+  assert.equal(S.undoStack[0].kind, 'raster-reference-patch');
+  history.doUndo(); assert.equal(L.kind, 'text'); assert.equal(L.grid, grid);
+});
 t("module-int case 081", () => { resetWH(4, 4); S.undoStack.length = 0; S.redoStack.length = 0;
   S.layers[0].grid[1][1] = [100, 50, 50, 255]; cache.dirtyAll();
   bc.openBcPop([S.layers[0]], null, { scope: 'layer' });
@@ -768,9 +892,9 @@ t("module-int case 085", () => { resetWH(6, 6); S.sel = { x0: 1, y0: 1, x1: 3, y
   sel.fillSelection(); assert.deepEqual(S.layers[0].grid[2][2], [5, 6, 7, 255]); });
 t("module-int case 086", () => { resetWH(6, 6); S.layers[0].grid[2][2] = [1, 1, 1, 255]; S.sel = { x0: 1, y0: 1, x1: 3, y1: 3 }; S.selMask = null;
   assert.equal(sel.deleteSelContent(), true); assert.equal(S.layers[0].grid[2][2], null); });
-t("module-int case 087", () => { resetWH(6, 6); S.layers[0].grid[2][2] = [9, 9, 9, 255]; S.layers[0].grid[4][4] = [9, 9, 9, 255]; S.sel = null; S.selMask = null;
+t("module-int case 087", () => { resetWH(6, 6); S.layers[0].grid[2][2] = [9, 9, 9, 255]; S.layers[0].grid[4][4] = [9, 9, 9, 255]; cache.markDirty(0, { minx: 2, miny: 2, maxx: 4, maxy: 4 }); S.sel = null; S.selMask = null;
   sel.selectColorPixels([9, 9, 9]); assert.ok(S.selMask && S.selMask.has('2,2') && S.selMask.has('4,4')); });
-t("module-int case 088", () => { resetWH(6, 6); S.layers[0].grid[1][1] = [1, 1, 1, 255]; S.layers[0].grid[2][2] = [2, 2, 2, 255]; S.layers[0].grid[3][3] = [3, 3, 3, 255];
+t("module-int case 088", () => { resetWH(6, 6); S.layers[0].grid[1][1] = [1, 1, 1, 255]; S.layers[0].grid[2][2] = [2, 2, 2, 255]; S.layers[0].grid[3][3] = [3, 3, 3, 255]; cache.markDirty(0, { minx: 1, miny: 1, maxx: 3, maxy: 3 });
   sel.selectColorPixels([[1, 1, 1], [3, 3, 3]]);
   assert.ok(S.selMask && S.selMask.has('1,1') && S.selMask.has('3,3') && !S.selMask.has('2,2'));
 });
@@ -782,6 +906,7 @@ t("module-int case 089", () => { resetWH(5, 5);
   ];
   S.folders = [{ id: 1, name: 'G', open: true, visible: true, parent: null, effects: [] }];
   S.layers[0].grid[0][0] = [9, 9, 9, 255]; S.layers[1].grid[1][1] = [1, 1, 1, 255]; S.layers[2].grid[3][3] = [2, 2, 2, 255];
+  cache.markDirty(0, { minx: 0, miny: 0, maxx: 0, maxy: 0 }); cache.markDirty(1, { minx: 1, miny: 1, maxx: 1, maxy: 1 }); cache.markDirty(2, { minx: 3, miny: 3, maxx: 3, maxy: 3 });
   S.cur = 0; S.selFolder = 1; S.markedFolders = new Set([1]); S.marked = new Set();
   sel.selectLayerContent();
   assert.ok(S.selMask && S.selMask.has('1,1') && S.selMask.has('3,3') && !S.selMask.has('0,0'));
@@ -1000,7 +1125,8 @@ t("module-int case 138", () => { resetWH(4, 4); S.palette = [[1, 2, 3], [8, 8, 8
   S.layers[0].grid = blank(4, 4); cache.dirtyAll(); pal.buildPalette();
   document.getElementById('pal-used').click();
   assert.equal(document.querySelectorAll('#pal .sw.used').length, 0);
-  S.layers[0].grid[0][0] = [8, 8, 8, 255]; bus.emit('render');
+  S.layers[0].grid[0][0] = [8, 8, 8, 255];
+  cache.markDirty(0, { minx: 0, miny: 0, maxx: 0, maxy: 0 }); bus.emit('render');
   assert.equal(document.querySelectorAll('#pal .sw.used').length, 1);
   document.getElementById('pal-used').click();
 });
@@ -1408,6 +1534,105 @@ t("module-int case 164", () => {
   assert.ok(!ovl.classList.contains('on'));
   ovl.classList.remove('on'); gallery.hide();
 });
+t('fill: a blank canvas swaps one raster reference for fast undo', () => {
+  reset4(); S.active = [4, 5, 6]; S.undoStack = []; S.redoStack = [];
+  const blankGrid = S.layers[0].grid; floodAt(1, 1);
+  assert.equal(S.undoStack.at(-1).kind, 'raster-reference-patch');
+  assert.ok(S.layers[0].grid.every((row) => row.every((cell) => cell === row[0])));
+  history.doUndo(); assert.equal(S.layers[0].grid, blankGrid);
+  history.doRedo(); assert.deepEqual(S.layers[0].grid[0][0], [4, 5, 6]);
+});
+t("new canvas: built-in names update immediately on locale switch", () => {
+  i18n.setLocale('ru'); newCanvas.mount(); gallery.show();
+  const ovl = document.getElementById('new-ovl'); ovl.classList.remove('on');
+  document.getElementById('gal-new').click();
+  const name = () => document.querySelector(
+    '[data-preset-id="a5-p"] .new-name').textContent;
+  assert.equal(name(), i18n.t('canvasPreset.a5Portrait'));
+  i18n.setLocale('en'); assert.equal(name(), 'A5 · Portrait');
+  i18n.setLocale('ru'); ovl.classList.remove('on'); gallery.hide();
+});
+await ta("new canvas: every dialog starts with a visible white Background", async () => {
+  newCanvas.mount(); gallery.show();
+  const ovl = document.getElementById('new-ovl'); ovl.classList.remove('on');
+  document.getElementById('gal-new').click();
+  assert.equal(document.getElementById('new-bg-text').textContent, i18n.t('new.bgWhite'));
+  document.querySelector('[data-preset-id="fhd"]').click();
+  await waitUntil(() => S.W === 1920 && S.H === 1080);
+  assert.deepEqual(S.bg, { color: [255, 255, 255], visible: true });
+  gallery.hide();
+});
+await ta("gallery documents: new is white while import and reopen preserve alpha", async () => {
+  galDoc.newWork(2, 2, 'white-default');
+  assert.deepEqual(S.bg, { color: [255, 255, 255], visible: true });
+  galDoc.newWorkFromImage(1, 1, new Uint8ClampedArray([0, 0, 0, 0]), 'alpha');
+  assert.deepEqual(S.bg, { color: null, visible: true });
+  S.bg.visible = false; const importedId = galDoc.curWorkId(); await galDoc.saveCurrent();
+  galDoc.newWork(2, 2, 'other'); await galDoc.openWork(importedId);
+  assert.deepEqual(S.bg, { color: null, visible: false });
+});
+await ta("gallery document open cannot replace a newer blank canvas", async () => {
+  galDoc.newWork(2, 2, 'stored'); S.layers[0].grid[0][0] = [9, 8, 7, 255];
+  const storedId = galDoc.curWorkId(); await galDoc.saveCurrent();
+  galDoc.newWork(2, 2, 'source');
+  const pendingOpen = galDoc.openWork(storedId);
+  assert.equal(await galDoc.createNewWork(2, 2, 'clean'), true);
+  const cleanId = galDoc.curWorkId();
+  assert.equal(await pendingOpen, false);
+  assert.equal(galDoc.curWorkId(), cleanId); assert.equal(S.docName, 'clean');
+  assert.equal(S.layers[0].grid[0][0], null);
+});
+await ta("gallery document card opens from its caption area", async () => {
+  const screen = await import('../src/systems/gallery/screen.js');
+  await galDoc.saveCurrent(); let opened = 0;
+  screen.configure({ onOpen: () => { opened++; } }); screen.goBack(); await screen.render();
+  const tile = document.querySelector(`.gal-tile[data-id="${galDoc.curWorkId()}"]`);
+  const oldMatchMedia = window.matchMedia; window.matchMedia = () => ({ matches: true });
+  tile.querySelector('.gal-cap small').click(); await waitUntil(() => opened === 1);
+  window.matchMedia = oldMatchMedia;
+  assert.equal(opened, 1);
+});
+await ta("empty new canvas is stored before gallery render and New remains reusable", async () => {
+  gallery.hide(); assert.equal(await galDoc.createNewWork(3, 5, 'empty-stored'), true);
+  const id = galDoc.curWorkId(); assert.equal(await gallery.show(), true);
+  assert.ok(document.querySelector(`.gal-tile[data-id="${id}"]`));
+  const overlay = document.getElementById('new-ovl'); overlay.classList.remove('on');
+  document.getElementById('gal-new').click(); assert.ok(overlay.classList.contains('on'));
+  overlay.classList.remove('on'); gallery.hide();
+});
+await ta("new canvas: rapid Create clicks commit exactly one gallery file", async () => {
+  const store = await import('../src/systems/gallery/store.js');
+  await gallery.show(); const before = (await store.listAll()).filter((d) => d.kind !== 'folder').length;
+  const overlay = document.getElementById('new-ovl'); overlay.classList.remove('on');
+  document.getElementById('gal-new').click();
+  document.getElementById('new-w').value = '7'; document.getElementById('new-h').value = '9';
+  const create = document.getElementById('new-create'); create.click(); create.click();
+  assert.equal(create.disabled, true);
+  await waitUntil(() => !overlay.classList.contains('on'));
+  const after = (await store.listAll()).filter((d) => d.kind !== 'folder').length;
+  assert.equal(after, before + 1); assert.equal(S.W, 7); assert.equal(S.H, 9);
+});
+await ta("new canvas: editor New waits for gallery preparation and then opens", async () => {
+  gallery.hide(); const previous = galDoc.curWorkId();
+  const overlay = document.getElementById('new-ovl'); overlay.classList.remove('on');
+  actions.run('doc.new');
+  assert.ok(document.getElementById('gallery').classList.contains('on'));
+  assert.ok(overlay.classList.contains('on'));
+  document.getElementById('new-w').value = '11'; document.getElementById('new-h').value = '13';
+  document.getElementById('new-create').click();
+  await waitUntil(() => !overlay.classList.contains('on'));
+  assert.notEqual(galDoc.curWorkId(), previous); assert.equal(S.W, 11); assert.equal(S.H, 13);
+  assert.ok(!document.getElementById('gallery').classList.contains('on'));
+});
+await ta("gallery startup never opens the newest file behind the gallery", async () => {
+  const storage = await import('../src/core/storage.js');
+  const activeId = galDoc.curWorkId(), activeName = S.docName;
+  const active = await storage.getDoc(activeId), hiddenId = 'startup-hidden-' + Date.now();
+  await storage.saveDoc({ ...active, id: hiddenId, name: 'must-not-open', updated: Date.now() + 100000 });
+  await gallery.mount();
+  assert.equal(galDoc.curWorkId(), activeId); assert.equal(S.docName, activeName);
+  await storage.removeDoc(hiddenId); gallery.hide();
+});
 await ta("module-int case 165", async () => {
   galDoc.newWork(8, 8, 'grid-on'); const id = galDoc.curWorkId();
   S.grid = { w: 8, h: 4, color: '#ff00ff', opacity: 55, visible: true, preview: false, link: false };
@@ -1589,13 +1814,14 @@ t("module-int case 172", () => {
   assert.ok(!el.classList.contains('source-gap'));
   ghost.remove();
 });
-t("module-int case 173", () => {
+await ta("module-int case 173", async () => {
   newCanvas.mount(); gallery.show();
   const ovl = document.getElementById('new-ovl'); ovl.classList.add('on');
   const w = document.getElementById('new-w'), h = document.getElementById('new-h');
   w.value = '+8'; w.dispatchEvent(new window.Event('blur'));
   h.value = '/2'; h.dispatchEvent(new window.Event('blur'));
   document.getElementById('new-create').click();
+  await waitUntil(() => S.W === 72 && S.H === 32);
   assert.equal(S.W, 72); assert.equal(S.H, 32); assert.equal(S.docName, '72 x 32');
   ovl.classList.remove('on'); gallery.hide();
 });
@@ -1681,7 +1907,7 @@ await ta('reference: drop image into reference window and drag outside detaches 
   let bubbled = false; const onDrop = () => { bubbled = true; }; window.addEventListener('drop', onDrop);
   try {
     refwin.dispatchEvent(dtEvent('dragenter')); assert.ok(refwin.classList.contains('drop-over'));
-    refwin.dispatchEvent(dtEvent('drop')); await new Promise((r) => setTimeout(r, 10));
+    refwin.dispatchEvent(dtEvent('drop')); await waitUntil(() => refwin.classList.contains('on'));
     assert.ok(refwin.classList.contains('on')); assert.ok(!refwin.classList.contains('drop-over')); assert.equal(bubbled, false);
     assert.equal(S.referenceBoard.items.length, 2); assert.equal(S.referenceBoard.open, true);
     const item = S.referenceBoard.items.at(-1), vx = S.referenceBoard.view.x, vy = S.referenceBoard.view.y, z = S.referenceBoard.view.z;
@@ -1740,7 +1966,8 @@ await ta('reference: drop image into reference window and drag outside detaches 
       const btn = [...menu.querySelectorAll('button')].find((b) => b.textContent === label); assert.ok(btn); btn.click(); };
     clickRefMenu(S.referenceBoard.items[0], i18n.t('reference.saveImage'));
     clickRefMenu(S.referenceBoard.items[0], i18n.t('tool.copy')); await new Promise((r) => setTimeout(r, 0));
-    clickRefMenu(S.referenceBoard.items[0], i18n.t('tool.paste')); await new Promise((r) => setTimeout(r, 10));
+    clickRefMenu(S.referenceBoard.items[0], i18n.t('tool.paste'));
+    await waitUntil(() => S.referenceBoard.items.length > 1);
     assert.equal(S.referenceBoard.items.length, 2);
     clickRefMenu(S.referenceBoard.items.at(-1), i18n.t('menu.delete'));
     assert.equal(S.referenceBoard.items.length, 1);
@@ -1910,8 +2137,8 @@ t("module-int case 196", () => {
 
 t("module-int case 197", () => { tb.mount(); setTool('eraser'); assert.ok(document.getElementById('t-eraser').classList.contains('on')); assert.ok(!document.getElementById('t-pencil').classList.contains('on')); });
 t("module-int case 198", () => {
-  const sideIds = ['t-pencil', 't-eraser', 't-fill', 't-shape', 't-move', 't-adjust', 't-select', 't-lasso',
-    'sym', 'tile-btn', 'pp', 'stab', 'flip-h', 'crop', 'center', 'zoom'];
+  const sideIds = ['t-pencil', 't-eraser', 't-smudge', 't-fill', 't-move', 'crop', 't-select', 't-lasso',
+    'flip-h', 'sym', 't-shape', 't-adjust', 'tile-btn', 'center', 't-text', 'zoom'];
   for (const id of sideIds) assert.equal(document.getElementById(id).parentElement.id, 'sidebar');
   for (const id of ['docsbtn', 'imp-btn', 'export-btn', 'prev', 'refbtn']) assert.equal(document.getElementById(id).parentElement.id, 'tb-left');
   assert.equal(document.getElementById('layers').parentElement.id, 'tb-right');
@@ -1994,7 +2221,9 @@ t("module-int case 205", () => { tb.mount(); resetWH(4, 4);
   document.querySelector('#sym-choice [data-sym-tool="move"]').click(); assert.equal(S.symLines.mode, 'move');
   document.getElementById('sym').click(); assert.equal(S.symLines.mode, null); assert.equal(S.symD1, true); assert.equal(S.symEnabled, false);
   assert.ok(!document.getElementById('sym').classList.contains('on'));
-  S.layers[0].grid[1][0] = [5, 5, 5, 255]; document.getElementById('flip-h').click();
+  S.layers[0].grid[1][0] = [5, 5, 5, 255];
+  cache.markDirty(0, { minx: 0, miny: 1, maxx: 0, maxy: 1 });
+  document.getElementById('flip-h').click();
   assert.ok(!document.getElementById('flip-choice').classList.contains('on'));
   assert.deepEqual(S.layers[0].grid[1][3], [5, 5, 5, 255]);
   document.getElementById('flip-h').dispatchEvent(new window.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
@@ -2045,11 +2274,68 @@ t("module-int case 209", () => { crop.mount(); resetWH(8, 8); crop.toggleCrop();
   crop.cancelCrop();
 });
 t("module-int case 210", () => {
-  localStorage.removeItem(BRUSH_PREFS_STORE); S.ppOn = false; S.stabOn = true; tb.mount();
-  document.getElementById('pp').click(); document.getElementById('stab').click();
-  const saved = JSON.parse(localStorage.getItem(BRUSH_PREFS_STORE));
-  assert.equal(saved.pixelPerfect, true); assert.equal(saved.stabilize, false);
-  S.ppOn = false; S.stabOn = true; saveBrushPrefs(S);
+  assert.equal(document.getElementById('pp'), null);
+  assert.equal(document.getElementById('stab'), null);
+  S.ppOn = false; S.stabOn = false;
+  assert.equal(S.ppOn, false); assert.equal(S.stabOn, false);
+});
+t("smudge transfers carried colour with the active brush", () => {
+  resetWH(8, 8); S.tool = 'smudge'; S.brushes.pencil.size = 1;
+  S.brushes.pencil.op = 1; S.stampBrush.pencil = null;
+  S.layers[0].grid[2][2] = [220, 30, 20, 255];
+  const h = toolHandler('smudge'); h.down({ gx: 2, gy: 2 });
+  h.move({ gx: 3, gy: 2 }); h.up({});
+  assert.ok(S.layers[0].grid[2][3]);
+  assert.ok(S.layers[0].grid[2][3][0] > 100);
+});
+t("typed raster brush applies Huion pressure on the preserved canvas", () => {
+  resetWH(24, 16); S.undoStack = []; S.redoStack = [];
+  S.layers[0].kind = 'pixel';
+  S.active = [180, 40, 30]; S.brushes.pencil.size = 8;
+  const loaded = { id: 'pressure-brush', strokePath: { spacing: .1,
+    spacingJitter: 0, lateralJitter: 0, linearJitter: 0, fallOff: 0, scatter: 0 },
+    stabilization: { streamlineAmount: 0, streamlinePressure: 0,
+      stabilizationAmount: 0, motionFilteringAmount: 0, motionFilteringExpression: 0 },
+    taper: { start: 0, end: 0, pressure: 0 },
+    shape: { hardness: 1, angle: 0, roundness: 1 },
+    grain: { strength: 0, scale: 1 }, rendering: { flow: 1, opacity: 1 },
+    dynamics: { sizeByPressure: 1, opacityByPressure: 0, tiltToSize: 0 },
+    stylus: { minimumPressure: 0, pressureCurve: [0, .33, .67, 1],
+      tiltEnabled: true, barrelAction: 'eraser', eraserAction: 'eraser' },
+    properties: { minimumSize: 1, maximumSize: 64 }, shapeMap: null, grainMap: null };
+  S.stampBrush.pencil = { loaded };
+  const handler = toolHandler('pencil');
+  let snapshots = 0; const off = bus.on('snapshot', () => snapshots++);
+  handler.down({ gx: 6, gy: 8, e: { pointerType: 'pen', pressure: .2, timeStamp: 1 } });
+  assert.equal(S.undoStack.length, 0); assert.equal(snapshots, 0);
+  handler.move({ gx: 17, gy: 8, e: { pointerType: 'pen', pressure: 1, timeStamp: 17 } });
+  handler.up({});
+  const low = S.layers[0].grid.filter((row) => row[6]).length;
+  const high = S.layers[0].grid.filter((row) => row[17]).length;
+  assert.ok(high > low);
+  const patch = S.undoStack.at(-1); assert.equal(patch.kind, 'pixel-patch');
+  assert.ok(patch.cells.size < S.W * S.H); assert.equal(snapshots, 1);
+  history.doUndo(); assert.equal(hasPixels(S.layers[0]), false);
+  history.doRedo(); assert.equal(hasPixels(S.layers[0]), true);
+  resetWH(24, 16); S.layers[0].kind = 'pixel'; S.undoStack = []; S.redoStack = [];
+  S.stampBrush.pencil = { loaded }; handler.down({ gx: 6, gy: 8,
+    e: { pointerType: 'pen', pressure: .5, timeStamp: 20 } });
+  handler.move({ gx: 12, gy: 8, e: { pointerType: 'pen', pressure: .5, timeStamp: 30 } });
+  assert.equal(hasPixels(S.layers[0]), true); handler.cancel({});
+  assert.equal(hasPixels(S.layers[0]), false); assert.equal(S.undoStack.length, 0);
+  assert.equal(S.redoStack.length, 0); assert.equal(snapshots, 1); off();
+  S.stampBrush.pencil = null;
+});
+t("smudge flushes one bounded dirty rectangle per input batch", () => {
+  resetWH(12, 8); S.layers[0].kind = 'pixel'; S.tool = 'smudge';
+  S.brushes.pencil.size = 1; S.brushes.pencil.op = 1; S.stampBrush.pencil = null;
+  S.layers[0].grid[3][2] = [220, 30, 20, 255]; cache.dirtyAll();
+  const canvas = cache.layerCanvas(0), context = canvas.getContext('2d');
+  const original = context.createImageData, sizes = [];
+  context.createImageData = (w, h) => { sizes.push([w, h]); return original(w, h); };
+  const handler = toolHandler('smudge'); handler.down({ gx: 2, gy: 3 });
+  handler.move({ gx: 5, gy: 3 }); handler.up({}); cache.layerCanvas(0);
+  context.createImageData = original; assert.deepEqual(sizes.at(-1), [3, 1]);
 });
 t("module-int case 211", () => { effects.mount(); adjust.mount();
   resetWH(8, 8); S.layers[0].grid[4][4] = [1, 1, 1, 255]; cache.dirtyAll();
@@ -2416,6 +2702,32 @@ t("module-int case 254", () => { resetWH(8, 8); S.active = [3, 4, 5]; S.tool = '
   input.down({ pointerType: 'mouse', button: 0, clientX: 2, clientY: 2 }); input.up({ pointerType: 'mouse', button: 0 });
 
   assert.ok(S.layers[0].grid.some((r) => r.some((c) => c))); });
+t("input cancellation rolls drawing back on cancel, capture loss, blur and hide", () => {
+  const canvas = document.getElementById('cv'), hidden = Object.getOwnPropertyDescriptor(document, 'hidden');
+  const pointerEvent = (type, pointerId) => { const event = new window.Event(type);
+    Object.defineProperties(event, { pointerType: { value: 'mouse' }, pointerId: { value: pointerId } }); return event; };
+  for (const [index, terminal] of ['pointercancel', 'lostpointercapture', 'blur', 'hidden'].entries()) {
+    resetWH(8, 8); S.undoStack = []; S.redoStack = []; S.stampBrush.pencil = null;
+    const undo = overCv(); input.down({ pointerType: 'mouse', button: 0,
+      clientX: 2, clientY: 2, pointerId: 40 + index }); assert.equal(hasPixels(S.layers[0]), true);
+    if (terminal === 'blur') window.dispatchEvent(new window.Event('blur'));
+    else if (terminal === 'hidden') { Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+      document.dispatchEvent(new window.Event('visibilitychange')); }
+    else canvas.dispatchEvent(pointerEvent(terminal, 40 + index));
+    undo(); assert.equal(hasPixels(S.layers[0]), false); assert.equal(S.undoStack.length, 0);
+    assert.equal(S.redoStack.length, 0); assert.equal(S.stroke, false);
+    if (terminal === 'hidden') { if (hidden) Object.defineProperty(document, 'hidden', hidden);
+      else delete document.hidden; }
+  }
+});
+await ta("gallery transition cancels an unfinished stroke before persistence", async () => {
+  resetWH(8, 8); S.undoStack = []; S.redoStack = []; S.stampBrush.pencil = null;
+  const undo = overCv(); input.down({ pointerType: 'mouse', button: 0,
+    clientX: 2, clientY: 2, pointerId: 90 }); assert.equal(hasPixels(S.layers[0]), true);
+  const shown = gallery.show();
+  assert.equal(S.stroke, false); assert.equal(hasPixels(S.layers[0]), false);
+  await shown; gallery.hide(); undo();
+});
 t("module-int case 255", () => { resetWH(8, 8); S.tool = 'move'; S.view.ox = 0; S.view.oy = 0;
   input.down({ pointerType: 'mouse', button: 2, clientX: 100, clientY: 100, pointerId: 1 });
   input.move({ pointerType: 'mouse', button: 2, clientX: 140, clientY: 100 });
@@ -2534,6 +2846,8 @@ t("module-int case 275", () => { resetWH(6, 6);
   ];
   S.folders = [{ id: 1, name: 'G', open: true, visible: true, parent: null, effects: [] }];
   S.layers[1].grid[1][1] = [1, 1, 1, 255]; S.layers[2].grid[1][3] = [2, 2, 2, 255];
+  cache.markDirty(1, { minx: 1, miny: 1, maxx: 1, maxy: 1 });
+  cache.markDirty(2, { minx: 3, miny: 1, maxx: 3, maxy: 1 });
   S.cur = 0; S.selFolder = 1; S.markedFolders = new Set([1]); S.marked = new Set(); S.sel = { x0: 0, y0: 0, x1: 4, y1: 2 }; S.selMask = null;
   actions.run('transform.enter');
   assert.ok(S.rotMode && S.rotMode.selection); assert.equal(S.rotMode.sources.length, 2);
@@ -2561,6 +2875,8 @@ t("module-int case 278", () => { resetWH(8, 8); S.undoStack.length = 0; S.redoSt
 t("module-int case 279", () => { resetWH(8, 8);
   S.layers.push({ name: 'clip', grid: blank(8, 8), opacity: 1, visible: true, fid: null, clip: true, ext: new Map(), effects: [] });
   S.layers[0].grid[4][4] = [255, 255, 255, 255]; S.layers[1].grid[1][1] = [9, 9, 9, 255]; S.layers[1].grid[4][4] = [9, 9, 9, 255];
+  cache.markDirty(0, { minx: 4, miny: 4, maxx: 4, maxy: 4 });
+  cache.markDirty(1, { minx: 1, miny: 1, maxx: 4, maxy: 4 });
   let clips = 0; const proto = HTMLCanvasElement.prototype, orig = proto.getContext;
   proto.getContext = function (...args) { const ctx = orig.apply(this, args);
     return new Proxy(ctx, { set(tg, p, v) { if (p === 'globalCompositeOperation' && v === 'destination-in') clips++; tg[p] = v; return true; } }); };
@@ -2572,6 +2888,8 @@ t("module-int case 280", () => { resetWH(8, 8);
     { name: 'h', grid: blank(8, 8), opacity: 1, visible: false, fid: 1, clip: false, ext: new Map(), effects: [] },
   ]; S.folders = [{ id: 1, name: 'G', open: true, visible: true, parent: null, effects: [] }];
   S.layers[0].grid[1][1] = [1, 1, 1, 255]; S.layers[1].grid[6][6] = [2, 2, 2, 255]; S.selFolder = 1; S.markedFolders = new Set([1]);
+  cache.markDirty(0, { minx: 1, miny: 1, maxx: 1, maxy: 1 });
+  cache.markDirty(1, { minx: 6, miny: 6, maxx: 6, maxy: 6 });
   actions.run('transform.enter'); assert.deepEqual(S.rotMode.b, { x0: 1, y0: 1, w: 6, h: 6 }); tf.exitRotMode(false); });
 
 t("module-int case 281", () => { resetWH(8, 8);
@@ -2596,7 +2914,8 @@ t("module-int case 282", () => { resetWH(8, 8);
   S.folders = [{ id: 1, name: 'g', visible: true, parent: null, effects: [{ id: 'e2', type: 'stroke', visible: true, params: { size: 2, color: '#5aa6f2' } }] }];
   S.layers[0].fid = 1; cache.dirtyAll();
   tf.enterRotMode(S.layers[0]); assert.ok(S.rotPrev && S.rotPrev.canvas);
-  assert.equal(S.rotPrev.canvas.width, S.W); assert.equal(S.rotPrev.ow, S.W);
+  assert.ok(S.rotPrev.canvas.width < S.W); assert.ok(S.rotPrev.canvas.height < S.H);
+  assert.equal(S.rotPrev.ow, S.rotPrev.canvas.width); assert.equal(S.rotPrev.oh, S.rotPrev.canvas.height);
   tf.exitRotMode(false); S.layers[0].effects = []; S.layers[0].fid = null; S.folders = []; });
 
 t("module-int case 283", () => { resetWH(8, 8); layers.mount(); document.getElementById('lay-pop').classList.add('on'); layList();
@@ -2742,7 +3061,7 @@ t("module-int case 291", () => { resetWH(8, 8); document.getElementById('lay-pop
   document.getElementById('lay-del').click(); assert.equal(S.layers.length, 1); });
 await ta("module-int case 292", async () => {
   const panels = await import('../src/systems/panels.js');
-  localStorage.setItem('panelOrder', JSON.stringify({ 'tb-left': ['fx-btn', 't-pencil'], 'tb-right': [], sidebar: ['img-settings', 'bc', 'layers', 'activewrap'] }));
+  localStorage.setItem('panelOrderV2', JSON.stringify({ 'tb-left': ['fx-btn', 't-pencil'], 'tb-right': [], sidebar: ['img-settings', 'bc', 'layers', 'activewrap'] }));
   panels.mount();
   assert.ok(document.getElementById('fx-btn').closest('#lay-act-top'));
   assert.ok(document.getElementById('img-settings').closest('#lay-act-top'));
@@ -2750,7 +3069,7 @@ await ta("module-int case 292", async () => {
   assert.equal(document.getElementById('t-pencil').parentElement.id, 'sidebar');
   assert.equal(document.getElementById('layers').parentElement.id, 'tb-right');
   assert.equal(document.getElementById('activewrap').parentElement.id, 'tb-right');
-  localStorage.removeItem('panelOrder');
+  localStorage.removeItem('panelOrderV2');
 });
 t("module-int case 293", () => { resetWH(8, 8);
   lops.deleteLayerRef(S.layers[0]); assert.equal(S.layers.length, 0); assert.equal(S.bgSel, true);
@@ -2830,6 +3149,9 @@ t("module-int case 302", () => { resetWH(4, 4); document.getElementById('lay-pop
   } finally { document.elementFromPoint = prev; }
   assert.equal(S.layers[0].effects[0].params.color, '#0c2238'); assert.equal(S.fxCur, S.layers[0].effects[0]);
   assert.ok(S.fxSel.has(S.layers[0].effects[0]));
+  assert.equal(S.undoStack.at(-1)?.kind, 'effects-patch'); history.doUndo();
+  assert.equal(S.layers[0].effects[0].params.color, '#ffffff'); history.doRedo();
+  assert.equal(S.layers[0].effects[0].params.color, '#0c2238');
 });
 t("module-int case 303", () => { resetWH(8, 8); const b = S.layers.length; lops.doAddLayer(); assert.equal(S.layers.length, b + 1);
   S.marked = new Set([0, 1]); lops.doMerge(); assert.equal(S.layers.length, b); });
