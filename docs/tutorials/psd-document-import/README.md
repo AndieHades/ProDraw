@@ -11,17 +11,18 @@ Authority: PSD dropped or opened anywhere must create a new gallery document
 
 ## Resume Here
 
-- Current stage: `PSD4 — verification`
+- Current stage: `PSD5 — persistence and producer-order repair`
 - Status: `done`
-- Last completed stage: `PSD4 — failure matrix, docs and package proof`
+- Last completed stage: `PSD5 — gallery reopen, preview and stack repair`
 - Next action: optional physical comparison with a Photoshop-authored fixture
 - Blockers: none; Photoshop comparison is the named manual skip
 - Working paths: `src/core/psd`, `src/contracts`, `src/systems/import`,
   `src/systems/gallery`, `src/core/composite.js`, `tests/psd`
-- Last checks: PSD 9 files/48 tests, 393 module integration checks, 99 files/269
-  non-performance tests, module boot/storage, TypeScript/ESLint/docs/architecture/
-  cutover/cycles/lines/desktop-shell and Vite production build passed; decoder
-  remains a separate 286.79 kB lazy chunk; packaged Windows smoke passed
+- Last checks: PSD 11 files/53 tests, 393 module integration checks, 102 files/278
+  non-performance tests, TypeScript/ESLint/docs/architecture/cutover/cycles/
+  lines/desktop-shell, production and desktop builds passed; decoder remains a
+  separate 288.13 kB lazy chunk; packaged Windows smoke and live `Assets.psd`
+  gallery/reopen flow passed
 - Last updated: 2026-08-17
 
 ## Outcome
@@ -61,6 +62,19 @@ they are never replaced with an empty placeholder.
 | `PSD2` | single new-document import transaction | `PSD1` | done | `feat: open psd as gallery documents` |
 | `PSD3` | mask, blend and effect-aware runtime | `PSD2` | done | `feat: render imported psd semantics` |
 | `PSD4` | failure matrix, docs and package proof | `PSD3` | done | `test: verify psd document import` |
+| `PSD5` | repair producer order, sparse reopen and initial preview | `PSD4` | done | `fix: preserve psd stack and gallery reopen` |
+
+## PSD5 Regression Repair
+
+The physical `Assets.psd` fixture exposed three gaps hidden by the one-sibling
+automated fixtures. Some producers store the decoded tree bottom-first despite
+the decoder's documented top-first convention, so direction is now inferred
+against the embedded composite before conversion to ProDraw's bottom-first
+runtime stack. Persisted sparse grids now derive width from every materialized
+row and tolerate empty rows inside content bounds. A new PSD record receives its
+gallery preview from the embedded composite; older records with a missing
+preview are regenerated on the next gallery save instead of being treated as
+already complete.
 
 ## Completion Definition
 

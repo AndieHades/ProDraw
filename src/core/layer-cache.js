@@ -58,7 +58,7 @@ function rasterRegion(context, grid, bounds) {
   const width = maxx - minx + 1, height = maxy - miny + 1;
   const image = context.createImageData(width, height);
   for (let y = miny; y <= maxy; y++) for (let x = minx; x <= maxx; x++) {
-    const color = grid[y][x]; if (!color) continue;
+    const color = grid[y]?.[x]; if (!color) continue;
     const offset = ((y - miny) * width + x - minx) * 4;
     image.data[offset] = color[0]; image.data[offset + 1] = color[1];
     image.data[offset + 2] = color[2]; image.data[offset + 3] = color.length > 3 ? color[3] : 255;

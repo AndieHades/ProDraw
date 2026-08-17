@@ -98,7 +98,7 @@ async function restoreWork(id, expectedChange) { if (expectedChange !== workChan
   if (!id) { curId = null; curFolder = null; saved = null; return; }
   try { const rec = await getDoc(id); if (!rec || rec.kind === 'folder') return;
     curId = id; curFolder = rec.folder ?? null; applyRec(rec);
-    autosaveController.supersede(); markSaved(curId, mutation); } catch (error) {} }
+    autosaveController.supersede(); if (rec.preview) markSaved(curId, mutation); else saved = null; } catch (error) {} }
 
 export async function createNewWork(w, h, name, bg = DEFAULT_CANVAS_BACKGROUND.color, colorMode = 'rgba') {
   const sourceId = curId, change = nextWorkChange();
@@ -146,4 +146,4 @@ export async function openWork(id) { const change = nextWorkChange();
   if (!await saveCurrent() || change !== workChange) return false;
   const rec = await getDoc(id); if (change !== workChange || !rec || rec.kind === 'folder') return false;
   curId = id; curFolder = rec.folder ?? null; applyRec(rec);
-  autosaveController.supersede(); markSaved(curId, mutation); return true; }
+  autosaveController.supersede(); if (rec.preview) markSaved(curId, mutation); else saved = null; return true; }

@@ -34,7 +34,11 @@ export const blank = (width, height) => sparseBlank(width, height);
 
 function dimensions(grid) {
   const sparse = sparseGridShape(grid); if (sparse) return sparse;
-  return { width: grid[0]?.length || 0, height: grid.length };
+  let width = 0;
+  for (const key of Object.keys(grid)) {
+    if (Array.isArray(grid[key])) width = Math.max(width, grid[key].length);
+  }
+  return { width, height: grid.length };
 }
 
 function visitDense(grid, bounds, visit) {

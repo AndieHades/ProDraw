@@ -14,6 +14,9 @@
    on import would make the layer look correct once but violate editability.
 6. Compatibility is explicit. No unsupported effect or blend mode is silently
    renamed to a supported one.
+7. Do not trust a single producer stack convention. Compare both decoded tree
+   directions with the embedded composite and fall back to the decoder's
+   documented top-first order only when evidence is insufficient.
 
 ## Risks and Mitigations
 
@@ -30,3 +33,6 @@
   residual list. Pattern data is a known decoder limitation.
 - **Current owner cutover.** New contracts/core logic are TypeScript-first. The
   preserved production shell gets only a narrow adapter and can be removed at C6.
+- **IndexedDB strips sparse-grid prototypes.** Bounds discovery uses all stored
+  rows, and raster upload tolerates holes between them; immediate import/open
+  and later gallery reopen share the same regression fixtures.

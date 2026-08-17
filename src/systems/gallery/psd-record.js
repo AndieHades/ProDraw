@@ -2,6 +2,7 @@ import { newEffect, newLayer } from '../../core/state.js';
 import { defaultPalette, DEFAULT_ACTIVE } from '../../config/palette.js';
 import { defaultReferenceBoard } from '../../core/reference-board.js';
 import { runtimePsdEffectSpecs } from '../../logic/psd-effects.js';
+import { psdGalleryPreview } from './psd-preview.ts';
 
 const copyEffects = (effects) => effects.map((effect) => ({ ...effect,
   properties: structuredClone(effect.properties) }));
@@ -36,7 +37,8 @@ function rasterLayer(node, width, height, fid, warnings) {
 function documentTree(document, warnings) {
   const layers = [], folders = []; let folderSeq = 0;
   const walk = (nodes, parent) => {
-    for (const node of [...nodes].reverse()) {
+    const bottomFirst = document.stackOrder === 'bottom-first' ? nodes : [...nodes].reverse();
+    for (const node of bottomFirst) {
       if (['height', 'linear height'].includes(node.blendMode)) {
         warnings.add(`blend.${node.blendMode}.approximate`);
       }
@@ -64,6 +66,7 @@ export function buildPsdGalleryRecord(id, name, document) {
     dpi: document.dpi, layerSeq: tree.layers.length, folderSeq: tree.folderSeq,
     layers: tree.layers, folders: tree.folders, animator: null,
     referenceBoard: defaultReferenceBoard(), grid: {}, bg: { color: null, visible: true },
-    palette, active: palette[DEFAULT_ACTIVE].slice(), colorMode: 'rgba', preview: null,
+    palette, active: palette[DEFAULT_ACTIVE].slice(), colorMode: 'rgba',
+    preview: psdGalleryPreview(document),
     psdWarnings: [...warnings], sourceFormat: 'psd', order: now, updated: now };
 }

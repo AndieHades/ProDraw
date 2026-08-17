@@ -10,6 +10,10 @@
 5. Composite: golden RGBA for masks, clipping, groups, blend modes and effects.
 6. Static gates: check, targeted lint, cycles, docs, architecture and line limit.
 7. Desktop: production build plus packaged picker/drop/restart smoke.
+8. Regression: both tree directions normalize to the same runtime stack;
+   persisted grids whose first/content-intermediate rows are empty still render.
+9. Gallery: initial PSD preview is non-empty, PSD -> gallery -> ordinary file
+   succeeds, and an older null-preview record is eligible for regeneration.
 
 ## Manual Photoshop Fixture
 
@@ -27,10 +31,11 @@ success is reported, and reopen produces the same layer metadata and pixels.
 ## Completion Record
 
 - Commits: `62e947a`, `faaf146`, `51b6972`, `d0228af`, and the final
-  verification commit (`test: verify psd document import`)
-- Automated checks: PSD 9 files/48 tests; all 31 normalized blend modes; exact
+  verification commit (`test: verify psd document import`), followed by
+  `fix: preserve psd stack and gallery reopen`
+- Automated checks: PSD 11 files/53 tests; all 31 normalized blend modes; exact
   alpha/mask/effect-order fixtures; nested isolated/pass-through groups; 393
-  module integration checks; 99 files/269 non-performance tests through
+  module integration checks; 102 files/278 non-performance tests through
   `validate:changed`; storage and module boot; TypeScript, ESLint, docs,
   architecture, cutover, cycles, lines, desktop shell and production bundle
 - Packaged Windows smoke: renderer ready with 12 brushes/17 sources and alpha
@@ -43,3 +48,13 @@ success is reported, and reopen produces the same layer metadata and pixels.
   bevel, satin and height-family blends use deterministic approximations and
   report compatibility warnings. Text/vector/smart objects use the PSD-rendered
   bitmap while preserving their source metadata; they are not native editors.
+
+## PSD5 Repair Evidence
+
+- `Assets.psd`: 56/56 layer bitmaps decoded; bottom-first producer order was
+  inferred from its embedded composite and shown top-first in the layer panel.
+- Live browser: full character rendered, gallery preview decoded as `235x512`,
+  and `PSD -> Gallery -> new 800x600 -> Gallery -> reopen` completed without
+  console errors.
+- Automated coverage: stack direction inference, bottom-first runtime mapping,
+  persisted empty-leading/intermediate rows and composite-derived preview.

@@ -42,6 +42,16 @@ describe('sparse legacy grid compatibility', () => {
     expect(gridBounds(grid)).toEqual({ minx: 7, miny: 2, maxx: 7, maxy: 2 });
   });
 
+  it('finds persisted sparse rows even when the first row is empty', () => {
+    const persisted = new Array(4); persisted[2] = new Array(5);
+    persisted[2][3] = [9, 8, 7, 255];
+    expect(gridBounds(persisted)).toEqual({ minx: 3, miny: 2, maxx: 3, maxy: 2 });
+    const clone = cloneGrid(persisted);
+    expect(sparseGridStats(clone)).toMatchObject({ width: 5, height: 4,
+      storedCells: 1 });
+    expect(clone[2][3]).toEqual([9, 8, 7, 255]);
+  });
+
   it('retains ordinary outer Array slice, iteration and growth semantics', () => {
     const grid = blank(2, 1); grid.push(new Array(2).fill(null));
     expect(grid.length).toBe(2); expect([...grid]).toHaveLength(2);
