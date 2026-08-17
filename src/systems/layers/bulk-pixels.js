@@ -1,6 +1,6 @@
 // Bounded pixel-history paths for ordinary raster layer bulk commands.
 // Non-raster layers and layers with off-canvas `ext` data stay on their
-// legacy snapshot path so text/tilemap/off-canvas semantics are preserved.
+// reference snapshot path so text/off-canvas semantics are preserved.
 import { S, blank } from '../../core/state.js';
 import { beginPixelBatch, commitPixelPatch,
   recordPixelBefore, snapshotRasterReferences } from '../../core/history.js';

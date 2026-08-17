@@ -52,8 +52,8 @@ describe('raster reference history', () => {
     expect(rasterReads).toBe(0);
   });
 
-  it('rejects tilemaps so their structured payload keeps its full fallback', () => {
-    S.layers = [{ kind: 'tilemap', grid: [], ext: new Map(), effects: [] }];
+  it('rejects an unsupported non-raster layer kind', () => {
+    S.layers = [{ kind: 'vector', grid: [], ext: new Map(), effects: [] }];
     expect(createRasterReferenceEntry([0], S)).toBeNull();
     expect(snapshotRasterReferences([0])).toBe(false);
     expect(S.undoStack).toHaveLength(0);

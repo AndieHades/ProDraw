@@ -7,8 +7,7 @@ import { snapshot, snapshotRasterReferences } from '../core/history.js';
 import { flipRaster } from '../logic/raster-remap.js';
 import { markDirty } from '../core/layer-cache.js';
 import { toast, t } from '../core/dom.js';
-import { isTilemap } from '../core/tilemap.js';
-import { flipSelection, flipTilemapAll } from './selection-transform.js';
+import { flipSelection } from './selection-transform.js';
 
 function flipOne(L, horiz) {
   const raster = flipRaster(L.grid, L.ext, S.W, S.H, horiz);
@@ -20,7 +19,7 @@ export function flipLayer(horiz) {
   const ts = S.layers.filter(Boolean); if (!ts.length) return;
   const indices = ts.map((layer) => S.layers.indexOf(layer));
   if (!snapshotRasterReferences(indices)) snapshot();
-  for (const L of ts) { if (isTilemap(L)) flipTilemapAll(L, horiz); else flipOne(L, horiz); }
+  for (const L of ts) flipOne(L, horiz);
   bus.emit('render'); bus.emit('layers'); toast(horiz ? t('toast.flippedH') : t('toast.flippedV'));
 }
 

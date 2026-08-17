@@ -109,6 +109,4 @@ export const enShell: LocaleDictionary = {
   "tool.effects": "Layer effects",
   "tool.brushShading": "Shading brush",
   "tool.tsg": "Shadow & Tint",
-  "tool.tilebrush": "Tile brush",
-  "side.tileLayer": "Tilemap",
 };

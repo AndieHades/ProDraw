@@ -11,8 +11,6 @@ export const DEFAULT_KEYMAP = {
   s: 'toggle.symV', 'shift+s': 'toggle.symH', o: 'fx.panel',
   // холст и слой
   h: 'layer.flipH', v: 'layer.flipV', r: 'canvas.rotate', c: 'canvas.crop', n: 'doc.new',
-  // тайлы: флип тайла на кисти (удержан Space) — сразу видно на превью
-  'space+x': 'tile.flipH', 'space+y': 'tile.flipV',
   // вид
   '=': 'zoom.in', '-': 'zoom.out', 0: 'view.fit', '[': 'brush.smaller', ']': 'brush.bigger',
   // правка

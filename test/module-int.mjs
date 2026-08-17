@@ -82,7 +82,6 @@ const fxlogic = await import('../src/logic/layer-effects.js');
 const { bakeGrid } = await import('../src/core/layer-bake-grid.js');
 const { bakeFolder } = await import('../src/core/layer-bake.js');
 const { EFFECT_FIELDS, EFFECT_TYPES } = await import('../src/config/defaults.ts');
-const { tileGridKey } = await import('../src/logic/tileset-data.js');
 const adjust = await import('../src/systems/draw/adjust.js');
 const crop = await import('../src/systems/crop.js');
 const status = await import('../src/systems/status.js');
@@ -107,23 +106,6 @@ const layerFill = await import('../src/systems/layers/fill.js');
 const fxdrag = await import('../src/systems/layers/fx-drag.js');
 const i18n = await import('../src/i18n/index.ts');
 const { showMenuAt, showMenuForAnchor } = await import('../src/core/dom.js');
-const tsmgr = await import('../src/core/tileset.js');
-const tsetMgr = await import('../src/systems/tileset-manager.js');
-const tmap = await import('../src/core/tilemap.js');
-const tmcreate = await import('../src/systems/tilemap-create.js');
-const tmDialog = await import('../src/systems/tilemap-dialog.js');
-await import('../src/systems/tile-brush/index.js');
-await import('../src/systems/tile-selection/index.js');
-await import('../src/systems/tilemap-export.js');
-const tsel = await import('../src/systems/tile-selection/ops.js');
-const tfl = await import('../src/systems/tile-from-layer.js');
-const tmode = await import('../src/systems/tileset-mode/index.js');
-await import('../src/systems/tilemap-paint/index.js');
-const tops = await import('../src/systems/tile-palette/ops.js');
-const tilePalette = await import('../src/systems/tile-palette/index.js');
-const tileMenu = await import('../src/systems/tile-palette/menu.js');
-const tileToolbar = await import('../src/systems/tile-palette/toolbar.js');
-const tileSelect = await import('../src/systems/tile-palette/select.js');
 const { floatingWindow, nextFloatingZ } = await import('../src/core/floating-window.js');
 const resetWH = (w, h) => { S.W = w; S.H = h; S.cur = 0; S.folders = []; S.marked = new Set(); S.markedFolders = new Set(); S.selFolder = null;
   S.layers = [{ name: 'a', grid: blank(w, h), opacity: 1, visible: true, fid: null, clip: false, ext: new Map(), effects: [] }];
@@ -131,7 +113,7 @@ const resetWH = (w, h) => { S.W = w; S.H = h; S.cur = 0; S.folders = []; S.marke
   S.symLines = { x: null, y: null, d1: null, d2: null, mode: null, hover: null }; S.grid = { w: 16, h: 16, color: '#4aa3ff', opacity: 70, visible: false, preview: false, link: true };
   S.shading = { colors: [], on: false, open: false, picking: false };
   S.lineStart = S.linePrev = S.linePath = null; S.lineMode = 'line'; S.shapeTool = 'rect'; S.fillShape = { rect: false, ellipse: false }; S.stroke = false;
-  S.bg = { color: null, visible: true }; S.bgSel = false; S.xMirror = false; S.tile = { on: false }; S.placeTile = null;
+  S.bg = { color: null, visible: true }; S.bgSel = false; S.xMirror = false; S.tile = { on: false };
   S.animator = null;
   S.brushes.pencil.size = 1; S.brushes.pencil.op = 1; cache.dirtyAll(); };
 
@@ -141,7 +123,7 @@ const reset4 = () => { S.W = 4; S.H = 4; S.cur = 0; S.folders = []; S.marked = n
   S.symLines = { x: null, y: null, d1: null, d2: null, mode: null, hover: null }; S.grid = { w: 16, h: 16, color: '#4aa3ff', opacity: 70, visible: false, preview: false, link: true };
   S.shading = { colors: [], on: false, open: false, picking: false };
   S.lineStart = S.linePrev = S.linePath = null; S.lineMode = 'line'; S.shapeTool = 'rect'; S.fillShape = { rect: false, ellipse: false }; S.stroke = false;
-  S.bg = { color: null, visible: true }; S.bgSel = false; S.xMirror = false; S.tile = { on: false }; S.placeTile = null;
+  S.bg = { color: null, visible: true }; S.bgSel = false; S.xMirror = false; S.tile = { on: false };
   S.animator = null;
   S.brushes.pencil.size = 1; S.brushes.pencil.op = 1;
   cache.dirtyAll(); };
@@ -248,16 +230,13 @@ t("pixel patch: snapshot finalizes the active patch in LIFO order", () => {
   assert.deepEqual(S.layers[0].grid[0][0], [1, 2, 3, 255]); assert.equal(S.layers[0].grid[0][1], null);
   history.doUndo(); assert.equal(S.layers[0].grid[0][0], null);
 });
-t("stroke history uses a text reference but keeps the tilemap fallback", () => {
-  for (const kind of ['text', 'tilemap']) { resetWH(8, 8);
-    if (kind === 'text') S.layers = [textLayer.makeTextLayer('T', 8, 8,
-      { value: 'T', size: 6 }, { x: 1, y: 1 })];
-    else S.layers[0].kind = kind;
-    S.undoStack = []; assert.equal(history.beginPixelPatch(), false);
-    stroke.beginStroke(true);
-    assert.equal(S.undoStack.at(-1)?.kind,
-      kind === 'text' ? 'raster-reference-patch' : undefined);
-    stroke.cancelStroke(); assert.equal(S.undoStack.length, 0); }
+t("stroke history uses a text raster reference", () => {
+  resetWH(8, 8); S.layers = [textLayer.makeTextLayer('T', 8, 8,
+    { value: 'T', size: 6 }, { x: 1, y: 1 })];
+  S.undoStack = []; assert.equal(history.beginPixelPatch(), false);
+  stroke.beginStroke(true);
+  assert.equal(S.undoStack.at(-1)?.kind, 'raster-reference-patch');
+  stroke.cancelStroke(); assert.equal(S.undoStack.length, 0);
 });
 t("module-int case 010", () => {
   let guarded = 0; history.setUndoGuard(() => { guarded++; return true; });
@@ -436,15 +415,11 @@ t('text-layer: layer panel fill and clear each use one reference Undo', () => {
   assert.equal(L.kind, 'pixel'); assert.equal(S.undoStack.length, 1);
   history.doUndo(); assert.equal(L.kind, 'text'); assert.equal(L.grid, textGrid);
 });
-t('text-layer: alpha lock and tilemap conversion rasterize text', () => {
+t('text-layer: alpha lock rasterizes text', () => {
   resetWH(16, 16); mountTextUi();
   const L = textLayer.makeTextLayer('Hi', S.W, S.H, { value: 'Hi', size: 8, color: '#ffffff' }, { x: 1, y: 1 });
   S.layers = [L]; S.cur = 0; L.alphaLock = true; bus.emit('layers');
   assert.equal(L.kind, 'pixel'); assert.equal(L.text, undefined);
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const T = textLayer.makeTextLayer('Hi', S.W, S.H, { value: 'Hi', size: 8, color: '#ffffff' }, { x: 0, y: 0 });
-  S.layers = [T]; S.cur = 0; tfl.convertToTile({ tileW: 4, tileH: 4, newTileset: true });
-  assert.equal(T.kind, 'tilemap'); assert.equal(T.text, undefined);
 });
 t('text-layer: Free Transform keeps text editable', () => {
   resetWH(32, 16);
@@ -473,17 +448,6 @@ t('text-ui: T icon, frame handles and font controls affect live text', () => {
   document.getElementById('font-line').value = '7'; document.getElementById('font-line').dispatchEvent(new window.Event('input', { bubbles: true }));
   assert.equal(L.text.letterSpacing, 3); assert.equal(L.text.lineSpacing, 7);
   textLayer.rasterizeTextLayer(L, S.W, S.H); layList(); assert.equal(document.querySelector('#lay-list .ltext'), null);
-});
-t("module-int case 015", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4), tile = tsmgr.addTile(ts); tile.grid[0][0] = [1, 2, 3, 255];
-  const L = tmap.makeTilemapLayer('Tilemap', ts.id, 2, 2); S.layers = [L]; S.cur = 0;
-  tmap.setCell(0, 0, 0, { tileId: tile.id }); doc.applyCropRect(-4, -4, 11, 11);
-  assert.equal(S.W, 16); assert.equal(S.H, 16); assert.equal(L.tilemap.mapW, 4); assert.equal(L.tilemap.mapH, 4);
-  assert.equal(L.tilemap.cells[1 * 4 + 1].tileId, tile.id);
-  S.activeTile = { tilesetId: ts.id, tileId: tile.id }; S.tileMode = 'paint'; S.tilePattern = null; S.tileRandom = false;
-  const h = toolHandler('tilebrush'); h.down({ gx: 12, gy: 12 }); h.up({});
-  assert.equal(L.tilemap.cells[3 * 4 + 3].tileId, tile.id);
 });
 t("module-int case 016", () => { reset4();
   S.layers[0].grid[0][0] = [9, 9, 9, 255];
@@ -1517,31 +1481,6 @@ t("module-int case 158", () => {
     assert.ok(symMenu.querySelector('.menu-arrow').classList.contains('right'));
     symMenu.classList.remove('on');
   } finally { undo.forEach((fn) => fn()); }
-});
-t("module-int case 159", () => {
-  const old = localStorage.getItem('tileToolbarOrder4');
-  try {
-    localStorage.setItem('tileToolbarOrder4', JSON.stringify(['draw', 'new', 'auto', 'manual', 'save']));
-    const bar = tileToolbar.buildToolbar();
-    assert.equal(bar.querySelector('[data-tb="new"]'), null);
-    assert.deepEqual([...bar.querySelectorAll('button')].map((b) => b.dataset.tb), ['place', 'drawtile', 'edittile', 'save', 'rnd', 'del']);
-  } finally {
-    if (old == null) localStorage.removeItem('tileToolbarOrder4'); else localStorage.setItem('tileToolbarOrder4', old);
-  }
-});
-t("module-int case 160", () => {
-  const bar = tileToolbar.buildToolbar(); document.body.appendChild(bar);
-  const on = (id) => bar.querySelector('[data-tb="' + id + '"]').classList.contains('on');
-  try {
-    S.tool = 'tilebrush'; S.tileMode = 'paint'; S.tileAutoMode = 'auto'; tileToolbar.syncToolbar();
-    assert.equal(on('place'), true); assert.equal(on('drawtile'), false); assert.equal(on('edittile'), false);
-    S.tool = 'pencil'; S.tileAutoMode = 'auto'; tileToolbar.syncToolbar();
-    assert.equal(on('place'), false); assert.equal(on('drawtile'), true); assert.equal(on('edittile'), false);
-    S.tool = 'eraser'; S.tileAutoMode = 'manual'; tileToolbar.syncToolbar();
-    assert.equal(on('place'), false); assert.equal(on('drawtile'), false); assert.equal(on('edittile'), true);
-    S.tool = 'fill'; S.tileAutoMode = 'auto'; tileToolbar.syncToolbar();
-    assert.equal(on('place'), false); assert.equal(on('drawtile'), true); assert.equal(on('edittile'), false);
-  } finally { bar.remove(); }
 });
 await ta("module-int case 161", async () => {
   const root = document.createElement('div'), rootGrip = document.createElement('div');
@@ -2679,7 +2618,7 @@ t("module-int case 239", () => { crop.mount(); resetWH(8, 8); crop.toggleCrop();
   assert.equal(S.cropMode.x1 - S.cropMode.x0 + 1, 3); assert.equal(S.cropMode.y1 - S.cropMode.y0 + 1, 6);
   crop.cancelCrop(); });
 
-t("module-int case 240", () => { crop.mount(); resetWH(40, 40); S.grid.w = 5; S.grid.h = 7; S.tileset = { on: true }; S.tileGrid ||= {}; S.tileGrid.size = 16; crop.toggleCrop();
+t("module-int case 240", () => { crop.mount(); resetWH(40, 40); S.grid.w = 5; S.grid.h = 7; crop.toggleCrop();
   const units = document.getElementById('crop-units'), link = document.getElementById('crop-link');
   if (link.classList.contains('on')) link.click();
   if (!units.classList.contains('on')) units.click();
@@ -2691,7 +2630,7 @@ t("module-int case 240", () => { crop.mount(); resetWH(40, 40); S.grid.w = 5; S.
   units.click();
   assert.equal(S.cropMode.x1 - S.cropMode.x0 + 1, 40);
   assert.equal(S.cropMode.y1 - S.cropMode.y0 + 1, 40);
-  S.tileset.on = false; crop.cancelCrop(); });
+  crop.cancelCrop(); });
 
 t("module-int case 241", () => { crop.mount(); resetWH(40, 40); S.grid.w = 5; S.grid.h = 5; crop.toggleCrop();
   const units = document.getElementById('crop-units'), link = document.getElementById('crop-link'), cs = document.getElementById('crop-cell-size');
@@ -3033,7 +2972,6 @@ t("module-int case 284", () => { resetWH(8, 8); layers.mount(); effects.mount();
   row.dispatchEvent(new window.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientY: 120 }));
   const hidden = ['lctx-ren', 'lctx-dup', 'lctx-select', 'lctx-fill', 'lctx-clear', 'lctx-symm', 'lctx-rotate', 'lctx-clip', 'lctx-lock', 'lctx-alpha', 'lctx-ref', 'lctx-del', 'lctx-mono', 'lctx-bc'];
   for (const id of hidden) assert.equal(document.getElementById(id).style.display, 'none', id);
-  assert.equal(document.getElementById('lctx-tile').style.display, 'none');
   assert.equal(document.getElementById('lctx-invert').disabled, true);
   assert.equal(document.getElementById('lctx-copy-fx').disabled, true);
   assert.equal(document.getElementById('lctx-paste-fx').disabled, true);
@@ -3051,67 +2989,6 @@ t('folder context menu exposes whole-canvas and cropped PNG actions', () => {
     { bubbles: true, cancelable: true, clientY: 120 }));
   assert.notEqual(document.getElementById('lctx-png-full').style.display, 'none');
   assert.notEqual(document.getElementById('lctx-png-tight').style.display, 'none');
-});
-t("module-int case 285", () => {
-  resetWH(8, 8); layers.mount(); tfl.mount(); tmDialog.mount(); S.tilesets = []; S.tilesetSeq = 0;
-  const ts = tsmgr.createTileset('t', 4, 4), tile = tsmgr.addTile(ts); tile.grid[0][0] = [1, 2, 3, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 2); S.layers = [L]; S.cur = 0; tmap.setCell(0, 0, 0, { tileId: tile.id });
-  document.getElementById('lay-pop').classList.add('on'); layList();
-  const row = document.querySelector('#lay-list .lrow[data-li="0"]');
-  row.dispatchEvent(new window.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientY: 120 }));
-  const btn = document.getElementById('lctx-tile');
-  assert.notEqual(btn.style.display, 'none');
-  assert.equal(btn.textContent, i18n.t('tilemap.settings'));
-  btn.click();
-  assert.ok(document.getElementById('tilemap-ovl').classList.contains('on'));
-  assert.equal(document.getElementById('tm-grid-w').value, '4');
-  assert.equal(document.getElementById('tm-grid-h').value, '4');
-  document.getElementById('tm-cancel').click();
-});
-t("module-int case 286", () => {
-  resetWH(8, 8); layers.mount(); S.tilesets = []; S.tilesetSeq = 0;
-  const ts = tsmgr.createTileset('t', 4, 4), tile = tsmgr.addTile(ts); tile.grid[0][0] = [4, 5, 6, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 2); S.layers.push(L); S.cur = 0; tmap.setCell(1, 0, 0, { tileId: tile.id });
-  document.getElementById('lay-pop').classList.add('on'); layList();
-  const btn = document.querySelector('#lay-list .lrow[data-li="1"] .ltile');
-  assert.ok(btn); assert.equal(btn.title, i18n.t('menu.convertLayer'));
-  btn.click();
-  assert.equal(S.cur, 0);
-  assert.equal(S.layers[1].kind, 'pixel');
-  assert.equal(S.layers[1].tilemap, undefined);
-  assert.equal(S.layers[1].tilemapSettings.tileW, 4);
-  assert.equal(S.layers[1].tilemapSettings.tileH, 4);
-  assert.deepEqual(S.layers[1].grid[0][0], [4, 5, 6, 255]);
-  assert.equal(S.tilesets[0].tiles.length, 1);
-});
-t("module-int case 287", () => {
-  resetWH(8, 8); layers.mount(); tmDialog.mount(); tmcreate.mount(); tfl.mount(); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  S.layers[0].grid[0][0] = [7, 8, 9, 255]; document.getElementById('lay-pop').classList.add('on'); layList();
-  assert.equal(document.getElementById('lay-tmap'), null);
-  actions.run('tilemap.toggleLayer'); assert.ok(document.getElementById('tilemap-ovl').classList.contains('on'));
-  document.getElementById('tm-apply').click();
-  assert.equal(S.layers[0].kind, 'tilemap'); assert.equal(S.layers[0].tilemapSettings.tileW, 4);
-  actions.run('tilemap.toggleLayer');
-  assert.equal(S.layers[0].kind, 'pixel'); assert.equal(S.layers[0].tilemap, undefined);
-  assert.equal(S.layers[0].tilemapSettings.tileW, 4);
-  assert.ok(!document.getElementById('tilemap-ovl').classList.contains('on'));
-  actions.run('tilemap.toggleLayer');
-  assert.equal(S.layers[0].kind, 'tilemap');
-  assert.equal(S.layers[0].tilemap.mapW, 2); assert.equal(S.layers[0].tilemap.mapH, 2);
-  assert.ok(!document.getElementById('tilemap-ovl').classList.contains('on'));
-});
-t("module-int case 288", () => {
-  resetWH(8, 8); layers.mount(); tmDialog.mount(); tfl.mount(); S.tilesets = []; S.tilesetSeq = 0;
-  const ts = tsmgr.createTileset('t', 4, 4), tile = tsmgr.addTile(ts); tile.grid[0][0] = [1, 2, 3, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 2); S.layers = [L]; S.cur = 0; tmap.setCell(0, 0, 0, { tileId: tile.id });
-  tfl.openTilemapSettings(); assert.ok(document.getElementById('tilemap-ovl').classList.contains('on'));
-  document.getElementById('tm-grid-w').value = '8'; document.getElementById('tm-grid-h').value = '8';
-  document.getElementById('tm-apply').click();
-  const nts = tsmgr.getTileset(S.layers[0].tilemap.tilesetId);
-  assert.equal(S.layers[0].kind, 'tilemap');
-  assert.equal(nts.tileW, 8); assert.equal(nts.tileH, 8);
-  assert.equal(S.layers[0].tilemap.mapW, 1); assert.equal(S.layers[0].tilemap.mapH, 1);
-  assert.equal(S.layers[0].tilemapSettings.tileW, 8); assert.equal(S.layers[0].tilemapSettings.tileH, 8);
 });
 t("module-int case 289", () => {
   const pop = document.getElementById('lay-pop'), edge = pop.querySelector('.fw-rsz-w');
@@ -3567,601 +3444,5 @@ t("module-int case 338", async () => { resetWH(4, 4); const { folderChain } = aw
   const inner = S.layers.map((L, i) => [L, i]).filter(([L]) => L.fid === A.id).map(([, i]) => i); S.marked = new Set(inner); lops.doGroup();
   const B = S.folders.find((f) => f !== A); assert.equal(B.parent, A.id);
   assert.deepEqual(folderChain(S.layers.find((L) => L.fid === B.id).fid).map((f) => f.id), [B.id, A.id]); });
-
-t("module-int case 339", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0;
-  const ts = tsmgr.createTileset('t', 4, 4); const tile = tsmgr.addTile(ts); tile.grid[0][0] = [1, 2, 3, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 2); S.layers.push(L); S.cur = S.layers.length - 1;
-  S.activeTile = { tilesetId: ts.id, tileId: tile.id }; S.tileMode = 'paint'; tmap.rasterLayer(S.cur);
-  const h = toolHandler('tilebrush'); h.down({ gx: 0, gy: 0 }); h.up({});
-  assert.deepEqual(S.layers[S.cur].grid[0][0], [1, 2, 3, 255]);
-  tile.grid[1][1] = [9, 9, 9, 255]; tmap.refreshTile(ts.id, tile.id);
-  assert.deepEqual(S.layers[S.cur].grid[1][1], [9, 9, 9, 255]);
-});
-t("module-int case 340", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileAutoMode = 'manual'; S.tileMode = 'pick'; S.tool = 'pencil';
-  const ts = tsmgr.createTileset('t', 4, 4), tile = tsmgr.addTile(ts); tile.grid[0][0] = [1, 2, 3, 255];
-  tileSelect.selectTile(ts, tile.id);
-  assert.deepEqual(S.activeTile, { tilesetId: ts.id, tileId: tile.id });
-  assert.deepEqual(S.placeTile, { tilesetId: ts.id, tileId: tile.id });
-  assert.equal(S.tool, 'tilebrush'); assert.equal(S.tileMode, 'paint'); assert.equal(S.tileAutoMode, 'manual');
-});
-t("module-int case 341", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileMarks = new Set(); S.tilePattern = null;
-  const ts = tsmgr.createTileset('t', 4, 4), tiles = Array.from({ length: 5 }, () => tsmgr.addTile(ts));
-  S.activeTile = { tilesetId: ts.id, tileId: tiles[0].id }; tilePalette.mount(); tilePalette.openPanel();
-  let cells = [...document.querySelectorAll('#tile-list .tile-cell')];
-  cells[1].dispatchEvent(new window.MouseEvent('click', { bubbles: true, ctrlKey: true }));
-  assert.deepEqual([...S.tileMarks], [tiles[1].id]); assert.equal(document.querySelectorAll('#tile-list .marked').length, 1);
-  cells = [...document.querySelectorAll('#tile-list .tile-cell')];
-  cells[3].dispatchEvent(new window.MouseEvent('click', { bubbles: true, shiftKey: true }));
-  assert.deepEqual([...S.tileMarks], [tiles[1].id, tiles[2].id, tiles[3].id]);
-  assert.equal(document.querySelectorAll('#tile-list .marked').length, 3);
-  cells = [...document.querySelectorAll('#tile-list .tile-cell')];
-  cells[2].dispatchEvent(new window.MouseEvent('click', { bubbles: true, ctrlKey: true }));
-  assert.deepEqual([...S.tileMarks], [tiles[1].id, tiles[3].id]);
-});
-t("module-int case 342", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileMarks = new Set(); S.tilePattern = null;
-  const ts = tsmgr.createTileset('t', 4, 4); Array.from({ length: 4 }, () => tsmgr.addTile(ts));
-  S.activeTile = { tilesetId: ts.id, tileId: ts.tiles[0].id }; tilePalette.mount(); tilePalette.openPanel();
-  const cells = [...document.querySelectorAll('#tile-list .tile-cell')], oldHit = document.elementFromPoint;
-  try {
-    document.elementFromPoint = () => cells[2];
-    cells[0].dispatchEvent(new window.MouseEvent('pointerdown', { bubbles: true, button: 2, clientX: 0, clientY: 0 }));
-    document.dispatchEvent(new window.MouseEvent('pointermove', { bubbles: true, clientX: 20, clientY: 0 }));
-    document.elementFromPoint = () => cells[3];
-    document.dispatchEvent(new window.MouseEvent('pointermove', { bubbles: true, clientX: 40, clientY: 0 }));
-    document.dispatchEvent(new window.MouseEvent('pointerup', { bubbles: true, button: 2, clientX: 40, clientY: 0 }));
-    assert.deepEqual(ts.tiles.map((tile) => tile.id), [1, 2, 3, 4]);
-    assert.deepEqual([...S.tileMarks], [ts.tiles[0].id, ts.tiles[2].id, ts.tiles[3].id]);
-    assert.equal(document.querySelectorAll('#tile-list .marked').length, 3);
-  } finally { document.elementFromPoint = oldHit; }
-});
-await ta("module-int case 343", async () => {
-  resetWH(12, 4); S.tilesets = []; S.tilesetSeq = 0; S.tileMarks = new Set(); S.tilePattern = null;
-  const ts = tsmgr.createTileset('t', 4, 4), a = tsmgr.addTile(ts), b = tsmgr.addTile(ts), c = tsmgr.addTile(ts);
-  a.grid[0][0] = [1, 0, 0, 255]; b.grid[0][0] = [2, 0, 0, 255]; c.grid[0][0] = [3, 0, 0, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 3, 1); S.layers = [L]; S.cur = 0;
-  tmap.setCell(0, 0, 0, { tileId: a.id }); tmap.setCell(0, 1, 0, { tileId: b.id }); tmap.setCell(0, 2, 0, { tileId: c.id });
-  S.activeTile = S.placeTile = { tilesetId: ts.id, tileId: c.id }; S.tileMarks = new Set([a.id, b.id]); S.tileRandomNext = b.id;
-  let layerEvents = 0; const off = bus.on('layers', () => layerEvents++);
-  const p = tops.delTile(); document.querySelector('#confirm-ovl .primary').click(); await p;
-  off();
-  assert.deepEqual(ts.tiles.map((tile) => tile.id), [c.id]);
-  assert.equal(L.tilemap.cells[0], null); assert.equal(L.tilemap.cells[1], null); assert.equal(L.tilemap.cells[2].tileId, c.id);
-  assert.deepEqual(S.activeTile, { tilesetId: ts.id, tileId: c.id }); assert.equal(S.tileMarks.size, 0); assert.equal(S.tileRandomNext, null);
-  assert.equal(layerEvents, 1);
-});
-t("module-int case 344", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileMarks = new Set(); S.tilePattern = null; S.tileRandomNext = null;
-  const ts = tsmgr.createTileset('t', 4, 4), tile = tsmgr.addTile(ts);
-  tile.grid[0][0] = [1, 2, 3, 255]; tile.grid[1][0] = [4, 5, 6, 255];
-  S.activeTile = S.placeTile = { tilesetId: ts.id, tileId: tile.id };
-  tileMenu.openTileMenu(10, 10, tile.id);
-  const menu = document.getElementById('tile-menu'), labels = [...menu.querySelectorAll('button')].map((b) => b.textContent);
-  assert.ok(labels.includes(i18n.t('tile.flipH'))); assert.ok(labels.includes(i18n.t('tile.flipV'))); assert.ok(labels.includes(i18n.t('tile.rot90')));
-  menu.querySelectorAll('button')[labels.indexOf(i18n.t('tile.rot90'))].click();
-  assert.equal(ts.tiles.length, 2);
-  const rotated = ts.tiles[1];
-  assert.deepEqual(tile.grid[0][0], [1, 2, 3, 255]); assert.deepEqual(rotated.grid[0][3], [1, 2, 3, 255]); assert.deepEqual(rotated.grid[0][2], [4, 5, 6, 255]);
-  assert.deepEqual(S.activeTile, { tilesetId: ts.id, tileId: rotated.id }); assert.deepEqual([...S.tileMarks], [rotated.id]);
-  tops.transformTile(tile.id, 'rot90'); assert.equal(ts.tiles.length, 2);
-});
-t("module-int case 345", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.grid.w = 4; S.grid.h = 4;
-  const ts = tsmgr.createTileset('t', 4, 4), a = tsmgr.addTile(ts), b = tsmgr.addTile(ts);
-  a.grid[0][0] = [1, 1, 1, 255]; b.grid[0][0] = [2, 2, 2, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 1); S.layers.push(L); S.cur = S.layers.length - 1;
-  tmap.setCell(S.cur, 0, 0, { tileId: a.id });
-  tileSelect.selectTile(ts, b.id);
-  S.tool = 'pencil'; S.tileAutoMode = 'auto'; S.active = [9, 9, 9];
-  assert.ok(tilePaint(0, 0));
-  assert.notEqual(S.activeTile.tileId, b.id); assert.equal(S.placeTile.tileId, b.id);
-  S.tool = 'tilebrush'; S.tileMode = 'paint'; const h = toolHandler('tilebrush'); h.down({ gx: 4, gy: 0 }); h.up({});
-  assert.equal(L.tilemap.cells[1].tileId, b.id);
-  assert.deepEqual(b.grid[0][0], [2, 2, 2, 255]);
-});
-t("module-int case 346", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tool = 'tilebrush'; S.tileMode = 'paint'; S.tileAutoMode = 'manual';
-  pal.setActiveColor([9, 8, 7]); assert.equal(S.tool, 'pencil'); assert.equal(S.tileAutoMode, 'manual');
-  S.tool = 'tilebrush'; S.tileAutoMode = 'auto'; setTool('eraser');
-  assert.equal(S.tool, 'eraser'); assert.equal(S.tileAutoMode, 'auto');
-  S.tool = 'tilebrush'; S.tileAutoMode = 'manual'; setTool('pencil');
-  assert.equal(S.tool, 'pencil'); assert.equal(S.tileAutoMode, 'manual');
-});
-t("module-int case 347", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0;
-  const ts = tsmgr.createTileset('t', 4, 4); const tile = tsmgr.addTile(ts); tile.grid[0][0] = [5, 6, 7, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 2); S.layers.push(L); S.cur = S.layers.length - 1;
-  S.activeTile = { tilesetId: ts.id, tileId: tile.id }; S.tileMode = 'paint'; tmap.rasterLayer(S.cur);
-  const h = toolHandler('tilebrush'); h.down({ gx: 0, gy: 0 }); h.up({});
-  S.activeTile = { tilesetId: ts.id, tileId: null }; S.tileFlags = { flipX: false, flipY: false, diagonalFlip: false, rotation: 0 };
-  S.tileMode = 'pick'; h.down({ gx: 0, gy: 0 }); assert.equal(S.activeTile.tileId, tile.id);
-  S.tileMode = 'erase'; h.down({ gx: 0, gy: 0 }); h.up({});
-  assert.equal(S.layers[S.cur].tilemap.cells[0], null); assert.equal(S.layers[S.cur].grid[0][0], null);
-});
-t("module-int case 348", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0;
-  const ts = tsmgr.createTileset('t', 4, 4), empty = tsmgr.addTile(ts);
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 2); S.layers.push(L); S.cur = S.layers.length - 1;
-  S.activeTile = { tilesetId: ts.id, tileId: empty.id }; S.tileMode = 'paint'; S.tilePattern = null; S.tileRandom = false;
-  const h = toolHandler('tilebrush'); h.down({ gx: 0, gy: 0 }); h.up({});
-  assert.equal(L.tilemap.cells[0], null);
-  const tile = tsmgr.addTile(ts); tile.grid[0][0] = [1, 1, 1, 255];
-  tmap.setCell(S.cur, 0, 0, { tileId: tile.id }); tile.grid[0][0] = null; tmap.refreshTile(ts.id, tile.id);
-  assert.equal(L.tilemap.cells[0], null);
-});
-t("module-int case 349", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0;
-  const ts = tsmgr.createTileset('t', 4, 4); const tile = tsmgr.addTile(ts); tile.grid[0][0] = [1, 1, 1, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 1); S.layers.push(L); S.cur = S.layers.length - 1;
-  tmap.setCell(S.cur, 0, 0, { tileId: tile.id }); tmap.setCell(S.cur, 1, 0, { tileId: tile.id });
-  S.tileSel = { li: S.cur, x0: 0, y0: 0, x1: 0, y1: 0 };
-  const before = ts.tiles.length; tsel.makeUnique();
-  assert.equal(ts.tiles.length, before + 1);
-  const c0 = L.tilemap.cells[0], c1 = L.tilemap.cells[1];
-  assert.notEqual(c0.tileId, tile.id); assert.equal(c1.tileId, tile.id);
-});
-
-t("module-int case 350", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4; S.cur = 0;
-  S.layers[0].grid[0][0] = [7, 7, 7, 255]; S.layers[0].grid[5][5] = [8, 8, 8, 255];
-  tfl.fromLayer();
-  const ts = S.tilesets[0]; assert.equal(ts.tileW, 4); assert.equal(ts.tiles.length, 2);
-});
-t("module-int case 351", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4; tmcreate.createTilemap();
-  const tilemapName = i18n.t('tile.tilemapLayer');
-  assert.equal(S.layers[S.cur].name, tilemapName); assert.equal(i18n.t('tile.newLayer'), i18n.localeValues('tile.newLayer')[0]);
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  S.layers[0].name = i18n.t('layer.name') + ' 1'; S.layers[0].grid[0][0] = [1, 1, 1, 255];
-  tfl.convertToTile(); assert.equal(S.layers[S.cur].name, tilemapName);
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  S.layers[0].name = 'Custom'; S.layers[0].grid[0][0] = [1, 1, 1, 255];
-  tfl.convertToTile(); assert.equal(S.layers[S.cur].name, 'Custom');
-});
-t("module-int case 352", () => {
-  const old = localStorage.getItem('tilemapPresets');
-  try {
-    localStorage.removeItem('tilemapPresets'); tmDialog.mount();
-    resetWH(64, 64); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 16;
-    tmcreate.open(); assert.ok(document.getElementById('tilemap-ovl').classList.contains('on'));
-    assert.equal(document.getElementById('tm-name').value, '16 x 16');
-    assert.deepEqual([...document.querySelectorAll('#tm-saved .saved b')].map((n) => n.textContent), ['32 x 32', '48 x 48', '96 x 96']);
-    if (document.getElementById('tm-link').classList.contains('on')) document.getElementById('tm-link').click();
-    document.getElementById('tm-grid-w').value = '24';
-    document.getElementById('tm-grid-w').dispatchEvent(new window.Event('input', { bubbles: true }));
-    assert.equal(document.getElementById('tm-name').value, '24 x 16');
-    document.getElementById('tm-name').value = 'Cave';
-    document.getElementById('tm-name').dispatchEvent(new window.Event('input', { bubbles: true }));
-    document.getElementById('tm-grid-w').value = '24';
-    document.getElementById('tm-grid-h').value = '12';
-    document.getElementById('tm-save').checked = true;
-    assert.equal(document.getElementById('tm-resize-canvas').checked, false);
-    assert.ok(document.getElementById('tm-cancel').classList.contains('txtbtn'));
-    assert.ok(document.getElementById('tm-apply').classList.contains('primary'));
-    document.getElementById('tm-link').click();
-    document.getElementById('tm-grid-w').value = '36';
-    document.getElementById('tm-grid-w').dispatchEvent(new window.Event('input', { bubbles: true }));
-    assert.equal(document.getElementById('tm-grid-h').value, '18');
-    document.getElementById('tm-grid-w').value = '24';
-    document.getElementById('tm-grid-h').value = '12';
-    document.getElementById('tm-apply').click();
-    const ts = S.tilesets[0], L = S.layers[S.cur];
-    assert.equal(ts.name, 'Cave'); assert.equal(ts.tileW, 24); assert.equal(ts.tileH, 12);
-    assert.equal(L.kind, 'tilemap'); assert.equal(L.tilemap.mapW, 3); assert.equal(L.tilemap.mapH, 6);
-    assert.deepEqual(JSON.parse(localStorage.getItem('tilemapPresets'))[0], { name: 'Cave', tileW: 24, tileH: 12 });
-    resetWH(16, 16); tmcreate.open();
-    document.querySelector('#tm-saved .saved').click();
-    assert.equal(document.getElementById('tm-name').value, 'Cave');
-    assert.equal(document.getElementById('tm-grid-w').value, '24');
-    assert.equal(document.getElementById('tm-grid-h').value, '12');
-    document.getElementById('tm-cancel').click();
-  } finally {
-    if (old == null) localStorage.removeItem('tilemapPresets'); else localStorage.setItem('tilemapPresets', old);
-  }
-});
-t("module-int case 353", () => {
-  resetWH(50, 50); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 16; tmDialog.mount();
-  tmcreate.open(); assert.ok(document.getElementById('tilemap-ovl').classList.contains('on'));
-  if (document.getElementById('tm-link').classList.contains('on')) document.getElementById('tm-link').click();
-  document.getElementById('tm-grid-w').value = '24';
-  document.getElementById('tm-grid-h').value = '12';
-  document.getElementById('tm-resize-canvas').checked = true;
-  document.getElementById('tm-apply').click();
-  const L = S.layers[S.cur];
-  assert.equal(S.W, 72); assert.equal(S.H, 60);
-  assert.equal(L.kind, 'tilemap'); assert.equal(L.tilemap.mapW, 3); assert.equal(L.tilemap.mapH, 5);
-});
-t("module-int case 354", () => {
-  resetWH(32, 16); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 16; tmDialog.mount();
-  S.layers[0].grid[0][0] = [1, 2, 3, 255];
-  tfl.openConvertDialog(); assert.ok(document.getElementById('tilemap-ovl').classList.contains('on'));
-  assert.equal(document.getElementById('tm-name').value, '16 x 16');
-  if (document.getElementById('tm-link').classList.contains('on')) document.getElementById('tm-link').click();
-  document.getElementById('tm-name').value = 'Dungeon';
-  document.getElementById('tm-name').dispatchEvent(new window.Event('input', { bubbles: true }));
-  document.getElementById('tm-grid-w').value = '8';
-  document.getElementById('tm-grid-h').value = '16';
-  document.getElementById('tm-apply').click();
-  const ts = S.tilesets[0], L = S.layers[S.cur];
-  assert.equal(ts.name, 'Dungeon'); assert.equal(ts.tileW, 8); assert.equal(ts.tileH, 16);
-  assert.equal(L.kind, 'tilemap'); assert.equal(L.tilemap.mapW, 4); assert.equal(L.tilemap.mapH, 1);
-  assert.ok(L.tilemap.cells[0]); assert.equal(L.tilemap.cells[1], null);
-});
-t("module-int case 355", () => {
-  resetWH(33, 17); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 16; tmDialog.mount();
-  S.layers[0].grid[0][0] = [1, 2, 3, 255];
-  tfl.openConvertDialog(); assert.ok(document.getElementById('tilemap-ovl').classList.contains('on'));
-  document.getElementById('tm-grid-w').value = '16';
-  document.getElementById('tm-grid-h').value = '16';
-  document.getElementById('tm-resize-canvas').checked = true;
-  document.getElementById('tm-apply').click();
-  const L = S.layers[S.cur];
-  assert.equal(S.W, 48); assert.equal(S.H, 32);
-  assert.equal(L.kind, 'tilemap'); assert.equal(L.tilemap.mapW, 3); assert.equal(L.tilemap.mapH, 2);
-  assert.ok(L.tilemap.cells[0]); assert.equal(L.tilemap.cells[1], null);
-});
-t("module-int case 356", () => {
-  resetWH(33, 17); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 16; tmDialog.mount();
-  S.layers[0].grid[0][0] = [1, 2, 3, 255];
-  tfl.openConvertDialog(); assert.ok(document.getElementById('tilemap-ovl').classList.contains('on'));
-  const calls = { fills: [], strokes: [], lines: 0 };
-  const ctx = {
-    save() {}, restore() {}, beginPath() {}, setLineDash() {},
-    moveTo() { calls.lines++; }, lineTo() { calls.lines++; }, stroke() {},
-    fillRect(x, y, w, h) { calls.fills.push([x, y, w, h]); },
-    strokeRect(x, y, w, h) { calls.strokes.push([x, y, w, h]); },
-  };
-  bus.emit('overlay', { ctx, ox: 0, oy: 0, z: 1 });
-  assert.ok(calls.lines > 0);
-  assert.ok(calls.strokes.some((r) => r[2] === 33 && r[3] === 17));
-  assert.equal(calls.fills.length, 0);
-  document.getElementById('tm-resize-canvas').checked = true;
-  document.getElementById('tm-resize-canvas').dispatchEvent(new window.Event('change', { bubbles: true }));
-  calls.fills = []; calls.strokes = []; calls.lines = 0;
-  bus.emit('overlay', { ctx, ox: 0, oy: 0, z: 1 });
-  assert.ok(calls.strokes.some((r) => r[2] === 48 && r[3] === 32));
-  assert.ok(calls.fills.some((r) => r[0] === 33 && r[2] === 15 && r[3] === 32));
-  assert.ok(calls.fills.some((r) => r[1] === 17 && r[2] === 48 && r[3] === 15));
-  document.getElementById('tm-cancel').click();
-});
-t("module-int case 357", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4);
-  const red = tsmgr.addTile(ts); red.grid[0][0] = [200, 0, 0, 255];
-  const blue = tsmgr.addTile(ts); blue.grid[0][0] = [0, 0, 200, 255];
-  const low = tmap.makeTilemapLayer('low', ts.id, 2, 1), top = tmap.makeTilemapLayer('top', ts.id, 2, 1);
-  S.layers = [low, top]; S.cur = 1; S.marked = new Set();
-  tmap.setCell(0, 0, 0, { tileId: red.id }); tmap.setCell(1, 1, 0, { tileId: blue.id });
-  lops.doMerge();
-  assert.equal(S.layers.length, 1); assert.equal(S.layers[0].kind, 'tilemap'); assert.equal(S.layers[0].name, 'top');
-  assert.equal(S.layers[0].tilemap.cells[0].tileId, red.id); assert.equal(S.layers[0].tilemap.cells[1].tileId, blue.id);
-  assert.deepEqual(S.layers[0].grid[0][0], [200, 0, 0, 255]); assert.deepEqual(S.layers[0].grid[0][4], [0, 0, 200, 255]);
-});
-t("module-int case 358", () => {
-  resetWH(8, 4); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const lowTs = tsmgr.createTileset('low', 4, 4), topTs = tsmgr.createTileset('top', 4, 4);
-  const red = tsmgr.addTile(lowTs); red.grid[0][0] = [200, 0, 0, 255];
-  const green = tsmgr.addTile(lowTs); green.grid[0][1] = [0, 200, 0, 255];
-  const blueHalf = tsmgr.addTile(topTs); blueHalf.grid[0][0] = [0, 0, 200, 128];
-  const greenDup = tsmgr.addTile(topTs); greenDup.grid[0][1] = [0, 200, 0, 255];
-  const low = tmap.makeTilemapLayer('low', lowTs.id, 2, 1), top = tmap.makeTilemapLayer('top', topTs.id, 2, 1);
-  S.layers = [low, top]; S.cur = 1; S.marked = new Set();
-  tmap.setCell(0, 0, 0, { tileId: red.id }); tmap.setCell(0, 1, 0, { tileId: green.id });
-  tmap.setCell(1, 0, 0, { tileId: blueHalf.id });
-  lops.doMerge();
-  const L = S.layers[0], ts = tsmgr.getTileset(L.tilemap.tilesetId);
-  assert.equal(L.kind, 'tilemap'); assert.equal(ts.id, topTs.id);
-  assert.equal(ts.tiles.length, 4);
-  assert.equal(new Set(ts.tiles.map((tile) => tileGridKey(tile.grid))).size, ts.tiles.length);
-  assert.ok(ts.tiles.some((tile) => JSON.stringify(tile.grid[0][0]) === JSON.stringify([200, 0, 0, 255])));
-  assert.ok(ts.tiles.some((tile) => JSON.stringify(tile.grid[0][0]) === JSON.stringify([0, 0, 200, 128])));
-  assert.ok(ts.tiles.some((tile) => JSON.stringify(tile.grid[0][1]) === JSON.stringify([0, 200, 0, 255])));
-  const c0 = tsmgr.getTile(ts, L.tilemap.cells[0].tileId), c1 = tsmgr.getTile(ts, L.tilemap.cells[1].tileId);
-  assert.deepEqual(c0.grid[0][0], [100, 0, 100, 255]);
-  assert.equal(c1.id, greenDup.id);
-});
-t("module-int case 359", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4; S.tilesetPrev = null; S.tileset = { on: false, open: false };
-  tilePalette.mount(); tmode.mount();
-  const ts = tsmgr.createTileset('t', 4, 4); const L = tmap.makeTilemapLayer('tm', ts.id, 2, 1); S.layers.push(L);
-  const panel = document.getElementById('tilebar');
-  S.cur = 0; bus.emit('layer-active');
-  assert.equal(S.tileset.on, false); assert.equal(S.tileset.open, false); assert.ok(panel.classList.contains('closed'));
-  S.cur = S.layers.length - 1; bus.emit('layer-active');
-  assert.equal(S.tileset.on, true); assert.equal(S.tileset.open, true); assert.ok(!panel.classList.contains('closed'));
-  S.cur = 0; bus.emit('layer-active');
-  assert.equal(S.tileset.on, false); assert.equal(S.tileset.open, false); assert.ok(panel.classList.contains('closed'));
-});
-t("module-int case 360", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4; S.stabOn = true; S.tilesetPrev = null; S.tileset = { on: false, open: false };
-  tilePalette.mount(); tmode.mount();
-  const ts = tsmgr.createTileset('t', 4, 4); const L = tmap.makeTilemapLayer('tm', ts.id, 2, 1); S.layers.push(L); S.cur = S.layers.length - 1;
-  S.tool = 'tilebrush'; S.tileMode = 'paint'; bus.emit('layer-active');
-  assert.equal(S.stabOn, false);
-  S.cur = 0; bus.emit('layer-active');
-  assert.equal(S.stabOn, true); assert.equal(S.tool, 'pencil');
-});
-t("module-int case 361", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4; S.tilesetPrev = null; S.tileset = { on: false, open: false };
-  tilePalette.mount(); tmode.mount();
-  const ts = tsmgr.createTileset('t', 4, 4); const L = tmap.makeTilemapLayer('tm', ts.id, 2, 1); S.layers.push(L); S.cur = S.layers.length - 1;
-  bus.emit('layer-active'); assert.equal(S.tileset.on, true);
-  S.bgSel = true; bus.emit('layer-active'); assert.equal(S.tileset.on, false);
-  S.bgSel = false; S.layers[S.cur].effects = [newEffect('stroke')]; S.fxCur = S.layers[S.cur].effects[0];
-  bus.emit('layer-active'); assert.equal(S.tileset.on, false);
-  S.layers[S.cur].effects = []; S.fxCur = null;
-});
-t("module-int case 362", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4); const L = tmap.makeTilemapLayer('tm', ts.id, 2, 1); S.layers.push(L); S.cur = S.layers.length - 1;
-  S.tileset = { on: true }; S.tool = 'pencil'; S.tileAutoMode = 'manual'; S.active = [5, 5, 5];
-  tilePaint(0, 0);
-  assert.equal(S.tileAutoMode, 'auto');
-  assert.equal(ts.tiles.length, 1);
-  S.tileset = { on: false };
-});
-t("module-int case 363", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4); const tile = tsmgr.addTile(ts); tile.grid[0][0] = [1, 2, 3, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 1); S.layers.push(L); S.cur = S.layers.length - 1; tmap.setCell(S.cur, 0, 0, { tileId: tile.id });
-  S.tileset = { on: true, open: false }; S.tilesetPrev = null; S.sel = null; S.selMask = null;
-  tmode.mount(); S.tileset.on = false; S.tileset.open = false; const undo = overCv(10);
-  let m = document.getElementById('tile-cctx'); if (m) m.classList.remove('on');
-  input.down({ pointerType: 'mouse', button: 2, clientX: 5, clientY: 5, pointerId: 1 });
-  input.up({ pointerType: 'mouse', button: 2, clientX: 5, clientY: 5, pointerId: 1 });
-  m = document.getElementById('tile-cctx');
-  assert.ok(m && m.classList.contains('on'));
-  const labels = [...m.querySelectorAll('button')].map((b) => b.textContent);
-  assert.ok(!labels.includes(i18n.t('tile.addToSet')));
-  assert.deepEqual(labels, [i18n.t('tile.flipH'), i18n.t('tile.flipV'), i18n.t('tile.rot90'), i18n.t('tile.select'), i18n.t('tile.fill'), i18n.t('tile.clearCell')]);
-  const rot = [...m.querySelectorAll('button')].find((b) => b.textContent === i18n.t('tile.rot90'));
-  assert.ok(rot); rot.click(); undo();
-  const id = L.tilemap.cells[0].tileId, rotated = tsmgr.getTile(ts, id);
-  assert.equal(ts.tiles.length, 2); assert.notEqual(id, tile.id); assert.equal(L.tilemap.cells[0].rotation, 0);
-  assert.deepEqual(tile.grid[0][0], [1, 2, 3, 255]); assert.deepEqual(rotated.grid[0][3], [1, 2, 3, 255]);
-  S.tileset = { on: false, open: false };
-});
-t("module-int case 364", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4), tile = tsmgr.addTile(ts); tile.grid[0][0] = [1, 2, 3, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 2); S.layers.push(L); S.cur = S.layers.length - 1;
-  tmap.setCell(S.cur, 0, 0, { tileId: tile.id }); tmap.setCell(S.cur, 1, 0, { tileId: tile.id });
-  S.tileset = { on: true, open: false }; S.tilesetPrev = null; S.sel = null; S.selMask = null;
-  tmode.mount(); const undo = overCv(10);
-  let m = document.getElementById('tile-cctx'); if (m) m.classList.remove('on');
-  input.down({ pointerType: 'mouse', button: 2, clientX: 5, clientY: 45, pointerId: 1 });
-  input.up({ pointerType: 'mouse', button: 2, clientX: 5, clientY: 45, pointerId: 1 });
-  m = document.getElementById('tile-cctx');
-  assert.ok(m && m.classList.contains('on'));
-  assert.deepEqual(S.tileSel, { li: S.cur, x0: 0, y0: 1, x1: 0, y1: 1 });
-  m.classList.remove('on');
-  input.down({ pointerType: 'mouse', button: 2, clientX: 5, clientY: 5, pointerId: 2 });
-  input.up({ pointerType: 'mouse', button: 2, clientX: 5, clientY: 5, pointerId: 2 });
-  m = document.getElementById('tile-cctx');
-  const clear = [...m.querySelectorAll('button')].find((b) => b.textContent === i18n.t('tile.clearCell'));
-  assert.ok(clear); clear.click(); undo();
-  assert.equal(L.tilemap.cells[0], null);
-  assert.equal(L.tilemap.cells[1].tileId, tile.id);
-  assert.equal(ts.tiles.length, 1);
-  assert.deepEqual(ts.tiles[0].grid[0][0], [1, 2, 3, 255]);
-  S.tileset = { on: false, open: false };
-});
-
-function tilePaint(gx, gy) { for (const gh of globalHandlers()) if (gh.down && gh.down({ gx, gy, e: {} })) { gh.up({ e: {} }); return true; } return false; }
-function tmSetup(tw) { resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.grid.w = tw; S.grid.h = tw;
-  const ts = tsmgr.createTileset('t', tw, tw), tile = tsmgr.addTile(ts);
-  tile.grid[0][0] = [1, 1, 1, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, Math.floor(8 / tw), 1); S.layers.push(L); S.cur = S.layers.length - 1;
-  tmap.setCell(S.cur, 0, 0, { tileId: tile.id }); tmap.setCell(S.cur, 1, 0, { tileId: tile.id });
-  S.tileset = { on: true }; S.tilePattern = null; S.tileRandom = false; return { ts, tile, L }; }
-
-t("module-int case 365", () => {
-  const { tile, L } = tmSetup(4); S.tool = 'pencil'; S.tileAutoMode = 'manual'; S.active = [10, 20, 30];
-  assert.ok(tilePaint(0, 0));
-  assert.deepEqual(tile.grid[0][0], [10, 20, 30, 255]);
-  assert.deepEqual(L.grid[0][0], [10, 20, 30, 255]); assert.deepEqual(L.grid[0][4], [10, 20, 30, 255]);
-});
-t("module-int case 366", () => {
-  const { tile } = tmSetup(4); S.tool = 'pencil'; S.tileAutoMode = 'manual'; S.brushes.pencil.size = 3; S.active = [2, 3, 4];
-  assert.ok(tilePaint(1, 1));
-  assert.deepEqual(tile.grid[0][0], [2, 3, 4, 255]);
-  assert.deepEqual(tile.grid[1][1], [2, 3, 4, 255]);
-  assert.deepEqual(tile.grid[2][2], [2, 3, 4, 255]);
-  assert.equal(tile.grid[3][3], null);
-});
-t("module-int case 367", () => {
-  const { ts, tile, L } = tmSetup(4); S.tool = 'pencil'; S.tileAutoMode = 'auto'; S.active = [9, 9, 9];
-  const before = ts.tiles.length; assert.ok(tilePaint(0, 0));
-  const localId = L.tilemap.cells[0].tileId, local = tsmgr.getTile(ts, localId);
-  assert.equal(ts.tiles.length, before + 1); assert.notEqual(localId, tile.id);
-  assert.equal(L.tilemap.cells[0].local, true); assert.equal(L.tilemap.cells[1].tileId, tile.id);
-  assert.deepEqual(tile.grid[0][0], [1, 1, 1, 255]); assert.deepEqual(local.grid[0][0], [9, 9, 9, 255]);
-  assert.deepEqual(L.grid[0][4], [1, 1, 1, 255]);
-  S.active = [8, 8, 8]; assert.ok(tilePaint(1, 0));
-  assert.equal(ts.tiles.length, before + 1); assert.equal(L.tilemap.cells[0].tileId, localId);
-  assert.deepEqual(local.grid[0][1], [8, 8, 8, 255]);
-});
-t("module-int case 368", () => {
-  const { ts, tile, L } = tmSetup(4); S.tool = 'pencil'; S.tileAutoMode = 'auto'; S.active = [1, 1, 1];
-  const before = ts.tiles.length; assert.ok(tilePaint(0, 0));
-  assert.equal(ts.tiles.length, before); assert.equal(L.tilemap.cells[0].tileId, tile.id);
-  assert.equal(L.tilemap.cells[0].local, undefined);
-});
-t("module-int case 369", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4), L = tmap.makeTilemapLayer('tm', ts.id, 2, 1);
-  S.layers.push(L); S.cur = S.layers.length - 1; S.tileset = { on: true };
-  S.tool = 'pencil'; S.tileAutoMode = 'auto'; S.active = [8, 7, 6];
-  assert.ok(tilePaint(0, 0)); assert.equal(ts.tiles.length, 1);
-  assert.equal(L.tilemap.cells[0].tileId, ts.tiles[0].id); assert.deepEqual(ts.tiles[0].grid[0][0], [8, 7, 6, 255]);
-});
-t("module-int case 370", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4), L = tmap.makeTilemapLayer('tm', ts.id, 2, 1);
-  S.layers.push(L); S.cur = S.layers.length - 1; S.tileset = { on: true };
-  S.tool = 'pencil'; S.tileAutoMode = 'auto'; S.brushes.pencil.size = 3; S.active = [7, 6, 5];
-  assert.ok(tilePaint(1, 1)); assert.equal(ts.tiles.length, 1);
-  assert.deepEqual(ts.tiles[0].grid[0][0], [7, 6, 5, 255]);
-  assert.deepEqual(ts.tiles[0].grid[1][1], [7, 6, 5, 255]);
-  assert.deepEqual(ts.tiles[0].grid[2][2], [7, 6, 5, 255]);
-  assert.equal(ts.tiles[0].grid[3][3], null);
-});
-t("module-int case 371", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4), tile = tsmgr.addTile(ts);
-  tile.grid[0][0] = [1, 1, 1, 255]; tile.grid[1][0] = [2, 2, 2, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 1); S.layers.push(L); S.cur = S.layers.length - 1;
-  tmap.setCell(S.cur, 0, 0, { tileId: tile.id }); S.sel = { x0: 0, y0: 0, x1: 3, y1: 3 }; S.selMask = null;
-  rotateCanvas();
-  const id = L.tilemap.cells[0].tileId, rotated = tsmgr.getTile(ts, id);
-  assert.equal(ts.tiles.length, 2); assert.notEqual(id, tile.id); assert.equal(L.tilemap.cells[0].rotation, 0);
-  assert.deepEqual(tile.grid[0][0], [1, 1, 1, 255]); assert.deepEqual(rotated.grid[0][3], [1, 1, 1, 255]);
-  assert.deepEqual(rotated.grid[0][2], [2, 2, 2, 255]);
-});
-t("module-int case 372", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4), tile = tsmgr.addTile(ts); tile.grid[0][0] = [3, 3, 3, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 2, 1); S.layers.push(L); S.cur = S.layers.length - 1;
-  tmap.setCell(S.cur, 0, 0, { tileId: tile.id }); S.sel = { x0: 0, y0: 0, x1: 3, y1: 3 }; S.selMask = null;
-  flipLayer(true);
-  const id = L.tilemap.cells[0].tileId, flipped = tsmgr.getTile(ts, id);
-  assert.equal(ts.tiles.length, 2); assert.notEqual(id, tile.id); assert.equal(L.tilemap.cells[0].flipX, false);
-  assert.deepEqual(tile.grid[0][0], [3, 3, 3, 255]); assert.deepEqual(flipped.grid[0][3], [3, 3, 3, 255]);
-});
-t("module-int case 373", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4); const L = tmap.makeTilemapLayer('tm', ts.id, 2, 1); S.layers.push(L); S.cur = S.layers.length - 1;
-  S.tileset = { on: true }; S.tool = 'pencil'; S.tileAutoMode = 'manual'; S.active = [5, 5, 5];
-  tilePaint(0, 0); assert.equal(ts.tiles.length, 1);
-  const id = L.tilemap.cells[0].tileId; S.active = [6, 6, 6]; tilePaint(1, 0);
-  assert.equal(ts.tiles.length, 1); assert.equal(L.tilemap.cells[0].tileId, id); assert.deepEqual(tsmgr.getTile(ts, id).grid[0][1], [6, 6, 6, 255]);
-  S.tool = 'eraser'; tilePaint(4, 0); assert.equal(ts.tiles.length, 1);
-});
-t("module-int case 374", () => {
-  const { ts, tile, L } = tmSetup(4); tile.grid[0][1] = [2, 2, 2, 255]; S.tileSel = { li: S.cur, x0: 0, y0: 0, x1: 0, y1: 0 };
-  tmode.cellFlipH();
-  const id = L.tilemap.cells[0].tileId, flipped = tsmgr.getTile(ts, id);
-  assert.equal(ts.tiles.length, 2); assert.notEqual(id, tile.id);
-  assert.equal(L.tilemap.cells[0].flipX, false); assert.equal(L.tilemap.cells[1].tileId, tile.id);
-  assert.deepEqual(tile.grid[0][0], [1, 1, 1, 255]);
-  assert.deepEqual(flipped.grid[0][3], [1, 1, 1, 255]); assert.deepEqual(flipped.grid[0][2], [2, 2, 2, 255]);
-});
-t("module-int case 375", () => {
-  const { ts, tile, L } = tmSetup(4); tops.removeTile(ts, tile.id);
-  assert.equal(ts.tiles.length, 0); assert.equal(L.tilemap.cells[0], null); assert.equal(L.tilemap.cells[1], null);
-});
-t("module-int case 376", () => {
-  const { ts, tile, L } = tmSetup(4); layers.mount();
-  document.getElementById('lay-clean').click();
-  assert.ok(L.tilemap.cells.every((c) => c === null));
-  assert.equal(L.grid[0][0], null);
-  tmap.rasterLayer(S.cur);
-  assert.equal(L.grid[0][0], null);
-  assert.equal(ts.tiles.length, 1);
-  assert.deepEqual(tile.grid[0][0], [1, 1, 1, 255]);
-});
-t("module-int case 377", () => {
-  const ts = tsmgr.createTileset('t', 1, 1); const g = [[[1, 2, 3, 255]]];
-  const a = tsmgr.addTileUnique(ts, g.map((r) => r.map((c) => c.slice())));
-  const b = tsmgr.addTileUnique(ts, g.map((r) => r.map((c) => c.slice())));
-  assert.equal(a.added, true); assert.equal(b.added, false); assert.equal(b.tile, a.tile);
-});
-t("module-int case 378", () => { resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.activeTile = null;
-  const ts = tsmgr.createTileset('empty', 4, 4);
-  const keep = { id: 1, name: 'keep', tileW: 1, tileH: 1, tiles: [], groups: [], tileSeq: 0 };
-  localStorage.setItem('tilesetsLib', JSON.stringify({ keep }));
-  tsetMgr.mount(); tsetMgr.open(); document.getElementById('tsetm-name').value = ts.name; document.getElementById('tsetm-save').click();
-  assert.deepEqual(JSON.parse(localStorage.getItem('tilesetsLib')), { keep });
-  assert.equal(document.getElementById('toast').textContent, i18n.t('toast.tilesetEmpty'));
-});
-t("module-int case 379", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0;
-  const ts = tsmgr.createTileset('t', 1, 1); const t1 = tsmgr.addTile(ts), t2 = tsmgr.addTile(ts);
-  t1.grid[0][0] = [1, 1, 1, 255]; t2.grid[0][0] = [2, 2, 2, 255];
-  const L = tmap.makeTilemapLayer('tm', ts.id, 4, 1); S.layers.push(L); S.cur = S.layers.length - 1;
-  S.tilePattern = { w: 2, h: 1, ids: [t1.id, t2.id] }; S.activeTile = { tilesetId: ts.id, tileId: t1.id }; S.tileMode = 'paint'; S.tileRandom = false;
-  const h = toolHandler('tilebrush'); h.down({ gx: 0, gy: 0 }); h.move({ gx: 1, gy: 0 }); h.up({});
-  assert.equal(L.tilemap.cells[0].tileId, t1.id); assert.equal(L.tilemap.cells[1].tileId, t2.id); S.tilePattern = null;
-});
-
-t("module-int case 380", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4); const L = tmap.makeTilemapLayer('tm', ts.id, 2, 1); S.layers.push(L); S.cur = S.layers.length - 1;
-  S.tileset = { on: true }; S.tool = 'fill'; S.tileAutoMode = 'manual'; S.active = [3, 4, 5];
-  for (const gh of globalHandlers()) if (gh.down && gh.down({ gx: 0, gy: 0, e: {} })) { gh.up({ e: {} }); break; }
-  assert.ok(L.tilemap.cells[0]); assert.equal(L.tilemap.cells[1], null);
-  assert.deepEqual(tsmgr.getTile(ts, L.tilemap.cells[0].tileId).grid[0][0], [3, 4, 5, 255]);
-  S.tool = 'pencil'; S.tileset = { on: false }; });
-
-t("module-int case 381", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const ts = tsmgr.createTileset('t', 4, 4);
-  const ta = tsmgr.addTile(ts); ta.grid[0][0] = [1, 1, 1, 255];
-  const tb = tsmgr.addTile(ts); tb.grid[3][3] = [2, 2, 2, 255];
-  const L1 = tmap.makeTilemapLayer('a', ts.id, 1, 1), L2 = tmap.makeTilemapLayer('b', ts.id, 1, 1);
-  S.layers.push(L1, L2); const i1 = S.layers.indexOf(L1), i2 = S.layers.indexOf(L2);
-  tmap.setCell(i1, 0, 0, { tileId: ta.id }); tmap.setCell(i2, 0, 0, { tileId: tb.id });
-  S.cur = i2; S.marked = new Set([i1]); S.tileSel = { li: i2, x0: 0, y0: 0, x1: 0, y1: 0 };
-  const before = ts.tiles.length; tmode.addToSet();
-  assert.equal(ts.tiles.length, before + 1);
-  const added = ts.tiles[ts.tiles.length - 1];
-  assert.deepEqual(added.grid[0][0], [1, 1, 1, 255]); assert.deepEqual(added.grid[3][3], [2, 2, 2, 255]);
-  tmode.addToSet(); assert.equal(ts.tiles.length, before + 1);
-  S.marked = new Set(); });
-
-t("module-int case 382", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  S.layers[0].grid[1][1] = [7, 8, 9, 255];
-  S.cur = 0; S.marked = new Set(); S.tileSel = { li: 0, x0: 0, y0: 0, x1: 0, y1: 0 };
-  tmode.addToSet();
-  const ts = S.tilesets[0]; assert.ok(ts); assert.equal(ts.tileW, 4); assert.equal(ts.tiles.length, 1);
-  assert.deepEqual(ts.tiles[0].grid[1][1], [7, 8, 9, 255]);
-});
-
-t("module-int case 383", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0;
-  const ts = tsmgr.createTileset('t', 1, 1); const a = tsmgr.addTile(ts), b = tsmgr.addTile(ts);
-  S.tilePattern = null; S.tileRandom = false; S.activeTile = { tilesetId: ts.id, tileId: a.id };
-  assert.equal(tmap.stampTileId(0, 0), a.id);
-  S.tilePattern = { w: 2, h: 1, ids: [a.id, b.id] };
-  assert.equal(tmap.stampTileId(0, 0), a.id); assert.equal(tmap.stampTileId(1, 0), b.id);
-  S.tileRandom = true; S.tileMarks = new Set([a.id, b.id]); S.tileRandomNext = null;
-  const oldRandom = Math.random; Math.random = () => 0.99;
-  try { assert.equal(tmap.stampTileId(0, 0), b.id); assert.equal(tmap.stampTileId(1, 0), b.id); } finally { Math.random = oldRandom; }
-  S.tilePattern = null; S.tileRandom = true; S.tileMarks = new Set([a.id, b.id]); S.tileRandomNext = null;
-  const r1 = tmap.stampTileId(0, 0); assert.ok(r1 === a.id || r1 === b.id);
-  assert.equal(tmap.stampTileId(0, 0), r1);
-  S.tileRandom = false; S.tileMarks = new Set();
-});
-t("module-int case 384", () => {
-  S.tileFlags = { flipX: false, flipY: false, diagonalFlip: false, rotation: 0 };
-  actions.run('tile.flipH'); assert.equal(S.tileFlags.flipX, true);
-  actions.run('tile.flipV'); assert.equal(S.tileFlags.flipY, true);
-  actions.run('tile.flipH'); assert.equal(S.tileFlags.flipX, false);
-});
-
-t("module-int case 385", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  const tsA = tsmgr.createTileset('A', 8, 8), tsB = tsmgr.createTileset('B', 4, 4);
-  const tile = tsmgr.addTile(tsB);
-  const L = tmap.makeTilemapLayer('tm', tsB.id, 2, 2); S.layers.push(L); S.cur = S.layers.indexOf(L);
-  S.activeTile = { tilesetId: tsB.id, tileId: tile.id };
-  lops.deleteLayerRef(L);
-  assert.ok(S.tilesets.includes(tsB)); assert.equal(tsB.tiles.length, 1);
-  assert.equal(tops.activeTileset(), tsB);
-  assert.notEqual(tops.activeTileset(), tsA);
-});
-
-t("module-int case 386", () => {
-  resetWH(8, 8); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
-  S.layers[0].grid[0][0] = [1, 1, 1, 255]; S.cur = 0; S.tileSel = { li: 0, x0: 0, y0: 0, x1: 0, y1: 0 };
-  tmode.addToSet(); const ts = S.tilesets[0]; assert.equal(ts.tiles.length, 1);
-  tmode.addToSet(); assert.equal(ts.tiles.length, 1);
-  S.layers[0].grid[1][1] = [2, 2, 2, 255];
-  tmode.addToSet(); assert.equal(ts.tiles.length, 2);
-});
 
 console.log(`\nAll ${n} integration tests passed`);

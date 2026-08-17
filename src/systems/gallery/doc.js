@@ -2,7 +2,6 @@
 // работа (в т.ч. из картинки), автосохранение.
 import { S, newLayer } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
-import { isTilemap, rasterLayer } from '../../core/tilemap.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../../core/reference-board.js';
 import { dedupePal } from '../../logic/quantize.js';
@@ -17,6 +16,7 @@ import { AUTOSAVE_DELAY_MS, AUTOSAVE_IDLE_TIMEOUT_MS,
 import { LegacyAutosaveController } from './LegacyAutosaveController.ts';
 import { buildGalleryRecord } from './record.js';
 import { uid } from './store.js';
+import { retireTilemapRecord } from '../../logic/retiredTilemap.ts';
 
 let curId = null, curFolder = null, workChange = 0, mutation = 0, saved = null;
 let persistChain = Promise.resolve(false);
@@ -51,11 +51,10 @@ export async function saveCurrent() { if (!curId || isSaved()) return true;
 export const autosave = () => { invalidateSaved(); autosaveController.request(); };
 export const autosaveInputStarted = () => autosaveController.inputStarted();
 
-function applyRec(rec) { S.W = rec.W; S.H = rec.H; S.layerSeq = rec.layerSeq || 1;
+function applyRec(rec) { retireTilemapRecord(rec);
+  S.W = rec.W; S.H = rec.H; S.layerSeq = rec.layerSeq || 1;
   S.layers = rec.layers; S.folders = rec.folders || [];
   S.layers.forEach((L) => { if (!L.effects) L.effects = []; L.reference = !!L.reference; if (!L.kind) L.kind = 'pixel'; }); S.folders.forEach((f) => { if (!f.effects) f.effects = []; }); // старые проекты без эффектов/reference/kind
-  S.tilesets = rec.tilesets || []; S.tilesetSeq = rec.tilesetSeq || 0; S.activeTile = null; S.placeTile = null; S.tileMarks = new Set(); S.tileSel = null; S.tileset = { on: false };
-  S.layers.forEach((L, i) => { if (isTilemap(L)) rasterLayer(i); }); // восстановить пиксельный кеш из cells + тайлсетов
   // folderSeq всегда впереди реальных id — иначе новые папки могут получить чужой id (старые проекты)
   S.folderSeq = S.folders.reduce((m, f) => Math.max(m, f.id), rec.folderSeq || 0); S.palette = dedupePal(rec.palette); S.active = (rec.active || S.palette[0]).slice();
   S.bg = rec.bg ? { color: rec.bg.color ? rec.bg.color.slice() : null, visible: rec.bg.visible !== false } : { color: null, visible: true }; S.bgSel = false;
@@ -70,7 +69,6 @@ function applyRec(rec) { S.W = rec.W; S.H = rec.H; S.layerSeq = rec.layerSeq || 
 
 function blankWork(w, h, name, colorMode = 'rgba') { nextWorkChange(); curId = uid('d'); curFolder = null;
   S.W = w; S.H = h; S.layerSeq = 1; S.folderSeq = 0; S.layers = [newLayer(t('layer.name') + ' 1', w, h)]; S.folders = []; S.cur = 0; S.marked.clear();
-  S.tilesets = []; S.tilesetSeq = 0; S.activeTile = null; S.placeTile = null; S.tileMarks = new Set(); S.tileSel = null; S.tileset = { on: false };
   S.colorMode = colorMode; S.palette = colorMode === 'grayscale' ? grayscalePalette() : defaultPalette();
   S.active = colorMode === 'grayscale' ? S.palette[S.palette.length - 1].slice() : S.palette[DEFAULT_ACTIVE].slice(); S.docName = name || t('gallery.untitled');
   S.shading = { colors: [], on: false, open: false, picking: false };

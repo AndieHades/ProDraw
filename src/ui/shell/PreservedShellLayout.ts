@@ -95,9 +95,9 @@ export function mountPreservedShellLayout(ports: PreservedShellLayoutPorts): voi
       avoidOverlap: false });
   }
   for (const windowElement of document.querySelectorAll<HTMLElement>(
-    ".ovl .sheet, .ovl .new-panel, .ovl .tilemap-panel")) {
+    ".ovl .sheet, .ovl .new-panel")) {
     ports.floatingWindow(windowElement, { grip: windowElement.querySelector<HTMLElement>(
-      ".new-head, .tilemap-head, .pop-head, h3") ?? windowElement,
+      ".new-head, .pop-head, h3") ?? windowElement,
     storeKey: windowElement.id ? `win-${windowElement.id}` : undefined });
   }
   bindOverlayDismissal();

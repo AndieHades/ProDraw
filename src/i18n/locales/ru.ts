@@ -4,7 +4,6 @@ import { ruDocument } from "./ru-document.ts";
 import { ruMenus } from "./ru-menus.ts";
 import { ruFeedback } from "./ru-feedback.ts";
 import { ruPreferences } from "./ru-preferences.ts";
-import { ruTiles } from "./ru-tiles.ts";
 
 export const ru: LocaleDictionary = {
   ...ruShell,
@@ -12,5 +11,4 @@ export const ru: LocaleDictionary = {
   ...ruMenus,
   ...ruFeedback,
   ...ruPreferences,
-  ...ruTiles,
 };

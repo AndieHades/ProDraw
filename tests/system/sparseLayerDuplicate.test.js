@@ -52,16 +52,10 @@ describe('sparse layer structure duplication', () => {
     doRedo(); expect(S.layers.filter((layer) => !sourceLayers.includes(layer))).toEqual(copies);
   });
 
-  it('keeps text and tilemap fallback payloads independent', () => {
+  it('keeps text fallback payloads independent', () => {
     const text = newLayer('Text', 8, 8); text.kind = 'text';
     text.text = { value: 'A', box: { x: 1, y: 2, w: 3, h: 4 } };
     const textCopy = cloneLayer(text); textCopy.text.box.x = 7;
     expect(text.text.box.x).toBe(1); expect(textCopy.grid).not.toBe(text.grid);
-    const tilemap = newLayer('Tiles', 8, 8); tilemap.kind = 'tilemap';
-    tilemap.tilemap = { tilesetId: 1, mapW: 1, mapH: 1,
-      cells: [{ tileId: 2, flipX: false }] };
-    const tilemapCopy = cloneLayer(tilemap); tilemapCopy.tilemap.cells[0].tileId = 9;
-    expect(tilemap.tilemap.cells[0].tileId).toBe(2);
-    expect(tilemapCopy.grid).not.toBe(tilemap.grid);
   });
 });

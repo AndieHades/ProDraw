@@ -31,9 +31,10 @@ strict TypeScript graph, one typed command/view-model boundary and one tiled
 RGBA document/history owner. Production has no `legacy-entry.js`, `app.js`,
 `grid[y][x]` image owner or parallel dormant editor.
 
-The migration changes internals, not the product. Pixelization, Pixel Perfect
-and the global stabilization toggle remain excluded by the parent parity
-contract. Tile mode, animation and all other rows remain required.
+The migration changes internals, not the retained product. Pixelization, Pixel
+Perfect, the global stabilization toggle and the tilemap/tileset suite are
+excluded by explicit user decisions. The main seamless Tile Mode, animation and
+all other rows remain required.
 
 ## Requirements
 
@@ -55,7 +56,7 @@ contract. Tile mode, animation and all other rows remain required.
 | `C2` | drawing, render, history and layers use one RGBA owner | `C1` | pending | `refactor: cut editor state over to tiled RGBA` |
 | `C3` | layer tree, effects and selection parity | `C2` | pending | `feat: port layer effects and selection to RGBA` |
 | `C4` | transform, tools, text, colour and view parity | `C3` | pending | `feat: port creative tools to the typed editor` |
-| `C5` | gallery, files, tile suite and animation parity | `C4` | pending | `feat: port document and timeline workflows` |
+| `C5` | gallery, files and animation parity | `C4` | pending | `feat: port document and timeline workflows` |
 | `C6` | one entry, no legacy graph, final product gates | `C5` | pending | `refactor: retire the legacy editor runtime` |
 
 Only one row may be `in_progress`. Every stage chapter owns its exact file
@@ -67,13 +68,14 @@ allowlist, focused checks, completion record and commit hash.
 2. [`02-target-contract.md`](02-target-contract.md)
 3. [`03-decisions-and-risks.md`](03-decisions-and-risks.md)
 4. [`10-stage-cutover-gates.md`](10-stage-cutover-gates.md)
-5. [`20-stage-typescript-shell.md`](20-stage-typescript-shell.md)
-6. [`30-stage-rgba-owner.md`](30-stage-rgba-owner.md)
-7. [`40-stage-layer-selection.md`](40-stage-layer-selection.md)
-8. [`50-stage-creative-tools.md`](50-stage-creative-tools.md)
-9. [`60-stage-document-timeline.md`](60-stage-document-timeline.md)
-10. [`70-stage-legacy-retirement.md`](70-stage-legacy-retirement.md)
-11. [`90-verification.md`](90-verification.md)
+5. [`15-stage-tilemap-retirement.md`](15-stage-tilemap-retirement.md)
+6. [`20-stage-typescript-shell.md`](20-stage-typescript-shell.md)
+7. [`30-stage-rgba-owner.md`](30-stage-rgba-owner.md)
+8. [`40-stage-layer-selection.md`](40-stage-layer-selection.md)
+9. [`50-stage-creative-tools.md`](50-stage-creative-tools.md)
+10. [`60-stage-document-timeline.md`](60-stage-document-timeline.md)
+11. [`70-stage-legacy-retirement.md`](70-stage-legacy-retirement.md)
+12. [`90-verification.md`](90-verification.md)
 
 The behavioural inventory remains
 [`08-interface-feature-parity.md`](../08-interface-feature-parity.md). This

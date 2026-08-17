@@ -6,7 +6,6 @@ import * as actions from '../../core/actions.ts';
 import { $, showMenuBeside } from '../../core/dom.js';
 import { t } from '../../i18n/index.ts';
 import { folderLayers } from './helpers.js';
-import { isTilemap } from '../../core/tilemap.js';
 import { clearLayerRefs, duplicateLayer, duplicateFolder, symmetrizeLayerRefs,
   toggleLock, toggleAlphaLock, toggleClip, toggleReference, deleteLayerRef,
   deleteFolder, ungroupFolder } from './ops.js';
@@ -29,14 +28,12 @@ const canCopyFx = () => !!(lctxRef && lctxRef.kind !== 'background' && hasFx(lct
 
 export function openLctx(x, y, kind, ref) { lctxRef = { kind, ref };
   const isFolder = kind === 'folder', isLayer = kind === 'layer', isBg = kind === 'background';
-  const isTm = isLayer && isTilemap(ref);
   // фон — то же меню #lctx (единый вид/поведение), но только Залить/Очистить
   for (const id of ['lctx-ren', 'lctx-dup', 'lctx-symm', 'lctx-rotate', 'lctx-copy-fx', 'lctx-paste-fx']) showItem(id, !isBg);
   showItem('lctx-mono', false); showItem('lctx-bc', false);
   showItem('lctx-ung', isFolder); showItem('lctx-clip', isLayer);
   for (const id of ['lctx-select', 'lctx-invert', 'lctx-lock', 'lctx-alpha', 'lctx-ref']) showItem(id, isLayer);
   for (const id of ['lctx-png-full', 'lctx-png-tight']) showItem(id, isLayer || isFolder);
-  showItem('lctx-tile', isTm);
   showItem('lctx-del', !isBg); showItem('lctx-fill', true); showItem('lctx-clear', true); // фон не удаляется
   if (isLayer) for (const id of LAYER_MENU_HIDDEN) showItem(id, false);
   if (isFolder) for (const id of FOLDER_MENU_HIDDEN) showItem(id, false);
@@ -47,7 +44,6 @@ export function openLctx(x, y, kind, ref) { lctxRef = { kind, ref };
   $('lctx-del').textContent = t(isFolder ? 'menu.deleteFolder' : 'menu.deleteLayer');
   $('lctx-fill').textContent = t('menu.fill');
   $('lctx-clear').textContent = t(isBg ? 'menu.clearSimple' : isFolder ? 'menu.clearFolder' : 'menu.clearLayer');
-  if (isLayer) $('lctx-tile').textContent = t('tilemap.settings');
   $('lctx-rotate').textContent = t(isFolder ? 'menu.transformFolder' : 'menu.transform');
   if (isLayer) { $('lctx-clip').textContent = (ref.clip ? '✓ ' : '') + t('menu.clip');
     $('lctx-lock').textContent = (ref.lock ? '✓ ' : '') + t('menu.lock'); $('lctx-alpha').textContent = (ref.alphaLock ? '✓ ' : '') + t('menu.alphaLock');
@@ -71,8 +67,6 @@ export function mountMenu() {
   $('lctx-paste-fx').onclick = () => { close(); if (hasFxClip()) actions.run('fx.paste'); };
   $('lctx-mono').onclick = () => { close(); const ts = targets(); if (ts.length) actions.run('effect.mono', ts); };
   $('lctx-bc').onclick = () => { close(); if (lctxRef) actions.run('effect.bc', [lctxRef.ref], t('pop.bc'), { scope: 'layer' }); };
-  $('lctx-tile').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer' && isTilemap(lctxRef.ref)) {
-    curTo(lctxRef.ref); actions.run('tilemap.settings'); } };
   $('lctx-clip').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer') toggleClip(lctxRef.ref); };
   $('lctx-lock').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer') toggleLock(lctxRef.ref); };
   $('lctx-alpha').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer') toggleAlphaLock(lctxRef.ref); };

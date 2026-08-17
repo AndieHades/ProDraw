@@ -72,7 +72,9 @@ Included:
   документа/слоя/группы и запоминает последнюю выбранную директорию.
 - `ARC-01`: строгий TypeScript и enforceable layer/import/line rules.
 - `OPS-01`: hooks, focused validators, CI и recoverable plans встроены в repo.
-- `CUT-01`: pixelizer/tilemap/pixel-perfect runtime удалён после parity transfer.
+- `CUT-01`: pixelizer/pixel-perfect runtime удаляется после parity transfer;
+  tilemap/tileset suite удалён раньше по прямому решению пользователя, при этом
+  бесшовный Tile Mode сохранён.
 - `UX-01`: русский и английский UI, theme tokens, desktop/tablet accessibility.
 
 Excluded:

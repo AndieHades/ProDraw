@@ -6,17 +6,13 @@ import { applyCropRect } from '../../src/core/document.js';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { dirtyAll } from '../../src/core/layer-cache.js';
 import { newLayer, S } from '../../src/core/state.js';
-import { addTile, createTileset } from '../../src/core/tileset.js';
-import { makeTilemapLayer, setCell } from '../../src/core/tilemap.js';
 import { normalizeTextSource } from '../../src/logic/text-model.js';
-import { rotateCanvas } from '../../src/systems/rotate-canvas.js';
 
 const rgba = (red) => [red, 2, 3, 255];
 
 function reset() {
   S.W = 6; S.H = 4; S.cur = 0; S.layers = [newLayer('Paint', 6, 4)];
-  S.folders = []; S.animator = null; S.tilesets = []; S.tilesetSeq = 0;
-  S.activeTile = null; S.undoStack = []; S.redoStack = [];
+  S.folders = []; S.animator = null; S.undoStack = []; S.redoStack = [];
   S.marked = new Set(); S.markedFolders = new Set(); S.fxSel = new Set();
   S.sel = S.selMask = S.selFloat = S.rotMode = null;
   S.view = { zoom: 8, ox: 0, oy: 0 }; dirtyAll({ preserveGridBounds: true });
@@ -68,23 +64,5 @@ describe('document remap history', () => {
     expect(afterText.box).toMatchObject({ x: 1, y: 0 });
     doUndo(); expect(layer.text).toBe(beforeText);
     doRedo(); expect(layer.text).toBe(afterText);
-  });
-
-  it('isolates tile variants so full-canvas rotation is exactly reversible', () => {
-    S.W = S.H = 4; const tileset = createTileset('Set', 2, 2);
-    const tile = addTile(tileset); tile.grid[0][0] = rgba(40);
-    const layer = makeTilemapLayer('Map', tileset.id, 2, 2);
-    S.layers = [layer]; setCell(0, 0, 0, { tileId: tile.id });
-    const before = { tilemap: layer.tilemap, grid: layer.grid,
-      tilesets: S.tilesets };
-    rotateCanvas(); const after = { tilemap: layer.tilemap, grid: layer.grid,
-      tilesets: S.tilesets };
-    expect(after.tilesets).not.toBe(before.tilesets);
-    expect(before.tilesets[0].tiles).toHaveLength(1);
-    expect(after.tilesets[0].tiles.length).toBeGreaterThan(1);
-    doUndo(); expect(layer.tilemap).toBe(before.tilemap);
-    expect(layer.grid).toBe(before.grid); expect(S.tilesets).toBe(before.tilesets);
-    doRedo(); expect(layer.tilemap).toBe(after.tilemap);
-    expect(layer.grid).toBe(after.grid); expect(S.tilesets).toBe(after.tilesets);
   });
 });

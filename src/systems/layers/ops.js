@@ -7,11 +7,8 @@ import { snapshot, snapshotRasterReferences,
 import { cloneGrid, symmetrizeGrid } from '../../logic/raster.js';
 import { dirtyAll, layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { bakeFolder, bakeLayerIndices } from '../../core/layer-bake.js';
-import { isTilemap, rasterLayer, composeCell } from '../../core/tilemap.js';
-import { getTileset, addTileUnique } from '../../core/tileset.js';
-import { createGroup } from '../../core/variant-groups.js';
 import { toast, t } from '../../core/dom.js';
-import { effVis, folderChain } from '../../core/layers.js';
+import { folderChain } from '../../core/layers.js';
 import { clearFolderEmptyPos, selectedIdx } from './helpers.js';
 import { deleteLayer, deleteFolder, deleteLayerRef } from './structure-delete.js';
 import { doAddLayer, doGroup, duplicateFolder, duplicateLayer,
@@ -19,60 +16,8 @@ import { doAddLayer, doGroup, duplicateFolder, duplicateLayer,
 import { clearReferenceTargets } from './reference-pixels.js';
 
 const gridHasPixels = (g) => g.some((row) => row.some((c) => c && (c[3] ?? 255) > 0));
-const visibleFx = (L) => (L.effects || []).some((e) => e.visible !== false);
-const mergeKeepsTilemap = (idx, meta) => {
-  const top = S.layers[meta]; if (!isTilemap(top)) return null;
-  const topTs = getTileset(top.tilemap.tilesetId); if (!topTs) return null;
-  for (const i of idx) { const L = S.layers[i]; if (L.clip || L.opacity !== 1 || visibleFx(L)) return null;
-    if (!isTilemap(L)) continue;
-    const ts = getTileset(L.tilemap.tilesetId); if (!ts || ts.tileW !== topTs.tileW || ts.tileH !== topTs.tileH) return null; }
-  return topTs;
-};
-
-function copyTilePalettesIntoTarget(idx, targetTs) {
-  for (const i of idx) {
-    const L = S.layers[i]; if (!isTilemap(L)) continue;
-    const srcTs = getTileset(L.tilemap.tilesetId); if (!srcTs || srcTs === targetTs) continue;
-    const groupMap = new Map(), tileMap = new Map();
-    for (const g of (srcTs.groups || [])) groupMap.set(g.id, createGroup(targetTs, g.name, null).id);
-    for (const tile of srcTs.tiles) {
-      const groupId = tile.groupId == null ? null : groupMap.get(tile.groupId) ?? null;
-      const res = addTileUnique(targetTs, tile.grid, { name: tile.name, groupId, weight: tile.weight });
-      tileMap.set(tile.id, res.tile.id);
-    }
-    for (const g of (srcTs.groups || [])) {
-      const ng = (targetTs.groups || []).find((x) => x.id === groupMap.get(g.id));
-      if (ng) ng.baseTileId = tileMap.get(g.baseTileId) ?? null;
-    }
-    targetTs.groups = (targetTs.groups || []).filter((g) => targetTs.tiles.some((tile) => tile.groupId === g.id));
-  }
-}
-
-function mergeTilemapIndices(idx, meta) {
-  const ts = mergeKeepsTilemap(idx, meta); if (!ts) return false;
-  snapshot();
-  const src = S.layers[meta], contrib = idx.filter((i) => effVis(i));
-  copyTilePalettesIntoTarget(idx, ts);
-  const mapW = Math.max(Math.ceil(S.W / ts.tileW), ...idx.map((i) => S.layers[i].tilemap?.mapW || 0));
-  const mapH = Math.max(Math.ceil(S.H / ts.tileH), ...idx.map((i) => S.layers[i].tilemap?.mapH || 0));
-  const cells = new Array(mapW * mapH).fill(null);
-  for (let cy = 0; cy < mapH; cy++) for (let cx = 0; cx < mapW; cx++) {
-    const g = composeCell(contrib, cx, cy, ts.tileW, ts.tileH); if (!gridHasPixels(g)) continue;
-    const tile = addTileUnique(ts, g).tile;
-    cells[cy * mapW + cx] = { tileId: tile.id, flipX: false, flipY: false, diagonalFlip: false, rotation: 0 };
-  }
-  const merged = { name: src.name, grid: blank(S.W, S.H), opacity: 1, visible: true, fid: src.fid, clip: false,
-    lock: false, alphaLock: false, reference: idx.some((i) => S.layers[i].reference), ext: new Map(), effects: [],
-    kind: 'tilemap', tilemap: { tilesetId: ts.id, mapW, mapH, cells } };
-  for (let j = idx.length - 1; j >= 0; j--) S.layers.splice(idx[j], 1);
-  const at = meta - idx.length + 1;
-  S.layers.splice(at, 0, merged); rasterLayer(at); clearFolderEmptyPos(merged.fid);
-  S.cur = at; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null; S.fxSel.clear(); S.fxCur = null;
-  dirtyAll(); bus.emitDoc(); toast(t('toast.layersMerged')); return true;
-}
-
 function mergeIndices(idx) { idx = [...new Set(idx)].filter((i) => S.layers[i]).sort((a, b) => a - b); if (idx.length < 2) return;
-  const meta = idx[idx.length - 1]; if (mergeTilemapIndices(idx, meta)) return;
+  const meta = idx[idx.length - 1];
   const out = bakeLayerIndices(idx), ext = new Map();
   snapshotStructure();
   const merged = { name: S.layers[meta].name, grid: out, opacity: 1, visible: true, fid: S.layers[meta].fid, clip: false, lock: false, alphaLock: false, reference: idx.some((i) => S.layers[i].reference), ext, effects: [] };
@@ -112,11 +57,10 @@ export function symmetrizeLayerRefs(layers) { const ts = layers.filter((L) => S.
 export { toggleLock, toggleAlphaLock, toggleClip, toggleReference } from './metadata.js';
 const layerHasContent = (L) => { const index = S.layers.indexOf(L);
   return (index >= 0 ? !!layerContentBounds(index) : gridHasPixels(L.grid)) ||
-    !!L.ext.size || (isTilemap(L) && L.tilemap.cells.some(Boolean)); };
+    !!L.ext.size; };
 export function clearLayerContent(L) {
   const idx = S.layers.indexOf(L); if (idx < 0 || !layerHasContent(L)) return false;
-  if (isTilemap(L)) { L.tilemap.cells = new Array(L.tilemap.mapW * L.tilemap.mapH).fill(null); rasterLayer(idx); }
-  else { L.grid = blank(S.W, S.H); L.ext = new Map(); markDirty(idx); }
+  L.grid = blank(S.W, S.H); L.ext = new Map(); markDirty(idx);
   return true;
 }
 export function clearLayerRefs(layers) {

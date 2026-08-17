@@ -230,8 +230,8 @@ with the persisted two-column panel.
 2. Allow dev URL only when unpackaged, compare exact origin and validate every
    privileged IPC sender.
 3. Complete RU/EN, theme tokens, keyboard/pen/touch accessibility and error UI.
-4. Remove retired pixelizer/tilemap runtime, stale styles/docs and legacy tests
-   only after explicit parity evidence; keep a tagged Git oracle instead.
+4. Remove retired pixelizer runtime, stale styles/docs and legacy tests after
+   parity evidence; tilemap/tileset was retired while Tile Mode stayed in scope.
 
 **Acceptance:** clean-machine packaged workflow covers install → create → Huion
 stroke → save → restart → reopen → export → uninstall without data loss.

@@ -1,6 +1,5 @@
 import { S, cloneFx } from '../../core/state.js';
 import { liveFrameId } from '../../core/animation.js';
-import { cloneTileset } from '../../logic/tileset-data.js';
 import { cloneReferenceBoard } from '../../core/reference-board.js';
 import { ensureGrid } from '../../core/grid.js';
 import { t } from '../../i18n/index.ts';
@@ -24,8 +23,7 @@ export async function buildGalleryRecord(id, folder, isCurrent) {
   if (preview === null || !isCurrent()) return null;
   const now = Date.now();
   return { id, kind: 'doc', folder, name: S.docName || t('gallery.untitled'),
-    W: S.W, H: S.H, layerSeq: S.layerSeq, folderSeq: S.folderSeq,
-    tilesetSeq: S.tilesetSeq, tilesets: S.tilesets.map(cloneTileset), layers,
+    W: S.W, H: S.H, layerSeq: S.layerSeq, folderSeq: S.folderSeq, layers,
     animator, referenceBoard: cloneReferenceBoard(S.referenceBoard),
     grid: { ...ensureGrid() }, bg: cloneBackground(),
     folders: cloneFolders(S.folders), palette: S.palette.map((color) => color.slice()),

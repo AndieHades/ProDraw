@@ -13,21 +13,25 @@ The TypeScript RGBA engine replaces internals, not the product. The finished
 Windows app preserves the original ProDraw shell, panels, icon language,
 gallery and workflows while using typed raster commands and tile history.
 
-Only three legacy behaviours are intentionally absent:
+The following legacy behaviours are intentionally absent:
 
 - image pixelization/conversion into pixel art;
 - Pixel Perfect;
 - the separate toolbar stabilization toggle, because stabilization belongs to
-  each brush preset.
+  each brush preset;
+- the tilemap/tileset suite: tile library and palette, variants, cell selection,
+  map creation/edit/export and layer conversion.
 
-Tile mode, animation and every other non-pixelizer workflow remain in scope.
+The main toolbar Tile Mode remains in scope as seamless 3×3 canvas preview and
+wrapped drawing. Animation and every other non-excluded workflow remain in
+scope.
 A visible button is not parity: its action must change RGBA/document state,
 produce one coherent Undo transaction where applicable, survive save/reopen and
 have a behavioural test.
 
-The dedicated `Convert to Tilemap` button is intentionally absent from the
-layer action rows by user decision on 2026-08-17. The underlying tile workflow
-remains available to contextual/internal commands and is not removed here.
+The tilemap/tileset suite and its dedicated layer action are removed by user
+decision on 2026-08-17. Old records open as ordinary pixel layers from their
+cached RGBA raster; tilemap metadata and document tileset libraries are retired.
 
 ## Parity inventory
 
@@ -50,7 +54,6 @@ remains available to contextual/internal commands and is not removed here.
 | Paint tools | Brush, Eraser, Smudge, Fill, Shapes, Dodge and symmetry with raster Undo | `F5`, `F8` | partial |
 | View tools | pan, zoom, rotate, tile preview, centre, actual size, visible canvas edge, Preview and Reference | `F6`, `UI-R` | original Preview/Reference live; initial fit/zoom floor repaired, RGBA port pending |
 | Text | editable text layers, canvas editor, font import/library, alignment, colour and stretch | `F8` | missing |
-| Tile suite | tile mode, palette, variants, selection, map creation/edit/export and layer conversion | `F8` | missing |
 | Animation | frame strip, playback, onion skin, frame operations and export | `F8` | missing |
 | Input | Huion pressure/tilt/eraser/barrel, touch navigation, shortcuts and panel gestures | `F5`, `F8` | partial |
 | Product | RU/EN, themes, settings, Windows package, recovery/error UX and accessibility | `F9` | partial |

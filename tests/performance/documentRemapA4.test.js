@@ -30,7 +30,7 @@ function observedGrid() {
 
 function reset() {
   S.W = A4.width; S.H = A4.height; S.cur = 0; S.folders = [];
-  S.animator = null; S.tilesets = []; S.tilesetSeq = 0; S.activeTile = null;
+  S.animator = null;
   S.marked = new Set(); S.markedFolders = new Set(); S.fxSel = new Set();
   S.sel = S.selMask = S.selFloat = S.rotMode = null;
   S.undoStack = []; S.redoStack = []; S.view = { zoom: 1, ox: 0, oy: 0 };

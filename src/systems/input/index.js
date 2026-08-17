@@ -80,7 +80,7 @@ export function move(e) {
 
 export function up(e) { try {
   if (rdrag) { if (e && !rdrag.moved && rdrag.btn === 2)
-    bus.emit(!(S.tileset && S.tileset.on) && S.sel && !S.selFloat ? 'selection-menu' : 'canvas-menu', e);
+    bus.emit(S.sel && !S.selFloat ? 'selection-menu' : 'canvas-menu', e);
     rdrag = null; return; }
   if (activeGlobal) { if (activeGlobal.up) activeGlobal.up({ e }); activeGlobal = null; drawing = false; return; }
   stabPt = null;

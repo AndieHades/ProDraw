@@ -39,13 +39,6 @@ import * as eyedropper from './systems/eyedropper/index.js';
 import * as penButton from './systems/pen-button.js';
 import * as status from './systems/status.js';
 import * as toolpops from './systems/toolpops.js';
-import * as tilePalette from './systems/tile-palette/index.js';
-import * as tilemapDialog from './systems/tilemap-dialog.js';
-import * as tilemapCreate from './systems/tilemap-create.js';
-import * as tilemapOverlay from './systems/tilemap-overlay.js';
-import * as tilesetMode from './systems/tileset-mode/index.js';
-import * as tileFromLayer from './systems/tile-from-layer.js';
-import * as tilesetManager from './systems/tileset-manager.js';
 import * as textTool from './systems/text-tool/index.js';
 import * as animation from './systems/animation/index.js';
 import { mountPreservedShellLayout } from './ui/shell/PreservedShellLayout.ts';
@@ -64,13 +57,8 @@ import './systems/recolor.js';
 import './systems/free-rotate.js';
 import { mount as mountKeyboard } from './systems/keyboard/index.js';
 import * as xMirror from './systems/x-mirror.js';
-import './systems/tile-brush/index.js';
-import './systems/tile-selection/index.js';
-import './systems/tile-variants.js';
-import './systems/tilemap-export.js';
-import './systems/tilemap-paint/index.js';
 
-const MOUNTS = [palette, brushBar, brushResize, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, palManager, shading, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, toolpops, xMirror, tile, tilePalette, tilemapDialog, tilemapCreate, tilemapOverlay, tilesetMode, tileFromLayer, tilesetManager, textTool];
+const MOUNTS = [palette, brushBar, brushResize, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, palManager, shading, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, toolpops, xMirror, tile, textTool];
 
 export function start() {
   detect(); applyTheme(); refreshColors();

@@ -19,6 +19,8 @@
   двойной JS/grid архитектуры на единственный TypeScript/RGBA runtime.
 - [Monochrome effect and PNG export](tutorials/monochrome-effect-png-export/README.md)
   — переключаемый эффект слоя/папки и effect-aware быстрый PNG.
+- [Procreate brush parity](tutorials/procreate-brush-parity/README.md) —
+  почему `.brush` рисует не как в Procreate и что нужно изменить в движке.
 - [Реестр планов](tutorials/README.md)
 
 ## Системы
@@ -31,5 +33,6 @@
 - [Локализация](i18n.md)
 - [Темы](theming.md)
 
-Документы о pixel-art анимации, tilemap и старом text tool являются историческим
-материалом до этапа `R6`; они не задают целевой продукт.
+Документы о ранней pixel-art анимации и старом text tool являются историческим
+материалом до этапа `R6`; они не задают целевой продукт. Tilemap/tileset suite
+удалён, а основной бесшовный `Режим тайла` остаётся частью raster-продукта.

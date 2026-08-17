@@ -109,6 +109,4 @@ export const ruShell: LocaleDictionary = {
   "tool.effects": "Эффекты слоя",
   "tool.brushShading": "Кисть-тонирование",
   "tool.tsg": "Тени и тинты",
-  "tool.tilebrush": "Кисть тайлов",
-  "side.tileLayer": "Тайлмап",
 };

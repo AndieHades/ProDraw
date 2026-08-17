@@ -9,8 +9,7 @@ import { applyLayerRemap } from './document-layer-remap.js';
 import { effectExpansion, needsEffectExpansion } from './effect-expansion.js';
 import { snapshot, snapshotDocumentRemap } from './history.js';
 import { toast, t } from './dom.js';
-import { MAX_SIZE, ZOOM_MIN, ZOOM_MAX } from '../config/limits.ts';
-import { isTilemap, rasterLayer, remapToCanvas } from './tilemap.js';
+import { ZOOM_MIN, ZOOM_MAX } from '../config/limits.ts';
 import { expandStoredFrames, cropStoredFrames } from './animation-canvas.js';
 
 function keepCanvasScreenSize(oldW, oldH, newW, newH) {
@@ -30,18 +29,12 @@ function translateLayer(layer, dx, dy, width, height, preserveGrid = false) {
     { moveText: (text) => moveTextSource(text, dx, dy) });
 }
 
-function rerasterTilemaps(x0, y0) {
-  S.layers.forEach((layer, index) => { if (!isTilemap(layer)) return;
-    remapToCanvas(layer, x0, y0, S.W, S.H); rasterLayer(index); });
-}
-
 // добавить пустые ряды/колонки по краям (во все слои); рисунок визуально на месте
 export function expandCanvas(pl, pt, pr, pb) {
   if (!(pl || pt || pr || pb)) return;
   const oldW = S.W, oldH = S.H;
   S.W += pl + pr; S.H += pt + pb;
   S.layers.forEach((layer) => translateLayer(layer, pl, pt, S.W, S.H));
-  rerasterTilemaps(-pl, -pt);
   S.view.ox -= pl * S.view.zoom; S.view.oy -= pt * S.view.zoom;
   expandStoredFrames(pl, pt, oldW, oldH, S.W, S.H);
   S.sel = null; bus.emit('selection'); dirtyAll({ preserveGridBounds: true });
@@ -68,7 +61,6 @@ export function applyCropRect(x0, y0, x1, y1) {
   S.W = nw; S.H = nh;
   S.layers.forEach((layer) => translateLayer(layer, -x0, -y0,
     nw, nh, true));
-  rerasterTilemaps(x0, y0);
   keepCanvasScreenSize(oldW, oldH, nw, nh); S.sel = null;
   cropStoredFrames(x0, y0, oldW, oldH, nw, nh);
   bus.emit('selection'); dirtyAll({ preserveGridBounds: true }); bus.emitDoc();
@@ -108,20 +100,10 @@ export function shiftLayerGrid(L, dx, dy, wrap = false) {
 export function clearLayer() {
   const L = S.layers[S.cur]; if (!L) return false;
   const hasPixels = L.grid.some((r) => r.some((c) => c)) || !!L.ext.size;
-  const hasTiles = isTilemap(L) && L.tilemap.cells.some(Boolean);
-  if (!hasPixels && !hasTiles) return false;
+  if (!hasPixels) return false;
   snapshot();
-  if (isTilemap(L)) { L.tilemap.cells = new Array(L.tilemap.mapW * L.tilemap.mapH).fill(null); rasterLayer(S.cur); }
-  else { L.grid = blank(S.W, S.H); L.ext = new Map(); markDirty(S.cur); }
+  L.grid = blank(S.W, S.H); L.ext = new Map(); markDirty(S.cur);
   bus.emit('render'); bus.emit('layers'); return true;
-}
-
-export function canvasSizeForTiles(tw, th) {
-  const w = Math.max(1, Math.round(tw || 1)), h = Math.max(1, Math.round(th || tw || 1));
-  return {
-    w: Math.min(MAX_SIZE, Math.max(S.W, Math.ceil(S.W / w) * w)),
-    h: Math.min(MAX_SIZE, Math.max(S.H, Math.ceil(S.H / h) * h)),
-  };
 }
 
 // гарантировать активный пиксельный слой. Когда удалены все слои (остаётся только

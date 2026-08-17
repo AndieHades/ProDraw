@@ -13,7 +13,7 @@ const restoreField = (target, property, stored) => {
 
 const captureLayer = (layer, index) => ({ index, ref: layer,
   grid: field(layer, 'grid'), ext: field(layer, 'ext'),
-  text: field(layer, 'text'), tilemap: field(layer, 'tilemap') });
+  text: field(layer, 'text') });
 
 export function createDocumentRemapEntry(state) {
   if (!state || !Number.isInteger(state.W) || !Number.isInteger(state.H) ||
@@ -22,8 +22,6 @@ export function createDocumentRemapEntry(state) {
     kind: 'document-remap-patch', width: state.W, height: state.H,
     layers: state.layers.map(captureLayer), cur: state.cur,
     frames: captureFrames(state),
-    tilesets: state.tilesets, tilesetSeq: state.tilesetSeq,
-    activeTile: state.activeTile,
   };
 }
 
@@ -32,7 +30,7 @@ export const isDocumentRemapEntry = (entry) =>
 
 export function swapDocumentRemapEntry(entry, state, onDirty) {
   if (!isDocumentRemapEntry(entry) || !Array.isArray(entry.layers) ||
-    !Array.isArray(entry.tilesets) || (entry.frames.present && !state.animator))
+    (entry.frames.present && !state.animator))
     return null;
   const layers = entry.layers.map((stored) => state.layers[stored.index]);
   if (layers.some((layer, index) => layer !== entry.layers[index].ref)) return null;
@@ -42,11 +40,8 @@ export function swapDocumentRemapEntry(entry, state, onDirty) {
     const layer = layers[index];
     restoreField(layer, 'grid', stored.grid); restoreField(layer, 'ext', stored.ext);
     restoreField(layer, 'text', stored.text);
-    restoreField(layer, 'tilemap', stored.tilemap);
   });
   state.cur = Math.min(entry.cur, Math.max(0, state.layers.length - 1));
-  state.tilesets = entry.tilesets; state.tilesetSeq = entry.tilesetSeq;
-  state.activeTile = entry.activeTile;
   if (state.animator) state.animator.frames = entry.frames.present
     ? entry.frames.value : {};
   onDirty?.(); return inverse;

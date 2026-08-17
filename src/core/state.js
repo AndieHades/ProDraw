@@ -13,15 +13,11 @@ import { CURSOR } from '../config/cursor.ts';
 import { DEFAULT_CANVAS_BACKGROUND } from '../config/canvas-background.ts';
 import { loadBrushPrefs } from './brush-prefs.js';
 import { cloneGrid, blank } from '../logic/raster.js';
-import { cloneTilemap } from '../logic/tilemap-data.js';
 import { cloneTextSource } from '../logic/text-model.js';
-import { TILE_FLAGS_DEFAULT, TILE_GRID_DEFAULT, TILE_GRID_SIZES } from '../config/tileset.ts';
 import { defaultReferenceBoard } from './reference-board.js';
 import { t } from '../i18n/index.ts';
 export { MAX_LAYERS, MAX_SIZE, BP_SMAX };
 
-// последний выбранный размер Tileset Grid — персистится (не сбрасывается на 16)
-const loadTileGrid = () => { try { const n = +localStorage.getItem('pxh.tileGrid'); return TILE_GRID_SIZES.includes(n) ? n : TILE_GRID_DEFAULT; } catch (e) { return TILE_GRID_DEFAULT; } };
 export { blank };
 
 export const newLayer = (name, w, h) => ({ name, grid: blank(w, h), opacity: 1, visible: true, fid: null, clip: false, lock: false, alphaLock: false, reference: false, ext: new Map(), effects: [], kind: 'pixel' });
@@ -34,8 +30,7 @@ export const cloneLayer = (L, overrides = {}) => ({
     [key, Array.isArray(cell) ? cell.slice() : cell])), grid: Object.prototype.hasOwnProperty.call(overrides, 'grid')
     ? overrides.grid : cloneGrid(L.grid), effects: cloneFx(L.effects),
   kind: L.kind || 'pixel', text: L.text ? cloneTextSource(L.text) : undefined,
-  tilemap: L.tilemap ? cloneTilemap(L.tilemap) : undefined,
-  tilemapSettings: L.tilemapSettings ? { ...L.tilemapSettings } : undefined, ...overrides,
+  ...overrides,
 });
 
 // фабрика эффекта слоя/папки: уникальный id, видимость, копия дефолтных параметров
@@ -63,23 +58,6 @@ export const S = {
   symLines: { x: null, y: null, d1: null, d2: null, mode: null, hover: null },
   grid: { w: 16, h: 16, color: '#4aa3ff', opacity: 70, visible: false, preview: false, link: true },
   tile: { on: false }, // Tile Mode: бесшовный 3×3-повтор холста с заворотом рисования (как в Aseprite)
-  // Tileset/Tilemap: библиотека тайлов, активный тайл/группа для Tile Brush,
-  // transform-флаги новых экземпляров, выделение клеток, редактор source tile.
-  tilesets: [], tilesetSeq: 0,
-  tileset: { on: false, open: false }, // активный Tilemap-слой показывает Tileset-панель и сетку клеток
-  tilesetPrev: null, // сохранённое состояние кисти/стабилизации на время работы с Tilemap
-  tileGrid: { size: loadTileGrid() }, // размер квадрата Tileset Grid (отдельно от обычной сетки Grid)
-  activeTile: null, // { tilesetId, tileId } или { tilesetId, groupId }
-  placeTile: null, // последний явно выбранный тайл/группа для Place tile
-  tileMarks: new Set(), // мульти-выбор тайлов в палитре (как свотчи)
-  tilePattern: null, // паттерн из нескольких выбранных тайлов (Godot-стиль): { w, h, ids }
-  tileRandom: false, // Random: рисовать случайными тайлами из выбранных (кубик)
-  tileRandomNext: null, // зафиксированный следующий случайный tileId (превью == то, что ляжет)
-  tileMode: 'paint', // режим Tile Brush: paint | erase | pick
-  tileAutoMode: 'auto', // Draw on Tile (auto) | Edit All Tiles (manual)
-  tileFlags: { ...TILE_FLAGS_DEFAULT },
-  tileSel: null, // { li, x0, y0, x1, y1 } — прямоугольное выделение клеток
-  tileEdit: null, // состояние открытого редактора source tile
   lineMode: 'line', shapeTool: 'rect',
   fillShape: { rect: false, ellipse: false }, // режимы общей кнопки фигур: контур/заливка
   brushes: brushPrefs.brushes, stampBrush: { pencil: null, eraser: null }, // активная кисть-штамп по инструменту (null = квадрат)

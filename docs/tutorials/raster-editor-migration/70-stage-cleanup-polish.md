@@ -14,8 +14,9 @@ misleading documentation are gone, and the Windows package is the supported app.
 
 - `R6.1` Audit every legacy feature against target requirements and recorded
   parity; capture intentionally excluded pixel/tile features.
-- `R6.2` Remove obsolete JS entry/source/tests, pixelizer, grid, tilemap and
-  pixel-perfect UI/assets/config without compatibility imports.
+- `R6.2` Remove obsolete JS entry/source/tests, pixelizer, grid and pixel-perfect
+  UI/assets/config without compatibility imports; verify the already retired
+  tilemap/tileset suite cannot re-enter the production graph.
 - `R6.3` Migrate all remaining production modules/tests to strict TypeScript.
 - `R6.4` Rewrite architecture/system/utility/config/keymap/i18n/theme docs to
   exact current paths and archive or remove superseded plans with inbound links.

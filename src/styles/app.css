@@ -20,11 +20,9 @@
 @import './parts/mode-shell.css';
 @import './parts/gallery.css';
 @import './parts/new-canvas.css';
-@import './parts/tilemap-dialog.css';
 @import './parts/swipe-rows.css';
 @import './parts/settings-effects.css';
 @import './parts/brush-library.css';
 @import './parts/font-library.css';
-@import './parts/tile-palette.css';
 @import './parts/animation.css';
 

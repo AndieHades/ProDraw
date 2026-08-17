@@ -14,8 +14,8 @@
     "runtimeMode": "bridge",
     "productionEntry": "src/legacy-entry.js",
     "targetEntry": "src/raster-main.ts",
-    "maximumSourceJavaScriptFiles": 313,
-    "maximumLegacyStateJavaScriptFiles": 200
+    "maximumSourceJavaScriptFiles": 285,
+    "maximumLegacyStateJavaScriptFiles": 175
   },
   "legacyCodeOverLimit": [
     "src/systems/color-picker.js",
@@ -23,15 +23,9 @@
     "src/systems/palette-select.js",
     "src/systems/reference-window.js",
     "src/systems/shading.js",
-    "src/systems/tile-from-layer.js",
-    "src/systems/tilemap-dialog.js",
-    "src/systems/tilemap-paint/index.js",
     "src/systems/toolbars.js",
     "test/module-int.mjs",
     "test/unit.mjs"
   ],
-  "legacyDocsOverLimit": [
-    "docs/animation.md",
-    "docs/tileset-tilemap.md"
-  ]
+  "legacyDocsOverLimit": ["docs/animation.md"]
 }

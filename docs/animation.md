@@ -31,7 +31,7 @@ Animator управляет временем**.
 - Можно создать кадр и выбрать кадр кликом по таймлайну.
 - Когда выбран кадр, обычная панель слоёв работает как сейчас: можно рисовать,
   двигать пиксели, передвигать слои, группировать, менять видимость, opacity,
-  effects, tilemap cells. Всё это относится к выбранному кадру.
+  effects. Всё это относится к выбранному кадру.
 - Если на кадре выключить глаз слоя, слой скрыт именно на этом кадре. На другом
   кадре у того же по смыслу слоя может быть другая видимость.
 - Duplicate Frame создаёт независимую глубокую копию конкретного состояния
@@ -39,8 +39,8 @@ Animator управляет временем**.
 - Кадры можно перетаскивать на таймлайне, меняя порядок.
 - Если кадров больше, чем помещается в Animator dock, таймлайн прокручивается
   горизонтальной полосой снизу.
-- Перестановка кадров использует тот же механизм, что свотчи палитры и тайлы в
-  tileset: `core/reorder-drag.js`.
+- Перестановка кадров использует тот же механизм, что свотчи палитры:
+  `core/reorder-drag.js`.
 - ПКМ по кадру открывает меню: Duplicate Frame, Delete Frame, Insert Before,
   Insert After, Set Duration. На touch то же меню открывается долгим тапом.
 - Playback поддерживает `once`, `loop`, `pingpong`.
@@ -52,7 +52,7 @@ Animator управляет временем**.
   переименовывать их.
 - Drag/drop GIF в редактор или галерею сразу создаёт/открывает Animator и
   раскладывает GIF по кадрам таймлайна.
-- Экспорт Animator включает sprite sheet / tileset PNG, покадровый PNG export и
+- Экспорт Animator включает sprite sheet PNG, покадровый PNG export и
   `animation.json`.
 
 ---
@@ -73,14 +73,13 @@ Animator управляет временем**.
 - [ ] Можно создать кадр.
 - [ ] Можно выбрать кадр.
 - [ ] Обычные операции со слоями работают на активном кадре: рисование, move
-  tool, reorder слоёв, folders, visibility, opacity, effects, tilemap cells.
+  tool, reorder слоёв, folders, visibility, opacity и effects.
 - [ ] Видимость слоёв сохраняется отдельно для каждого кадра.
 - [ ] Duplicate Frame делает глубокую независимую копию состояния слоя/папок.
 - [ ] Можно перетаскивать кадры на таймлайне.
 - [ ] При большом количестве кадров таймлайн имеет горизонтальную прокрутку
   снизу.
-- [ ] Reorder кадров использует общий механизм `attachReorder`, как свотчи и
-  tileset tiles.
+- [ ] Reorder кадров использует общий механизм `attachReorder`, как свотчи.
 - [ ] ПКМ/long-tap меню кадра содержит duplicate и delete.
 - [ ] Можно создать дополнительный таймлайн.
 - [ ] Можно переключать таймлайны.
@@ -95,7 +94,7 @@ Animator управляет временем**.
 - [ ] GIF drag/drop не импортирует GIF как статичную картинку, а сразу кладёт
   его в Animator.
 - [ ] GIF delays переносятся в durations кадров.
-- [ ] Есть экспорт как tileset/sprite sheet.
+- [ ] Есть экспорт как sprite sheet.
 - [ ] Есть покадровый экспорт, желательно одним ZIP, а не десятками отдельных
   сохранений.
 - [ ] Реализация переиспользует `paintStack`, `cloneLayer`, `cloneFx`,
@@ -162,7 +161,7 @@ frame.bg      -> S.bg
 frame.cur     -> S.cur
 ```
 
-Системы рисования, слоёв, эффектов, tilemap и selection продолжают работать с
+Системы рисования, слоёв, эффектов и selection продолжают работать с
 `S.layers` как сейчас. Перед переключением кадра Animator вызывает
 `saveActiveFrame()`, затем `loadFrame(nextFrameId)`.
 
@@ -175,7 +174,7 @@ frame.cur     -> S.cur
 - `bg` копируется отдельным объектом.
 - `layerSeq` и `folderSeq` сохраняются вместе с кадром.
 - transient-состояние (`sel`, `selFloat`, `moveDrag`, `rotMode`, `cropMode`,
-  `fxSel`, `marked`, `tileSel`) не хранится в кадре и сбрасывается при
+  `fxSel`, `marked`) не хранится в кадре и сбрасывается при
   переключении.
 
 Без этой границы Duplicate Frame будет ломаться: правка копии случайно начнёт
@@ -194,7 +193,6 @@ frame.cur     -> S.cur
 - reorder слоёв и folders;
 - visibility/opacity/lock/alphaLock/clip/reference;
 - layer effects;
-- tilemap cells;
 - merge/duplicate/delete layer;
 - folder operations.
 
@@ -224,14 +222,8 @@ Timelines`. MVP: trim по union bounds активного таймлайна.
 
 - `W`, `H`;
 - palette и active color;
-- tilesets как source pixel library;
 - reference board;
 - settings/tool preferences.
-
-Tilemap cells хранятся в слое кадра, но tilesets глобальны. Поэтому правка
-source tile обновит все кадры, где этот tile используется. Это ожидаемое
-поведение для tileset workflow. Если нужно отделить конкретный кадр, нужна
-команда Make Unique для tile/source.
 
 ### 3.4 Playback Is Not Editing
 
@@ -267,7 +259,6 @@ Playback не должен:
 - content edit: snapshot только активного кадра;
 - frame operation: snapshot затронутых frame ids и timeline metadata;
 - canvas operation: snapshot всех кадров, потому операция реально all-frames;
-- tileset source edit: snapshot tilesets и затронутых tilemap layers/frames.
 
 Восстановление history должно обновлять и live `S.layers`, и сохранённый
 `S.animator.frames[activeFrameId]`, если восстановлен активный кадр.
@@ -358,7 +349,7 @@ Overlay onion-skin через `bus.on('overlay')`. Рисует cached canvases 
 
 ### `systems/animation/export.js`
 
-Sprite sheet / tileset PNG, `frames.zip`, `animation.json`. Рендер кадров
+Sprite sheet PNG, `frames.zip`, `animation.json`. Рендер кадров
 через `renderFrameToCanvas`.
 
 ### `core/zip-write.js`
@@ -433,8 +424,8 @@ drag frame tile
   -> emit animation
 ```
 
-Frame ids не меняются; меняется только порядок. Механика та же, что у swatches
-и tileset tiles: долгий тап на touch или desktop drag gesture, общий ghost,
+Frame ids не меняются; меняется только порядок. Механика та же, что у swatches:
+долгий тап на touch или desktop drag gesture, общий ghost,
 общие drop gaps. При количестве кадров больше ширины dock используется
 горизонтальный scroll; drag не должен ломать scroll.
 
@@ -489,7 +480,7 @@ Policy:
 
 ## 6. Экспорт
 
-### Sprite Sheet / Tileset PNG
+### Sprite Sheet PNG
 
 Кадры активного таймлайна раскладываются сеткой. JSON рядом хранит:
 
@@ -539,7 +530,6 @@ GIF/WebP/APNG export можно добавить отдельной фазой. 
 | Onion-skin тормозит | Cached frame canvases по frame revision |
 | GIF disposal отображается неверно | Decoder нормализует full frames и покрыт тестами |
 | Таймлайны случайно правят общие кадры | MVP не шарит frames между таймлайнами |
-| Tileset source edit неожиданно меняет все кадры | Это документный source; для отделения нужна Make Unique |
 
 ---
 
@@ -564,7 +554,7 @@ timeline thumbnails, `+Frame`, выбор кадра, close/open без поте
 `attachReorder`, горизонтальный scroll при большом количестве кадров.
 
 **Фаза 5 - per-frame editing QA.**
-Проверить, что draw/move/reorder/folders/effects/tilemap cells работают только
+Проверить, что draw/move/reorder/folders/effects работают только
 на активном кадре. Canvas resize/crop/rotate применить ко всем кадрам.
 
 **Фаза 6 - playback и onion-skin.**
@@ -579,7 +569,7 @@ Detect `.gif`/`image/gif` before ordinary import, decode frames/delays/disposal,
 create/open Animator, set durations, handle editor/gallery policy.
 
 **Фаза 9 - export.**
-Sprite sheet / tileset PNG, `frames.zip`, `animation.json`.
+Sprite sheet PNG, `frames.zip`, `animation.json`.
 
 ---
 
@@ -609,7 +599,6 @@ Sprite sheet / tileset PNG, `frames.zip`, `animation.json`.
 - `systems/toolbars.js`
 - `core/floating-window.js`
 - `systems/layers/*`
-- `systems/tilemap-export.js`
 
 Тесты и QA:
 

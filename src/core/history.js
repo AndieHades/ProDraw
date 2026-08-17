@@ -7,7 +7,6 @@ import { toast, t } from './dom.js';
 import { dirtyAll, markDirty } from './layer-cache.js';
 import { historyCap } from '../config/limits.ts';
 import { cloneGrid } from '../logic/raster.js';
-import { cloneTileset } from '../logic/tileset-data.js';
 import { historyRef, syncHistoryFrame } from './animation.js';
 import { compactPixelEntry, createPixelBatch, createPixelPatch,
   recordPixel, swapPixelEntry } from './history/pixelPatch.js';
@@ -28,7 +27,6 @@ function snapState() {
       { ...f, effects: cloneEffects(f.effects) })),
     bg: { color: S.bg.color ? S.bg.color.slice() : null, visible: S.bg.visible !== false },
     animRef: historyRef(),
-    tilesetSeq: S.tilesetSeq, tilesets: S.tilesets.map(cloneTileset),
     layers: S.layers.map((L) => inheritStructureIdentity(L,
       cloneLayer(L, { effects: cloneEffects(L.effects) }))) };
 }
@@ -100,7 +98,6 @@ export function snapshot() { if (pixelEdit) commitPixelPatch(); S.undoStack.push
 
 export function restore(s) { pixelEdit = null;
   S.W = s.W; S.H = s.H; S.layers = s.layers; S.folders = s.folders; S.folderSeq = s.folderSeq;
-  if (s.tilesets) { S.tilesets = s.tilesets; S.tilesetSeq = s.tilesetSeq || 0; } // тайлсеты — источник пикселей тайлов
   S.bg = s.bg ? { color: s.bg.color ? s.bg.color.slice() : null, visible: s.bg.visible !== false } : { color: null, visible: true }; S.bgSel = false;
   S.cur = Math.min(s.cur, S.layers.length - 1); S.marked.clear(); S.fxSel.clear(); S.fxCur = null;
   S.fxDraft = null;
