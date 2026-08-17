@@ -47,7 +47,8 @@ export class StrokeStabilizer {
       pressure: mix(this.#lastOutput.pressure, sample.pressure, pressureAlpha),
       tiltX: mix(this.#lastOutput.tiltX, sample.tiltX, alpha),
       tiltY: mix(this.#lastOutput.tiltY, sample.tiltY, alpha),
-      time: sample.time
+      time: sample.time,
+      ...(sample.pointerType ? { pointerType: sample.pointerType } : {})
     };
     this.#beforeRaw = this.#lastRaw;
     this.#lastRaw = sample;
@@ -84,7 +85,8 @@ export class StrokeStabilizer {
           progress * progress * target.y,
         pressure: mix(output.pressure, target.pressure, progress),
         tiltX: mix(output.tiltX, target.tiltX, progress),
-        tiltY: mix(output.tiltY, target.tiltY, progress), time: target.time };
+        tiltY: mix(output.tiltY, target.tiltY, progress), time: target.time,
+        ...(target.pointerType ? { pointerType: target.pointerType } : {}) };
     });
     this.#beforeOutput = tail.at(-2) ?? output;
     this.#lastOutput = target;

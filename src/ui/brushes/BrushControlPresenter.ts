@@ -8,7 +8,10 @@ import { t, type MessageKey } from "../../i18n/raster/translate";
 import {
   readBrushValue, type BrushScalarValue
 } from "../../logic/brush/brushStudioValues";
-import { renderCoverageMap } from "./renderCoverageMap";
+import { brushAboutPanel } from "./BrushAboutPanel";
+import { brushPreviewPanel } from "./BrushPreviewPanel";
+import { brushSourcePanel } from "./BrushSourcePanel";
+import { brushTaperDiagram } from "./BrushTaperDiagram";
 
 export class BrushControlPresenter {
   readonly #host: HTMLElement;
@@ -21,64 +24,27 @@ export class BrushControlPresenter {
   render(
     section: BrushStudioSectionId,
     preset: BrushPreset | LoadedBrush,
-    onChange: (path: string, value: BrushScalarValue) => void
+    onChange: (path: string, value: BrushScalarValue) => void,
+    onCommit: () => void
   ): void {
     if (section === "about") {
-      this.#host.replaceChildren(...this.about(preset));
-      return;
-    }
-    if (section === "preview") {
-      const hint = document.createElement("p");
-      hint.textContent = t("studio.previewHint");
-      this.#host.replaceChildren(hint);
+      this.#host.replaceChildren(...brushAboutPanel(preset));
       return;
     }
     const controls = BRUSH_STUDIO_CONTROLS[section] ?? [];
     const source = section === "shape" || section === "grain"
-      ? [this.sourcePanel(preset, section)] : [];
+      ? [brushSourcePanel(preset, section, this.#editSource)] :
+        section === "preview" ? [brushPreviewPanel(preset)] :
+          section === "taper" ? [brushTaperDiagram(preset)] : [];
     this.#host.replaceChildren(...source, ...controls.map((control) =>
-      this.control(control, preset, onChange)));
-  }
-
-  private sourcePanel(preset: BrushPreset | LoadedBrush,
-    kind: BrushSourceKind): HTMLElement {
-    const section = document.createElement("section"); section.className = "studio-source";
-    const header = document.createElement("header");
-    const title = document.createElement("strong");
-    title.textContent = t(kind === "shape" ? "source.shape" : "source.grain");
-    const edit = document.createElement("button");
-    edit.type = "button"; edit.textContent = t("action.edit");
-    edit.addEventListener("click", () => this.#editSource(kind));
-    const canvas = document.createElement("canvas");
-    const map = "shapeMap" in preset
-      ? (kind === "shape" ? preset.shapeMap : preset.grainMap) : null;
-    renderCoverageMap(canvas, map);
-    header.append(title, edit); section.append(header, canvas); return section;
-  }
-
-  private about(preset: BrushPreset | LoadedBrush): HTMLElement[] {
-    const lines: string[] = [t("studio.aboutHint")];
-    if (!("compatibility" in preset)) lines.push(t("studio.aboutLoading"));
-    else {
-      const report = preset.compatibility;
-      lines.push(`${t("studio.aboutArchive")}: ${report.archiveName ?? "—"} · ` +
-        `v${report.archiveVersion ?? "—"}`);
-      lines.push(`${t("studio.aboutSupported")}: ${report.supportedFields.length}`);
-      if (report.unsupportedActiveFields.length) lines.push(
-        `${t("studio.aboutUnsupported")}: ${report.unsupportedActiveFields.join(", ")}`);
-      if (preset.warnings.length) lines.push(
-        `${t("studio.aboutWarnings")}: ${preset.warnings.join(", ")}`);
-      lines.push(t("studio.aboutExcluded"));
-    }
-    return lines.map((text) => {
-      const paragraph = document.createElement("p"); paragraph.textContent = text; return paragraph;
-    });
+      this.control(control, preset, onChange, onCommit)));
   }
 
   private control(
     definition: BrushControlDefinition,
     preset: BrushPreset,
-    onChange: (path: string, value: BrushScalarValue) => void
+    onChange: (path: string, value: BrushScalarValue) => void,
+    onCommit: () => void
   ): HTMLLabelElement {
     const label = document.createElement("label");
     label.className = "studio-control";
@@ -92,6 +58,7 @@ export class BrushControlPresenter {
       onChange(definition.path, value);
     };
     input.addEventListener("input", sync);
+    input.addEventListener("change", onCommit);
     output.textContent = this.display(readBrushValue(preset, definition.path), definition.display);
     label.append(name, output, input);
     return label;

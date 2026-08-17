@@ -46,7 +46,8 @@ export class BrushStudioPad {
       const amount = index / 36;
       const source = { x: 24 + amount * (width - 48),
         y: surface.height / 2 + Math.sin(amount * Math.PI * 2) * 24,
-        pressure: 0.1 + amount * 0.9, tiltX: 0, tiltY: 0, time: index };
+        pressure: 0.1 + amount * 0.9, tiltX: 0, tiltY: 0, time: index,
+        pointerType: "pen" as const };
       this.renderSamples(edit, brush, pipeline.push(source), 52);
     }
     this.renderSamples(edit, brush, pipeline.finish(), 52);
@@ -120,8 +121,10 @@ export class BrushStudioPad {
     const sample = { x: (event.clientX - bounds.left) * this.#canvas.width / bounds.width,
       y: (event.clientY - bounds.top) * this.#canvas.height / bounds.height,
       pressure: normalizePointerPressure(event.pressure, event.pointerType),
-      tiltX: event.tiltX, tiltY: event.tiltY, time: event.timeStamp };
-    this.#onSample({ ...sample, pointerType: event.pointerType,
+      tiltX: event.tiltX, tiltY: event.tiltY, time: event.timeStamp,
+      pointerType: event.pointerType === "pen" ? "pen" as const :
+        event.pointerType === "touch" ? "touch" as const : "mouse" as const };
+    this.#onSample({ ...sample, pointerType: sample.pointerType,
       button: event.button, buttons: event.buttons });
     return sample;
   }

@@ -4,19 +4,22 @@ import type { BrushRenderSettings, StrokeSample } from "../../contracts/stroke";
 import { brushCoverageSampler } from "../../logic/brush/brushCoverage.ts";
 import type { RasterEdit } from "../history/RasterEdit";
 import { visitRadialDab } from "./radialDab.ts";
+import { brushDabOpacity } from "../../logic/brush/brushOpacity.ts";
+import { dabStampPlan } from "../../logic/brush/dabStampPlan.ts";
 
 export type BrushDabVisitor = (x: number, y: number, opacity: number) => void;
 
 export function pressureBrushSize(
   brush: BrushPreset | LoadedBrush,
   size: number,
-  sample: Pick<StrokeSample, "pressure" | "tiltX" | "tiltY">
+  sample: Pick<StrokeSample, "pressure" | "tiltX" | "tiltY" | "sizeScale">
 ): number {
   const response = 1 - brush.dynamics.sizeByPressure +
     brush.dynamics.sizeByPressure * sample.pressure;
   const tilt = brush.stylus.tiltEnabled
     ? Math.min(1, Math.hypot(sample.tiltX, sample.tiltY) / 90) : 0;
-  const responsiveSize = size * response * (1 + brush.dynamics.tiltToSize * tilt);
+  const responsiveSize = size * response * (1 + brush.dynamics.tiltToSize * tilt) *
+    (sample.sizeScale ?? 1);
   return Math.max(brush.properties.minimumSize,
     Math.min(brush.properties.maximumSize, responsiveSize));
 }
@@ -42,30 +45,33 @@ export function visitBrushDab(
 ): void {
   const size = pressureBrushSize(brush, settings.size, sample);
   const radius = size / 2;
-  const minimumX = Math.floor(sample.x - radius - 1);
-  const maximumX = Math.ceil(sample.x + radius + 1);
-  const minimumY = Math.floor(sample.y - radius - 1);
-  const maximumY = Math.ceil(sample.y + radius + 1);
-  const pressureOpacity = 1 - brush.dynamics.opacityByPressure +
-    brush.dynamics.opacityByPressure * sample.pressure;
   const sampler = brushCoverageSampler(brush);
-  const baseOpacity = settings.opacity * brush.rendering.opacity *
-    brush.rendering.flow * pressureOpacity;
+  const baseOpacity = brushDabOpacity(brush, sample, settings.opacity);
   if (baseOpacity <= 0) return;
-  if (sampler.radialEdge !== null && !sampler.textured) {
-    visitRadialDab(sample, radius, [minimumX, maximumX, minimumY, maximumY],
-      sampler.radialEdge, baseOpacity, visit);
-    return;
-  }
-  for (let y = minimumY; y <= maximumY; y += 1) {
-    const normalizedY = (y + 0.5 - sample.y) / radius;
-    for (let x = minimumX; x <= maximumX; x += 1) {
-      const normalizedX = (x + 0.5 - sample.x) / radius;
-      const coverage = sampler.tip(normalizedX, normalizedY);
-      if (coverage <= 0) continue;
-      const opacity = baseOpacity * coverage *
-        (sampler.textured ? sampler.texture(x, y) : 1);
-      if (opacity > 0) visit(x, y, opacity);
+  for (const stamp of dabStampPlan(brush, sample, size)) {
+    const maximumScale = Math.max(stamp.scaleX, stamp.scaleY);
+    const stampRadius = radius * maximumScale;
+    const bounds = [Math.floor(stamp.x - stampRadius - 1),
+      Math.ceil(stamp.x + stampRadius + 1), Math.floor(stamp.y - stampRadius - 1),
+      Math.ceil(stamp.y + stampRadius + 1)] as const;
+    if (sampler.radialEdge !== null && !sampler.textured &&
+        stamp.scaleX === 1 && stamp.scaleY === 1) {
+      visitRadialDab({ ...sample, x: stamp.x, y: stamp.y }, radius, bounds,
+        sampler.radialEdge, baseOpacity, visit);
+      continue;
+    }
+    for (let y = bounds[2]; y <= bounds[3]; y += 1) {
+      const normalizedY = (y + 0.5 - stamp.y) / radius;
+      for (let x = bounds[0]; x <= bounds[1]; x += 1) {
+        const normalizedX = (x + 0.5 - stamp.x) / radius;
+        const coverage = sampler.tip(normalizedX, normalizedY, stamp);
+        if (coverage <= 0) continue;
+        const texture = sampler.textured ? sampler.texture(x, y, {
+          centerX: stamp.x, centerY: stamp.y, offsetX: stamp.grainOffsetX,
+          offsetY: stamp.grainOffsetY, depthScale: stamp.grainDepthScale }) : 1;
+        const opacity = baseOpacity * coverage * texture;
+        if (opacity > 0) visit(x, y, opacity);
+      }
     }
   }
 }

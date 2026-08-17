@@ -9,18 +9,18 @@ import { StrokePipeline } from "../../src/logic/stroke/StrokePipeline";
 // These hashes lock decoded controls plus sample planning. Pixel geometry is
 // independently locked by lineartRasterGolden and brushDabEquivalence tests.
 const expected: Readonly<Record<string, string>> = {
-  "base_color.brush": "342464914b5c38bb4107086e32669a8a195081d4156cf3ac99717010ff16e56d",
-  "big_soft_brush.brush": "9ca5732329cca69d3e3f05864bff7b63562af76250edbec493267bfdd5b5c764",
-  "freckles.brush": "415c8107ee3735bd365d07269c5866c43b61a01e423997fbb628c06548008f48",
-  "gundersen.brush": "4b18ab065531ff102b23772b5c87969f64ebf5460d5974d2c5f4c675065f961f",
-  "lineart.brush": "4242604714dac18044a8739197e9429cd57c55007eaa0ca8f67408d2237dce68",
-  "lineart_long.brush": "8cee1edad149d22dbf069c29c9af4fb307e950d8eb7ee5ba15dea2292852a79f",
-  "net_screentone.brush": "bb969f236e94790dbeaf04495bd254c55557c5dd83a68a58f91f14b13422e09c",
-  "pencil_waxy.brush": "87a707f9e92344799f80eb568167e18aaa83d765cce003356deeba03519f2322",
-  "screentone.brush": "ca0bf92c5342e01d116c0f53867a1bd8d79499a75fcfb2cc4e7745beadb01cbd",
-  "shadow.brush": "2d9e9f85f402e1c50e5dfe5588d5c1181eb993edaa0791faee16ceabc924fff6",
-  "sketching.brush": "88dd83230c887d3cf6a2642025ef2d11732e020ba56c5904089f1a315a0b68eb",
-  "texture.brush": "2c6ec88d7b0e5308229d82a28baf1d56eb1729972c2f24e12603e31faaa3eff4"
+  "base_color.brush": "6cf8dde932f9bdd103a33f55b3fd20ca51d30ef36975bed10c0511b94f9c834c",
+  "big_soft_brush.brush": "54feaf2bd8247ea6101335184ff7d25ddb1364a994193bd0937711b78a1ae3fd",
+  "freckles.brush": "40d87728e873bb0f37b94fbb369eb96fdf04e632124d2c3341d524e0d597c2cf",
+  "gundersen.brush": "b56b4d3783e9f7366532627824300e42a012cea0bc4f158eec7878eb5ac274e9",
+  "lineart.brush": "a5b8205f6a15bf8c225b6b1dd6701db309ad7132ca44324c689c4e2a12709aaf",
+  "lineart_long.brush": "2446b6baeee89d8b6fdb312be5c926c87c7e5cac70fdb8366da89c6219c4606f",
+  "net_screentone.brush": "602ac015f7c44f1b7396b08f3066137accf3a7f906582730e2bb1de07c559b78",
+  "pencil_waxy.brush": "728127bcbdbb900e044fac93ddf40ed143bec2da9a167b3523815672421f942c",
+  "screentone.brush": "14e147eb637895acedc26fa791252d2650e4711ef94bc8cdcfe5d4f2e3ea7deb",
+  "shadow.brush": "ca56b2fab7d7d09661790d1e4dc48de2f38d801d55acf316272e3890bd098f08",
+  "sketching.brush": "2a05a5c1e940b3d59d5e91254873ef126a6eef62234bf9790eb209f78d60622c",
+  "texture.brush": "bd190dcb4ad1f668f96f28df2608f154ce47508b977ad2e8973705c6b9c9ce11"
 };
 
 const input = [

@@ -24,8 +24,8 @@ function alphaMetric(brush: BrushPreset): number {
 
 describe("brush rendering controls", () => {
   it("makes flow, opacity, grain strength, and pressure opacity visible", () => {
-    const plain = { ...source, grain: { strength: 0, scale: 1 },
-      rendering: { flow: 1, opacity: 1 },
+    const plain = { ...source, grain: { ...source.grain, strength: 0, scale: 1 },
+      rendering: { ...source.rendering, flow: 1, opacity: 1 },
       dynamics: { ...source.dynamics, opacityByPressure: 0 } };
     const variants = [
       { ...plain, rendering: { ...plain.rendering, flow: 0.4 } },
@@ -39,7 +39,7 @@ describe("brush rendering controls", () => {
   it("makes pressure, tilt enablement, and size limits affect dab size", () => {
     const responsive = { ...source,
       dynamics: { sizeByPressure: 1, opacityByPressure: 0, tiltToSize: 1 },
-      properties: { minimumSize: 1, maximumSize: 100 } };
+      properties: { ...source.properties, minimumSize: 1, maximumSize: 100 } };
     const pressure = pressureBrushSize(responsive, 20,
       { pressure: 0.4, tiltX: 0, tiltY: 0 });
     const tilt = pressureBrushSize(responsive, 20,
@@ -49,7 +49,8 @@ describe("brush rendering controls", () => {
     { pressure: 0.4, tiltX: 90, tiltY: 0 });
     expect(tilt).toBeGreaterThan(pressure);
     expect(disabled).toBe(pressure);
-    expect(pressureBrushSize({ ...responsive, properties: { minimumSize: 12,
-      maximumSize: 14 } }, 100, { pressure: 1, tiltX: 0, tiltY: 0 })).toBe(14);
+    expect(pressureBrushSize({ ...responsive, properties: { ...source.properties,
+      minimumSize: 12, maximumSize: 14 } }, 100,
+    { pressure: 1, tiltX: 0, tiltY: 0 })).toBe(14);
   });
 });

@@ -8,7 +8,9 @@ function interpolate(left: StrokeSample, right: StrokeSample, amount: number): S
     pressure: mix(left.pressure, right.pressure),
     tiltX: mix(left.tiltX, right.tiltX),
     tiltY: mix(left.tiltY, right.tiltY),
-    time: mix(left.time, right.time)
+    time: mix(left.time, right.time),
+    ...(right.pointerType ?? left.pointerType
+      ? { pointerType: right.pointerType ?? left.pointerType } : {})
   };
 }
 

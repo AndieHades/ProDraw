@@ -44,13 +44,13 @@ Resolve known Procreate built-in source identities, expose their names and maps,
 remove generic fallbacks for those identities and freeze all 12 bundled source
 inventories plus Lineart pixel/card goldens.
 
-### BSP-B — editable rendering contract
+### BSP-B — editable rendering contract (`complete`)
 
 Extend the version-1 preset compatibly, map archive values from the screenshots,
 add controls and make Taper/Shape/Grain/Rendering/Properties alter production
 pixels deterministically. Old preset files receive validated defaults.
 
-### BSP-C — Preview and persistence evidence
+### BSP-C — Preview and persistence evidence (`in_progress`)
 
 Render the Preview tab with the same engine, verify Cancel/Apply and source
 embedding round trips, run full validation and package/smoke Windows desktop.
@@ -76,15 +76,15 @@ embedding round trips, run full validation and package/smoke Windows desktop.
 
 ## Resume Here
 
-- Current stage: `BSP-B`
+- Current stage: `BSP-C`
 - Status: `in_progress`
-- Last completed: known built-in Shape/Grain source maps, names and Lineart
-  raster goldens
-- Next action: import, edit, persist and render the screenshot-backed Taper,
-  Shape, Grain, Rendering and Properties controls
+- Last completed: screenshot-backed Taper, Shape, Grain, Rendering and
+  Properties controls now import, persist and alter shared raster output
+- Next action: finish Preview/Cancel/Apply evidence, package desktop and run the
+  integrated validation gates
 - Blockers: none; physical Huion trace remains separate F5 acceptance
 - Working paths: `src/contracts/brush.ts`, `src/core/brush`, `src/logic/brush`,
   `src/ui/brushes`, `src/config/brushStudio.ts`, `tests/brush`
-- Last checks: 24 brush files / 55 tests, TypeScript, targeted ESLint, bundle,
-  docs, line-limit and dependency-cycle gates passed
+- Last checks: 30 brush/stroke files / 76 tests, TypeScript, ESLint, bundle,
+  line-limit and dependency-cycle gates passed
 - Last updated: 2026-08-17

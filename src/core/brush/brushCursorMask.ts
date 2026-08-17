@@ -3,6 +3,8 @@ import type { StrokeSample } from "../../contracts/stroke";
 import { pressureBrushSize, visitBrushDab } from "./renderBrushDab.ts";
 import { brushCoverageSampler } from "../../logic/brush/brushCoverage.ts";
 import cursorConfig from "../../config/cursor-mask.json" with { type: "json" };
+import { brushDabOpacity } from "../../logic/brush/brushOpacity.ts";
+import { dabStampPlan } from "../../logic/brush/dabStampPlan.ts";
 
 export interface BrushCursorMask {
   readonly width: number;
@@ -30,10 +32,15 @@ export function brushCursorMask(
 ): BrushCursorMask {
   const actualSize = pressureBrushSize(brush, size, sample);
   const radius = actualSize / 2;
-  const left = Math.floor(sample.x - radius - 1);
-  const right = Math.ceil(sample.x + radius + 1);
-  const top = Math.floor(sample.y - radius - 1);
-  const bottom = Math.ceil(sample.y + radius + 1);
+  const stamps = dabStampPlan(brush, sample, actualSize);
+  const left = Math.min(...stamps.map((stamp) =>
+    Math.floor(stamp.x - radius * Math.max(stamp.scaleX, stamp.scaleY) - 1)));
+  const right = Math.max(...stamps.map((stamp) =>
+    Math.ceil(stamp.x + radius * Math.max(stamp.scaleX, stamp.scaleY) + 1)));
+  const top = Math.min(...stamps.map((stamp) =>
+    Math.floor(stamp.y - radius * Math.max(stamp.scaleX, stamp.scaleY) - 1)));
+  const bottom = Math.max(...stamps.map((stamp) =>
+    Math.ceil(stamp.y + radius * Math.max(stamp.scaleX, stamp.scaleY) + 1)));
   const exactWidth = right - left + 1;
   const exactHeight = bottom - top + 1;
   const scale = Math.max(1, Math.max(exactWidth, exactHeight) /
@@ -50,16 +57,22 @@ export function brushCursorMask(
   if (cached?.key === key) return cached.mask;
   const data = new Uint8Array(width * height);
   if (scale > 1) {
-    const pressureOpacity = 1 - brush.dynamics.opacityByPressure +
-      brush.dynamics.opacityByPressure * sample.pressure;
-    const baseOpacity = brush.rendering.opacity * brush.rendering.flow * pressureOpacity;
+    const baseOpacity = brushDabOpacity(brush, sample, 1);
     for (let y = 0; y < height; y += 1) for (let x = 0; x < width; x += 1) {
       const documentX = left + (x + 0.5) * scale;
       const documentY = top + (y + 0.5) * scale;
-      const coverage = sampler.tip((documentX - sample.x) / radius,
-        (documentY - sample.y) / radius);
-      const opacity = baseOpacity * coverage * sampler.texture(documentX, documentY);
-      data[y * width + x] = Math.round(Math.max(0, Math.min(1, opacity)) * 255);
+      let alpha = 0;
+      for (const stamp of stamps) {
+        const coverage = sampler.tip((documentX - stamp.x) / radius,
+          (documentY - stamp.y) / radius, stamp);
+        if (coverage <= 0) continue;
+        const texture = sampler.texture(documentX, documentY, {
+          centerX: stamp.x, centerY: stamp.y, offsetX: stamp.grainOffsetX,
+          offsetY: stamp.grainOffsetY, depthScale: stamp.grainDepthScale });
+        const opacity = Math.max(0, Math.min(1, baseOpacity * coverage * texture));
+        alpha = opacity + alpha * (1 - opacity);
+      }
+      data[y * width + x] = Math.round(alpha * 255);
     }
     const mask = { width, height, offsetX: left - sample.x,
       offsetY: top - sample.y, scale, data };

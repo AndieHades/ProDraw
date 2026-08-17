@@ -5,6 +5,7 @@ import { applyStylusResponse } from "./pressureResponse.ts";
 import { strokeRandom } from "../brush/strokeRandom.ts";
 import { StrokeStabilizer } from "./StrokeStabilizer.ts";
 import rasterConfig from "../../config/brush-raster.json" with { type: "json" };
+import { taperResponse } from "./taperResponse";
 
 export function rasterDabSpacing(size: number, requested: number): number {
   return Math.max(rasterConfig.dabSpacing.minimumPixels,
@@ -66,26 +67,26 @@ export class StrokePipeline {
     const path = this.#brush.strokePath;
     const centeredLinear = strokeRandom(this.#brush.id, this.#dab, 2) * 2 - 1;
     const centeredLateral = strokeRandom(this.#brush.id, this.#dab, 3) * 2 - 1;
-    const scatterAngle = strokeRandom(this.#brush.id, this.#dab, 4) * Math.PI * 2;
-    const scatterRadius = Math.sqrt(strokeRandom(this.#brush.id, this.#dab, 5)) *
-      path.scatter * this.#size;
     const linear = centeredLinear * path.linearJitter * this.#size;
     const lateral = centeredLateral * path.lateralJitter * this.#size;
-    const startDistance = Math.max(1, this.#brush.taper.start * this.#size * 4);
-    const startProgress = Math.min(1, this.#travelled / startDistance);
-    const taperInfluence = 1 - this.#brush.taper.pressure * 0.75;
-    const startScale = this.#brush.taper.start > 0
-      ? Math.max(0.08, 1 - (1 - startProgress) * taperInfluence) : 1;
-    const endScale = Math.max(0.08, 1 - this.#brush.taper.end *
-      (1 - sample.pressure) * taperInfluence);
+    const taper = taperResponse(this.#brush.taper, this.#travelled, this.#size,
+      sample.pressure, sample.pointerType);
     const falloffScale = Math.max(0.08, 1 - path.fallOff *
       this.#travelled / (this.#size * 20));
+    const dabIndex = this.#dab;
     this.#dab += 1;
+    const pathAngle = Math.atan2(directionY, directionX);
+    const tiltAngle = Math.hypot(sample.tiltX, sample.tiltY) > 0.01
+      ? Math.atan2(sample.tiltY, sample.tiltX) : pathAngle;
+    const shapeAngle = this.#brush.shape.inputStyle === "touch" ? pathAngle : tiltAngle;
+    const rotation = this.#brush.properties.orientToScreen ? 0 :
+      (this.#brush.shape.relativeToStroke || this.#brush.shape.rotation !== 0
+        ? shapeAngle * this.#brush.shape.rotation : 0);
     return { ...sample,
-      x: exactPosition ? sample.x : sample.x + directionX * linear - directionY * lateral +
-        Math.cos(scatterAngle) * scatterRadius,
-      y: exactPosition ? sample.y : sample.y + directionY * linear + directionX * lateral +
-        Math.sin(scatterAngle) * scatterRadius,
-      pressure: Math.max(0.01, sample.pressure * startScale * endScale * falloffScale) };
+      x: exactPosition ? sample.x : sample.x + directionX * linear - directionY * lateral,
+      y: exactPosition ? sample.y : sample.y + directionY * linear + directionX * lateral,
+      pressure: Math.max(0.01, sample.pressure * falloffScale),
+      sizeScale: taper.sizeScale, opacityScale: taper.opacityScale,
+      rotation, dabIndex, exactPosition };
   }
 }

@@ -2,40 +2,43 @@ import type {
   BrushCompatibilityReport, BrushPreset
 } from "../../contracts/brush";
 import type { BinaryPlistValue } from "../archive/binaryPlist";
+import {
+  archiveGrain, archivePreview, archiveProperties, archiveRendering, archiveShape,
+  archiveTaper, clamp, numeric
+} from "./archiveControlMappings";
 
 const supported = new Set([
   "plotSpacing", "plotSpacingJitter", "plotJitter", "plotJitterLongitudinal",
   "dynamicsFalloff", "plotSmoothing", "plotMovingAverageStabilization",
-  "plotFFTSmoothingAmount", "plotFFTSmoothingBias", "taperStartLength",
-  "taperEndLength", "taperPressure", "shapeScatter", "shapeAngle",
-  "shapeRoundness", "shapeInverted", "grainDepth", "textureScale",
-  "textureInverted", "textureContrast", "textureBrightness", "dynamicsGlazedFlow",
+  "plotFFTSmoothingAmount", "plotFFTSmoothingBias", "taperPressure",
+  "pencilTaperStartLength", "pencilTaperEndLength", "pencilTaperSize",
+  "pencilTaperOpacity", "pencilTaperShape", "pencilTaperSizeLinked",
+  "pencilTipAnimation", "taperStartLength", "taperEndLength", "taperSize",
+  "taperOpacity", "taperShape", "taperSizeLinked", "shapeScatter", "shapeAngle",
+  "shapeRoundness",
+  "shapeInverted", "shapeAzimuth", "shapeOrientation", "shapeRotation",
+  "shapeCount", "shapeCountJitter", "shapeRandomise", "shapeFlipXJitter",
+  "shapeFlipYJitter", "shapeFilter", "shapeFilterMode", "grainDepth",
+  "dynamicsPressureShapeRoundnessMinimum", "dynamicsTiltShapeRoundnessMinimum",
+  "jitterShapeRoundness", "jitterShapeRoundnessX",
+  "grainDepthMinimum", "grainDepthJitter", "textureScale", "textureZoom",
+  "textureMovement", "textureRotation", "textureOffsetJitter", "textureFilter",
+  "textureFilterMode", "textureInverted", "textureContrast", "textureBrightness",
+  "dynamicsGlazedFlow", "textureApplication", "minOpacity",
+  "previewRenderDisabled", "previewSize", "previewPressureMinimum",
+  "previewPressureScale", "previewTiltAngleOffset", "dynamicsSmudgeAccumulation",
   "maxOpacity", "dynamicsPressureSize", "dynamicsPressureOpacity",
   "dynamicsTiltSize", "smudgeStrength", "smudgePickup", "smudgeFlow",
   "maxSize", "minSize", "bundledShapePath", "bundledGrainPath"
 ]);
 const metadata = /^(?:\$class|name|version|author|creation|bundled|saved|preview|hover|erase|paint|color|signature)/i;
 const excluded = /(?:wet|mix|bleed|hue|saturation|brightness|lightness|darkness|secondaryColor|metallic|roughness|height)/i;
-const clamp = (value: number, minimum: number, maximum: number): number =>
-  Math.max(minimum, Math.min(maximum, value));
-
-function numeric(root: Readonly<Record<string, BinaryPlistValue>>, key: string,
-  fallback: number): number {
-  const value = root[key];
-  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
-}
-
 function active(value: BinaryPlistValue): boolean {
   if (typeof value === "boolean") return value;
   if (typeof value === "number") return Math.abs(value) > 0.000001;
   if (typeof value === "string") return value.length > 0;
   if (value instanceof Uint8Array || Array.isArray(value)) return value.length > 0;
   return value !== null && Object.keys(value).length > 0;
-}
-
-function angle(value: number): number {
-  const turn = Math.PI * 2;
-  return ((value + Math.PI) % turn + turn) % turn - Math.PI;
 }
 
 function bundledSource(root: Readonly<Record<string, BinaryPlistValue>>,
@@ -93,29 +96,23 @@ export function applyBrushArchiveSettings(
       motionFilteringExpression: clamp(numeric(root, "plotFFTSmoothingBias",
         preset.stabilization.motionFilteringExpression), 0, 1)
     },
-    taper: { start: clamp(numeric(root, "taperStartLength", preset.taper.start), 0, 1),
-      end: clamp(numeric(root, "taperEndLength", preset.taper.end), 0, 1),
-      pressure: clamp(numeric(root, "taperPressure", preset.taper.pressure), 0, 1) },
-    shape: { ...preset.shape,
+    taper: archiveTaper(root, preset.taper),
+    shape: archiveShape(root, { ...preset.shape,
       hardness: bundledHardness(shapeSource, preset.shape.hardness),
-      angle: angle(numeric(root, "shapeAngle", preset.shape.angle)),
-      roundness: clamp(numeric(root, "shapeRoundness", preset.shape.roundness), 0.05, 1),
-      ...(shapeSource ? { sourceName: shapeSource } : {}) },
-    grain: { strength: clamp(numeric(root, "grainDepth", preset.grain.strength), 0, 1),
-      scale: clamp(numeric(root, "textureScale", preset.grain.scale), 0.05, 10),
-      ...(grainSource ? { sourceName: grainSource } : {}) },
-    rendering: { flow: clamp(numeric(root, "dynamicsGlazedFlow",
-      preset.rendering.flow), 0.01, 1),
-      opacity: clamp(numeric(root, "maxOpacity", preset.rendering.opacity), 0.01, 1) },
+    }, shapeSource),
+    grain: archiveGrain(root, preset.grain, grainSource),
+    rendering: archiveRendering(root, preset.rendering),
     dynamics: { sizeByPressure: clamp(numeric(root, "dynamicsPressureSize",
       preset.dynamics.sizeByPressure), 0, 1),
       opacityByPressure: clamp(numeric(root, "dynamicsPressureOpacity",
         preset.dynamics.opacityByPressure), 0, 1),
       tiltToSize: clamp(numeric(root, "dynamicsTiltSize", preset.dynamics.tiltToSize), -1, 1) },
-    smudge: { pull: clamp(numeric(root, "smudgeStrength", preset.smudge.pull), 0, 1),
+    smudge: { pull: clamp(numeric(root, "dynamicsSmudgeAccumulation",
+      numeric(root, "smudgeStrength", preset.smudge.pull)), 0, 1),
       pickup: clamp(numeric(root, "smudgePickup", preset.smudge.pickup), 0, 1),
       flow: clamp(numeric(root, "smudgeFlow", preset.smudge.flow), 0, 1) },
-    properties: { maximumSize, minimumSize } };
+    properties: archiveProperties(root, preset.properties, maximumSize, minimumSize),
+    preview: archivePreview(root, preset.preview) };
   const keys = Object.keys(root);
   const compatibility: BrushCompatibilityReport = {
     archiveVersion: typeof root.version === "number" ? root.version : null,

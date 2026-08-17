@@ -5,6 +5,8 @@ import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
 import { decodeProcreateBrush } from "../../src/core/brush/procreateBrush";
 import { pressureBrushSize, visitBrushDab } from "../../src/core/brush/renderBrushDab";
 import { brushCoverageSampler } from "../../src/logic/brush/brushCoverage";
+import { brushDabOpacity } from "../../src/logic/brush/brushOpacity";
+import { dabStampPlan } from "../../src/logic/brush/dabStampPlan";
 import type { LoadedBrush } from "../../src/contracts/brush";
 import type { BrushRenderSettings, StrokeSample } from "../../src/contracts/stroke";
 
@@ -12,22 +14,20 @@ function referenceDab(brush: LoadedBrush, sample: StrokeSample,
   settings: BrushRenderSettings, visit: (x: number, y: number, opacity: number) => void): void {
   const size = pressureBrushSize(brush, settings.size, sample);
   const radius = size / 2;
-  const minimumX = Math.floor(sample.x - radius - 1);
-  const maximumX = Math.ceil(sample.x + radius + 1);
-  const minimumY = Math.floor(sample.y - radius - 1);
-  const maximumY = Math.ceil(sample.y + radius + 1);
-  const pressureOpacity = 1 - brush.dynamics.opacityByPressure +
-    brush.dynamics.opacityByPressure * sample.pressure;
   const sampler = brushCoverageSampler(brush);
-  for (let y = minimumY; y <= maximumY; y += 1) {
-    for (let x = minimumX; x <= maximumX; x += 1) {
-      const normalizedX = (x + 0.5 - sample.x) / radius;
-      const normalizedY = (y + 0.5 - sample.y) / radius;
-      const coverage = sampler.tip(normalizedX, normalizedY);
-      if (coverage <= 0) continue;
-      const opacity = settings.opacity * brush.rendering.opacity * brush.rendering.flow *
-        pressureOpacity * coverage * sampler.texture(x, y);
-      if (opacity > 0) visit(x, y, opacity);
+  const baseOpacity = brushDabOpacity(brush, sample, settings.opacity);
+  for (const stamp of dabStampPlan(brush, sample, size)) {
+    const extent = radius * Math.max(stamp.scaleX, stamp.scaleY) + 1;
+    for (let y = Math.floor(stamp.y - extent); y <= Math.ceil(stamp.y + extent); y += 1) {
+      for (let x = Math.floor(stamp.x - extent); x <= Math.ceil(stamp.x + extent); x += 1) {
+        const coverage = sampler.tip((x + 0.5 - stamp.x) / radius,
+          (y + 0.5 - stamp.y) / radius, stamp);
+        if (coverage <= 0) continue;
+        const opacity = baseOpacity * coverage * sampler.texture(x, y, {
+          centerX: stamp.x, centerY: stamp.y, offsetX: stamp.grainOffsetX,
+          offsetY: stamp.grainOffsetY, depthScale: stamp.grainDepthScale });
+        if (opacity > 0) visit(x, y, opacity);
+      }
     }
   }
 }

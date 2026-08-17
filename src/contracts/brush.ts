@@ -51,13 +51,6 @@ export interface BrushDynamics {
   readonly tiltToSize: number;
 }
 
-export interface BrushShapeSettings {
-  readonly hardness: number;
-  readonly angle: number;
-  readonly roundness: number;
-  readonly sourceName?: string;
-}
-
 export interface BrushSmudgeSettings {
   readonly flow: number;
   readonly pickup: number;
@@ -85,15 +78,15 @@ export interface BrushPreset {
   readonly sourceUrl: string;
   readonly strokePath: BrushStrokePath;
   readonly stabilization: BrushStabilization;
-  readonly taper: { readonly start: number; readonly end: number; readonly pressure: number };
+  readonly taper: BrushTaperSettings;
   readonly shape: BrushShapeSettings;
-  readonly grain: { readonly strength: number; readonly scale: number;
-    readonly sourceName?: string };
-  readonly rendering: { readonly flow: number; readonly opacity: number };
+  readonly grain: BrushGrainSettings;
+  readonly rendering: BrushRenderingSettings;
   readonly dynamics: BrushDynamics;
   readonly smudge: BrushSmudgeSettings;
   readonly stylus: BrushStylusSettings;
-  readonly properties: { readonly maximumSize: number; readonly minimumSize: number };
+  readonly properties: BrushPropertySettings;
+  readonly preview: BrushPreviewSettings;
   readonly sources: BrushSourceSelection;
 }
 
@@ -113,3 +106,12 @@ export interface LoadedBrush extends BrushPreset {
   readonly compatibility: BrushCompatibilityReport;
   readonly warnings: readonly string[];
 }
+import type {
+  BrushGrainSettings, BrushPreviewSettings, BrushPropertySettings,
+  BrushRenderingSettings, BrushShapeSettings, BrushTaperSettings
+} from "./brushSettings";
+export type {
+  BrushFilteringMode, BrushGrainBehavior, BrushGrainSettings, BrushInputStyle,
+  BrushPreviewSettings, BrushPropertySettings, BrushRenderingMode,
+  BrushRenderingSettings, BrushShapeSettings, BrushTaperSettings
+} from "./brushSettings";

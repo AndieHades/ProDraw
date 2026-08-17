@@ -16,7 +16,8 @@ function inputSample(gx, gy, event) {
   return { x: gx, y: gy,
     pressure: pen ? Math.max(0, Math.min(1, event.pressure || 0)) : 1,
     tiltX: pen ? event.tiltX || 0 : 0, tiltY: pen ? event.tiltY || 0 : 0,
-    time: event?.timeStamp || performance.now() };
+    time: event?.timeStamp || performance.now(),
+    pointerType: pen ? 'pen' : event?.pointerType === 'touch' ? 'touch' : 'mouse' };
 }
 
 function renderSamples(samples) {

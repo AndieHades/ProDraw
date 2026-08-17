@@ -88,7 +88,7 @@ export class BrushStudioPresenter {
     }));
     this.#controls.render(this.#section, this.renderingBrush(), (path, value) => {
       this.updateDraft(path, value);
-    });
+    }, () => this.render());
   }
 
   private updateDraft(path: string, value: BrushScalarValue): void {

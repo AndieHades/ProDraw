@@ -1,5 +1,9 @@
 import type { BrushPreset } from "../contracts/brush";
 import { SMUDGE_DEFAULTS } from "./smudge";
+import {
+  DEFAULT_GRAIN, DEFAULT_PREVIEW, DEFAULT_PROPERTIES, DEFAULT_RENDERING,
+  DEFAULT_SHAPE, DEFAULT_TAPER
+} from "./brushDefaults";
 
 type Profile = readonly [name: string, spacing: number, scatter: number,
   hardness: number, flow: number, texture: number];
@@ -33,15 +37,16 @@ function preset(fileName: string, sourceUrl: string, profile: Profile): BrushPre
     stabilization: { streamlineAmount: 0.45, streamlinePressure: 0,
       stabilizationAmount: 0.06, motionFilteringAmount: 0,
       motionFilteringExpression: 0 },
-    taper: { start: 0, end: 0, pressure: 0 },
-    shape: { hardness, angle: 0, roundness: 1 },
-    grain: { strength: texture, scale: 1 },
-    rendering: { flow, opacity: 1 },
+    taper: { ...DEFAULT_TAPER },
+    shape: { ...DEFAULT_SHAPE, hardness },
+    grain: { ...DEFAULT_GRAIN, strength: texture },
+    rendering: { ...DEFAULT_RENDERING, flow },
     dynamics: { sizeByPressure: 0.82, opacityByPressure: 0.28, tiltToSize: 0 },
     smudge: { ...SMUDGE_DEFAULTS },
     stylus: { minimumPressure: 0.01, pressureCurve: [0, 0.33, 0.67, 1],
       tiltEnabled: true, barrelAction: "eraser", eraserAction: "eraser" },
-    properties: { maximumSize: 500, minimumSize: 1 },
+    properties: { ...DEFAULT_PROPERTIES },
+    preview: { ...DEFAULT_PREVIEW },
     sources: { shape: null, grain: null } };
 }
 

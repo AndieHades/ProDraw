@@ -35,5 +35,6 @@ export function stylusTraceStrokes(trace: StylusTraceFile): readonly ReplayedSty
 function sample(contact: NonNullable<StylusTraceFile["events"][number]["contact"]>): StrokeSample {
   return { x: contact.x, y: contact.y,
     pressure: normalizePointerPressure(contact.pressure, contact.kind),
-    tiltX: contact.tiltX, tiltY: contact.tiltY, time: contact.time };
+    tiltX: contact.tiltX, tiltY: contact.tiltY, time: contact.time,
+    pointerType: contact.kind };
 }

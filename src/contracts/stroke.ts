@@ -5,10 +5,16 @@ export interface StrokeSample {
   readonly tiltX: number;
   readonly tiltY: number;
   readonly time: number;
+  readonly sizeScale?: number;
+  readonly opacityScale?: number;
+  readonly rotation?: number;
+  readonly dabIndex?: number;
+  readonly exactPosition?: boolean;
+  readonly pointerType?: "pen" | "mouse" | "touch";
 }
 
 export interface StylusDiagnosticSample extends StrokeSample {
-  readonly pointerType: string;
+  readonly pointerType: "pen" | "mouse" | "touch";
   readonly button: number;
   readonly buttons: number;
 }

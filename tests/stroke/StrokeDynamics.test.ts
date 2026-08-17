@@ -11,7 +11,7 @@ const stable: BrushPreset = { ...source,
   stabilization: { streamlineAmount: 0, streamlinePressure: 0,
     stabilizationAmount: 0, motionFilteringAmount: 0,
     motionFilteringExpression: 0 },
-  taper: { start: 0, end: 0, pressure: 0 } };
+  taper: { ...source.taper, start: 0, end: 0, pressure: 0 } };
 const input: readonly StrokeSample[] = [
   { x: 10, y: 10, pressure: 0.25, tiltX: 0, tiltY: 0, time: 0 },
   { x: 60, y: 10, pressure: 0.5, tiltX: 0, tiltY: 0, time: 10 },
@@ -41,7 +41,7 @@ describe("StrokePipeline brush dynamics", () => {
     expect(run(dynamic)).toEqual(run(dynamic));
     expect(run(dynamic)).not.toEqual(run(stable));
     for (const [key, value] of [["spacingJitter", 0.8], ["lateralJitter", 0.7],
-      ["linearJitter", 0.6], ["scatter", 0.5]] as const) {
+      ["linearJitter", 0.6]] as const) {
       const variant = { ...stable, strokePath: { ...stable.strokePath, [key]: value } };
       expect(run(variant), key).not.toEqual(run(stable));
     }
@@ -54,11 +54,14 @@ describe("StrokePipeline brush dynamics", () => {
     expect(run(fading).at(-1)!.pressure).toBeLessThan(run(stable).at(-1)!.pressure);
   });
 
-  it("makes start, end, and pressure taper affect output pressure", () => {
-    const tapered = { ...stable, taper: { start: 1, end: 0.8, pressure: 0 } };
+  it("makes start, end, and pressure taper affect size and opacity plans", () => {
+    const tapered = { ...stable, taper: { ...stable.taper,
+      start: 1, end: 0.8, pressure: 0, size: 1, opacity: 1 } };
     const pressureTaper = { ...tapered, taper: { ...tapered.taper, pressure: 1 } };
-    expect(run(tapered)[0]!.pressure).toBeLessThan(run(stable)[0]!.pressure);
-    expect(run(tapered).at(-1)!.pressure).toBeLessThan(run(stable).at(-1)!.pressure);
-    expect(run(pressureTaper)[0]!.pressure).toBeGreaterThan(run(tapered)[0]!.pressure);
+    expect(run(tapered)[0]!.sizeScale).toBeLessThan(run(stable)[0]!.sizeScale!);
+    expect(run(tapered).at(-1)!.opacityScale).toBeLessThan(
+      run(stable).at(-1)!.opacityScale!);
+    expect(run(pressureTaper)[0]!.sizeScale).toBeGreaterThan(
+      run(tapered)[0]!.sizeScale!);
   });
 });

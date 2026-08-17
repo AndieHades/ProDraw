@@ -1,5 +1,6 @@
 import type { BrushPreset, CoverageMap, LoadedBrush } from "../../contracts/brush";
 import { logicalGrainTile } from "./grainTile.ts";
+import { sampleCoverage, sampleTile } from "./coverageSampling.ts";
 
 function shapeOf(brush: BrushPreset | LoadedBrush): CoverageMap | null {
   return "shapeMap" in brush ? brush.shapeMap : null;
@@ -22,25 +23,26 @@ function proceduralDistance(haggard: boolean, x: number, y: number,
   return Math.hypot(x, y);
 }
 
-function bilinear(map: CoverageMap, x: number, y: number): number {
-  const mapX = Math.max(0, Math.min(map.width - 1, x * (map.width - 1)));
-  const mapY = Math.max(0, Math.min(map.height - 1, y * (map.height - 1)));
-  const left = Math.floor(mapX);
-  const top = Math.floor(mapY);
-  const right = Math.min(map.width - 1, left + 1);
-  const bottom = Math.min(map.height - 1, top + 1);
-  const fractionX = mapX - left;
-  const fractionY = mapY - top;
-  const topValue = (map.data[top * map.width + left] ?? 0) * (1 - fractionX) +
-    (map.data[top * map.width + right] ?? 0) * fractionX;
-  const bottomValue = (map.data[bottom * map.width + left] ?? 0) * (1 - fractionX) +
-    (map.data[bottom * map.width + right] ?? 0) * fractionX;
-  return (topValue * (1 - fractionY) + bottomValue * fractionY) / 255;
+export interface BrushTipTransform {
+  readonly rotation?: number;
+  readonly scaleX?: number;
+  readonly scaleY?: number;
+  readonly flipX?: boolean;
+  readonly flipY?: boolean;
+}
+
+export interface BrushTextureTransform {
+  readonly centerX: number;
+  readonly centerY: number;
+  readonly offsetX?: number;
+  readonly offsetY?: number;
+  readonly depthScale?: number;
 }
 
 export interface BrushCoverageSampler {
-  readonly tip: (normalizedX: number, normalizedY: number) => number;
-  readonly texture: (x: number, y: number) => number;
+  readonly tip: (normalizedX: number, normalizedY: number,
+    transform?: BrushTipTransform) => number;
+  readonly texture: (x: number, y: number, transform?: BrushTextureTransform) => number;
   readonly textured: boolean;
   readonly radialEdge: number | null;
   readonly textureWidth: number;
@@ -56,8 +58,6 @@ export function brushCoverageSampler(
   const radialBuiltIn = /brush-preset-(?:hard|soft)/i.test(brush.shape.sourceName ?? "");
   const shape = radialBuiltIn ? null : shapeOf(brush);
   const nativeGrain = "grainMap" in brush ? brush.grainMap : null;
-  const cosine = Math.cos(brush.shape.angle);
-  const sine = Math.sin(brush.shape.angle);
   const roundness = Math.max(0.05, brush.shape.roundness);
   const exponent = 1 + (1 - brush.shape.hardness) * 2;
   const edge = Math.max(0.001, 1 - brush.shape.hardness);
@@ -68,28 +68,48 @@ export function brushCoverageSampler(
   const haggard = /haggard-oval/i.test(brush.shape.sourceName ?? "");
   const sampler: BrushCoverageSampler = {
     textured: !(strength <= 0),
-    radialEdge: !shape && !haggard && cosine === 1 && sine === 0 && roundness === 1
+    radialEdge: !shape && !haggard && brush.shape.angle === 0 && roundness === 1
       ? edge : null,
     textureWidth: grain?.width ?? 0,
     textureHeight: grain?.height ?? 0,
-    tip: (normalizedX, normalizedY) => {
-      const transformedX = normalizedX * cosine + normalizedY * sine;
-      const transformedY = (-normalizedX * sine + normalizedY * cosine) / roundness;
+    tip: (normalizedX, normalizedY, transform = {}) => {
+      const angle = brush.shape.angle + (transform.rotation ?? 0);
+      const cosine = Math.cos(angle), sine = Math.sin(angle);
+      const sourceX = normalizedX * (transform.flipX ? -1 : 1) /
+        Math.max(0.05, transform.scaleX ?? 1);
+      const sourceY = normalizedY * (transform.flipY ? -1 : 1) /
+        Math.max(0.05, transform.scaleY ?? 1);
+      const transformedX = sourceX * cosine + sourceY * sine;
+      const transformedY = (-sourceX * sine + sourceY * cosine) / roundness;
       if (Math.abs(transformedX) > 1 || Math.abs(transformedY) > 1) return 0;
-      if (shape) return Math.pow(bilinear(shape, (transformedX + 1) / 2,
-        (transformedY + 1) / 2), exponent);
+      if (shape) return Math.pow(sampleCoverage(shape, (transformedX + 1) / 2,
+        (transformedY + 1) / 2, brush.shape.filtering), exponent);
       const distance = proceduralDistance(haggard, transformedX, transformedY, seed);
       return distance >= 1 ? 0 : Math.min(1, Math.max(0, (1 - distance) / edge));
     },
-    texture: (x, y) => {
+    texture: (x, y, transform) => {
       if (strength <= 0) return 1;
-      const sampleX = Math.floor(grain ? x : x / scale);
-      const sampleY = Math.floor(grain ? y : y / scale);
+      const centerX = transform?.centerX ?? 0, centerY = transform?.centerY ?? 0;
+      const localX = x - centerX, localY = y - centerY;
+      const moving = brush.grain.behavior === "moving";
+      const movement = moving ? brush.grain.movement : 0;
+      const sourceX = x * (1 - movement) + localX * movement + (transform?.offsetX ?? 0);
+      const sourceY = y * (1 - movement) + localY * movement + (transform?.offsetY ?? 0);
+      const cosine = Math.cos(brush.grain.rotation), sine = Math.sin(brush.grain.rotation);
+      const zoom = Math.max(0.05, brush.grain.zoom);
+      const fallbackScale = grain ? 1 : scale;
+      const sampleX = (sourceX * cosine + sourceY * sine) / (zoom * fallbackScale);
+      const sampleY = (-sourceX * sine + sourceY * cosine) / (zoom * fallbackScale);
       const sample = grain
-        ? (grain.data[((sampleY % grain.height + grain.height) % grain.height) *
-          grain.width + ((sampleX % grain.width + grain.width) % grain.width)] ?? 0) / 255
-        : ((((sampleX * 73856093) ^ (sampleY * 19349663) ^ seed) >>> 0) % 997) / 996;
-      return 1 - strength + sample * strength;
+        ? sampleTile(grain, sampleX, sampleY, brush.grain.filtering)
+        : ((((Math.floor(sampleX) * 73856093) ^ (Math.floor(sampleY) * 19349663) ^
+          seed) >>> 0) % 997) / 996;
+      const contrast = 1 + brush.grain.contrast * 2;
+      const adjusted = Math.max(0, Math.min(1,
+        (sample - 0.5) * contrast + 0.5 + brush.grain.brightness * 0.5));
+      const depth = Math.max(brush.grain.minimumDepth,
+        strength * (transform?.depthScale ?? 1));
+      return 1 - depth + adjusted * depth;
     }
   };
   samplers.set(brush, sampler); return sampler;

@@ -64,9 +64,7 @@ export async function decodeProcreateBrush(
         resolvedPreset = preset.fileName.endsWith(".brush") ? result.preset : preset;
         compatibility = result.compatibility;
         shapeOptions = { inverted: root.shapeInverted === true };
-        grainOptions = { inverted: root.textureInverted === true,
-          contrast: typeof root.textureContrast === "number" ? root.textureContrast : 0,
-          brightness: typeof root.textureBrightness === "number" ? root.textureBrightness : 0 };
+        grainOptions = { inverted: root.textureInverted === true };
       } catch (error) {
         const detail = error instanceof Error ? error.message : "unknown settings failure";
         warnings.push(`archive-settings-fallback:${detail}`);

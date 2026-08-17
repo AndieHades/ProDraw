@@ -114,7 +114,8 @@ export class DrawingSystem {
     );
     return { x: point.x, y: point.y,
       pressure: normalizePointerPressure(contact.pressure, contact.kind),
-      tiltX: contact.tiltX, tiltY: contact.tiltY, time: contact.time };
+      tiltX: contact.tiltX, tiltY: contact.tiltY, time: contact.time,
+      pointerType: contact.kind };
   }
 
   private contact(event: PointerEvent) {

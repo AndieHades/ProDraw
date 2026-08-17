@@ -17,21 +17,30 @@ export function renderBrushPreview(
   canvas.height = height;
   const surface = new RasterSurface(`preview/${brush.id}`, width, height, 64);
   const edit = new RasterEdit(surface, "Preview");
-  const pipeline = new StrokePipeline(brush, 22);
+  const size = 22 * brush.preview.size;
+  if (brush.preview.stamp) {
+    renderTextureStamp(edit, brush, Math.min(height - 4, size * 1.5), width, height);
+    edit.commit(); paintSurface(canvas, surface); return;
+  }
+  const pipeline = new StrokePipeline(brush, size);
   for (let index = 0; index <= 24; index += 1) {
     const amount = index / 24;
     const source = {
       x: 8 + amount * (width - 16), y: height / 2 + Math.sin(amount * Math.PI) * 3,
-      pressure: 0.18 + amount * 0.82, tiltX: 0, tiltY: 0, time: index
+      pressure: Math.max(brush.preview.pressureMinimum, Math.min(1,
+        (0.18 + amount * 0.82) * brush.preview.pressureScale)),
+      tiltX: brush.preview.tiltAngle * 90, tiltY: 0, time: index,
+      pointerType: "pen" as const
     };
     for (const sample of pipeline.push(source)) renderBrushDab(edit, brush, sample,
-      { size: 22, opacity: 1, erase: false },
-      { red: 245, green: 245, blue: 248, alpha: 255 });
+      { size, opacity: 1, erase: false }, previewColor);
   }
   for (const sample of pipeline.finish()) renderBrushDab(edit, brush, sample,
-    { size: 22, opacity: 1, erase: false },
-    { red: 245, green: 245, blue: 248, alpha: 255 });
-  edit.commit();
+    { size, opacity: 1, erase: false }, previewColor);
+  edit.commit(); paintSurface(canvas, surface);
+}
+
+function paintSurface(canvas: HTMLCanvasElement, surface: RasterSurface): void {
   const context = canvas.getContext("2d");
   if (!context) return;
   surface.visitTiles(({ x, y }, bytes) => {
@@ -45,7 +54,7 @@ export function renderCompactBrushPreview(
 ): void {
   const size = 80;
   canvas.width = size; canvas.height = size;
-  const cacheKey = `stamp-v3:${brush.id}@${brush.revision}`;
+  const cacheKey = `stamp-v4:${brush.id}@${brush.revision}`;
   const cached = compactCache.get(cacheKey);
   const context = canvas.getContext("2d"); if (!context) return;
   if (cached) {
@@ -54,7 +63,7 @@ export function renderCompactBrushPreview(
   }
   const surface = new RasterSurface(`compact-preview/${brush.id}`, size, size, size);
   const edit = new RasterEdit(surface, "Compact preview");
-  renderTextureStamp(edit, brush, size);
+  renderTextureStamp(edit, brush, size - 8, size);
   edit.commit();
   surface.visitTiles((_coordinate, bytes) => {
     const pixels = new Uint8ClampedArray(bytes);
@@ -64,13 +73,16 @@ export function renderCompactBrushPreview(
 }
 
 function renderTextureStamp(edit: RasterEdit, brush: BrushPreset | LoadedBrush,
-  canvasSize: number): void {
+  brushSize: number, canvasWidth: number, canvasHeight = canvasWidth): void {
   const displayBrush = { ...brush,
-    rendering: { flow: 1, opacity: 1 },
+    rendering: { ...brush.rendering, flow: 1, opacity: 1 },
     dynamics: { sizeByPressure: 0, opacityByPressure: 0, tiltToSize: 0 },
-    properties: { minimumSize: 1, maximumSize: canvasSize } };
+    properties: { ...brush.properties, minimumSize: 1, maximumSize: canvasWidth } };
   renderBrushDab(edit, displayBrush,
-    { x: canvasSize / 2, y: canvasSize / 2,
-      pressure: 1, tiltX: 0, tiltY: 0, time: 0 },
-    { size: canvasSize - 8, opacity: 1, erase: false }, previewColor);
+    { x: canvasWidth / 2, y: canvasHeight / 2,
+      pressure: Math.max(brush.preview.pressureMinimum,
+        Math.min(1, brush.preview.pressureScale)),
+      tiltX: brush.preview.tiltAngle * 90, tiltY: 0, time: 0,
+      pointerType: "pen" },
+    { size: brushSize, opacity: 1, erase: false }, previewColor);
 }
