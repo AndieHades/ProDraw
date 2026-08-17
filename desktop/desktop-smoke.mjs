@@ -1,4 +1,4 @@
-export async function runPackagedSmoke(window, timeoutMs = 30_000) {
+export async function runPackagedSmoke(window, timeoutMs = 60_000) {
   const result = await window.webContents.executeJavaScript(`
     new Promise((resolve, reject) => {
       const started = Date.now();

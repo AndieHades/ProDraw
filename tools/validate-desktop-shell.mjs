@@ -43,8 +43,11 @@ if (!main.includes("nodeIntegration: false")) errors.push("nodeIntegration must 
 if (!main.includes("sandbox: true")) errors.push("renderer sandbox must be enabled");
 if (!main.includes("app.isPackaged")) errors.push("development URL must be disabled when packaged");
 if (!main.includes("await runPackagedSmoke")) errors.push("packaged smoke must await renderer proof");
-if (!main.includes("window.destroy()") || !main.includes("app.quit()")) {
-  errors.push("packaged smoke must close bitmap work through the normal lifecycle");
+if (!main.includes("window.close()") || main.includes("window.destroy()")) {
+  errors.push("packaged smoke must close once through the window lifecycle");
+}
+if (!main.includes("setTimeout(resolve, 250)")) {
+  errors.push("packaged smoke must drain queued renderer work before close");
 }
 if (!main.includes("attachCloseHandshake")) errors.push("desktop close must await renderer flush");
 if (!main.includes('query: { smoke: "1" }')) errors.push("packaged smoke must mark renderer URL");

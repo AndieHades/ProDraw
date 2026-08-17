@@ -5,9 +5,7 @@ import type { PlatformPort } from "../contracts/platform";
 import { EditorEventBus } from "../core/events/EditorEventBus";
 import { DocumentRepository } from "../core/persistence/DocumentRepository";
 import { t, type MessageKey } from "../i18n/raster/translate";
-import { DrawingSystem } from "../systems/drawing/DrawingSystem";
 import { ExportSystem } from "../systems/export/ExportSystem";
-import { ViewportSystem } from "../systems/viewport/ViewportSystem";
 import { BrushLibraryPresenter } from "../ui/brushes/BrushLibraryPresenter";
 import { BrushStudioPresenter } from "../ui/brushes/BrushStudioPresenter";
 import { CanvasPresenter } from "../ui/canvas/CanvasPresenter";
@@ -15,6 +13,7 @@ import { NewDocumentPresenter } from "../ui/document/NewDocumentPresenter";
 import { LayerPresenter } from "../ui/layers/LayerPresenter";
 import { WorkspacePresenter } from "../ui/workspace/WorkspacePresenter";
 import { DocumentWorkflow } from "./DocumentWorkflow";
+import { mountInputSystems } from "./mountInputSystems";
 import type { InitialEditorState } from "./createInitialDocument";
 import { RasterEditorSession } from "./RasterEditorSession";
 export class RasterEditorApp {
@@ -53,7 +52,10 @@ export class RasterEditorApp {
       this.#session.forgetBrush(source.id);
       this.selectBrush(applied);
       this.#brushes.select(applied.id);
-    });
+    }, async (name, bytes) => Boolean(await platform.saveBinary({
+      suggestedName: name, bytes,
+      filters: [{ name: "ProDraw Ink Trace", extensions: ["json"] }]
+    })));
     this.#brushes = new BrushLibraryPresenter(library, brush.id, platform, {
       select: (selected) => this.selectBrush(selected),
       edit: (selected) => this.#studio.open(selected),
@@ -63,7 +65,9 @@ export class RasterEditorApp {
     this.#newDocument = new NewDocumentPresenter(this.dispatch);
     this.#events.subscribe((event) => event.type === "editor.changed"
       ? this.refreshUi() : this.#workspace.showStatus(event.key as MessageKey));
-    this.mountSystems();
+    mountInputSystems({ workspace: this.#workspace, session: this.#session,
+      canvas: this.#canvas, onCommit: () => this.#documents.documentChanged(),
+      onBlocked: () => this.status("status.layerBlocked") });
     this.#workspace.bind(this.dispatch);
     this.refreshUi();
     if (initial.recoveryStatus === "previous") this.status("status.recoveredPrevious");
@@ -101,27 +105,6 @@ export class RasterEditorApp {
     }
   }
 
-  private mountSystems(): void {
-    const input: { drawing?: DrawingSystem } = {};
-    const viewport = new ViewportSystem({ canvas: this.#workspace.canvas,
-      getView: () => this.#session.view, setView: (view) => this.#session.setView(view),
-      requestRender: () => this.#canvas.requestRender(),
-      canTouchNavigate: () => !input.drawing?.isActive ||
-        input.drawing.activePointerKind === "touch",
-      onTouchGestureStart: () => input.drawing?.cancelActive(false) });
-    viewport.mount();
-    input.drawing = new DrawingSystem({ canvas: this.#workspace.canvas, viewport: this.#canvas,
-      history: this.#session.history, getDocument: () => this.#session.document,
-      getBrush: () => this.#session.brush, getColor: () => this.#workspace.color,
-      getSize: () => this.#workspace.brushSize, getOpacity: () => this.#workspace.brushOpacity,
-      getTool: () => this.#workspace.tool,
-      getFingerPaintEnabled: () => this.#workspace.fingerPaintEnabled,
-      canDraw: (event) => !viewport.isNavigating(event),
-      onCommit: () => this.#documents.documentChanged(),
-      onBlocked: () => this.status("status.layerBlocked")
-    });
-    input.drawing.mount();
-  }
   private selectBrush(brush: BrushPreset): void {
     this.#session.selectBrush(brush);
     this.changed();

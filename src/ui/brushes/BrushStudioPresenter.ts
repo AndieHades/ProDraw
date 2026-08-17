@@ -15,6 +15,7 @@ import {
 import { requiredElement } from "../dom/query";
 import { BrushControlPresenter } from "./BrushControlPresenter";
 import { BrushStudioPad } from "./BrushStudioPad";
+import { BrushStudioTracePresenter } from "./BrushStudioTracePresenter";
 import { BrushSourceLibraryPresenter } from "./BrushSourceLibraryPresenter";
 
 export class BrushStudioPresenter {
@@ -36,7 +37,8 @@ export class BrushStudioPresenter {
 
   constructor(getBrushes: () => readonly BrushPreset[],
     load: (brush: BrushPreset) => Promise<LoadedBrush>,
-    onApply: (source: BrushPreset, draft: BrushPreset) => Promise<void>) {
+    onApply: (source: BrushPreset, draft: BrushPreset) => Promise<void>,
+    saveTrace: (name: string, bytes: Uint8Array<ArrayBuffer>) => Promise<boolean>) {
     this.#load = load;
     this.#onApply = onApply;
     this.#controls = new BrushControlPresenter(requiredElement("#studio-controls"),
@@ -48,6 +50,8 @@ export class BrushStudioPresenter {
           `${t("studio.tilt")} ${sample.tiltX}° / ${sample.tiltY}° · ` +
           `${t("studio.buttons")} ${sample.buttons}`;
       });
+    new BrushStudioTracePresenter(requiredElement("#studio-pad"),
+      () => this.renderingBrush(), saveTrace);
     requiredElement("#studio-apply").addEventListener("click", () => void this.apply());
   }
 

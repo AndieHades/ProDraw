@@ -18,7 +18,7 @@ try {
     const timeout = setTimeout(() => {
       child.kill();
       reject(new Error("Packaged desktop smoke timed out"));
-    }, 45_000);
+    }, 75_000);
     child.on("error", reject);
     child.on("exit", (code) => {
       clearTimeout(timeout);

@@ -104,7 +104,8 @@ Excluded:
 6. [`06-live-audit-2026-08-16.md`](06-live-audit-2026-08-16.md)
 7. [`07-remediation-plan.md`](07-remediation-plan.md)
 8. The current stage chapter
-9. [`90-verification.md`](90-verification.md)
+9. [`41-huion-device-matrix.md`](41-huion-device-matrix.md) for F5 evidence
+10. [`90-verification.md`](90-verification.md)
 
 ## Delivery Order
 

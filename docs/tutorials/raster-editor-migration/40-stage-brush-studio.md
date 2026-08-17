@@ -68,6 +68,8 @@ replacement. Scratch and document rendering match. A4 pen smoke holds latency
 within the recorded budget and every bundled brush remains selectable. Library
 set/order/favorite state survives restart; smudge mixes a controlled two-colour
 fixture without changing pixels outside dirty bounds and undoes in one step.
+The real-device procedure and evidence record are owned by
+[`41-huion-device-matrix.md`](41-huion-device-matrix.md).
 
 ## Completion record
 

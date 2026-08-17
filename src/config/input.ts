@@ -9,5 +9,6 @@ export const POINTER_INPUT = Object.freeze({
   palmContactPixels: 42,
   fingerPaintStorageKey: "prodraw.input.finger-paint",
   stabilizationReferenceMilliseconds: 1000 / 120,
-  maximumTailSamples: 12
+  maximumTailSamples: 12,
+  maximumTraceSamples: 120_000
 });

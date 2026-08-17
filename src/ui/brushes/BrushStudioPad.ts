@@ -5,6 +5,7 @@ import { RasterEdit } from "../../core/history/RasterEdit";
 import { actualPointerEvents } from "../../core/input/actualPointerEvents";
 import { RasterSurface } from "../../core/raster/RasterSurface";
 import { normalizePointerPressure } from "../../logic/stroke/interpolateStroke";
+import { PointerStrokeSession } from "../../logic/input/PointerStrokeSession";
 import { StrokePipeline } from "../../logic/stroke/StrokePipeline";
 
 export class BrushStudioPad {
@@ -14,8 +15,7 @@ export class BrushStudioPad {
   #surface = new RasterSurface("studio-pad", 640, 360);
   #edit: RasterEdit | null = null;
   #pipeline: StrokePipeline | null = null;
-  #pointerId: number | null = null;
-
+  readonly #pointer = new PointerStrokeSession();
   constructor(
     canvas: HTMLCanvasElement,
     getBrush: () => BrushPreset | LoadedBrush,
@@ -28,8 +28,12 @@ export class BrushStudioPad {
     canvas.addEventListener("pointermove", this.onMove);
     canvas.addEventListener("pointerup", this.onUp);
     canvas.addEventListener("pointercancel", this.onCancel);
+    canvas.addEventListener("lostpointercapture", this.onCancel);
+    window.addEventListener("blur", () => this.cancelActive());
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") this.cancelActive();
+    });
   }
-
   resetPreview(): void {
     this.resizeSurface();
     const brush = this.#getBrush();
@@ -49,8 +53,9 @@ export class BrushStudioPad {
   }
 
   private readonly onDown = (event: PointerEvent): void => {
-    if (event.button !== 0 || this.#pointerId !== null) return;
-    this.#pointerId = event.pointerId;
+    if (event.button !== 0 || !this.#pointer.begin(event.pointerId,
+      event.pointerType === "pen" ? "pen" : event.pointerType === "touch" ? "touch" : "mouse",
+      "brush")) return;
     this.#edit = new RasterEdit(this.#surface, "Studio stroke");
     this.#pipeline = new StrokePipeline(this.#getBrush(), 34);
     this.drawSamples(this.#pipeline.push(this.sample(event)));
@@ -58,31 +63,38 @@ export class BrushStudioPad {
   };
 
   private readonly onMove = (event: PointerEvent): void => {
-    if (event.pointerId !== this.#pointerId || !this.#pipeline) return;
+    if (!this.#pointer.accepts(event.pointerId) || !this.#pipeline) return;
     for (const pointer of actualPointerEvents(event)) {
       this.drawSamples(this.#pipeline.push(this.sample(pointer)));
     }
   };
 
   private readonly onUp = (event: PointerEvent): void => {
-    if (event.pointerId !== this.#pointerId || !this.#edit) return;
+    if (!this.#pointer.accepts(event.pointerId) || !this.#edit) return;
     this.onMove(event);
+    if (!this.#pointer.end(event.pointerId, "commit")) return;
     this.drawSamples(this.#pipeline?.finish() ?? []);
     this.#edit.commit();
     this.#edit = null;
     this.#pipeline = null;
-    this.#pointerId = null;
+    this.release(event.pointerId);
   };
 
   private readonly onCancel = (event: PointerEvent): void => {
-    if (event.pointerId !== this.#pointerId || !this.#edit) return;
+    if (!this.#pointer.end(event.pointerId, "cancel") || !this.#edit) return;
     this.#edit.cancel();
     this.#edit = null;
     this.#pipeline = null;
-    this.#pointerId = null;
+    this.release(event.pointerId);
     this.render();
   };
 
+  private cancelActive(): void {
+    const pointerId = this.#pointer.active?.pointerId;
+    if (pointerId === undefined || !this.#pointer.cancel() || !this.#edit) return;
+    this.#edit.cancel(); this.#edit = null; this.#pipeline = null;
+    this.release(pointerId); this.render();
+  }
   private draw(sample: StrokeSample): void {
     if (!this.#edit) return;
     renderBrushDab(this.#edit, this.#getBrush(), sample,
@@ -119,6 +131,10 @@ export class BrushStudioPad {
     this.#canvas.width = width;
     this.#canvas.height = height;
     this.#surface = new RasterSurface("studio-pad", width, height);
+  }
+
+  private release(pointerId: number): void {
+    if (this.#canvas.hasPointerCapture(pointerId)) this.#canvas.releasePointerCapture(pointerId);
   }
 
   private render(): void {

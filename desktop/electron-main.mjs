@@ -57,8 +57,8 @@ async function start() {
   if (smokeOnly) {
     const window = await createWindow({ smoke: true });
     await runPackagedSmoke(window);
-    window.destroy();
-    app.quit();
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    window.close();
     return;
   }
   await createWindow();
