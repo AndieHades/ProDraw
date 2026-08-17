@@ -2,6 +2,7 @@ import type { EditorCommandDispatch } from "../../contracts/editorCommands";
 import type { EditorViewModel } from "../../contracts/editorView";
 import type { RgbaColor } from "../../contracts/raster";
 import type { DrawingTool } from "../../contracts/stroke";
+import { POINTER_INPUT } from "../../config/input";
 import { applyTranslations, t, type MessageKey } from "../../i18n/raster/translate";
 import { requiredElement, setSelected } from "../dom/query";
 import { FloatingToolPanelPresenter } from "./FloatingToolPanelPresenter";
@@ -11,6 +12,7 @@ export class WorkspacePresenter {
   readonly #size = requiredElement<HTMLInputElement>("#brush-size");
   readonly #opacity = requiredElement<HTMLInputElement>("#brush-opacity");
   readonly #color = requiredElement<HTMLInputElement>("#brush-color");
+  readonly #fingerPaint = requiredElement<HTMLInputElement>("#finger-paint");
   readonly #brushName = requiredElement<HTMLSpanElement>("#active-brush-name");
   readonly #documentStatus = requiredElement<HTMLSpanElement>("#document-status");
   readonly #viewStatus = requiredElement<HTMLSpanElement>("#view-status");
@@ -24,6 +26,12 @@ export class WorkspacePresenter {
     this.syncBrushControls();
     this.#size.addEventListener("input", () => this.syncBrushControls());
     this.#opacity.addEventListener("input", () => this.syncBrushControls());
+    try { this.#fingerPaint.checked = localStorage.getItem(
+      POINTER_INPUT.fingerPaintStorageKey) === "true"; } catch { /* storage is optional */ }
+    this.#fingerPaint.addEventListener("change", () => {
+      try { localStorage.setItem(POINTER_INPUT.fingerPaintStorageKey,
+        String(this.#fingerPaint.checked)); } catch { /* storage is optional */ }
+    });
   }
 
   bind(dispatch: EditorCommandDispatch): void {
@@ -50,6 +58,10 @@ export class WorkspacePresenter {
 
   get brushOpacity(): number {
     return Number(this.#opacity.value) / 100;
+  }
+
+  get fingerPaintEnabled(): boolean {
+    return this.#fingerPaint.checked;
   }
 
   get color(): RgbaColor {

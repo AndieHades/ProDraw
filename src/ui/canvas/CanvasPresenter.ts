@@ -1,6 +1,6 @@
 import type { CanvasFrameViewModel } from "../../contracts/editorView";
 import type { PixelCoordinate, RasterSize } from "../../contracts/raster";
-import type { ViewState, ViewportPort } from "../../contracts/view";
+import type { StrokePreview, ViewState, ViewportPort } from "../../contracts/view";
 import { RASTER_LIMITS } from "../../config/raster";
 import { screenToDocument } from "../../logic/view/viewTransform";
 
@@ -13,6 +13,7 @@ export class CanvasPresenter implements ViewportPort {
     readonly context: CanvasRenderingContext2D; revision: number; used: number }>();
   #frame = 0;
   #use = 0;
+  #strokePreview: StrokePreview | null = null;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -43,6 +44,11 @@ export class CanvasPresenter implements ViewportPort {
     });
   }
 
+  setStrokePreview(preview: StrokePreview | null): void {
+    this.#strokePreview = preview;
+    this.requestRender();
+  }
+
   render(): void {
     this.resizeBackingStore();
     const context = this.#context;
@@ -65,6 +71,27 @@ export class CanvasPresenter implements ViewportPort {
     context.rect(0, 0, frame.document.width, frame.document.height);
     context.clip();
     this.drawTiles(frame, context);
+    this.drawStrokePreview(context);
+    context.restore();
+  }
+
+  private drawStrokePreview(context: CanvasRenderingContext2D): void {
+    const preview = this.#strokePreview;
+    if (!preview?.samples.length) return;
+    const color = preview.color;
+    context.save();
+    context.globalAlpha = 0.42;
+    context.strokeStyle = `rgb(${color.red} ${color.green} ${color.blue})`;
+    context.fillStyle = context.strokeStyle;
+    context.lineWidth = Math.max(1, preview.size);
+    context.lineCap = "round"; context.lineJoin = "round";
+    context.beginPath();
+    const first = preview.samples[0]!;
+    context.moveTo(first.x, first.y);
+    for (const sample of preview.samples.slice(1)) context.lineTo(sample.x, sample.y);
+    if (preview.samples.length === 1) {
+      context.arc(first.x, first.y, preview.size / 2, 0, Math.PI * 2); context.fill();
+    } else context.stroke();
     context.restore();
   }
 

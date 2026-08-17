@@ -10,7 +10,8 @@ const supported = new Set([
   "taperEndLength", "taperPressure", "shapeScatter", "shapeAngle",
   "shapeRoundness", "grainDepth", "textureScale", "dynamicsGlazedFlow",
   "maxOpacity", "dynamicsPressureSize", "dynamicsPressureOpacity",
-  "dynamicsTiltSize", "maxSize", "minSize"
+  "dynamicsTiltSize", "smudgeStrength", "smudgePickup", "smudgeFlow",
+  "maxSize", "minSize"
 ]);
 const metadata = /^(?:\$class|name|version|author|creation|bundled|saved|preview|hover|erase|paint|color|signature)/i;
 const excluded = /(?:wet|mix|bleed|hue|saturation|brightness|lightness|darkness|secondaryColor|metallic|roughness|height)/i;
@@ -94,6 +95,9 @@ export function applyBrushArchiveSettings(
       opacityByPressure: clamp(numeric(root, "dynamicsPressureOpacity",
         preset.dynamics.opacityByPressure), 0, 1),
       tiltToSize: clamp(numeric(root, "dynamicsTiltSize", preset.dynamics.tiltToSize), -1, 1) },
+    smudge: { pull: clamp(numeric(root, "smudgeStrength", preset.smudge.pull), 0, 1),
+      pickup: clamp(numeric(root, "smudgePickup", preset.smudge.pickup), 0, 1),
+      flow: clamp(numeric(root, "smudgeFlow", preset.smudge.flow), 0, 1) },
     properties: { maximumSize, minimumSize } };
   const keys = Object.keys(root);
   const compatibility: BrushCompatibilityReport = {

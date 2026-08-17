@@ -23,7 +23,7 @@ describe("StrokeStabilizer", () => {
     const rawNoise = variation(raw);
     const filteredNoise = variation(output);
     expect(filteredNoise).toBeLessThan(rawNoise * 0.5);
-    expect(stabilizer.finish()[0]).toEqual(raw.at(-1));
+    expect(stabilizer.finish().at(-1)).toEqual(raw.at(-1));
   });
 
   it("does not swallow a dot and retains a deliberate corner", () => {
@@ -59,5 +59,42 @@ describe("StrokeStabilizer", () => {
     const filtering = { ...zero, motionFilteringAmount: 0.8 };
     expect(output({ ...filtering, motionFilteringExpression: 1 }))
       .not.toEqual(output(filtering));
+  });
+
+  it("produces frequency-equivalent motion at 60, 120 and 240 Hz", () => {
+    const trace = (rate: number) => {
+      const stabilizer = new StrokeStabilizer(settings, 24);
+      const step = 1000 / rate;
+      return Array.from({ length: Math.round(720 / step) + 1 }, (_, index) => {
+        const time = index * step;
+        return stabilizer.push(sample(time * 0.12,
+          Math.sin(time / 110) * 8, time, 0.2 + time / 1000 * 0.6))[0]!;
+      });
+    };
+    const at = (points: readonly StrokeSample[], time: number) =>
+      points.reduce((best, point) => Math.abs(point.time - time) <
+        Math.abs(best.time - time) ? point : best);
+    const reference = trace(120);
+    for (const rate of [60, 240]) {
+      const candidate = trace(rate);
+      for (const time of [240, 480, 720]) {
+        expect(Math.hypot(at(candidate, time).x - at(reference, time).x,
+          at(candidate, time).y - at(reference, time).y)).toBeLessThan(1.5);
+      }
+    }
+  });
+
+  it("flushes a curved multi-sample tail to the exact lift point", () => {
+    const stabilizer = new StrokeStabilizer(settings, 24);
+    stabilizer.push(sample(0, 0, 0));
+    stabilizer.push(sample(3, 0, 16));
+    const output = stabilizer.push(sample(6, 4, 32))[0]!;
+    const tail = stabilizer.finish();
+    expect(tail.length).toBeGreaterThan(1);
+    expect(tail.at(-1)).toEqual(sample(6, 4, 32));
+    const first = tail[0]!;
+    const cross = (first.x - output.x) * (4 - output.y) -
+      (first.y - output.y) * (6 - output.x);
+    expect(Math.abs(cross)).toBeGreaterThan(0.01);
   });
 });

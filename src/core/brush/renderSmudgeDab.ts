@@ -1,7 +1,7 @@
 import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
 import type { RgbaColor } from "../../contracts/raster";
 import type { SmudgeRenderSettings, StrokeSample } from "../../contracts/stroke";
-import { mixColor } from "../../logic/raster/colorComposite";
+import { mixPremultiplied } from "../../logic/raster/colorComposite";
 import { brushTexture, brushTipCoverage } from "../../logic/brush/brushCoverage";
 import type { RasterEdit } from "../history/RasterEdit";
 import { pressureBrushSize } from "./renderBrushDab";
@@ -9,6 +9,9 @@ import { pressureBrushSize } from "./renderBrushDab";
 export interface SmudgeState {
   carried: RgbaColor | null;
 }
+
+export type SmudgePixelClip = (x: number, y: number) => boolean;
+const allowEveryPixel: SmudgePixelClip = () => true;
 
 interface DabBounds {
   readonly minimumX: number;
@@ -46,7 +49,8 @@ function pickupColor(
   edit: RasterEdit,
   brush: BrushPreset | LoadedBrush,
   sample: StrokeSample,
-  area: DabBounds
+  area: DabBounds,
+  allowsPixel: SmudgePixelClip
 ): RgbaColor {
   let weight = 0;
   let alpha = 0;
@@ -55,6 +59,7 @@ function pickupColor(
   let blue = 0;
   for (let y = area.minimumY; y <= area.maximumY; y += 1) {
     for (let x = area.minimumX; x <= area.maximumX; x += 1) {
+      if (!allowsPixel(x, y)) continue;
       const amount = coverage(brush, sample, area, x, y);
       if (amount <= 0) continue;
       const color = edit.getPixel(x, y);
@@ -76,20 +81,22 @@ export function renderSmudgeDab(
   brush: BrushPreset | LoadedBrush,
   sample: StrokeSample,
   settings: SmudgeRenderSettings,
-  state: SmudgeState
+  state: SmudgeState,
+  allowsPixel: SmudgePixelClip = allowEveryPixel
 ): void {
   const area = bounds(brush, sample, settings);
-  const picked = pickupColor(edit, brush, sample, area);
+  const picked = pickupColor(edit, brush, sample, area, allowsPixel);
   if (!state.carried) { state.carried = picked; return; }
-  const pigment = mixColor(picked, state.carried, settings.pull);
+  const pigment = mixPremultiplied(picked, state.carried, settings.pull);
   const pressure = 0.2 + sample.pressure * 0.8;
   for (let y = area.minimumY; y <= area.maximumY; y += 1) {
     for (let x = area.minimumX; x <= area.maximumX; x += 1) {
+      if (!allowsPixel(x, y)) continue;
       const amount = coverage(brush, sample, area, x, y) *
         settings.strength * settings.flow * pressure;
       if (amount <= 0) continue;
-      edit.setPixel(x, y, mixColor(edit.getPixel(x, y), pigment, amount));
+      edit.setPixel(x, y, mixPremultiplied(edit.getPixel(x, y), pigment, amount));
     }
   }
-  state.carried = mixColor(state.carried, picked, settings.pickup);
+  state.carried = mixPremultiplied(state.carried, picked, settings.pickup);
 }

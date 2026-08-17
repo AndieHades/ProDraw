@@ -34,4 +34,27 @@ describe("renderSmudgeDab", () => {
     history.undo();
     expect(surface.getPixel(40, 16)).toEqual(blue);
   });
+
+  it("uses premultiplied color and obeys an injected selection clip", () => {
+    const surface = new RasterSurface("alpha-smudge", 48, 24);
+    const setup = new RasterEdit(surface, "setup");
+    for (let y = 0; y < 24; y += 1) for (let x = 0; x < 48; x += 1) {
+      setup.setPixel(x, y, x < 20 ? red : { red: 0, green: 0, blue: 255, alpha: 0 });
+    }
+    setup.commit();
+    const edit = new RasterEdit(surface, "smudge");
+    const brush = { ...BUNDLED_BRUSHES[0]!,
+      shape: { ...BUNDLED_BRUSHES[0]!.shape, hardness: 1 },
+      grain: { ...BUNDLED_BRUSHES[0]!.grain, strength: 0 } };
+    const state = { carried: null };
+    const settings = { size: 14, strength: 1, flow: 1, pickup: 0, pull: 1 };
+    const clip = (x: number) => x < 32;
+    renderSmudgeDab(edit, brush,
+      { x: 14, y: 12, pressure: 1, tiltX: 0, tiltY: 0, time: 0 }, settings, state, clip);
+    renderSmudgeDab(edit, brush,
+      { x: 31, y: 12, pressure: 1, tiltX: 0, tiltY: 0, time: 16 }, settings, state, clip);
+    expect(surface.getPixel(31, 12).red).toBeGreaterThan(200);
+    expect(surface.getPixel(31, 12).blue).toBeLessThan(10);
+    expect(surface.getPixel(32, 12)).toEqual({ red: 0, green: 0, blue: 255, alpha: 0 });
+  });
 });

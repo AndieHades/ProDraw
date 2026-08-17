@@ -62,6 +62,7 @@ describe("bundled brush catalog", () => {
     const source = await readFile(filePath);
     const authored = { ...preset, fileName: "lineart-custom.prodraw-brush",
       stabilization: { ...preset.stabilization, streamlineAmount: 0.123 },
+      smudge: { ...preset.smudge, pull: 0.44 },
       properties: { minimumSize: 7, maximumSize: 77 },
       sources: { ...preset.sources, shape: sourceAsset(
         { width: 2, height: 2, data: Uint8Array.of(0, 64, 128, 255) }, "Texture") } };
@@ -69,6 +70,7 @@ describe("bundled brush catalog", () => {
       source.byteOffset, source.byteOffset + source.byteLength
     )), authored);
     expect(loaded.stabilization.streamlineAmount).toBe(0.123);
+    expect(loaded.smudge.pull).toBe(0.44);
     expect(loaded.properties).toEqual({ minimumSize: 7, maximumSize: 77 });
     expect(loaded.shapeMap?.data).toEqual(Uint8Array.of(0, 64, 128, 255));
     expect(loaded.compatibility.archiveVersion).toBe(4);

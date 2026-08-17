@@ -33,6 +33,7 @@
 .brush-chip { display: flex; align-items: center; gap: var(--space-sm); background: var(--bg-control); }
 .brush-dot { width: 22px; height: 22px; border-radius: 50%; background: currentColor; box-shadow: inset 0 0 0 2px #fff; }
 .color-control input { width: 44px; height: 32px; padding: 2px; border: 0; background: transparent; }
+.finger-paint-control input { width: 18px; height: 18px; accent-color: var(--accent); }
 .canvas-shell { grid-row: 2; grid-column: 1 / -1; min-width: 0; min-height: 0; }
 #paint-canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
 .layers-panel { grid-row: 2; grid-column: 3; align-self: start; overflow: hidden; }

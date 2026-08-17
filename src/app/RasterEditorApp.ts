@@ -17,7 +17,6 @@ import { WorkspacePresenter } from "../ui/workspace/WorkspacePresenter";
 import { DocumentWorkflow } from "./DocumentWorkflow";
 import type { InitialEditorState } from "./createInitialDocument";
 import { RasterEditorSession } from "./RasterEditorSession";
-
 export class RasterEditorApp {
   readonly #workspace = new WorkspacePresenter();
   readonly #events = new EditorEventBus();
@@ -74,7 +73,6 @@ export class RasterEditorApp {
   private readonly dispatch: EditorCommandDispatch = (command): void => {
     this.handleCommand(command);
   };
-
   private handleCommand(command: EditorCommand): void {
     switch (command.type) {
       case "document.new":
@@ -104,20 +102,26 @@ export class RasterEditorApp {
   }
 
   private mountSystems(): void {
+    const input: { drawing?: DrawingSystem } = {};
     const viewport = new ViewportSystem({ canvas: this.#workspace.canvas,
       getView: () => this.#session.view, setView: (view) => this.#session.setView(view),
-      requestRender: () => this.#canvas.requestRender() });
+      requestRender: () => this.#canvas.requestRender(),
+      canTouchNavigate: () => !input.drawing?.isActive ||
+        input.drawing.activePointerKind === "touch",
+      onTouchGestureStart: () => input.drawing?.cancelActive(false) });
     viewport.mount();
-    new DrawingSystem({ canvas: this.#workspace.canvas, viewport: this.#canvas,
+    input.drawing = new DrawingSystem({ canvas: this.#workspace.canvas, viewport: this.#canvas,
       history: this.#session.history, getDocument: () => this.#session.document,
       getBrush: () => this.#session.brush, getColor: () => this.#workspace.color,
       getSize: () => this.#workspace.brushSize, getOpacity: () => this.#workspace.brushOpacity,
-      getTool: () => this.#workspace.tool, canDraw: (event) => !viewport.isPanning(event),
+      getTool: () => this.#workspace.tool,
+      getFingerPaintEnabled: () => this.#workspace.fingerPaintEnabled,
+      canDraw: (event) => !viewport.isNavigating(event),
       onCommit: () => this.#documents.documentChanged(),
       onBlocked: () => this.status("status.layerBlocked")
-    }).mount();
+    });
+    input.drawing.mount();
   }
-
   private selectBrush(brush: BrushPreset): void {
     this.#session.selectBrush(brush);
     this.changed();

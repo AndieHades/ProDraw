@@ -60,3 +60,21 @@ export function mixColor(left: RgbaColor, right: RgbaColor, amount: number): Rgb
   return { red: channel(left.red, right.red), green: channel(left.green, right.green),
     blue: channel(left.blue, right.blue), alpha: channel(left.alpha, right.alpha) };
 }
+
+export function mixPremultiplied(
+  left: RgbaColor,
+  right: RgbaColor,
+  amount: number
+): RgbaColor {
+  const ratio = Math.max(0, Math.min(1, amount));
+  const leftAlpha = byte(left.alpha) / 255;
+  const rightAlpha = byte(right.alpha) / 255;
+  const alpha = leftAlpha + (rightAlpha - leftAlpha) * ratio;
+  if (alpha <= 0) return { red: 0, green: 0, blue: 0, alpha: 0 };
+  const channel = (leftValue: number, rightValue: number): number => byte(
+    (byte(leftValue) * leftAlpha * (1 - ratio) +
+      byte(rightValue) * rightAlpha * ratio) / alpha
+  );
+  return { red: channel(left.red, right.red), green: channel(left.green, right.green),
+    blue: channel(left.blue, right.blue), alpha: byte(alpha * 255) };
+}

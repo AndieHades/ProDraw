@@ -57,6 +57,7 @@ export function parsePresetFile(
   const grain = parsed.grain;
   const rendering = parsed.rendering;
   const dynamics = parsed.dynamics;
+  const smudge = parsed.smudge;
   const stylus = parsed.stylus;
   const properties = parsed.properties;
   const sources = parsed.sources;
@@ -90,6 +91,9 @@ export function parsePresetFile(
     dynamics: { sizeByPressure: clamp(dynamics?.sizeByPressure, 0, 1, 0.82),
       opacityByPressure: clamp(dynamics?.opacityByPressure, 0, 1, 0.28),
       tiltToSize: clamp(dynamics?.tiltToSize, -1, 1, 0) },
+    smudge: { flow: clamp(smudge?.flow, 0, 1, base.smudge.flow),
+      pickup: clamp(smudge?.pickup, 0, 1, base.smudge.pickup),
+      pull: clamp(smudge?.pull, 0, 1, base.smudge.pull) },
     stylus: { minimumPressure: clamp(stylus?.minimumPressure, 0, 0.5, 0.01),
       pressureCurve: pressureCurve(stylus?.pressureCurve, base.stylus.pressureCurve),
       tiltEnabled: stylus?.tiltEnabled !== false,

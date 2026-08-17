@@ -10,6 +10,7 @@ describe("ProDraw brush preset file", () => {
     const base = BUNDLED_BRUSHES[0]!;
     const edited = { ...base, revision: 4, name: "My Ink",
       stabilization: { ...base.stabilization, streamlineAmount: 0.72 },
+      smudge: { flow: 0.64, pickup: 0.31, pull: 0.91 },
       stylus: { ...base.stylus,
         pressureCurve: [0, 0.18, 0.82, 1] as const,
         barrelAction: "smudge" as const },
@@ -23,6 +24,7 @@ describe("ProDraw brush preset file", () => {
     expect(parsed.name).toBe("My Ink");
     expect(parsed.setName).toBe("Inks");
     expect(parsed.stabilization.streamlineAmount).toBe(0.72);
+    expect(parsed.smudge).toEqual({ flow: 0.64, pickup: 0.31, pull: 0.91 });
     expect(parsed.stylus.pressureCurve).toEqual([0, 0.18, 0.82, 1]);
     expect(parsed.stylus.barrelAction).toBe("smudge");
     expect(parsed.sources.shape?.sourceBrushName).toBe("Source Ink");

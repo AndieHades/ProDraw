@@ -1,9 +1,13 @@
 import type { BrushStabilization } from "../../contracts/brush";
 import type { StrokeSample } from "../../contracts/stroke";
+import { POINTER_INPUT } from "../../config/input";
 
 const clamp01 = (value: number): number => Math.max(0, Math.min(1, value));
 const mix = (left: number, right: number, amount: number): number =>
   left + (right - left) * amount;
+const timedAlpha = (alpha: number, elapsed: number): number => 1 - Math.pow(
+  1 - clamp01(alpha), Math.max(0.25, elapsed) /
+    POINTER_INPUT.stabilizationReferenceMilliseconds);
 
 function sameSample(left: StrokeSample, right: StrokeSample): boolean {
   return Math.hypot(left.x - right.x, left.y - right.y) < 0.001 &&
@@ -17,6 +21,8 @@ export class StrokeStabilizer {
   readonly #brushSize: number;
   #beforeRaw: StrokeSample | null = null;
   #lastRaw: StrokeSample | null = null;
+  #twoBeforeOutput: StrokeSample | null = null;
+  #beforeOutput: StrokeSample | null = null;
   #lastOutput: StrokeSample | null = null;
 
   constructor(settings: BrushStabilization, brushSize: number) {
@@ -31,9 +37,10 @@ export class StrokeStabilizer {
       return [sample];
     }
     const alpha = this.positionAlpha(sample);
-    const pressureAlpha = Math.max(0.04, 1 -
+    const elapsed = sample.time - this.#lastRaw.time;
+    const pressureAlpha = timedAlpha(Math.max(0.04, 1 -
       this.#settings.streamlinePressure * 0.86 -
-      this.#settings.motionFilteringAmount * 0.1);
+      this.#settings.motionFilteringAmount * 0.1), elapsed);
     const output = {
       x: mix(this.#lastOutput.x, sample.x, alpha),
       y: mix(this.#lastOutput.y, sample.y, alpha),
@@ -44,6 +51,8 @@ export class StrokeStabilizer {
     };
     this.#beforeRaw = this.#lastRaw;
     this.#lastRaw = sample;
+    this.#twoBeforeOutput = this.#beforeOutput;
+    this.#beforeOutput = this.#lastOutput;
     this.#lastOutput = output;
     return [output];
   }
@@ -52,8 +61,34 @@ export class StrokeStabilizer {
     const target = this.#lastRaw;
     const output = this.#lastOutput;
     if (!target || !output || sameSample(target, output)) return [];
+    const distance = Math.hypot(target.x - output.x, target.y - output.y);
+    if (distance < 0.001) { this.#lastOutput = target; return [target]; }
+    const steps = Math.min(POINTER_INPUT.maximumTailSamples,
+      Math.max(2, Math.ceil(distance / Math.max(1, this.#brushSize * 0.12))));
+    const previous = this.#beforeOutput ?? output;
+    const beforePrevious = this.#twoBeforeOutput ?? previous;
+    const tangentX = previous.x - beforePrevious.x;
+    const tangentY = previous.y - beforePrevious.y;
+    const tangentLength = Math.hypot(tangentX, tangentY);
+    const controlDistance = Math.min(distance * 0.5, this.#brushSize);
+    const control = tangentLength > 0
+      ? { x: output.x + tangentX / tangentLength * controlDistance,
+        y: output.y + tangentY / tangentLength * controlDistance }
+      : { x: output.x, y: output.y };
+    const tail = Array.from({ length: steps }, (_, index) => {
+      const progress = (index + 1) / steps;
+      const inverse = 1 - progress;
+      return { x: inverse * inverse * output.x + 2 * inverse * progress * control.x +
+          progress * progress * target.x,
+        y: inverse * inverse * output.y + 2 * inverse * progress * control.y +
+          progress * progress * target.y,
+        pressure: mix(output.pressure, target.pressure, progress),
+        tiltX: mix(output.tiltX, target.tiltX, progress),
+        tiltY: mix(output.tiltY, target.tiltY, progress), time: target.time };
+    });
+    this.#beforeOutput = tail.at(-2) ?? output;
     this.#lastOutput = target;
-    return [target];
+    return tail;
   }
 
   private positionAlpha(sample: StrokeSample): number {
@@ -69,7 +104,7 @@ export class StrokeStabilizer {
     const speed = clamp01(distance / elapsed / referenceSpeed);
     const speedBoost = speed * this.#settings.motionFilteringExpression;
     const cornerBoost = this.cornerBoost(sample);
-    return clamp01(base + (1 - base) * Math.max(speedBoost, cornerBoost));
+    return timedAlpha(base + (1 - base) * Math.max(speedBoost, cornerBoost), elapsed);
   }
 
   private cornerBoost(sample: StrokeSample): number {

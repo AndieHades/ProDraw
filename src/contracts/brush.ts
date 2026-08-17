@@ -49,6 +49,12 @@ export interface BrushDynamics {
   readonly tiltToSize: number;
 }
 
+export interface BrushSmudgeSettings {
+  readonly flow: number;
+  readonly pickup: number;
+  readonly pull: number;
+}
+
 export interface BrushStylusSettings {
   readonly minimumPressure: number;
   readonly pressureCurve: readonly [number, number, number, number];
@@ -75,6 +81,7 @@ export interface BrushPreset {
   readonly grain: { readonly strength: number; readonly scale: number };
   readonly rendering: { readonly flow: number; readonly opacity: number };
   readonly dynamics: BrushDynamics;
+  readonly smudge: BrushSmudgeSettings;
   readonly stylus: BrushStylusSettings;
   readonly properties: { readonly maximumSize: number; readonly minimumSize: number };
   readonly sources: BrushSourceSelection;
