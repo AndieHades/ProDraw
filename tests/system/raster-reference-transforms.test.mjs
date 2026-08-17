@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { beforeEach, describe, expect, it } from 'vitest';
 import * as actions from '../../src/core/actions.ts';
-import { toolHandler } from '../../src/core/canvas-handlers.js';
+import { toolHandler } from '../../src/core/canvas-handlers.ts';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { markDirty } from '../../src/core/layer-cache.js';
 import { newLayer, S } from '../../src/core/state.js';

@@ -20,7 +20,7 @@ const intersect = (bounds, clip) => {
 export function alphaMask(data, width, height) {
   const mask = new Uint8Array(width * height);
   for (let index = 0; index < mask.length; index++) {
-    if (data[index * 4 + 3] > 8) mask[index] = 1;
+    if (data[index * 4 + 3] > 0) mask[index] = 1;
   }
   return mask;
 }

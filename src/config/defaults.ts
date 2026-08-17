@@ -13,6 +13,8 @@ export const EFFECT_DEFAULTS = {
   glow: { size: 6, intensity: 0.8, color: '#78d7ff' },
   dropShadow: { size: 1, intensity: 0.6, color: '#000000', dx: 2, dy: 2 },
   innerShadow: { size: 2, intensity: 0.6, color: '#000000', dx: 2, dy: 2 },
+  colorOverlay: { color: '#000000', blendMode: 'normal' },
+  gradientOverlay: { blendMode: 'normal' },
   monochrome: {},
   adjustment: { brightness: 0, contrast: 0, saturation: 0, hue: 0 },
 };
@@ -25,5 +27,7 @@ export const EFFECT_FIELDS = {
   innerShadow: ['size', 'intensity', 'color', 'offset'],
   monochrome: [],
   adjustment: ['brightness', 'contrast', 'saturation', 'hue'],
+  colorOverlay: ['color'],
+  gradientOverlay: [],
 };
 export const IMPORT_DEFAULT = { colors: 24, cell: 0, bgTol: 30 };

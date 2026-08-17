@@ -35,6 +35,10 @@ describe("legacy composite damage", () => {
     expect(isIncrementalCompositeSafe({ ...simpleState(), folders: [{}] }, damage)).toBe(false);
     expect(isIncrementalCompositeSafe({ ...simpleState(),
       layers: [{ ...simpleState().layers[0], effects: [{}] }] }, damage)).toBe(false);
+    expect(isIncrementalCompositeSafe({ ...simpleState(),
+      layers: [{ ...simpleState().layers[0], blendMode: "multiply" }] }, damage)).toBe(false);
+    expect(isIncrementalCompositeSafe({ ...simpleState(),
+      layers: [{ ...simpleState().layers[0], masks: [{}] }] }, damage)).toBe(false);
 
     tracker.noteLayer(0);
     expect(tracker.take(2480, 3508)).toEqual({ kind: "full" });

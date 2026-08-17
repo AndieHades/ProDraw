@@ -3,6 +3,7 @@ import { makeCanvas } from './canvas.js';
 import { intersectEffectBounds, translateEffectBounds,
   unionEffectBounds } from './effect-surface.js';
 import { layerCanvas, layerContentBounds, layerExtCanvas } from './layer-cache.js';
+import { applyPsdMasks } from './psd-mask.ts';
 import { S } from './state.js';
 
 const documentBounds = () => ({ minx: 0, miny: 0, maxx: S.W - 1, maxy: S.H - 1 });
@@ -58,5 +59,5 @@ export function layerEffectSource(index, dx = 0, dy = 0, includeExt = false) {
     context.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${(color[3] ?? 255) / 255})`;
     context.fillRect(px - origin.x, py - origin.y, 1, 1);
   }
-  return surface;
+  return applyPsdMasks(surface, layer, dx, dy);
 }

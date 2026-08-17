@@ -7,7 +7,7 @@ import { $, showMenuAt, toast, t } from '../../ui/dom/ShellDom.ts';
 import { setUndoGuard, snapshot, snapshotRasterReferences } from '../../core/history.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { maskHas } from '../../core/selection.js';
-import { registerMode } from '../../core/canvas-handlers.js';
+import { registerMode } from '../../core/canvas-handlers.ts';
 import { symA, symHA } from '../../core/layers.js';
 import { selectedLayerTargets } from '../../core/targets.js';
 import { cloneSelectionMask } from '../../logic/mask-ops.js';

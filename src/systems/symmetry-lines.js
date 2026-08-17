@@ -1,7 +1,7 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import { $ } from '../ui/dom/ShellDom.ts';
-import { registerGlobal } from '../core/canvas-handlers.js';
+import { registerGlobal } from '../core/canvas-handlers.ts';
 import { ensureSymmetryDefaults, resetSymmetryLine, symmetryConfig } from '../core/layers.js';
 import { clamp } from '../logic/math.ts';
 

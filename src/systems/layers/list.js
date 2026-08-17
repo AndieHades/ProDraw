@@ -17,7 +17,7 @@ import { appendEffects } from './fx-rows.js';
 import { bgRow } from './bg-row.js';
 import { syncLayerActionButtons } from './actions-bar.js';
 import { metadataNameSpan, startInlineRename as startMetadataRename,
-  wireMetadataSymmetry, wireMetadataVisibility } from './row-metadata.js';
+  psdMaskButton, wireMetadataSymmetry, wireMetadataVisibility } from './row-metadata.js';
 
 export function startInlineRename(span, ref) {
   startMetadataRename(span, ref, layList);
@@ -95,6 +95,7 @@ function layerRow(L, i, depth) {
   const vis = document.createElement('button'); vis.className = 'eye' + (L.visible ? '' : ' off'); vis.innerHTML = EYE; wireMetadataVisibility(vis, L); // глаз = видимость
   if (L.clip) { const ar = document.createElement('i'); ar.className = 'clip-arrow'; ar.innerHTML = CLIP_IC; row.append(ar); } // обтравка: стрелка + сдвиг
   row.append(thumbFor(i), nm); // миниатюра + имя
+  const mask = psdMaskButton(L, i, layList); if (mask) row.append(mask);
   if (L.kind === 'text') { const tx = document.createElement('button'); tx.className = 'eye ltext'; tx.innerHTML = TEXT_IC; tx.title = t('tool.text');
     tx.addEventListener('pointerdown', (e) => e.stopPropagation()); tx.addEventListener('click', (ev) => { ev.stopPropagation(); actions.run('text.editLayer', i); }); row.append(tx); }
   if (S.sym || S.symH || S.symD1 || S.symD2) { const sy = document.createElement('button'); sy.className = 'eye lsym' + (L.symLock ? ' off' : ''); sy.innerHTML = SYM_IC; // симметрия на слое (можно выключить)

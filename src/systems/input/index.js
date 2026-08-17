@@ -6,7 +6,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../ui/dom/ShellDom.ts';
 import { selHit } from '../../core/selection.js';
-import { toolHandler, modeHandler, globalHandlers } from '../../core/canvas-handlers.js';
+import { toolHandler, modeHandler, globalHandlers } from '../../core/canvas-handlers.ts';
 import { canvasAt, gridAt } from '../../core/viewport.js';
 import { actualPointerEvents } from '../../core/input/actualPointerEvents.ts';
 import { STABILIZE, DRAG_THRESHOLD } from '../../config/timings.ts';

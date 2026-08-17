@@ -4,7 +4,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 import { selHit } from '../../core/selection.js';
-import { registerGlobal } from '../../core/canvas-handlers.js';
+import { registerGlobal } from '../../core/canvas-handlers.ts';
 import { cloneSelectionMask, resizeSelectionMask, shiftSelectionMask } from '../../logic/mask-ops.js';
 import { clamp as clampv } from '../../logic/math.ts';
 

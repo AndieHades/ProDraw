@@ -6,7 +6,7 @@ import * as actions from '../core/actions.ts';
 import { $, toast, t } from '../ui/dom/ShellDom.ts';
 import { commitNumericField, isNumericLiteral, numericFieldValue, setNumericField } from '../core/numeric-field.ts';
 import { applyCropRect } from '../core/document.js';
-import { registerMode } from '../core/canvas-handlers.js';
+import { registerMode } from '../core/canvas-handlers.ts';
 import { ensureGrid, gridCellH, gridCellW, setGridVisible } from '../core/grid.js';
 import { canvasContentBounds } from '../core/canvas-bounds.js';
 import { MAX_SIZE } from '../config/limits.ts';

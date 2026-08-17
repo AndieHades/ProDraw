@@ -4,6 +4,7 @@ import { buildCanvasEffectSurface, buildCanvasEffects, buildGridEffectSurface,
   folderEffectSurface, visibleAdjustments, visibleColorEffects,
   visibleMonochromes, visiblePixelEffects } from './effect-canvas.js';
 import { layerEffectSource } from './effect-layer-source.js';
+import { activePsdMasks } from './psd-mask.ts';
 import { createEffectSurface, drawEffectSurface, materializeEffectSurface,
   unionEffectBounds } from './effect-surface.js';
 import { layerContentBounds, layerRev } from './layer-cache.js';
@@ -19,7 +20,6 @@ const effectsFor = (target) => {
 export const layerEffectsFor = (layer) => effectsFor(layer);
 export const folderEffectsFor = (folder) => effectsFor(folder);
 export { visibleAdjustments, visibleColorEffects, visiblePixelEffects };
-
 export function layerAdjustmentEffects(index) {
   const layer = S.layers[index]; if (!layer) return [];
   const result = [];
@@ -60,7 +60,7 @@ export function layerFxSurface(index) {
   const signature = `${S.W}x${S.H}|${layerRev(index)}|${JSON.stringify(effects)}` +
     floatingSignature(index);
   const hit = layerCache.get(index); if (hit?.signature === signature) return hit.surface;
-  const surface = floating
+  const surface = floating || activePsdMasks(layer).length
     ? buildCanvasEffectSurface(layerEffectSource(index), effects, documentBounds())
     : buildGridEffectSurface(layerEffectSource(index), layer.grid,
       layerContentBounds(index), effects, S.W, S.H);

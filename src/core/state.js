@@ -38,6 +38,7 @@ export const cloneLayer = (L, overrides = {}) => ({
     ? overrides.grid : cloneGrid(L.grid), effects: cloneFx(L.effects),
   kind: L.kind || 'pixel', text: L.text ? cloneTextSource(L.text) : undefined,
   blendMode: L.blendMode || 'normal', masks: cloneMasks(L.masks),
+  psdBounds: L.psdBounds ? { ...L.psdBounds } : undefined,
   psdEffects: clonePsdEffects(L.psdEffects),
   psdAdjustment: L.psdAdjustment ? structuredClone(L.psdAdjustment) : undefined,
   ...overrides,

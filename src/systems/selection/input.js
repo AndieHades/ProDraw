@@ -2,7 +2,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { symA, symHA } from '../../core/layers.js';
-import { registerTool } from '../../core/canvas-handlers.js';
+import { registerTool } from '../../core/canvas-handlers.ts';
 import { selHit } from '../../core/selection.js';
 import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 import { normSel, symmetrizeSelection, selHasPixels, deselect, maskFromCells } from './model.js';

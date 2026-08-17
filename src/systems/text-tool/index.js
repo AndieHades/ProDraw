@@ -3,7 +3,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, t, toast } from '../../ui/dom/ShellDom.ts';
 import { setTool } from '../../core/tools.js';
-import { registerGlobal, registerTool } from '../../core/canvas-handlers.js';
+import { registerGlobal, registerTool } from '../../core/canvas-handlers.ts';
 import { markDirty } from '../../core/layer-cache.js';
 import { clearTextLayerGrid, textDamageBounds, textLayerBounds,
   updateTextLayerGrid } from '../../core/text-layer.js';

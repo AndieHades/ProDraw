@@ -87,7 +87,7 @@ const crop = await import('../src/systems/crop.js');
 const status = await import('../src/systems/status.js');
 await import('../src/systems/draw/tools.js');
 await import('../src/systems/move-tool.js');
-const { toolHandler, globalHandlers } = await import('../src/core/canvas-handlers.js');
+const { toolHandler, globalHandlers } = await import('../src/core/canvas-handlers.ts');
 const input = await import('../src/systems/input/index.js');
 await import('../src/systems/selection/input.js');
 await import('../src/systems/selection/handles.js');

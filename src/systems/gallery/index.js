@@ -54,7 +54,7 @@ export async function mount() {
   actions.register('gallery.beginPsdImport', beginPsdImport);
   actions.register('gallery.completePsdImport', async (token, document, name) => {
     const result = await completePsdImport(token, document, name);
-    if (result.status === 'opened') { hide(); toast(document.warnings.length
+    if (result.status === 'opened') { hide(); toast(result.warningCount
       ? t('toast.psdCompatibility') : t('toast.psdImported', { n: result.layerCount })); }
     return result.status;
   });

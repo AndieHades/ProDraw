@@ -5,7 +5,7 @@ import { FLAT_EFFECT_PIXELS } from './effect-kernels.js';
 // маска H×W из сетки слоя (клетка непуста) или из альфы RGBA-буфера
 export const maskFromGrid = (grid, W, H) => Array.from({ length: H }, (_, y) => Array.from({ length: W }, (_, x) => !!grid[y][x]));
 export function maskFromAlpha(data, W, H) { const m = Array.from({ length: H }, () => new Array(W).fill(false));
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (data[(y * W + x) * 4 + 3] > 8) m[y][x] = true; return m; }
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (data[(y * W + x) * 4 + 3] > 0) m[y][x] = true; return m; }
 
 function flattenMask(mask, W, H) { const flat = new Uint8Array(W * H);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (mask[y][x]) flat[y * W + x] = 1;

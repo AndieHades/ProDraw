@@ -2,13 +2,17 @@ import { adjustColor } from '../logic/adjustment.js';
 import { hexToRgb } from '../logic/color.js';
 import { INNER_EFFECTS } from '../logic/layer-effects.js';
 import { monochromeRgba } from '../logic/monochrome.js';
+import { applyPsdOverlays } from '../logic/psd/effectOverlay.ts';
 import { makeCanvas, paintCanvas } from './canvas.js';
-import { createEffectSurface, unionEffectBounds } from './effect-surface.js';
+import { createEffectSurface, drawPsdSurface,
+  unionEffectBounds } from './effect-surface.js';
 
 function adjustedCanvas(source, effects) {
   const adjustments = effects.filter((effect) => effect.visible !== false &&
     effect.type === 'adjustment');
-  if (!adjustments.length) return source.canvas;
+  const overlays = effects.some((effect) => effect.visible !== false &&
+    ['colorOverlay', 'gradientOverlay'].includes(effect.type));
+  if (!adjustments.length && !overlays) return source.canvas;
   const canvas = makeCanvas(source.canvas.width, source.canvas.height);
   const context = canvas.getContext('2d');
   context.imageSmoothingEnabled = false; context.drawImage(source.canvas, 0, 0);
@@ -25,6 +29,7 @@ function adjustedCanvas(source, effects) {
     data[offset] = color[0]; data[offset + 1] = color[1];
     data[offset + 2] = color[2]; data[offset + 3] = color[3] ?? data[offset + 3];
   }
+  applyPsdOverlays(data, canvas.width, canvas.height, effects);
   context.putImageData(image, 0, 0); return canvas;
 }
 
@@ -56,9 +61,9 @@ function regionCanvas(region, effect, source, inner) {
 function drawRegion(context, output, source, entry) {
   const inner = INNER_EFFECTS.has(entry.effect.type);
   const canvas = regionCanvas(entry.region, entry.effect, source, inner);
-  context.globalAlpha = entry.effect.opacity ?? 1;
-  context.drawImage(canvas, entry.region.bounds.minx - output.origin.x,
-    entry.region.bounds.miny - output.origin.y);
+  drawPsdSurface(context, canvas, entry.region.bounds.minx - output.origin.x,
+    entry.region.bounds.miny - output.origin.y, entry.effect.opacity ?? 1,
+    entry.effect.params.blendMode || 'normal');
 }
 
 export function composeEffectSurface(source, effects, regionFor,
@@ -67,7 +72,8 @@ export function composeEffectSurface(source, effects, regionFor,
   const pixelEntries = [];
   let bounds = includeSource ? source.bounds : null;
   for (const effect of effects) {
-    if (effect.visible === false || ['adjustment', 'monochrome'].includes(
+    if (effect.visible === false || ['adjustment', 'monochrome',
+      'colorOverlay', 'gradientOverlay'].includes(
       effect.type)) continue;
     const region = regionFor(effect); if (!region) continue;
     pixelEntries.push({ effect, region });

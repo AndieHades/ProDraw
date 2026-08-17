@@ -1,4 +1,14 @@
 import { makeCanvas } from './canvas.js';
+import { blendRgba } from '../logic/psd/blendMode.ts';
+
+const NATIVE_BLEND = new Map([
+  ['normal', 'source-over'], ['pass through', 'source-over'],
+  ['darken', 'darken'], ['multiply', 'multiply'], ['color burn', 'color-burn'],
+  ['lighten', 'lighten'], ['screen', 'screen'], ['color dodge', 'color-dodge'],
+  ['overlay', 'overlay'], ['soft light', 'soft-light'], ['hard light', 'hard-light'],
+  ['difference', 'difference'], ['exclusion', 'exclusion'], ['hue', 'hue'],
+  ['saturation', 'saturation'], ['color', 'color'], ['luminosity', 'luminosity'],
+]);
 
 const copy = (bounds) => bounds && ({ ...bounds });
 
@@ -64,6 +74,39 @@ export function drawEffectSurface(context, value, dx = 0, dy = 0) {
   if (!value.bounds) return false;
   context.drawImage(value.canvas, value.origin.x + dx, value.origin.y + dy);
   return true;
+}
+
+function nativeBlend(context, value, dx, dy, opacity, operation = 'source-over') {
+  const oldAlpha = context.globalAlpha, oldOperation = context.globalCompositeOperation;
+  context.globalAlpha = opacity; context.globalCompositeOperation = operation;
+  const drew = drawEffectSurface(context, value, dx, dy);
+  context.globalAlpha = oldAlpha; context.globalCompositeOperation = oldOperation;
+  return drew;
+}
+
+function fallbackBlend(context, value, dx, dy, opacity, mode) {
+  const surface = isEffectSurface(value), canvas = surface ? value.canvas : value;
+  const ox = (surface ? value.origin.x : 0) + dx;
+  const oy = (surface ? value.origin.y : 0) + dy, target = context.canvas;
+  if (!target || !context.getImageData || !context.putImageData) {
+    return nativeBlend(context, value, dx, dy, opacity);
+  }
+  const left = Math.max(0, ox), top = Math.max(0, oy);
+  const right = Math.min(target.width, ox + canvas.width);
+  const bottom = Math.min(target.height, oy + canvas.height);
+  if (right <= left || bottom <= top) return false;
+  const width = right - left, height = bottom - top;
+  const source = canvas.getContext('2d').getImageData(left - ox, top - oy, width, height);
+  const destination = context.getImageData(left, top, width, height);
+  blendRgba(destination.data, source.data, width, opacity, mode, left, top);
+  context.putImageData(destination, left, top); return true;
+}
+
+export function drawPsdSurface(context, value, dx = 0, dy = 0,
+  opacity = 1, mode = 'normal') {
+  const operation = NATIVE_BLEND.get(mode);
+  return operation ? nativeBlend(context, value, dx, dy, opacity, operation)
+    : fallbackBlend(context, value, dx, dy, opacity, mode);
 }
 
 export function materializeEffectSurface(value, width, height) {

@@ -15,9 +15,11 @@ export type LegacyCompositeDamage = Readonly<{
 
 interface PixelLayerState {
   readonly kind?: string;
+  readonly blendMode?: string;
   readonly fid?: number | null;
   readonly clip?: boolean;
   readonly effects?: readonly unknown[];
+  readonly masks?: readonly unknown[];
   readonly ext?: ReadonlyMap<unknown, unknown>;
 }
 
@@ -80,6 +82,7 @@ export function isIncrementalCompositeSafe(state: CompositeState,
   if (state.cropMode || state.rotMode || state.rotPrev || state.moveDrag ||
     state.selFloat || state.fxDraft) return false;
   if (state.layers.some((layer) => (layer.kind && layer.kind !== "pixel") ||
-    layer.fid != null || layer.clip || layer.effects?.length || layer.ext?.size)) return false;
+    (layer.blendMode && layer.blendMode !== "normal") || layer.fid != null || layer.clip ||
+    layer.effects?.length || layer.masks?.length || layer.ext?.size)) return false;
   return damage.layerIndexes.every((index) => state.layers[index] != null);
 }

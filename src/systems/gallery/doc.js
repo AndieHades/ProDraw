@@ -59,7 +59,7 @@ function applyRec(rec) { retireTilemapRecord(rec);
     if (!L.kind) L.kind = 'pixel'; L.blendMode ||= 'normal'; L.masks ||= [];
     L.psdEffects ||= []; });
   S.folders.forEach((f) => { if (!f.effects) f.effects = [];
-    f.blendMode ||= 'normal'; f.psdEffects ||= []; });
+    f.blendMode ||= 'pass through'; f.psdEffects ||= []; });
   // folderSeq всегда впереди реальных id — иначе новые папки могут получить чужой id (старые проекты)
   S.folderSeq = S.folders.reduce((m, f) => Math.max(m, f.id), rec.folderSeq || 0); S.palette = dedupePal(rec.palette); S.active = (rec.active || S.palette[0]).slice();
   S.bg = rec.bg ? { color: rec.bg.color ? rec.bg.color.slice() : null, visible: rec.bg.visible !== false } : { color: null, visible: true }; S.bgSel = false;
@@ -123,18 +123,22 @@ export function beginConvertedWork() { nextWorkChange(); curId = uid('d'); curFo
 
 export const beginPsdImport = () => nextWorkChange();
 export async function completePsdImport(token, document, name) {
-  if (token !== workChange) return { status: 'superseded', layerCount: 0 };
+  if (token !== workChange) return { status: 'superseded', layerCount: 0, warningCount: 0 };
   if (!await saveCurrent() || token !== workChange) {
-    return { status: token === workChange ? 'failed' : 'superseded', layerCount: 0 };
+    return { status: token === workChange ? 'failed' : 'superseded',
+      layerCount: 0, warningCount: 0 };
   }
   const id = uid('d'), record = buildPsdGalleryRecord(id, name, document);
   try { await saveDoc(record); } catch (error) {
-    return { status: 'failed', layerCount: 0 };
+    return { status: 'failed', layerCount: 0, warningCount: 0 };
   }
-  if (token !== workChange) { await removeDoc(id); return { status: 'superseded', layerCount: 0 }; }
+  if (token !== workChange) { await removeDoc(id);
+    return { status: 'superseded', layerCount: 0, warningCount: 0 }; }
   const opened = await openWork(id);
-  if (!opened) { await removeDoc(id); return { status: 'failed', layerCount: 0 }; }
-  return { status: 'opened', layerCount: record.layers.length };
+  if (!opened) { await removeDoc(id);
+    return { status: 'failed', layerCount: 0, warningCount: 0 }; }
+  return { status: 'opened', layerCount: record.layers.length,
+    warningCount: record.psdWarnings.length };
 }
 
 export async function openWork(id) { const change = nextWorkChange();
