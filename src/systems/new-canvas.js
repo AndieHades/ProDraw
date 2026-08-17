@@ -1,6 +1,7 @@
 import { $, toast } from '../core/dom.js';
 import { commitNumericField, isNumericLiteral, numericFieldValue, setNumericField } from '../core/numeric-field.js';
 import * as actions from '../core/actions.js';
+import { CUSTOM_CANVAS_DEFAULT } from '../config/defaults.js';
 import { MAX_SIZE } from '../config/limits.js';
 import { clampRound } from '../logic/math.js';
 import { createNewWork } from './gallery/doc.js';
@@ -10,7 +11,6 @@ import { buildPresetLists, presetLabel } from './new-canvas/list.js';
 import { newCanvasBackground } from './new-canvas/background.js';
 import { isCreatingCanvas, setCreatingCanvas } from './new-canvas/creation-state.js';
 import { t } from '../i18n/index.js';
-
 const STORE = 'customSizes';
 let editIdx = null, linked = false, ratio = 1, mode = 'rgba', nameCustom = false;
 let suppressOutsideClick = false, prepareTask = Promise.resolve(true);
@@ -20,17 +20,16 @@ const dim = (p) => `${p.w} x ${p.h}`;
 const clampSize = (v) => clampRound(v, 2, MAX_SIZE);
 const panel = () => $('new-ovl')?.querySelector('.new-panel');
 const isOpen = () => $('new-ovl')?.classList.contains('on');
-const dimValue = (id) => numericFieldValue($(id), 64);
+const dimValue = (id) => numericFieldValue($(id),
+  CUSTOM_CANVAS_DEFAULT[id === 'new-w' ? 'w' : 'h']);
 const currentDimName = () => dim({ w: dimValue('new-w'), h: dimValue('new-h') });
 const syncName = (force = false) => { if (force || !nameCustom) $('new-name-in').value = currentDimName(); };
 const setDim = (id, v) => setNumericField($(id), clampSize(v));
-
 function setMode(next) {
   mode = next;
   $('new-mode-rgba').classList.toggle('on', mode === 'rgba');
   $('new-mode-gray').classList.toggle('on', mode === 'grayscale');
 }
-
 async function createDoc(p) { if (isCreatingCanvas()) return false; setCreatingCanvas(true);
   try { await prepareTask;
     const created = await createNewWork(p.w, p.h, presetLabel(p), newCanvasBackground.color(), mode);
@@ -39,7 +38,6 @@ async function createDoc(p) { if (isCreatingCanvas()) return false; setCreatingC
   } catch (error) { toast(t('toast.documentCreateFailed')); return false; }
   finally { setCreatingCanvas(false); }
 }
-
 function buildLists() { buildPresetLists(custom(), { create: createDoc, edit: editCustom, remove: removeCustom }); }
 
 function setLinked(on) {
@@ -55,7 +53,8 @@ function syncRatio(which) {
 
 function commitDim(which) {
   const id = which === 'w' ? 'new-w' : 'new-h';
-  const v = commitNumericField($(id), { min: 2, max: MAX_SIZE, integer: true, relativeMinus: true, fallback: 64 });
+  const v = commitNumericField($(id), { min: 2, max: MAX_SIZE, integer: true,
+    relativeMinus: true, fallback: CUSTOM_CANVAS_DEFAULT[which] });
   if (v == null) return false;
   syncRatio(which); syncName(); return true;
 }
@@ -125,7 +124,9 @@ function bindOpen(el, ensureGallery) {
 }
 
 export function mount() {
-  setDim('new-w', 64); setDim('new-h', 64);
+  setDim('new-w', CUSTOM_CANVAS_DEFAULT.w); setDim('new-h', CUSTOM_CANVAS_DEFAULT.h);
+  nameCustom = false;
+  syncName(true);
   bindOpen($('new'), true); bindOpen($('gal-new'), false);
   actions.register('doc.new', () => openDlg(true));
   $('new-create').onclick = createCustom;

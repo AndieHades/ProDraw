@@ -1818,6 +1818,10 @@ await ta("module-int case 173", async () => {
   newCanvas.mount(); gallery.show();
   const ovl = document.getElementById('new-ovl'); ovl.classList.add('on');
   const w = document.getElementById('new-w'), h = document.getElementById('new-h');
+  assert.equal(w.value, '800'); assert.equal(h.value, '600');
+  assert.equal(document.getElementById('new-name-in').value, '800 x 600');
+  w.value = '64'; w.dispatchEvent(new window.Event('blur'));
+  h.value = '64'; h.dispatchEvent(new window.Event('blur'));
   w.value = '+8'; w.dispatchEvent(new window.Event('blur'));
   h.value = '/2'; h.dispatchEvent(new window.Event('blur'));
   document.getElementById('new-create').click();

@@ -2,6 +2,7 @@
 // здесь, чтобы подправить поведение без копания в системах.
 export const BRUSH_DEFAULTS = () => ({ pencil: { size: 24, op: 1 }, eraser: { size: 32, op: 1 } });
 export const FLAGS_DEFAULT = { pixelPerfect: false, stabilize: false };
+export const CUSTOM_CANVAS_DEFAULT = Object.freeze({ w: 800, h: 600 });
 
 export const ADJUST_DEFAULT = { mode: 'dodge', amount: 8 };
 
