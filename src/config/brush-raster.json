@@ -2,6 +2,7 @@
   "sourceMaximumSide": 512,
   "grainDecodeMaximumSide": 2048,
   "grainScaleDivisor": 16,
+  "opacityAccumulatorTileSide": 32,
   "radialMaskCache": {
     "minimumDiameter": 256,
     "maximumPixels": 300000
