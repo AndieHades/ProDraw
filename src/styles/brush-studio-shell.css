@@ -25,7 +25,9 @@ dialog.raster-modal::backdrop { background: rgba(4, 5, 8, .65); backdrop-filter:
 .brush-studio-body > nav { padding: 10px; overflow: auto; border-right: 1px solid var(--line); }
 .brush-studio-body > nav button { display: block; width: 100%; text-align: left; }
 .brush-studio-body button.selected { background: var(--accent); color: var(--on-accent); }
-.studio-controls { display: grid; align-content: start; gap: 16px; padding: 16px; overflow: auto; }
+.studio-controls { display: grid; align-content: start; min-width: 0; gap: 16px;
+  padding: 16px; overflow-x: hidden; overflow-y: auto; }
+.studio-controls > * { min-width: 0; box-sizing: border-box; }
 .studio-control { display: grid; grid-template-columns: 1fr auto; gap: 6px; color: var(--txt2); }
 .studio-control output { color: var(--txt); }
 .studio-control input[type="range"] { grid-column: 1 / -1; }
@@ -35,7 +37,7 @@ dialog.raster-modal::backdrop { background: rgba(4, 5, 8, .65); backdrop-filter:
 }
 .studio-source { display: grid; gap: 10px; }
 .studio-source header { display: flex; align-items: center; justify-content: space-between; }
-.studio-source canvas { width: 100%; height: 140px; object-fit: contain;
+.studio-source canvas { width: 100%; height: 140px; box-sizing: border-box; object-fit: contain;
   border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
 .studio-source-name { overflow: hidden; color: var(--txt2); font-size: var(--type-system);
   text-overflow: ellipsis; white-space: nowrap; }

@@ -5,7 +5,8 @@ import { applyStylusResponse } from "./pressureResponse.ts";
 import { strokeRandom } from "../brush/strokeRandom.ts";
 import { StrokeStabilizer } from "./StrokeStabilizer.ts";
 import rasterConfig from "../../config/brush-raster.json" with { type: "json" };
-import { taperResponse } from "./taperResponse";
+import { taperResponse } from "./taperResponse.ts";
+import { DEFAULT_SHAPE } from "../../config/brushDefaults.ts";
 
 export function rasterDabSpacing(size: number, requested: number): number {
   return Math.max(rasterConfig.dabSpacing.minimumPixels,
@@ -78,10 +79,12 @@ export class StrokePipeline {
     const pathAngle = Math.atan2(directionY, directionX);
     const tiltAngle = Math.hypot(sample.tiltX, sample.tiltY) > 0.01
       ? Math.atan2(sample.tiltY, sample.tiltX) : pathAngle;
-    const shapeAngle = this.#brush.shape.inputStyle === "touch" ? pathAngle : tiltAngle;
+    const shapeInput = this.#brush.shape.inputStyle ?? DEFAULT_SHAPE.inputStyle;
+    const shapeRotation = this.#brush.shape.rotation ?? DEFAULT_SHAPE.rotation;
+    const shapeAngle = shapeInput === "touch" ? pathAngle : tiltAngle;
     const rotation = this.#brush.properties.orientToScreen ? 0 :
-      (this.#brush.shape.relativeToStroke || this.#brush.shape.rotation !== 0
-        ? shapeAngle * this.#brush.shape.rotation : 0);
+      ((this.#brush.shape.relativeToStroke ?? DEFAULT_SHAPE.relativeToStroke) ||
+        shapeRotation !== 0 ? shapeAngle * shapeRotation : 0);
     return { ...sample,
       x: exactPosition ? sample.x : sample.x + directionX * linear - directionY * lateral,
       y: exactPosition ? sample.y : sample.y + directionY * linear + directionX * lateral,

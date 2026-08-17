@@ -1,6 +1,6 @@
 # Brush Studio source and control parity
 
-- Status: `in_progress`
+- Status: `complete`
 - Baseline: `main@c8f2381`, 2026-08-17
 - Scope: bundled/imported Procreate brushes, Brush Studio, compact brush cards,
   Drawing Pad and the shared production brush renderer
@@ -50,7 +50,7 @@ Extend the version-1 preset compatibly, map archive values from the screenshots,
 add controls and make Taper/Shape/Grain/Rendering/Properties alter production
 pixels deterministically. Old preset files receive validated defaults.
 
-### BSP-C — Preview and persistence evidence (`in_progress`)
+### BSP-C — Preview and persistence evidence (`complete`)
 
 Render the Preview tab with the same engine, verify Cancel/Apply and source
 embedding round trips, run full validation and package/smoke Windows desktop.
@@ -76,15 +76,15 @@ embedding round trips, run full validation and package/smoke Windows desktop.
 
 ## Resume Here
 
-- Current stage: `BSP-C`
-- Status: `in_progress`
-- Last completed: screenshot-backed Taper, Shape, Grain, Rendering and
-  Properties controls now import, persist and alter shared raster output
-- Next action: finish Preview/Cancel/Apply evidence, package desktop and run the
-  integrated validation gates
-- Blockers: none; physical Huion trace remains separate F5 acceptance
+- Current stage: none; `BSP-A` through `BSP-C` are complete
+- Status: `complete`
+- Last completed: Preview uses the production renderer; Cancel preserves the
+  source, Apply updates the library, and stored edits survive restart
+- Next action: physical Huion acceptance remains a separate F5 hardware pass
+- Blockers: none
 - Working paths: `src/contracts/brush.ts`, `src/core/brush`, `src/logic/brush`,
   `src/ui/brushes`, `src/config/brushStudio.ts`, `tests/brush`
-- Last checks: 30 brush/stroke files / 76 tests, TypeScript, ESLint, bundle,
-  line-limit and dependency-cycle gates passed
+- Last checks: full validation passed: 128 legacy unit, 441 integration,
+  214 TypeScript and 53 performance tests; desktop package smoke loaded
+  12 brushes and 17 Shape/Grain sources
 - Last updated: 2026-08-17
