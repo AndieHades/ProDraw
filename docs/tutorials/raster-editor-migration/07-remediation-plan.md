@@ -19,7 +19,7 @@ second product roadmap.
 | `F2` | pull forward R5 safety | crash-safe multi-document session | `F1` | done |
 | `F3` | finish R3 performance | bounded render/history/autosave/export | `F1`, `F2` | done |
 | `F4` | finish R3 brushes | truthful `.brush` engine and library workflow | `F1`, `F3` | done |
-| `F5` | finish R3 tablet | robust Huion/touch/stabilizer/Smudge path | `F3`, `F4` | planned |
+| `F5` | finish R3 tablet | robust Huion/touch/stabilizer/Smudge path | `F3`, `F4` | in progress |
 | `F6` | R4 | immutable-source Transform and Liquify | `F3`, `F5` | planned |
 | `F7` | R5 document | layer tree, selections and native Save as Canvas | `F2`, `F6` | planned |
 | `F8` | R5 tools | remaining exact two-column tool registry | `F7` | planned |

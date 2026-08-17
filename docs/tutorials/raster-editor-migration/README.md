@@ -10,16 +10,16 @@ Canonical owner: this package.
 
 - Current stage: `R3 — professional brush studio`
 - Status: `in_progress`
-- Last completed stage: repair slice `F4`
-- Next action: execute repair slice `F5` from `07-remediation-plan.md`; harden
-  pointer sessions, frequency-normalized stabilization and premultiplied Smudge
-- Blockers: none
-- Working paths: `src/systems/input`, `src/logic/stroke`, `src/core/tools`,
-  `src/ui/canvas`, `tests/input`, `tests/stroke`, `tests/smudge`
-- Last checks: F4 full validate passed with 80 TS plus 128 retained legacy tests
-  and 5 performance tests. Packaged renderer smoke loaded all 12 brushes and 8
-  live root Shape/Grain resources through the shared Source Library path.
-- Last updated: `2026-08-16, main@6f4868b`
+- Last completed stage: repair slice `F4`; F5 input checkpoint is complete
+- Next action: finish F5 with exportable Huion Windows Ink traces and the manual
+  pressure/tilt/eraser/barrel/focus-loss/fast-lift device matrix
+- Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace
+- Working paths: `src/systems/drawing`, `src/systems/viewport`,
+  `src/logic/input`, `src/logic/stroke`, `tests/input`, `tests/stroke`
+- Last checks: F5 checkpoint full validate passed with 91 TS, 128 retained legacy
+  and 5 performance tests. Packaged renderer smoke loaded all 12 brushes, 8
+  Shape/Grain resources and the RGBA scenario.
+- Last updated: `2026-08-16, main@e7e44da`
 
 ## Product Outcome
 

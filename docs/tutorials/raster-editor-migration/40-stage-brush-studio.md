@@ -124,8 +124,8 @@ fixture without changing pixels outside dirty bounds and undoes in one step.
   loaded-brush paths differ, input/render/autosave lack bounded budgets, or
   stabilization has no frequency-equivalent real Huion trace. These gaps are
   owned by repair slices `F3..F5` in `07-remediation-plan.md`.
-- Residual R3 is now limited to the F5 device path: predicted replaceable
-  preview, frequency-normalized Huion input and premultiplied-alpha Smudge.
+- Residual R3 is now limited to exportable recorded Huion traces and the manual
+  device matrix; selection/mask wiring follows the F7 document selection owner.
   Remaining panel commands activate in R4/R5 only with raster/undo contracts.
 - Evidence correction: the historical packaged executable smoke only started
   Electron and exited before IPC, preload, window and renderer boot. It remains
@@ -153,3 +153,14 @@ fixture without changing pixels outside dirty bounds and undoes in one step.
   chosen source is embedded into the target brush so that preset stays drawable.
   Packaged smoke decoded 3 Shape plus 5 Grain root resources and full validation
   passed with 80 TypeScript, 128 retained legacy and 5 performance tests.
+- F5 input checkpoint `e7e44da`: one pointer-session owner cancels capture loss,
+  blur, hidden-window, duplicate terminal and mid-stroke barrel transitions.
+  Pen/mouse paint by default; palm-sized contacts are rejected, two-finger touch
+  pans/zooms/rotates, and persisted finger paint is explicit and yields to a
+  second navigation contact without dropping capture.
+- Stabilization is time-normalized across deterministic 60/120/240 Hz traces and
+  flushes a curved multi-sample tail to the exact lift point. Predicted Windows
+  Ink samples use only a replaceable canvas overlay and never enter RGBA/history.
+  Smudge now has per-brush pull/pickup/flow plus workspace strength, premultiplied
+  alpha mixing and an injectable selection/mask clip. Full validation passed with
+  91 TypeScript, 128 retained legacy and 5 performance tests; packaged smoke passed.
