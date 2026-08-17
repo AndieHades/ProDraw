@@ -1746,6 +1746,10 @@ await ta("module-int case 168", async () => {
     for (const id of ['e1', 'e2', 'e3']) await removeDoc(id);
     await new Promise((r) => setTimeout(r, 460));
   }
+  await galScreen.render();
+  const select = document.getElementById('gal-select');
+  assert.equal(select.disabled, true);
+  select.click(); assert.equal(galScreen.isSelecting(), false);
 });
 await ta("module-int case 169", async () => {
   const grid = document.getElementById('gal-grid'), back = document.getElementById('gal-back');

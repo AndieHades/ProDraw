@@ -139,7 +139,10 @@ export async function render() { const grid = gridEl(); grid.innerHTML = '';
   const back = $('gal-back'); back.style.display = viewFolder ? '' : 'none';
   back.textContent = viewFolder ? '‹ ' + (f ? f.name : '') : '‹';
   $('gal-title').style.display = viewFolder ? 'none' : ''; $('gal-title').textContent = rootTitle;
-  await renderGalleryGrid(grid, await childrenOf(viewFolder), tileEl); }
+  const items = await childrenOf(viewFolder);
+  if (!items.length) { selecting = false; selected.clear(); selAnchor = null; }
+  await renderGalleryGrid(grid, items, tileEl); syncSelUi();
+  $('gal-select').disabled = !items.length; }
 
 export async function stackSelected() { if (selected.size < 2) return; const fid = await createFolder(await nextFolderName(t('gallery.folderName')), [...selected], viewFolder); await setSelecting(false); editName(fid); }
 export async function dupSelected() { for (const id of selected) await duplicateItem(id); setSelecting(false); }
