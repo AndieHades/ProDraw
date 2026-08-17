@@ -21,6 +21,8 @@
   — переключаемый эффект слоя/папки и effect-aware быстрый PNG.
 - [Procreate brush parity](tutorials/procreate-brush-parity/README.md) —
   почему `.brush` рисует не как в Procreate и что нужно изменить в движке.
+- [PSD document import](tutorials/psd-document-import/README.md) — единый
+  drag/open workflow, структурные слои, группы, маски, alpha и эффекты PSD.
 - [Реестр планов](tutorials/README.md)
 
 ## Системы

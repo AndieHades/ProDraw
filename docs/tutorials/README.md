@@ -9,3 +9,5 @@
   исполняемый parity-срез для неразрушающего монохрома и PNG слоя/папки.
 - [`procreate-brush-parity/`](procreate-brush-parity/README.md) — разбор и план
   совпадения штриха `.brush` с Procreate на эталоне `lineart.brush`.
+- [`psd-document-import/`](psd-document-import/README.md) — исполняемый
+  вертикальный план открытия PSD новым документом с сохранением структуры.
