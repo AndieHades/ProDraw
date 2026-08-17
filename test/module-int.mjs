@@ -46,6 +46,7 @@ const clip = await import('../src/systems/selection/clipboard.js');
 const xtree = await import('../src/systems/export/tree.js');
 const xrender = await import('../src/systems/export/render.js');
 const xpipe = await import('../src/systems/export/pipeline.js');
+const xbounds = await import('../src/systems/export/bounds.js');
 const { writePsd } = await import('../src/systems/export/psd-write.js');
 const { FORMATS } = await import('../src/systems/export/formats.js');
 const imp = await import('../src/systems/import/convert.js');
@@ -1124,6 +1125,44 @@ await ta("module-int case 133", async () => { exportProject();
     encode: (c, name) => Promise.resolve({ name: name + '.fake', blob: new Blob([new Uint8Array([1])]), mime: 'x/fake', desc: 'fake' }) };
   const out = await xpipe.runExport({ scope: 'project', mode: 'flattened', format: 'fake', canvasBounds: 'current', includeHidden: false });
   got = out[0].name; delete FORMATS.fake; assert.ok(/\.fake$/.test(got)); });
+
+await ta('quick PNG keeps target names, effects and visible folder descendants', async () => {
+  exportProject(); const layer = S.layers[0], folder = S.folders[0];
+  layer.name = 'Hero Colors'; layer.effects = [newEffect('monochrome'),
+    { ...newEffect('glow'), visible: false }];
+  folder.name = 'Effects Pack'; folder.effects = [newEffect('stroke')];
+  const layerRoot = xtree.exportTargetRoot(layer);
+  const folderRoot = xtree.exportTargetRoot(folder);
+  assert.equal(layerRoot.name, 'Hero Colors'); assert.equal(layerRoot.effects.length, 2);
+  assert.equal(layerRoot.effects[1].visible, false);
+  assert.equal(folderRoot.name, 'Effects Pack'); assert.equal(folderRoot.effects.length, 1);
+  assert.deepEqual(folderRoot.children.map((node) => node.name), ['b']);
+  const original = FORMATS.png.encode, seen = [];
+  FORMATS.png.encode = (canvas, name) => { seen.push([canvas.width, canvas.height, name]);
+    return Promise.resolve({ name: `${name}.png`, blob: new Blob([]),
+      mime: 'image/png', desc: 'PNG' }); };
+  try {
+    assert.equal((await xpipe.exportTargetPng(layer, false)).name, 'Hero Colors.png');
+    assert.equal((await xpipe.exportTargetPng(folder, false)).name, 'Effects Pack.png');
+  } finally { FORMATS.png.encode = original; }
+  assert.deepEqual(seen, [[6, 6, 'Hero Colors'], [6, 6, 'Effects Pack']]);
+});
+
+t('PNG trim bounds include the alpha reach of final visible effects', () => {
+  resetWH(6, 6); S.layers[0].grid[2][2] = [255, 0, 0, 255];
+  const grid = bakeGrid(S.layers[0].grid,
+    [newEffect('stroke', { size: 1, color: '#00ff00' }),
+      newEffect('monochrome')], [], 6, 6);
+  const data = new Uint8ClampedArray(6 * 6 * 4);
+  for (let y = 0; y < 6; y++) for (let x = 0; x < 6; x++) {
+    const color = grid[y][x]; if (!color) continue; const offset = (y * 6 + x) * 4;
+    data.set(color, offset);
+  }
+  const finalComposite = { width: 6, height: 6,
+    getContext: () => ({ getImageData: () => ({ data }) }) };
+  assert.deepEqual(xbounds.visibleBounds(finalComposite),
+    { minx: 1, miny: 1, maxx: 3, maxy: 3 });
+});
 
 t("module-int case 134", () => {
   const data = new Uint8ClampedArray(4 * 4 * 4);
@@ -2991,6 +3030,14 @@ t("module-int case 284", () => { resetWH(8, 8); layers.mount(); effects.mount();
   assert.equal(document.getElementById('lctx-copy-fx').disabled, false);
   assert.equal(document.getElementById('lctx-paste-fx').disabled, false);
   fxShared.setFxClip([]);
+});
+t('folder context menu exposes whole-canvas and cropped PNG actions', () => {
+  exportProject(); layers.mount(); document.getElementById('lay-pop').classList.add('on'); layList();
+  const row = document.querySelector('#lay-list .frow[data-fid="1"]');
+  row.dispatchEvent(new window.MouseEvent('contextmenu',
+    { bubbles: true, cancelable: true, clientY: 120 }));
+  assert.notEqual(document.getElementById('lctx-png-full').style.display, 'none');
+  assert.notEqual(document.getElementById('lctx-png-tight').style.display, 'none');
 });
 t("module-int case 285", () => {
   resetWH(8, 8); layers.mount(); tfl.mount(); tmDialog.mount(); S.tilesets = []; S.tilesetSeq = 0;

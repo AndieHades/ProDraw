@@ -34,7 +34,8 @@ export function openLctx(x, y, kind, ref) { lctxRef = { kind, ref };
   for (const id of ['lctx-ren', 'lctx-dup', 'lctx-symm', 'lctx-rotate', 'lctx-copy-fx', 'lctx-paste-fx']) showItem(id, !isBg);
   showItem('lctx-mono', false); showItem('lctx-bc', false);
   showItem('lctx-ung', isFolder); showItem('lctx-clip', isLayer);
-  for (const id of ['lctx-select', 'lctx-invert', 'lctx-lock', 'lctx-alpha', 'lctx-ref', 'lctx-png-full', 'lctx-png-tight']) showItem(id, isLayer);
+  for (const id of ['lctx-select', 'lctx-invert', 'lctx-lock', 'lctx-alpha', 'lctx-ref']) showItem(id, isLayer);
+  for (const id of ['lctx-png-full', 'lctx-png-tight']) showItem(id, isLayer || isFolder);
   showItem('lctx-tile', isTm);
   showItem('lctx-del', !isBg); showItem('lctx-fill', true); showItem('lctx-clear', true); // фон не удаляется
   if (isLayer) for (const id of LAYER_MENU_HIDDEN) showItem(id, false);
@@ -77,8 +78,8 @@ export function mountMenu() {
   $('lctx-alpha').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer') toggleAlphaLock(lctxRef.ref); };
   $('lctx-ref').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer') toggleReference(lctxRef.ref); };
   $('lctx-del').onclick = () => { close(); if (!lctxRef) return; if (lctxRef.kind === 'folder') deleteFolder(lctxRef.ref); else deleteLayerRef(lctxRef.ref); };
-  $('lctx-png-full').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer') actions.run('export.layer', lctxRef.ref, false); };
-  $('lctx-png-tight').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer') actions.run('export.layer', lctxRef.ref, true); };
+  $('lctx-png-full').onclick = () => { close(); if (lctxRef && ['layer', 'folder'].includes(lctxRef.kind)) actions.run('export.targetPng', lctxRef.ref, false); };
+  $('lctx-png-tight').onclick = () => { close(); if (lctxRef && ['layer', 'folder'].includes(lctxRef.kind)) actions.run('export.targetPng', lctxRef.ref, true); };
   $('lctx-ung').onclick = () => { close();
     if (lctxRef?.kind === 'folder') ungroupFolder(lctxRef.ref); };
   $('ren-ok').onclick = () => { if (renRef) { const v = $('ren-name').value.trim();

@@ -1,7 +1,7 @@
 # Stage ME-2: Effect-aware Layer and Folder PNG
 
 - Stable id: `ME-2`
-- Status: `in_progress`
+- Status: `done`
 - Depends on: `ME-1`
 - Requirements: `PNG-01`, `PNG-02`, `PNG-03`, `PNG-04`
 
@@ -39,4 +39,11 @@ remain exact for a single quick output. Save cancellation remains silent.
 
 ## Completion record
 
-- Commit/checks: pending
+- Commit: `fix: export layer and folder effects to png` (this stage commit).
+- Both quick actions now resolve a layer/folder export root and flatten it
+  through shared `paintStack`; no separate effect renderer was introduced.
+- Layer/folder exact names, effect metadata/visibility, visible folder children,
+  whole-canvas dimensions, final-effect trim reach and both folder menu actions
+  have integration evidence.
+- Checks: 447 module-integration; TypeScript check; targeted ESLint; interface,
+  docs and line validators.

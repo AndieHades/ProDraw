@@ -37,7 +37,7 @@ monochrome is idempotent; empty layers/folders stay empty; alpha is unchanged.
 
 ## Completion record
 
-- Commit: `feat: add monochrome layer effect` (this stage commit).
+- Commit: `5193fa8` (`feat: add monochrome layer effect`).
 - Shared `monochromeColor`/`monochromeRgba` now power destructive edits,
   bounded live effects and merge/folder bake paths.
 - Exact Rec.601, alpha, source immutability, folder-style propagation,

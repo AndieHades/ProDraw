@@ -25,7 +25,9 @@
 
 ## Final record
 
-- Stage commits: pending
+- Stage commits: plan `16dcb8d`; ME-1 `5193fa8`; ME-2 this stage commit
 - Checks: ME-1 passed 129 unit, 444 integration, focused Vitest 10,
   TypeScript check, targeted ESLint and docs/lines/cycles
-- Skipped checks and residual risks: pending
+- ME-2 checks: 447 integration, TypeScript, targeted ESLint, interface,
+  docs and lines passed
+- Aggregate validation, build and final residual-risk record: pending

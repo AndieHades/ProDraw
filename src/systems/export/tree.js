@@ -14,6 +14,15 @@ function folderNode(f, includeHidden) {
   return { kind: 'folder', name: f.name || 'Group', fid: f.id, folder: f, visible: f.visible !== false, open: f.open !== false, effects: f.effects || [], children: childNodes(f.id, includeHidden) };
 }
 
+export function exportTargetRoot(target, includeHidden = false) {
+  const index = S.layers.indexOf(target);
+  if (index >= 0) return includeHidden || target.visible !== false
+    ? layerNode(target, index) : null;
+  const folder = S.folders.find((item) => item === target || item.id === target?.id);
+  return folder && (includeHidden || folder.visible !== false)
+    ? folderNode(folder, includeHidden) : null;
+}
+
 // прямые дети папки parentFid (null = корень) в порядке стопки (низ→верх)
 function childNodes(parentFid, includeHidden) {
   const items = [];

@@ -1,10 +1,9 @@
 // Единый пайплайн экспорта: Scope → ExportDocument → Mode → Format → Save.
 // Никаких отдельных веток «экспорт слоя/папки/проекта» — режим и формат
 // комбинируются над одним и тем же документом.
-import { S } from '../../core/state.js';
 import { saveFile } from '../../core/io.js';
 import { toast, t } from '../../core/dom.js';
-import { buildExportDoc, docName } from './tree.js';
+import { buildExportDoc, docName, exportTargetRoot } from './tree.js';
 import { flattenNodes } from './render.js';
 import { applyBounds, visibleBounds, unionBounds, cropTo } from './bounds.js';
 import { FORMATS } from './formats.js';
@@ -52,10 +51,16 @@ export async function runExport(opts) {
   return outputs;
 }
 
-// Совместимость: быстрый экспорт одного слоя в PNG (меню слоя «весь холст / по контуру»).
-export async function exportSingleLayer(L, tight) {
-  const i = S.layers.indexOf(L); if (i < 0) return;
-  const node = { kind: 'layer', name: L.name || 'layer', idx: i, visible: true, opacity: L.opacity, effects: L.effects || [] };
-  const canvas = applyBounds(flattenNodes([node], true), tight ? 'trim' : 'current');
-  await saveOne(await FORMATS.png.encode(canvas, L.name || 'layer'));
+// Быстрый PNG из RMB слоя/папки использует тот же effect-aware композит, что
+// общий Export. Обрезка считается только после финального рендера.
+export async function exportTargetPng(target, tight) {
+  const node = exportTargetRoot(target, false); if (!node) return null;
+  const rendered = flattenNodes([node], false);
+  const bounds = tight ? visibleBounds(rendered) : null;
+  if (tight && !bounds) { toast(t('toast.exportEmpty')); return null; }
+  const canvas = tight ? cropTo(rendered, bounds) : rendered;
+  const output = await FORMATS.png.encode(canvas, node.name);
+  await saveOne(output); return output;
 }
+
+export const exportSingleLayer = exportTargetPng;

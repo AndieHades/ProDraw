@@ -10,17 +10,17 @@ parity slice; the later typed RGBA owner cutover remains in the parent plan.
 
 ## Resume Here
 
-- Current stage: `ME-2 — effect-aware layer and folder PNG`
+- Current stage: final verification and delivery
 - Status: `in_progress`
-- Last completed stage: `ME-1 — non-destructive monochrome effect`
-- Next action: route layer/folder quick PNG through one target tree and prove
-  visible effects, hidden exclusions, trim bounds and entity-derived names
+- Last completed stage: `ME-2 — effect-aware layer and folder PNG`
+- Next action: run the aggregate repository gate, record exact commits, fetch
+  once more, push current `main` and mark this package done
 - Blockers: none
 - Working paths: `src/logic`, `src/core/effect-*`, `src/systems/effects`,
   `src/systems/export`, `src/systems/layers/menu.js`, `index.html`,
   `test/module-int.mjs`
-- Last checks: 129 unit, 444 module-integration, effect/performance Vitest 10,
-  TypeScript check, targeted ESLint, docs/lines/cycles all passed
+- Last checks: ME-2 reached 447 module-integration checks; TypeScript, targeted
+  ESLint, interface, docs and line validators passed
 - Last updated: `2026-08-17`
 
 ## Scope
@@ -41,7 +41,7 @@ parity slice; the later typed RGBA owner cutover remains in the parent plan.
 | Stage | Chapter | Status | Commit |
 | --- | --- | --- | --- |
 | `ME-1` | [`10-stage-monochrome-effect.md`](10-stage-monochrome-effect.md) | done | `feat: add monochrome layer effect` |
-| `ME-2` | [`20-stage-png-export.md`](20-stage-png-export.md) | in progress | `fix: export layer and folder effects to png` |
+| `ME-2` | [`20-stage-png-export.md`](20-stage-png-export.md) | done | `fix: export layer and folder effects to png` |
 
 ## Completion Definition
 
