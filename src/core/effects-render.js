@@ -1,7 +1,8 @@
 import { alphaMask, effectRegionFromMask,
   gridMask } from '../logic/effect-surface-region.js';
 import { buildCanvasEffectSurface, buildCanvasEffects, buildGridEffectSurface,
-  folderEffectSurface, visibleAdjustments, visiblePixelEffects } from './effect-canvas.js';
+  folderEffectSurface, visibleAdjustments, visibleColorEffects,
+  visibleMonochromes, visiblePixelEffects } from './effect-canvas.js';
 import { layerEffectSource } from './effect-layer-source.js';
 import { createEffectSurface, drawEffectSurface, materializeEffectSurface,
   unionEffectBounds } from './effect-surface.js';
@@ -17,7 +18,7 @@ const effectsFor = (target) => {
 
 export const layerEffectsFor = (layer) => effectsFor(layer);
 export const folderEffectsFor = (folder) => effectsFor(folder);
-export { visibleAdjustments, visiblePixelEffects };
+export { visibleAdjustments, visibleColorEffects, visiblePixelEffects };
 
 export function layerAdjustmentEffects(index) {
   const layer = S.layers[index]; if (!layer) return [];
@@ -32,7 +33,7 @@ export function layerRenderEffects(index) {
   const layer = S.layers[index]; if (!layer) return [];
   const result = [];
   for (const folder of folderChain(layer.fid).slice().reverse()) {
-    result.push(...visibleAdjustments(folderEffectsFor(folder)));
+    result.push(...visibleColorEffects(folderEffectsFor(folder)));
   }
   result.push(...layerEffectsFor(layer)); return result;
 }
@@ -122,9 +123,12 @@ export function folderFx(folder, which) {
   if (!pixels.some((effect) => which === 'above'
     ? effect.type === 'innerShadow' : effect.type !== 'innerShadow')) return null;
   const key = `${folder.id}|${which}`;
-  const signature = `${S.W}x${S.H}|${memberSignature(folder.id)}|${JSON.stringify(pixels)}`;
+  const inherited = folderChain(folder.id).slice().reverse().flatMap((item) =>
+    visibleMonochromes(folderEffectsFor(item)));
+  const rendered = [...pixels, ...inherited];
+  const signature = `${S.W}x${S.H}|${memberSignature(folder.id)}|${JSON.stringify(rendered)}`;
   const hit = folderCache.get(key); if (hit?.signature === signature) return hit.surface;
-  const surface = folderEffectSurface(groupSurface(folder.id), effects,
+  const surface = folderEffectSurface(groupSurface(folder.id), rendered,
     which, documentBounds());
   folderCache.set(key, { signature, surface }); return surface;
 }

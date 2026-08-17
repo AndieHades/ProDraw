@@ -16,6 +16,7 @@ import { computeGlow } from '../src/logic/glow.js';
 import { outlineRings } from '../src/logic/outline.js';
 import { bcAdjust, contrastFactor } from '../src/logic/bc.js';
 import { adjustColor } from '../src/logic/adjustment.js';
+import { monochromeColor, monochromeRgba } from '../src/logic/monochrome.js';
 import { generateTints, generateShades, generateHarmonyBaseColors, generateTintShadeScalesForHarmony } from '../src/logic/tint-shade.js';
 import { sortPalette } from '../src/logic/palette-sort.js';
 import { polygonToMask } from '../src/logic/poly-mask.js';
@@ -255,6 +256,12 @@ t("unit case 039", () => { const c = adjustColor([100, 50, 50, 128], { saturatio
   assert.deepEqual(c, [100, 100, 100, 128]); });
 t("unit case 040", () => { const c = adjustColor([255, 0, 0, 255], { hue: 120 });
   assert.deepEqual(c, [0, 255, 0, 255]); });
+t('monochrome: Rec.601 conversion preserves alpha for cells and RGBA buffers', () => {
+  assert.deepEqual(monochromeColor([255, 0, 0, 128]), [76, 76, 76, 128]);
+  const rgba = new Uint8ClampedArray([0, 255, 0, 64, 7, 8, 9, 0]);
+  monochromeRgba(rgba);
+  assert.deepEqual([...rgba], [150, 150, 150, 64, 7, 8, 9, 0]);
+});
 t("unit case 041", () => {
   const src = new Int32Array([0, 0, 0, 0xff0000ff | 0]);
   const r = rotSprite(src, 2, 2, 0, 1);

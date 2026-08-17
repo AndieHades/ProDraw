@@ -57,7 +57,9 @@ function writeRegion(layer, region, color) {
 
 export function convertFxToLayer(target, effect) {
   if (!target || !effect) return;
-  if (effect.type === 'adjustment') { toast(t('toast.adjustmentNoLayer')); return; }
+  if (['adjustment', 'monochrome'].includes(effect.type)) {
+    toast(t('toast.adjustmentNoLayer')); return;
+  }
   const effectIndex = (target.effects || []).indexOf(effect);
   if (effectIndex < 0) return;
   const region = targetEffectRegion(target, effect);

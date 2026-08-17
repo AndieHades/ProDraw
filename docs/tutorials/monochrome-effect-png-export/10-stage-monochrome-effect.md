@@ -1,7 +1,7 @@
 # Stage ME-1: Non-destructive Monochrome Effect
 
 - Stable id: `ME-1`
-- Status: `in_progress`
+- Status: `done`
 - Depends on: evidence baseline
 - Requirements: `MONO-01`, `MONO-02`, `MONO-03`
 
@@ -37,4 +37,10 @@ monochrome is idempotent; empty layers/folders stay empty; alpha is unchanged.
 
 ## Completion record
 
-- Commit/checks: pending
+- Commit: `feat: add monochrome layer effect` (this stage commit).
+- Shared `monochromeColor`/`monochromeRgba` now power destructive edits,
+  bounded live effects and merge/folder bake paths.
+- Exact Rec.601, alpha, source immutability, folder-style propagation,
+  Apply/Undo/eye/clone and hidden-effect cases pass.
+- Checks: 129 unit; 444 module-integration; focused effect/performance Vitest
+  5 files/10 tests; TypeScript check; targeted ESLint; docs/lines/cycles.

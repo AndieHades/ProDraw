@@ -7,6 +7,10 @@ import { cropEffectSurface, fullCanvasSurface, isEffectSurface,
 
 export const visibleAdjustments = (effects = []) => effects.filter(
   (effect) => effect.visible !== false && effect.type === 'adjustment');
+export const visibleMonochromes = (effects = []) => effects.filter(
+  (effect) => effect.visible !== false && effect.type === 'monochrome');
+export const visibleColorEffects = (effects = []) => [
+  ...visibleAdjustments(effects), ...visibleMonochromes(effects)];
 
 const PIXEL_TYPES = new Set(['stroke', 'glow', 'dropShadow', 'innerShadow']);
 export const visiblePixelEffects = (effects = []) => effects.filter(
@@ -55,8 +59,9 @@ export function folderEffectSurface(value, effects, which, clipBounds = null) {
   const filtered = visiblePixelEffects(effects).filter((effect) => (
     which === 'above' ? INNER_EFFECTS.has(effect.type) :
       !INNER_EFFECTS.has(effect.type)));
+  const rendered = [...filtered, ...visibleMonochromes(effects)];
   let mask = null;
-  return composeEffectSurface(source, filtered, (effect) => {
+  return composeEffectSurface(source, rendered, (effect) => {
     if (!mask) {
       const image = source.canvas.getContext('2d').getImageData(
         0, 0, source.canvas.width, source.canvas.height);

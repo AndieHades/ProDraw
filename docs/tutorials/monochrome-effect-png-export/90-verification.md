@@ -26,5 +26,6 @@
 ## Final record
 
 - Stage commits: pending
-- Checks: baseline `node test/module-int.mjs` — 441 passed
+- Checks: ME-1 passed 129 unit, 444 integration, focused Vitest 10,
+  TypeScript check, targeted ESLint and docs/lines/cycles
 - Skipped checks and residual risks: pending

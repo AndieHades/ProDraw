@@ -9,23 +9,23 @@ import { toast, t } from '../core/dom.js';
 import { rasterizeTextTargets } from '../core/text-rasterize.js';
 import { isTextLayer } from '../logic/text-model.js';
 import { forkRasterRows } from '../logic/raster-row-fork.js';
-
-const lum = (c) => Math.round(c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114);
+import { monochromeColor } from '../logic/monochrome.js';
 
 export function toMono(L) { const g = L.grid;
   for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) { const c = g[y][x]; if (!c) continue;
-    const v = lum(c); g[y][x] = c.length > 3 ? [v, v, v, c[3]] : [v, v, v]; }
-  for (const [k, c] of L.ext) { const v = lum(c); L.ext.set(k, c.length > 3 ? [v, v, v, c[3]] : [v, v, v]); } }
+    g[y][x] = monochromeColor(c); }
+  for (const [k, c] of L.ext) L.ext.set(k, monochromeColor(c)); }
 
 function boundedMono(index, record = true, fork = null) {
   const L = S.layers[index], bounds = layerContentBounds(index); if (!bounds) return;
   let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
   for (let y = bounds.miny; y <= bounds.maxy; y++) for (let x = bounds.minx; x <= bounds.maxx; x++) {
-    const c = L.grid[y]?.[x]; if (!c) continue; const v = lum(c);
+    const c = L.grid[y]?.[x]; if (!c) continue;
+    const next = monochromeColor(c), v = next[0];
     if (c[0] === v && c[1] === v && c[2] === v) continue;
     if (record) recordPixelBefore(index, x, y, c);
     const row = fork?.writableRow(y) || L.grid[y];
-    row[x] = c.length > 3 ? [v, v, v, c[3]] : [v, v, v];
+    row[x] = next;
     if (x < minx) minx = x; if (x > maxx) maxx = x;
     if (y < miny) miny = y; if (y > maxy) maxy = y;
   }
@@ -49,8 +49,7 @@ function beginReferenceEdit(layers, indices) {
 }
 
 function monoExt(layer) {
-  for (const [key, c] of layer.ext) { const v = lum(c);
-    layer.ext.set(key, c.length > 3 ? [v, v, v, c[3]] : [v, v, v]); }
+  for (const [key, c] of layer.ext) layer.ext.set(key, monochromeColor(c));
 }
 
 function applyMono(targets) {

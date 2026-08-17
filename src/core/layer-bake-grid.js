@@ -2,11 +2,14 @@ import { adjustColor } from '../logic/adjustment.js';
 import { hexToRgb } from '../logic/color.js';
 import { effectRegionFromGrid } from '../logic/effect-region.js';
 import { EFFECT_PIXELS, INNER_EFFECTS } from '../logic/layer-effects.js';
+import { monochromeColor } from '../logic/monochrome.js';
 import { blank, gridBounds, mergeCells } from '../logic/raster.js';
 
 const alpha = (cell) => cell ? (cell[3] ?? 255) : 0;
 const visibleAdjustments = (effects) => effects.filter((effect) =>
   effect.visible !== false && effect.type === 'adjustment');
+const hasMonochrome = (effects) => effects.some((effect) =>
+  effect.visible !== false && effect.type === 'monochrome');
 const visiblePixelEffects = (effects) => effects.filter((effect) =>
   effect.visible !== false && EFFECT_PIXELS[effect.type]);
 
@@ -49,6 +52,18 @@ function adjustedGrid(source, effects, width, height) {
   return output;
 }
 
+export function applyMonochromeEffects(grid, effects) {
+  if (!hasMonochrome(effects || [])) return grid;
+  const bounds = gridBounds(grid); if (!bounds) return grid;
+  for (let y = bounds.miny; y <= bounds.maxy; y++) {
+    const row = grid[y];
+    for (let x = bounds.minx; x <= bounds.maxx; x++) {
+      if (row?.[x]) row[x] = monochromeColor(row[x]);
+    }
+  }
+  return grid;
+}
+
 function drawPixelEffect(target, source, effect, width, height, innerSource) {
   const bounds = gridBounds(source);
   const region = effectRegionFromGrid(source, bounds, width, height, effect);
@@ -63,20 +78,21 @@ function drawPixelEffect(target, source, effect, width, height, innerSource) {
   }
 }
 
-export function bakeGrid(source, ownEffects, inheritedAdjustments, width, height) {
+export function bakeGrid(source, ownEffects, inheritedColorEffects, width, height) {
   const output = blank(width, height), effects = ownEffects || [];
   for (const effect of visiblePixelEffects(effects)) {
     if (!INNER_EFFECTS.has(effect.type))
       drawPixelEffect(output, source, effect, width, height, null);
   }
   const adjusted = adjustedGrid(source,
-    [...(inheritedAdjustments || []), ...effects], width, height);
+    [...(inheritedColorEffects || []), ...effects], width, height);
   drawBoundedGrid(output, adjusted, 1, width, height);
   for (const effect of visiblePixelEffects(effects)) {
     if (INNER_EFFECTS.has(effect.type))
       drawPixelEffect(output, source, effect, width, height, adjusted);
   }
-  return output;
+  return applyMonochromeEffects(output,
+    [...(inheritedColorEffects || []), ...effects]);
 }
 
 export function clipGridToAlpha(source, mask, width, height) {

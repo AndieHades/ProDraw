@@ -1,7 +1,7 @@
 # Stage ME-2: Effect-aware Layer and Folder PNG
 
 - Stable id: `ME-2`
-- Status: `pending`
+- Status: `in_progress`
 - Depends on: `ME-1`
 - Requirements: `PNG-01`, `PNG-02`, `PNG-03`, `PNG-04`
 

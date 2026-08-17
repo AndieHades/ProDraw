@@ -1,6 +1,7 @@
 import { adjustColor } from '../logic/adjustment.js';
 import { hexToRgb } from '../logic/color.js';
 import { INNER_EFFECTS } from '../logic/layer-effects.js';
+import { monochromeRgba } from '../logic/monochrome.js';
 import { makeCanvas, paintCanvas } from './canvas.js';
 import { createEffectSurface, unionEffectBounds } from './effect-surface.js';
 
@@ -25,6 +26,14 @@ function adjustedCanvas(source, effects) {
     data[offset + 2] = color[2]; data[offset + 3] = color[3] ?? data[offset + 3];
   }
   context.putImageData(image, 0, 0); return canvas;
+}
+
+function applyMonochrome(canvas, effects) {
+  if (!effects.some((effect) => effect.visible !== false &&
+    effect.type === 'monochrome')) return;
+  const context = canvas.getContext('2d');
+  const image = context.getImageData(0, 0, canvas.width, canvas.height);
+  monochromeRgba(image.data); context.putImageData(image, 0, 0);
 }
 
 function regionCanvas(region, effect, source, inner) {
@@ -58,7 +67,8 @@ export function composeEffectSurface(source, effects, regionFor,
   const pixelEntries = [];
   let bounds = includeSource ? source.bounds : null;
   for (const effect of effects) {
-    if (effect.visible === false || effect.type === 'adjustment') continue;
+    if (effect.visible === false || ['adjustment', 'monochrome'].includes(
+      effect.type)) continue;
     const region = regionFor(effect); if (!region) continue;
     pixelEntries.push({ effect, region });
     bounds = unionEffectBounds(bounds, region.bounds);
@@ -75,5 +85,5 @@ export function composeEffectSurface(source, effects, regionFor,
   for (const entry of pixelEntries) {
     if (INNER_EFFECTS.has(entry.effect.type)) drawRegion(context, output, source, entry);
   }
-  context.globalAlpha = 1; return output;
+  context.globalAlpha = 1; applyMonochrome(output.canvas, effects); return output;
 }

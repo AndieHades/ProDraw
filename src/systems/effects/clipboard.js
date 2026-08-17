@@ -43,7 +43,7 @@ export function pasteFx() { const clip = getFxClip(); if (!clip.length) { toast(
 
 export function openFxMenu(x, y, target, eff) {
   ref = { target, eff };
-  $('fxctx-aslayer').style.display = eff && eff.type === 'adjustment' ? 'none' : '';
+  $('fxctx-aslayer').style.display = eff && ['adjustment', 'monochrome'].includes(eff.type) ? 'none' : '';
   showMenuBeside($('fxctx'), $('lay-pop'), y);
 }
 

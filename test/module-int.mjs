@@ -78,7 +78,9 @@ const effects = await import('../src/systems/effects/index.js');
 const fxShared = await import('../src/systems/effects/shared.js');
 const fxr = await import('../src/core/effects-render.js');
 const fxlogic = await import('../src/logic/layer-effects.js');
-const { EFFECT_TYPES } = await import('../src/config/defaults.js');
+const { bakeGrid } = await import('../src/core/layer-bake-grid.js');
+const { bakeFolder } = await import('../src/core/layer-bake.js');
+const { EFFECT_FIELDS, EFFECT_TYPES } = await import('../src/config/defaults.js');
 const { tileGridKey } = await import('../src/logic/tileset-data.js');
 const adjust = await import('../src/systems/draw/adjust.js');
 const crop = await import('../src/systems/crop.js');
@@ -798,6 +800,38 @@ t("module-int case 076", () => { resetWH(4, 4);
   const folderAdj = newEffect('adjustment', { brightness: 50 });
   S.layers[0].effects = []; S.layers[0].fid = 1; S.folders = [{ id: 1, name: 'G', open: true, visible: true, parent: null, effects: [folderAdj] }];
   cache.dirtyAll(); assert.deepEqual(fxr.layerRenderEffects(0), [folderAdj]); assert.notEqual(cache.layerSrcCanvas(0), cache.layerCanvas(0)); });
+
+t('monochrome effect matches Rec.601 without changing source pixels', () => {
+  resetWH(4, 4); const source = [255, 0, 0, 128];
+  S.layers[0].grid[1][1] = source.slice();
+  const effect = newEffect('monochrome'); S.layers[0].effects = [effect];
+  assert.deepEqual(fxr.layerRenderEffects(0), [effect]);
+  assert.deepEqual(bakeGrid(S.layers[0].grid, [effect], [], 4, 4)[1][1],
+    [76, 76, 76, 128]);
+  assert.deepEqual(S.layers[0].grid[1][1], source);
+  effect.visible = false;
+  assert.deepEqual(bakeGrid(S.layers[0].grid, [effect], [], 4, 4)[1][1], source);
+  assert.deepEqual(S.layers[0].grid[1][1], source);
+});
+
+t('outer folder monochrome covers child content and nested folder styles', () => {
+  resetWH(5, 5); S.layers[0].fid = 2; S.layers[0].grid[2][2] = [255, 0, 0, 255];
+  const outerMono = newEffect('monochrome');
+  const innerStroke = newEffect('stroke', { size: 1, color: '#00ff00' });
+  S.folders = [
+    { id: 1, name: 'Outer', open: true, visible: true, parent: null,
+      effects: [outerMono] },
+    { id: 2, name: 'Inner', open: true, visible: true, parent: 1,
+      effects: [innerStroke] },
+  ];
+  let rendered = bakeFolder(S.folders[0]).grid;
+  assert.deepEqual(rendered[2][2], [76, 76, 76, 255]);
+  assert.deepEqual(rendered[2][1], [150, 150, 150, 255]);
+  outerMono.visible = false;
+  rendered = bakeFolder(S.folders[0]).grid;
+  assert.deepEqual(rendered[2][2], [255, 0, 0, 255]);
+  assert.deepEqual(rendered[2][1], [0, 255, 0, 255]);
+});
 
 t("module-int case 077", () => { resetWH(4, 4);
   S.layers[0].grid[1][1] = [9, 9, 9, 255]; S.layers[0].grid[2][2] = [8, 8, 8, 255]; S.palette = [[9, 9, 9], [8, 8, 8]]; cache.dirtyAll();
@@ -2360,12 +2394,29 @@ t("module-int case 212", () => { effects.mount(); resetWH(8, 8); S.undoStack.len
 t("module-int case 213", () => { resetWH(8, 8); S.active = [12, 34, 56];
   for (const type of EFFECT_TYPES) {
     document.querySelector(`#fx-types button[data-fx="${type}"]`).click();
-    assert.equal(S.fxDraft.eff.params.color, '#0c2238'); document.getElementById('fx-cancel').click();
+    if (EFFECT_FIELDS[type].includes('color'))
+      assert.equal(S.fxDraft.eff.params.color, '#0c2238');
+    else assert.deepEqual(S.fxDraft.eff.params, {});
+    document.getElementById('fx-cancel').click();
   } });
 
 t("module-int case 214", () => { resetWH(8, 8); S.layers[0].grid[4][4] = [1, 1, 1, 255]; cache.dirtyAll();
   document.querySelector('#fx-types button[data-fx="stroke"]').click(); document.getElementById('fx-apply').click();
   assert.equal(S.layers[0].effects.length, 1); history.doUndo(); assert.equal(S.layers[0].effects.length, 0); });
+
+t('monochrome effect Apply, eye toggle, clone and Undo use generic effect state', () => {
+  resetWH(8, 8); S.undoStack.length = 0; S.redoStack.length = 0;
+  S.layers[0].grid[4][4] = [255, 0, 0, 255]; cache.dirtyAll();
+  document.querySelector('#fx-types button[data-fx="monochrome"]').click();
+  assert.equal(S.fxDraft.eff.type, 'monochrome');
+  document.getElementById('fx-apply').click();
+  const effect = S.layers[0].effects[0], cloned = cloneFx([effect])[0];
+  assert.equal(cloned.type, 'monochrome'); assert.deepEqual(cloned.params, {});
+  layList(); document.querySelector('#lay-list .fxrow .eye').click();
+  assert.equal(effect.visible, false);
+  history.doUndo(); assert.equal(S.layers[0].effects[0].visible, true);
+  history.doUndo(); assert.equal(S.layers[0].effects.length, 0);
+});
 
 t("module-int case 215", () => { resetWH(8, 8); effects.mount(); S.undoStack.length = 0; S.redoStack.length = 0;
   const eff = newEffect('stroke', { size: 1, color: '#112233' }); S.layers[0].effects = [eff];

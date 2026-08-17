@@ -66,10 +66,10 @@ export const ru = {
   'label.detail': 'Детализация', 'label.bgTol': 'Отсечение фона', 'label.clean': 'Чистка мусора', 'label.symmetry': 'Симметрия',
   'label.range': 'Диапазон', 'label.intensity': 'Интенсивность', 'label.offsetX': 'Смещение X', 'label.offsetY': 'Смещение Y',
   'label.size': 'Размер', 'label.effect': 'Эффект', 'label.effects': 'Эффекты', 'label.result': 'результат', 'tool.effects': 'Эффекты слоя',
-  'fx.stroke': 'Обводка', 'fx.glow': 'Свечение', 'fx.dropShadow': 'Внешняя тень', 'fx.innerShadow': 'Внутренняя тень', 'fx.adjustment': 'Настройки',
+  'fx.stroke': 'Обводка', 'fx.glow': 'Свечение', 'fx.dropShadow': 'Внешняя тень', 'fx.innerShadow': 'Внутренняя тень', 'fx.monochrome': 'Монохром', 'fx.adjustment': 'Настройки',
   'menu.fxCopy': 'Скопировать эффект', 'menu.fxAsLayer': 'Как слой', 'menu.copyEffects': 'Скопировать эффекты', 'menu.pasteEffect': 'Вставить эффект',
   'toast.fxCopied': 'Эффект скопирован', 'toast.fxPasted': 'Эффект вставлен', 'toast.noFxClipboard': 'Эффект не скопирован', 'toast.fxAdded': 'Эффект добавлен',
-  'toast.noFxToCopy': 'Нет эффектов для копирования', 'toast.fxToLayer': 'Эффект превращён в слой', 'toast.adjustmentNoLayer': 'Настройки остаются редактируемым эффектом',
+  'toast.noFxToCopy': 'Нет эффектов для копирования', 'toast.fxToLayer': 'Эффект превращён в слой', 'toast.adjustmentNoLayer': 'Цветовой эффект остаётся редактируемым',
   'label.strength': 'Сила за штрих', 'label.current': 'Текущая', 'label.history': 'История', 'label.layerOpacity': 'Непрозрачность', 'label.preview': 'Превью',
   'label.reference': 'Референс', 'label.palette': 'Палитра', 'label.paletteN': 'Палитра · {n}',
   // кнопки
