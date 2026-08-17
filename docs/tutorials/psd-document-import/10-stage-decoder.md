@@ -2,7 +2,7 @@
 
 - Stable id: `PSD1`
 - Depends on: `PSD0`
-- Status: `in_progress`
+- Status: `done`
 
 ## Scope
 
@@ -27,6 +27,8 @@ docs and line gates.
 
 ## Completion Record
 
-- Commit: pending
-- Checks: pending
-- Residual risk: pending
+- Commit: this stage commit (`feat: decode structured psd documents`)
+- Checks: 2 PSD files/6 tests, TypeScript, targeted ESLint, cycles,
+  architecture fixtures, docs/lines, Vite build and `npm audit --omit=dev`
+- Residual risk: decoder output is not production-routed until `PSD2`; a real
+  Photoshop-authored fixture remains part of final `PSD4` acceptance

@@ -63,5 +63,8 @@
       "desktop/**",
       "package.json"
     ]
+  },
+  "dependencies": {
+    "ag-psd": "^31.0.2"
   }
 }

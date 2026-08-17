@@ -11,15 +11,16 @@ Authority: PSD dropped or opened anywhere must create a new gallery document
 
 ## Resume Here
 
-- Current stage: `PSD1 — safe structural decoder`
+- Current stage: `PSD2 — new gallery document route`
 - Status: `in_progress`
-- Last completed stage: `PSD0 — live audit and target contract`
-- Next action: replace the partial hand-written reader with a bounded decoder
-  and normalize the decoded tree without mutating editor state
+- Last completed stage: `PSD1 — safe structural decoder` in this stage commit
+- Next action: translate the normalized tree into a fresh gallery work and route
+  Gallery Import, editor File/Ctrl+O and both drop locations through it
 - Blockers: none for code; physical Photoshop comparison remains final manual QA
 - Working paths: `src/core/psd`, `src/contracts`, `src/systems/import`,
   `src/systems/gallery`, `src/core/composite.js`, `tests/psd`
-- Last checks: baseline inspection only; no implementation checks yet
+- Last checks: PSD decoder 2 files/6 tests, TypeScript, targeted ESLint, cycles,
+  architecture fixtures, docs, lines, Vite build and production audit passed
 - Last updated: 2026-08-17
 
 ## Outcome
@@ -55,8 +56,8 @@ they are never replaced with an empty placeholder.
 | Stage | Outcome | Depends on | Status | Commit boundary |
 | --- | --- | --- | --- | --- |
 | `PSD0` | evidence, contract and staged plan | none | done | `docs: plan structural psd import` |
-| `PSD1` | bounded decoder and normalized tree | `PSD0` | in progress | `feat: decode structured psd documents` |
-| `PSD2` | single new-document import transaction | `PSD1` | pending | `feat: open psd as gallery documents` |
+| `PSD1` | bounded decoder and normalized tree | `PSD0` | done | `feat: decode structured psd documents` |
+| `PSD2` | single new-document import transaction | `PSD1` | in progress | `feat: open psd as gallery documents` |
 | `PSD3` | mask, blend and effect-aware runtime | `PSD2` | pending | `feat: render imported psd semantics` |
 | `PSD4` | failure matrix, docs and package proof | `PSD3` | pending | `test: verify psd document import` |
 
