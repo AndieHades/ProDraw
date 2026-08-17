@@ -2244,18 +2244,29 @@ t("module-int case 199", () => { tb.mount(); resetWH(8, 8);
   assert.ok(document.getElementById('t-shape').classList.contains('on'));
 });
 t("module-int case 200", () => {
-  let opened = null; actions.register('ui.brushLibrary', (mode) => { opened = mode; });
+  const opened = []; actions.register('ui.brushLibrary', (mode) => { opened.push(mode); });
   document.getElementById('brush-choice').classList.remove('on');
-  resetWH(8, 8); S.tool = 'eraser'; document.getElementById('t-pencil').click();
-  assert.equal(S.tool, 'pencil'); assert.equal(opened, null);
+  const pencil = document.getElementById('t-pencil');
+  const penTap = () => { const e = new window.MouseEvent('click', { bubbles: true, button: 0 });
+    Object.defineProperty(e, 'pointerType', { value: 'pen' }); pencil.dispatchEvent(e); };
+  resetWH(8, 8); S.tool = 'eraser'; penTap();
+  assert.equal(S.tool, 'pencil'); assert.deepEqual(opened, []);
+  penTap(); assert.deepEqual(opened, ['pencil']);
   assert.ok(!document.getElementById('brush-choice').classList.contains('on'));
   assert.equal(document.querySelectorAll('#brush-choice [data-brush-mode]').length, 2);
-  document.getElementById('t-pencil').dispatchEvent(new window.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-  assert.equal(opened, 'pencil');
+  const beforePencilMenu = opened.length;
+  pencil.dispatchEvent(new window.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+  assert.ok(opened.length > beforePencilMenu); assert.ok(opened.every((mode) => mode === 'pencil'));
+  const beforeEraser = opened.length;
   document.getElementById('t-eraser').click();
-  assert.equal(S.tool, 'eraser'); assert.equal(opened, 'pencil');
+  assert.equal(S.tool, 'eraser'); assert.equal(opened.length, beforeEraser);
   document.getElementById('t-eraser').dispatchEvent(new window.MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-  assert.equal(opened, 'eraser');
+  assert.equal(opened.at(-1), 'eraser');
+
+  S.tool = 'eraser'; opened.length = 0;
+  assert.ok(kbd.handle(ev('KeyB'))); assert.equal(S.tool, 'pencil'); assert.deepEqual(opened, []);
+  assert.equal(kbd.handle(ev('KeyB', { repeat: true })), false); assert.deepEqual(opened, []);
+  assert.ok(kbd.handle(ev('KeyB'))); assert.deepEqual(opened, ['pencil']);
 });
 t("module-int case 201", () => { tb.mount(); resetWH(8, 8);
   for (const [tool, id] of [['eraser', 't-eraser'], ['fill', 't-fill'], ['lasso', 't-lasso']]) {

@@ -16,6 +16,10 @@ tool-panel order; old DOM order and the legacy pixel toolbar are not oracles.
   property and Smudge consumes the selected brush's setting.
 - A command appears enabled only after its raster implementation and undo/error
   contract exist. Stage delivery must not disguise inert placeholders as tools.
+- A pen/mouse tap or `B` first activates Brush from another tool. Repeating the
+  activation opens the compact Brush Library; keyboard auto-repeat does not.
+  Pointer-down outside the library closes it, while its trigger and child menus
+  remain interactive.
 
 ## Exact row order
 

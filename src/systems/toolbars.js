@@ -178,7 +178,8 @@ function toggleSym(flag) { const m = SYM_MODES.find((x) => x.flag === flag); if 
 const activateDefaultBrush = () => activateBrushMode('normal');
 const selOff = () => { if (S.sel) actions.run('select.none'); activateDefaultBrush(); };
 const brushClick = (tool) => {
-  if (tool === 'pencil') activateBrushMode(lastBrushMode);
+  if (tool === 'pencil') { const repeated = S.tool === 'pencil'; activateBrushMode(lastBrushMode);
+    if (repeated) actions.run('ui.brushLibrary', 'pencil'); }
   else if (S.tool === tool) activateDefaultBrush();
   else { actions.run('shading.disable'); setTool(tool); }
 };
@@ -186,7 +187,8 @@ const moveClick = () => { if (S.rotMode) { actions.run('transform.apply'); activ
 
 export function mount() {
   buildToolChoices();
-  $('t-pencil').onclick = () => brushClick('pencil');
+  actions.register('tool.pencil', () => brushClick('pencil'));
+  $('t-pencil').onclick = () => actions.run('tool.pencil');
   $('t-eraser').onclick = () => brushClick('eraser');
   $('t-smudge').onclick = () => brushClick('smudge');
   longPress($('t-pencil'), () => actions.run('ui.brushLibrary', 'pencil')); // ПКМ/долгое нажатие — галерея кистей

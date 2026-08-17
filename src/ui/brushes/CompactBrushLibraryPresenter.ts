@@ -4,6 +4,7 @@ import type { PlatformPort } from "../../contracts/platform";
 import { t } from "../../i18n/raster/translate";
 import { requiredElement } from "../dom/query";
 import { compactBrushTile, disposeCompactBrushTile } from "./CompactBrushTile";
+import { mountCompactBrushPanel } from "./mountCompactBrushPanel";
 import { BrushPreviewQueue } from "./BrushPreviewQueue";
 import type { CompactBrushShellPort } from "./CompactBrushShellPort";
 
@@ -42,8 +43,7 @@ export class CompactBrushLibraryPresenter {
     requiredElement("#brush-import").addEventListener("click", () => void this.importBrush());
     requiredElement("#brush-export").addEventListener("click", () => void this.exportBrush());
     requiredElement("#brush-from-sel").addEventListener("click", () => void this.createBrush());
-    shell.mountFloating(this.#panel, requiredElement("#brush-head"),
-      requiredElement("#brush-rsz"), () => this.close());
+    mountCompactBrushPanel(shell, this.#panel, this.#menu, () => this.close());
     const initial = this.brushes().find(({ id }) => id === this.#activeId);
     if (initial) void this.activate(initial, "pencil");
   }

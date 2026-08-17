@@ -25,8 +25,8 @@ const typing = (t) => !!((t && t.matches && t.matches('input, textarea')) || (t 
 
 export function handle(e) {
   const combo = comboOf(e); if (!combo) return false;
-  if (e.repeat && combo.startsWith('space+')) return false; // удержание Space+X не должно мигать флипом
   const action = keymap[combo];
+  if (e.repeat && (combo.startsWith('space+') || action === 'tool.pencil')) return false;
   if (!action || !actions.has(action)) return false;
   const undoRedo = action === 'edit.undo' || action === 'edit.redo';
   const target = e.target, domTarget = target && typeof target.nodeType === 'number' ? target : null;
