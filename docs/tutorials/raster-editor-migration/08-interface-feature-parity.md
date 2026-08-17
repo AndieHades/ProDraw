@@ -34,12 +34,12 @@ have a behavioural test.
 | Gallery | documents/folders in one grid; open, immediate empty-file persistence, select, stack, duplicate, rename, delete and thumbnails | `F7` | gallery-first boot and full Open/New lifecycle hardened; RGBA port pending |
 | Documents | New/Open/Save/Save As, dirty guard, recovery, recent directory and presets | `F2`, `F7` | partial |
 | Import | photo/file insert or new document, positioning and rotation; no pixelizer | `F7`, `F8` | missing |
-| Export | PNG, PSD, selected layers/folders, whole canvas/by contour and separate files | `F7`, `F8` | partial |
+| Export | PNG, PSD, selected layers/folders, whole canvas/by contour and separate files | `F7`, `F8` | layer/folder effect-aware quick PNG repaired; typed port partial |
 | Brushes | original compact grid, circular engine previews with names, drag, Edit/Duplicate/Delete, `.brush`, Studio and sources | `F4` | original shell + typed Studio live; RGBA owner pending |
 | Brush bar | vertical size/opacity, eyedropper, undo/redo and live value popover | `UI-R`, `F5` | original live; RGBA port pending |
 | Colour | wheel/SV, HEX, previous/current, history, palettes, used colours, shading and T/S/G | `F8` | original live; RGBA port pending |
 | Layers | folders, multi-select, reorder, visibility, opacity, blend, lock, alpha, clipping and reference | `F7` | original live; RGBA port pending |
-| Layer actions | add, duplicate, group, merge, clear, delete, symmetry, effects and contextual save | `F7` | original live; export repair pending |
+| Layer actions | add, duplicate, group, merge, clear, delete, symmetry, effects and contextual save | `F7` | monochrome and contextual layer/folder PNG live; typed port pending |
 | Selection | rectangle/lasso, invert, copy/cut/paste/delete/deselect, move/transform and new layer | `F7` | missing |
 | Transform | move, scale, rotate, flip, centre and crop without cumulative resampling | `F6` | missing |
 | Liquify | immutable-source displacement preview and one high-quality Apply | `F6` | missing |

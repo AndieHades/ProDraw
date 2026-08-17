@@ -39,7 +39,7 @@ remain exact for a single quick output. Save cancellation remains silent.
 
 ## Completion record
 
-- Commit: `fix: export layer and folder effects to png` (this stage commit).
+- Commit: `8b4ca99` (`fix: export layer and folder effects to png`).
 - Both quick actions now resolve a layer/folder export root and flatten it
   through shared `paintStack`; no separate effect renderer was introduced.
 - Layer/folder exact names, effect metadata/visibility, visible folder children,

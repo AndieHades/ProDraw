@@ -25,9 +25,16 @@
 
 ## Final record
 
-- Stage commits: plan `16dcb8d`; ME-1 `5193fa8`; ME-2 this stage commit
+- Stage commits: plan `16dcb8d`; ME-1 `5193fa8`; ME-2 `8b4ca99`
 - Checks: ME-1 passed 129 unit, 444 integration, focused Vitest 10,
   TypeScript check, targeted ESLint and docs/lines/cycles
 - ME-2 checks: 447 integration, TypeScript, targeted ESLint, interface,
   docs and lines passed
-- Aggregate validation, build and final residual-risk record: pending
+- Aggregate: `npm run validate` passed with 129 unit, 447 module-integration,
+  storage/boot, 85 TS files/214 tests, 17 performance files/53 tests, lint,
+  typecheck, all repository validators and production Vite build.
+- Skipped: packaged-desktop smoke, physical Save dialog and screenshots; this
+  slice changes renderer/export contracts, while platform packaging metadata
+  and the production bundle passed. No device-specific behavior changed.
+- Residual boundary: the production recovery bridge is fixed and verified;
+  transfer to the target typed RGBA document stays owned by raster migration.

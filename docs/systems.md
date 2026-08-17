@@ -56,6 +56,12 @@ tile canvases до смены presentation revision. `TileHistory` ограни�
 операций и retained bytes. Измерения и CI ceilings принадлежат
 [`performance-budgets`](project/performance-budgets.md).
 
+В recovery bridge эффект `monochrome` использует тот же чистый Rec.601 helper,
+что разрушающая операция, но хранится в generic effect stack слоя/папки и не
+меняет source pixels. Быстрый PNG слоя и папки строит один visibility-filtered
+export root и проходит через общий `paintStack`; whole-canvas/trim поэтому
+учитывают включённые эффекты и берут имя из выбранного слоя или папки.
+
 Архитектурные фикстуры запрещают DOM-типы в `src/contracts`, импорт mutable
 document/persistence в UI и композицию target systems вне `src/app`. Временный
 `src/app.js` вокруг глобального `S` проверяется legacy/module-int gates как

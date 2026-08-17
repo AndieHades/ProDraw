@@ -46,6 +46,11 @@ end-to-end workflow suitable for daily illustration and game-art use.
   in `05-tool-panel-ui-reference.md`; prove Text drags with the whole panel and
   prevent Pixel Perfect/global stabilization commands from reappearing.
 
+Focused recovery-bridge evidence for non-destructive monochrome and effect-aware
+layer/folder PNG is complete in
+[`monochrome-effect-png-export`](../monochrome-effect-png-export/README.md).
+It closes current-shell parity only; typed RGBA transfer in this stage remains.
+
 ## Context menu contract
 
 | RMB target | Source scope | Default name | Structural result |

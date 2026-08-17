@@ -1,6 +1,6 @@
 # Monochrome Effect and PNG Export
 
-Status: `in_progress`
+Status: `done`
 
 Evidence baseline: `main@a698b39`, 2026-08-17.
 
@@ -10,18 +10,17 @@ parity slice; the later typed RGBA owner cutover remains in the parent plan.
 
 ## Resume Here
 
-- Current stage: final verification and delivery
-- Status: `in_progress`
+- Current stage: complete
+- Status: `done`
 - Last completed stage: `ME-2 — effect-aware layer and folder PNG`
-- Next action: run the aggregate repository gate, record exact commits, fetch
-  once more, push current `main` and mark this package done
+- Next action: none; typed RGBA ownership remains in the parent migration plan
 - Blockers: none
 - Working paths: `src/logic`, `src/core/effect-*`, `src/systems/effects`,
   `src/systems/export`, `src/systems/layers/menu.js`, `index.html`,
   `test/module-int.mjs`
-- Last checks: ME-2 reached 447 module-integration checks; TypeScript, targeted
-  ESLint, interface, docs and line validators passed
-- Last updated: `2026-08-17`
+- Last checks: full `npm run validate` passed — 129 unit, 447 integration,
+  85 TS files/214 tests, 17 performance files/53 tests and production build
+- Last updated: `2026-08-17, implementation and aggregate verification complete`
 
 ## Scope
 
