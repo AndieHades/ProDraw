@@ -8,13 +8,13 @@ Canonical owner: this package.
 
 ## Resume Here
 
-- Current stage: `R2 / R2.11 — typed RGBA owner cutover behind the restored UI`
+- Current stage: `R2 / R2.11 / C0 — truthful cutover gates and repository health`
 - Status: `in_progress`
 - Last completed stage: `F3-R1..F3-R5` and the bounded P1
   merge/document-remap recovery; F5 input and trace checkpoints remain complete
-- Next action: replace the temporary `src/app.js` grid bridge one owner at a
-  time with typed `RasterSurface`/`RasterEdit`/`TileHistory` contracts while
-  preserving the restored DOM, panels and drag/drop behavior exactly
+- Next action: execute the registered
+  [`R2.11 owner cutover`](r2-11-owner-cutover/README.md), beginning with gates
+  that cannot confuse the live bridge with the dormant TypeScript editor
 - Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace;
   R2 engine acceptance remains revoked until the restored UI uses typed RGBA owners
 - Working paths: `src/app.js`, `src/raster-main.ts`, `src/core`, `src/systems`,
@@ -28,7 +28,7 @@ Canonical owner: this package.
   the aggregate TypeScript suite passed 80 files/202 checks and the sequential
   performance suite passed 17 files/52 checks. `npm run validate` and a fresh
   packaged Windows smoke passed (`12` brushes, `8` sources, alpha `255`).
-- Last updated: `2026-08-17, gallery New/Open lifecycle hardened after main@cea5370`
+- Last updated: `2026-08-17, full project audit rebaselined R2.11 at main@d3fc81a`
 
 ## Product Outcome
 
@@ -115,11 +115,12 @@ Excluded:
 6. [`06-live-audit-2026-08-16.md`](06-live-audit-2026-08-16.md)
 7. [`07-remediation-plan.md`](07-remediation-plan.md)
 8. The current stage chapter
-9. [`09-production-performance-audit-2026-08-16.md`](09-production-performance-audit-2026-08-16.md)
-10. [`41-huion-device-matrix.md`](41-huion-device-matrix.md) for F5 evidence
-11. [`08-interface-feature-parity.md`](08-interface-feature-parity.md) for the
+9. [`R2.11 TypeScript RGBA owner cutover`](r2-11-owner-cutover/README.md)
+10. [`09-production-performance-audit-2026-08-16.md`](09-production-performance-audit-2026-08-16.md)
+11. [`41-huion-device-matrix.md`](41-huion-device-matrix.md) for F5 evidence
+12. [`08-interface-feature-parity.md`](08-interface-feature-parity.md) for the
     original UI and complete non-pixelizer behaviour oracle
-12. [`90-verification.md`](90-verification.md)
+13. [`90-verification.md`](90-verification.md)
 
 ## Delivery Order
 

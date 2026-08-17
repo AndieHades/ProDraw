@@ -19,7 +19,7 @@ second product roadmap.
 | `F3` | finish R3 performance | bounded render/history/autosave/export | `F1`, `F2` | done |
 | `F3-R` | repair restored production | [bounded bridge/cutover](09-production-performance-audit-2026-08-16.md) | `F3`, `UI-R` | in progress |
 | `F4` | finish R3 brushes | truthful `.brush` engine and library workflow | `F1`, `F3` | done |
-| `UI-R` | repair R2 | original UI and complete non-pixelizer feature parity | `F4` | in progress |
+| `UI-R` | repair R2 | [TypeScript RGBA owner cutover](r2-11-owner-cutover/README.md) | `F4` | in progress |
 | `F5` | finish R3 tablet | robust Huion/touch/stabilizer/Smudge path | `F3`, `F4`, `UI-R` | pending device |
 | `F6` | R4 | immutable-source Transform and Liquify | `F3`, `F5` | planned |
 | `F7` | R5 document | layer tree, selections and native Save as Canvas | `F2`, `F6` | planned |

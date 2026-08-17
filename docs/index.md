@@ -14,6 +14,9 @@
 
 - [Raster editor migration](tutorials/raster-editor-migration/README.md) — переход
   от pixel-grid редактора к TypeScript/RGBA-движку и профессиональным кистям.
+- [R2.11 TypeScript/RGBA owner cutover](tutorials/raster-editor-migration/r2-11-owner-cutover/README.md)
+  — полный аудит и исполняемый перенос сохранённого интерфейса и всех функций с
+  двойной JS/grid архитектуры на единственный TypeScript/RGBA runtime.
 - [Monochrome effect and PNG export](tutorials/monochrome-effect-png-export/README.md)
   — переключаемый эффект слоя/папки и effect-aware быстрый PNG.
 - [Реестр планов](tutorials/README.md)
