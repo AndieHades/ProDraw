@@ -36,6 +36,8 @@ function freeSpot(el) { const r = el.getBoundingClientRect(), w = r.width, h = r
 export function floatingWindow(el, opts = {}) {
   if (el.__fw) return; el.__fw = true; // идемпотентно: окно делается перетаскиваемым один раз
   const { grip = el, handle, storeKey, minW = 120, minH = 80, clampRight = 70, clampBottom = 50, avoidOverlap = true, alwaysOnTop = false, resizeEdges = false, onResize, onClose, onHeaderDblClick } = opts;
+  const minWidth = () => typeof minW === 'function' ? minW() : minW;
+  const minHeight = () => typeof minH === 'function' ? minH() : minH;
   el.__fwAlwaysOnTop = alwaysOnTop;
   let placed = false; // есть ли осмысленная позиция (восстановлена / выбрана пользователем / переставлена)
   const place = (l, t) => {
@@ -45,7 +47,7 @@ export function floatingWindow(el, opts = {}) {
   };
   const save = () => { if (!storeKey) return; const r = el.getBoundingClientRect();
     try { localStorage.setItem(storeKey, JSON.stringify({ l: r.left, t: r.top, w: r.width, h: r.height })); } catch (e) {} };
-  const clampSize = (w, h) => ({ w: clamp(w, minW, Math.max(minW, vw() - 12)), h: clamp(h, minH, Math.max(minH, vh() - 12)) });
+  const clampSize = (w, h) => { const mw = minWidth(), mh = minHeight(); return { w: clamp(w, mw, Math.max(mw, vw() - 12)), h: clamp(h, mh, Math.max(mh, vh() - 12)) }; };
   const applySize = (w, h) => { const s = clampSize(w, h);
     if (onResize) onResize(s.w, s.h); else { el.style.width = s.w + 'px'; el.style.height = s.h + 'px'; }
     return s; };
@@ -102,7 +104,7 @@ export function floatingWindow(el, opts = {}) {
     const dx = e.clientX - rz.x, dy = e.clientY - rz.y, dir = rz.dir;
     let w = rz.w + (dir.includes('e') ? dx : dir.includes('w') ? -dx : 0);
     let h = rz.h + (dir.includes('s') ? dy : dir.includes('n') ? -dy : 0);
-    w = clamp(w, minW, Math.max(minW, vw() - 12)); h = clamp(h, minH, Math.max(minH, vh() - 12));
+    const mw = minWidth(), mh = minHeight(); w = clamp(w, mw, Math.max(mw, vw() - 12)); h = clamp(h, mh, Math.max(mh, vh() - 12));
     let l = dir.includes('w') ? rz.right - w : rz.left, t = dir.includes('n') ? rz.bottom - h : rz.top;
     if (l < 4) { w = rz.right - 4; l = 4; }
     if (t < 4) { h = rz.bottom - 4; t = 4; }

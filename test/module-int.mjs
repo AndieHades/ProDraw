@@ -98,6 +98,7 @@ const fhpath = await import('../src/systems/freehand/path.js');
 const tf = await import('../src/systems/transform/index.js');
 const tdrag = await import('../src/systems/transform/drag.js');
 const layers = await import('../src/systems/layers/index.js');
+const layerActions = await import('../src/systems/layers/actions-bar.js');
 const { layList } = await import('../src/systems/layers/list.js');
 const fontLib = await import('../src/systems/font-library/index.js');
 const textTool = await import('../src/systems/text-tool/index.js');
@@ -3085,17 +3086,15 @@ t("module-int case 286", () => {
 t("module-int case 287", () => {
   resetWH(8, 8); layers.mount(); tmDialog.mount(); tmcreate.mount(); tfl.mount(); S.tilesets = []; S.tilesetSeq = 0; S.tileGrid.size = 4;
   S.layers[0].grid[0][0] = [7, 8, 9, 255]; document.getElementById('lay-pop').classList.add('on'); layList();
-  const btn = document.getElementById('lay-tmap');
-  btn.click(); assert.ok(document.getElementById('tilemap-ovl').classList.contains('on'));
+  assert.equal(document.getElementById('lay-tmap'), null);
+  actions.run('tilemap.toggleLayer'); assert.ok(document.getElementById('tilemap-ovl').classList.contains('on'));
   document.getElementById('tm-apply').click();
   assert.equal(S.layers[0].kind, 'tilemap'); assert.equal(S.layers[0].tilemapSettings.tileW, 4);
-  layList(); assert.ok(btn.classList.contains('on')); assert.equal(btn.title, i18n.t('menu.convertLayer'));
-  btn.click();
+  actions.run('tilemap.toggleLayer');
   assert.equal(S.layers[0].kind, 'pixel'); assert.equal(S.layers[0].tilemap, undefined);
   assert.equal(S.layers[0].tilemapSettings.tileW, 4);
   assert.ok(!document.getElementById('tilemap-ovl').classList.contains('on'));
-  layList(); assert.ok(!btn.classList.contains('on')); assert.equal(btn.title, i18n.t('menu.convertTile'));
-  btn.click();
+  actions.run('tilemap.toggleLayer');
   assert.equal(S.layers[0].kind, 'tilemap');
   assert.equal(S.layers[0].tilemap.mapW, 2); assert.equal(S.layers[0].tilemap.mapH, 2);
   assert.ok(!document.getElementById('tilemap-ovl').classList.contains('on'));
@@ -3151,6 +3150,21 @@ t('layers-ui: header double-click expands the list within the viewport', () => {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: oldW });
   }
 });
+t('layers-ui: content grows the panel to the viewport before scrolling', () => {
+  const oldH = window.innerHeight, pop = document.getElementById('lay-pop'), list = document.getElementById('lay-list');
+  try {
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 600 });
+    pop.classList.add('on'); pop.style.top = '100px'; pop.style.height = '220px';
+    pop.getBoundingClientRect = () => { const top = parseFloat(pop.style.top), height = parseFloat(pop.style.height);
+      return { left: 100, top, width: 296, height, right: 396, bottom: top + height }; };
+    Object.defineProperty(list, 'scrollHeight', { configurable: true, value: 300 });
+    layers.syncLayerPanelHeight(); const fitted = parseFloat(pop.style.height);
+    assert.ok(fitted > 220); assert.ok(parseFloat(pop.style.top) + fitted <= window.innerHeight - 4);
+    Object.defineProperty(list, 'scrollHeight', { configurable: true, value: 900 });
+    layers.syncLayerPanelHeight();
+    assert.equal(parseFloat(pop.style.height), 496); assert.equal(list.style.maxHeight, 'none');
+  } finally { Object.defineProperty(window, 'innerHeight', { configurable: true, value: oldH }); }
+});
 t("module-int case 290", () => { resetWH(4, 4); const mk = (name, fid) => ({ name, fid, grid: blank(4, 4), opacity: 1, visible: true, clip: false, ext: new Map(), effects: [] });
   S.layers = [mk('a', 1), mk('b', 1), mk('top', null)];
   S.folders = [{ id: 1, name: 'G', open: true, visible: true, parent: null, effects: [] }, { id: 2, name: 'Empty', open: true, visible: true, parent: null, effects: [] }];
@@ -3160,11 +3174,25 @@ t("module-int case 290", () => { resetWH(4, 4); const mk = (name, fid) => ({ nam
   assert.ok(S.folders.some((f) => f.id === 2));
 });
 t("module-int case 291", () => { resetWH(8, 8); document.getElementById('lay-pop').classList.add('on'); layList();
+  localStorage.setItem('layerActionBars', JSON.stringify({
+    'lay-act-top': ['lay-add', 'lay-tmap', 'fx-btn', 'img-settings', 'lay-group', 'lay-alpha', 'lay-clip', 'lay-ref', 'lay-clean'],
+    'lay-act-bottom': ['lay-dup', 'lay-symm', 'lay-merge', 'lay-select', 'lay-lock', 'lay-del'],
+  }));
+  layerActions.mountActionBars();
   const top = [...document.querySelectorAll('#lay-act-top > button')], bot = [...document.querySelectorAll('#lay-act-bottom > button')];
-  assert.deepEqual(top.map((b) => b.id), ['lay-add', 'lay-tmap', 'fx-btn', 'img-settings', 'lay-group', 'lay-alpha', 'lay-clip', 'lay-ref', 'lay-clean']);
-  assert.deepEqual(bot.map((b) => b.id), ['lay-dup', 'lay-symm', 'lay-merge', 'lay-select', 'lay-lock', 'lay-del']);
+  assert.deepEqual(top.map((b) => b.id), ['lay-add', 'fx-btn', 'img-settings', 'lay-group', 'lay-alpha', 'lay-clip', 'lay-ref']);
+  assert.deepEqual(bot.map((b) => b.id), ['lay-dup', 'lay-symm', 'lay-merge', 'lay-select', 'lay-lock', 'lay-clean', 'lay-del']);
   assert.equal(document.querySelector('#lay-head #lay-add'), null);
-  assert.equal(document.querySelectorAll('.lay-action-btn').length, 15);
+  assert.equal(document.querySelectorAll('.lay-action-btn').length, 14);
+  const displaced = top.at(-1), moved = bot[0]; top[0].parentElement.prepend(moved); layerActions.rebalanceLayerActionBars(moved);
+  assert.equal(moved.parentElement.id, 'lay-act-top'); assert.equal(displaced.parentElement.id, 'lay-act-bottom');
+  assert.equal(document.querySelectorAll('#lay-act-top > button').length, 7); assert.equal(document.querySelectorAll('#lay-act-bottom > button').length, 7);
+  const saved = JSON.parse(localStorage.getItem('layerActionBars'));
+  assert.equal(saved['lay-act-top'].length, saved['lay-act-bottom'].length); assert.ok(!JSON.stringify(saved).includes('lay-tmap'));
+  for (const button of [...top, ...bot]) button.style.width = '34px';
+  for (const id of ['lay-act-top', 'lay-act-bottom']) { const bar = document.getElementById(id); bar.style.gap = '8px'; bar.style.padding = '6px 4px'; }
+  const pop = document.getElementById('lay-pop'); pop.style.borderLeftWidth = '1px'; pop.style.borderRightWidth = '1px';
+  assert.equal(layers.layerPanelMinWidth(), 296);
   S.layers[0].grid[0][0] = [9, 9, 9, 255]; document.getElementById('lay-symm').click(); assert.deepEqual(S.layers[0].grid[0][7], [9, 9, 9, 255]);
   document.getElementById('lay-alpha').click(); document.getElementById('lay-clip').click(); document.getElementById('lay-ref').click(); layList();
   assert.ok(document.getElementById('lay-alpha').classList.contains('on')); assert.ok(document.getElementById('lay-clip').classList.contains('on')); assert.ok(document.getElementById('lay-ref').classList.contains('on'));

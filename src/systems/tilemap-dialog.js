@@ -169,7 +169,7 @@ function confirmDlg() {
 function closeOutside(e) {
   if (!isOpen()) return;
   const p = panel(), target = e.target;
-  if (p?.contains(target) || target.closest?.('#lay-tmap') || target.closest?.('#lctx')) return;
+  if (p?.contains(target) || target.closest?.('#lctx')) return;
   suppressOutsideClick = true; e.preventDefault(); e.stopPropagation(); closeDlg();
 }
 

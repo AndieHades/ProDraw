@@ -25,6 +25,10 @@ A visible button is not parity: its action must change RGBA/document state,
 produce one coherent Undo transaction where applicable, survive save/reopen and
 have a behavioural test.
 
+The dedicated `Convert to Tilemap` button is intentionally absent from the
+layer action rows by user decision on 2026-08-17. The underlying tile workflow
+remains available to contextual/internal commands and is not removed here.
+
 ## Parity inventory
 
 | Surface | Required legacy behaviour | Target owner | Status |
@@ -39,7 +43,7 @@ have a behavioural test.
 | Brush bar | vertical size/opacity, eyedropper, undo/redo and live value popover | `UI-R`, `F5` | original live; RGBA port pending |
 | Colour | wheel/SV, HEX, previous/current, history, palettes, used colours, shading and T/S/G | `F8` | original live; RGBA port pending |
 | Layers | folders, multi-select, reorder, visibility, opacity, blend, lock, alpha, clipping and reference | `F7` | original live; RGBA port pending |
-| Layer actions | add, duplicate, group, merge, clear, delete, symmetry, effects and contextual save | `F7` | monochrome and contextual layer/folder PNG live; typed port pending |
+| Layer actions | add, duplicate, group, merge, clear, delete, symmetry, effects and contextual save; rows remain 7/7 and the panel grows to the viewport before list scrolling | `F7` | monochrome and contextual layer/folder PNG live; balanced auto-sized panel live; typed port pending |
 | Selection | rectangle/lasso, invert, copy/cut/paste/delete/deselect, move/transform and new layer | `F7` | missing |
 | Transform | move, scale, rotate, flip, centre and crop without cumulative resampling | `F6` | missing |
 | Liquify | immutable-source displacement preview and one high-quality Apply | `F6` | missing |

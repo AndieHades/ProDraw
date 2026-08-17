@@ -1,10 +1,10 @@
 // Create Tile From Layer: режет активный пиксельный слой на тайлы размера сетки
-// и добавляет непустые в тайлсет (панель тайлов). Кнопка в панели слоёв.
+// и добавляет непустые в тайлсет (панель тайлов). Доступно внутренним сценариям.
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.js';
 import * as actions from '../core/actions.js';
 import { snapshot } from '../core/history.js';
-import { $, toast, t } from '../core/dom.js';
+import { toast, t } from '../core/dom.js';
 import { addTileUnique, createTileset, getTileset } from '../core/tileset.js';
 import { isTilemap, gridTileSize, tilesetForSize, rasterLayer } from '../core/tilemap.js';
 import { rasterizeTextLayer } from '../core/text-layer.js';
@@ -144,9 +144,8 @@ export function toggleActiveTilemapLayer() {
 }
 
 export function mount() {
-  actions.register('tile.fromLayer', fromLayer); // действие осталось для внутренних сценариев; UI-конвертация идёт через кнопку lay-tmap
+  actions.register('tile.fromLayer', fromLayer);
   actions.register('tile.convertLayer', openConvertDialog);
   actions.register('tilemap.settings', openTilemapSettings);
   actions.register('tilemap.toggleLayer', toggleActiveTilemapLayer);
-  const btn = $('lay-tmap'); if (btn) btn.onclick = toggleActiveTilemapLayer;
 }
