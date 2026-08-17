@@ -7,3 +7,5 @@
   legacy JS/grid архитектуры.
 - [`monochrome-effect-png-export/`](monochrome-effect-png-export/README.md) —
   исполняемый parity-срез для неразрушающего монохрома и PNG слоя/папки.
+- [`procreate-brush-parity/`](procreate-brush-parity/README.md) — разбор и план
+  совпадения штриха `.brush` с Procreate на эталоне `lineart.brush`.
