@@ -2,7 +2,7 @@
 
 - Stable id: `C1`
 - Depends on: `C0`
-- Status: `pending`
+- Status: `in_progress`
 - Scope: composition, DOM presenters, gestures, i18n/theme and pure shared helpers
 
 ## Change map
@@ -29,6 +29,12 @@
 Invalid stored panel geometry resets one panel only. A lazy module failure keeps
 the editor usable and reports a localized error. Mouse, pen, touch and keyboard
 retain alternate access to core commands.
+
+User-approved shell delta: the layer panel has no dedicated tilemap conversion
+button. Its two action rows are always balanced 7/7; cross-row reorder displaces
+another button to the opposite row, and the minimum panel width is derived from
+the longest row so no icon is clipped. Layer/folder/effect rows grow the panel
+down to the viewport edge; only additional content introduces list scrolling.
 
 ## Checks
 

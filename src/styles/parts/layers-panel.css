@@ -55,9 +55,9 @@
     .lay-ops { display: grid; grid-template-columns: 46px minmax(64px, 1fr); align-items: center; gap: 10px; padding: 8px 16px; border-top: 1px solid var(--line); }
     .lay-ops input { min-width: 0; width: 100%; }
     .lay-ops b { min-width: 46px; color: var(--txt2); text-align: left; font-size: var(--type-system); font-variant-numeric: tabular-nums; }
-    .lay-act { display: flex; justify-content: space-around; padding: 6px 4px; border-top: 1px solid var(--line); }
+    .lay-act { display: flex; justify-content: flex-start; gap: var(--gap); padding: 6px 4px; border-top: 1px solid var(--line); }
     .lay-act.lay-act-top { border-top: 0; border-bottom: 1px solid var(--line); }
-    .lay-act button { width: var(--btn-sm); height: var(--btn-sm); color: var(--txt2); }
+    .lay-act button { width: var(--btn-sm); height: var(--btn-sm); color: var(--txt2); flex: none; }
     .lay-act button svg { width: var(--ico); height: var(--ico); }
     .lay-act button:active { color: var(--txt); }
     .lay-act button.on { background: var(--accent); color: var(--on-accent); } /* активная — синий фон + белая иконка */
