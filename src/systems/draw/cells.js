@@ -9,6 +9,8 @@ import { markDirty } from '../../core/layer-cache.js';
 import { rasterizeActiveText } from '../../core/text-rasterize.js';
 import { strokeSeen } from './seen.js';
 import { recordPixelBefore } from '../../core/history.js';
+import brushRaster from '../../config/brush-raster.json' with { type: 'json' };
+import { PixelOpacityAccumulator } from '../../logic/brush/PixelOpacityAccumulator.ts';
 
 // Tile Mode: координата заворачивается по модулю холста → рисование по любому из
 // 9 тайлов и заворот кисти через шов правят один исходный тайл.
@@ -32,11 +34,22 @@ export function setCell(x, y, c) {
 export function createCellPainter(erase, dedupe = false) {
   rasterizeActiveText();
   const layer = S.layers[S.cur], grid = G(), layerIndex = S.cur;
-  const symmetry = symmetryConfig(), color = S.active.slice(), pending = new Map();
+  const symmetry = symmetryConfig(), color = S.active.slice();
+  const pending = new PixelOpacityAccumulator(S.W, brushRaster.opacityAccumulatorTileSide);
   const opaqueColor = [color[0], color[1], color[2], 255];
   const symmetric = symmetry.x || symmetry.y || symmetry.d1 || symmetry.d2;
-  const queue = (x, y, opacity) => { const key = y * S.W + x, before = pending.get(key) || 0;
-    pending.set(key, 1 - (1 - before) * (1 - opacity)); };
+  let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+  const apply = (x, y, opacity) => {
+    const dst = grid[y][x]; if ((layer.alphaLock || erase) && !dst) return;
+    recordPixelBefore(layerIndex, x, y, dst);
+    if (erase) { const a1 = ((dst.length > 3 ? dst[3] : 255) / 255) * (1 - opacity);
+      grid[y][x] = a1 < .04 ? null : [dst[0], dst[1], dst[2], Math.round(a1 * 255)]; }
+    else if (opacity >= 1) grid[y][x] = opaqueColor;
+    else grid[y][x] = blendOver(color, dst, opacity);
+    if (x < minx) minx = x; if (x > maxx) maxx = x;
+    if (y < miny) miny = y; if (y > maxy) maxy = y;
+  };
+  const queue = (x, y, opacity) => pending.add(x, y, opacity);
   const paint = (x, y, opacity) => {
     if (layer.lock) return;
     if (S.tile && S.tile.on) { x = wrapC(x, S.W); y = wrapC(y, S.H); }
@@ -48,20 +61,10 @@ export function createCellPainter(erase, dedupe = false) {
     for (const [px, py] of mirrorPoints(x, y, S.W, S.H, false, false, symmetry))
       if (inSel(px, py)) queue(px, py, o);
   };
-  return { paint, flush() { if (!pending.size) return;
-    let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
-    for (const [key, opacity] of pending) { const x = key % S.W, y = Math.floor(key / S.W);
-      const dst = grid[y][x]; if ((layer.alphaLock || erase) && !dst) continue;
-      recordPixelBefore(layerIndex, x, y, dst);
-      if (erase) { const a1 = ((dst.length > 3 ? dst[3] : 255) / 255) * (1 - opacity);
-        grid[y][x] = a1 < .04 ? null : [dst[0], dst[1], dst[2], Math.round(a1 * 255)]; }
-      else if (opacity >= 1) grid[y][x] = opaqueColor;
-      else grid[y][x] = blendOver(color, dst, opacity);
-      if (x < minx) minx = x; if (x > maxx) maxx = x;
-      if (y < miny) miny = y; if (y > maxy) maxy = y;
-    }
-    pending.clear();
-    if (maxx >= minx) markDirty(layerIndex, { minx, miny, maxx, maxy });
+  return { paint, flush() {
+    if (pending.size) pending.drain(apply);
+    if (maxx >= minx) { markDirty(layerIndex, { minx, miny, maxx, maxy });
+      minx = Infinity; miny = Infinity; maxx = -Infinity; maxy = -Infinity; }
   } };
 }
 

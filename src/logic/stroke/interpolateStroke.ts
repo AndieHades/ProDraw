@@ -1,6 +1,10 @@
 import type { StrokeSample } from "../../contracts/stroke";
 
-function interpolate(left: StrokeSample, right: StrokeSample, amount: number): StrokeSample {
+export function interpolateStrokeSample(
+  left: StrokeSample,
+  right: StrokeSample,
+  amount: number
+): StrokeSample {
   const mix = (start: number, end: number) => start + (end - start) * amount;
   return {
     x: mix(left.x, right.x),
@@ -23,7 +27,7 @@ export function interpolateStrokeSegment(
   if (distance === 0) return [right];
   const steps = Math.max(1, Math.ceil(distance / Math.max(0.25, spacing)));
   return Array.from({ length: steps }, (_, index) =>
-    interpolate(left, right, (index + 1) / steps));
+    interpolateStrokeSample(left, right, (index + 1) / steps));
 }
 
 export function normalizePointerPressure(pressure: number, pointerType: string): number {

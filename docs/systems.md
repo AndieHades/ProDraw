@@ -49,6 +49,11 @@ stabilization → spacing для документа и Drawing Pad. `DrawingSyst
 одну `RasterEdit` на жест и направляет её либо в RGBA brush dab, либо в локальный
 Smudge renderer; pointer-up добавляет фактическую конечную точку, а cancel
 откатывает все затронутые tiles.
+Spacing накапливает пройденную дистанцию между actual/coalesced samples: частота
+Windows Ink не создаёт лишний полный dab, пока перо не прошло следующий
+авторский интервал. Recovery bridge объединяет opacity в локальных 32×32 tiles,
+а contour cursor скрыт только во время активного штриха, чтобы тяжёлый dab не
+показывал запоздавший контур в предыдущей координате.
 
 `DocumentWorkflow` владеет New/Open/Save/Save As, dirty revision и close guard.
 `DocumentRepository` хранит несколько работ и две атомарные recovery-generation

@@ -85,7 +85,7 @@ function drawReticle(ctx, cx, cy) {
 }
 
 export function drawBrushCursor(ctx, ox, oy, z) {
-  if (!S.hoverPx || S.cropMode || S.selFloat || !S.layers[S.cur]) return;
+  if (!S.hoverPx || S.stroke || S.cropMode || S.selFloat || !S.layers[S.cur]) return;
   const [x, y] = S.hoverPx, cx = ox + (x + .5) * z, cy = oy + (y + .5) * z;
   if (S.eyedrop.active) { ctx.save(); drawReticle(ctx, cx, cy); ctx.restore(); return; }
   const input = inputs(); if (!input) return;

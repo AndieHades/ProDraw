@@ -35,6 +35,14 @@ describe("StrokePipeline brush dynamics", () => {
     expect(plan.length).toBeGreaterThanOrEqual(40);
     expect(plan.length).toBeLessThanOrEqual(42);
   });
+  it("carries spacing across high-frequency samples", () => {
+    const brush = { ...stable, strokePath: { ...stable.strokePath, spacing: 0.5 } };
+    const pipeline = new StrokePipeline(brush, 20);
+    const points = Array.from({ length: 31 }, (_, index) => ({ ...input[0]!,
+      x: index, time: index * (1000 / 240) }));
+    const plan = [...points.flatMap((point) => pipeline.push(point)), ...pipeline.finish()];
+    expect(plan.map(({ x }) => x)).toEqual([0, 10, 20, 30]);
+  });
   it("plans jitter and scatter deterministically", () => {
     const dynamic = { ...stable, strokePath: { ...stable.strokePath,
       spacingJitter: 0.8, lateralJitter: 0.7, linearJitter: 0.6, scatter: 0.5 } };

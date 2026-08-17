@@ -1,6 +1,6 @@
 import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
 import type { StrokeSample } from "../../contracts/stroke";
-import { interpolateStrokeSegment } from "./interpolateStroke.ts";
+import { interpolateStrokeSample } from "./interpolateStroke.ts";
 import { applyStylusResponse } from "./pressureResponse.ts";
 import { strokeRandom } from "../brush/strokeRandom.ts";
 import { StrokeStabilizer } from "./StrokeStabilizer.ts";
@@ -22,7 +22,7 @@ export class StrokePipeline {
   #last: StrokeSample | null = null;
   #plannedSource: StrokeSample | null = null;
   #travelled = 0;
-  #segment = 0;
+  #distanceToNext = 0;
   #dab = 0;
 
   constructor(brush: BrushPreset | LoadedBrush, size: number) {
@@ -38,24 +38,50 @@ export class StrokePipeline {
   }
 
   finish(): readonly StrokeSample[] {
-    return this.samples(this.#stabilizer.finish(), true);
-  }
-
-  private samples(points: readonly StrokeSample[], finishing = false): readonly StrokeSample[] {
-    const output: StrokeSample[] = [];
-    for (const point of points) {
-      const spacing = this.#spacing * (1 + (strokeRandom(this.#brush.id,
-        this.#segment, 1) * 2 - 1) * this.#brush.strokePath.spacingJitter);
-      const interpolated = this.#last
-        ? interpolateStrokeSegment(this.#last, point,
-          rasterDabSpacing(this.#size, spacing / this.#size)) : [point];
-      for (const [index, sample] of interpolated.entries()) {
-        output.push(this.plan(sample, finishing && index === interpolated.length - 1));
-      }
-      this.#last = point;
-      this.#segment += 1;
+    const output = this.samples(this.#stabilizer.finish());
+    const endpoint = this.#last;
+    if (endpoint && this.#plannedSource && !this.sameSample(endpoint, this.#plannedSource)) {
+      output.push(this.plan(endpoint, true));
     }
     return output;
+  }
+
+  private samples(points: readonly StrokeSample[]): StrokeSample[] {
+    const output: StrokeSample[] = [];
+    for (const point of points) this.append(point, output);
+    return output;
+  }
+
+  private append(point: StrokeSample, output: StrokeSample[]): void {
+    const start = this.#last;
+    if (!start) {
+      this.#last = point; output.push(this.plan(point, false));
+      this.#distanceToNext = this.nextSpacing(); return;
+    }
+    const distance = Math.hypot(point.x - start.x, point.y - start.y);
+    if (distance <= 0) { this.#last = point; return; }
+    let consumed = 0;
+    while (distance - consumed + 1e-9 >= this.#distanceToNext) {
+      consumed += this.#distanceToNext;
+      const sample = interpolateStrokeSample(start, point, consumed / distance);
+      output.push(this.plan(sample, false));
+      this.#distanceToNext = this.nextSpacing();
+    }
+    this.#distanceToNext -= distance - consumed;
+    this.#last = point;
+  }
+
+  private nextSpacing(): number {
+    const jitter = (strokeRandom(this.#brush.id, this.#dab, 1) * 2 - 1) *
+      this.#brush.strokePath.spacingJitter;
+    return rasterDabSpacing(this.#size, this.#spacing * (1 + jitter) / this.#size);
+  }
+
+  private sameSample(left: StrokeSample, right: StrokeSample): boolean {
+    return Math.hypot(left.x - right.x, left.y - right.y) < 0.001 &&
+      Math.abs(left.pressure - right.pressure) < 0.001 &&
+      Math.abs(left.tiltX - right.tiltX) < 0.001 &&
+      Math.abs(left.tiltY - right.tiltY) < 0.001;
   }
 
   private plan(sample: StrokeSample, exactPosition: boolean): StrokeSample {
