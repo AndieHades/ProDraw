@@ -1,4 +1,4 @@
-import { $, toast, t } from '../core/dom.js';
+import { $, toast, t } from '../ui/dom/ShellDom.ts';
 import * as actions from '../core/actions.ts';
 
 let detachedWin = null, detachedPoll = null, closeCb = null;

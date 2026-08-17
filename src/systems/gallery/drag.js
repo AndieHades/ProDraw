@@ -3,8 +3,8 @@
 // драга не перекомпоновывается (никакого gap) — точку вставки считаем по курсору и
 // применяем одним ре-рендером на отпускании, чтобы большие галереи не дёргались.
 import { DRAG_THRESHOLD, FOLDER_HOLD_MS } from '../../config/timings.ts';
-import { $ } from '../../core/dom.js';
-import { dropZone } from '../../core/drop-gap.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
+import { dropZone } from '../../ui/dragdrop/DropGap.ts';
 
 let clickGuard = false, clickGuardUntil = 0;
 

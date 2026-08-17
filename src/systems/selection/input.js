@@ -4,7 +4,7 @@ import * as bus from '../../core/bus.ts';
 import { symA, symHA } from '../../core/layers.js';
 import { registerTool } from '../../core/canvas-handlers.js';
 import { selHit } from '../../core/selection.js';
-import { $, toast, t } from '../../core/dom.js';
+import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 import { normSel, symmetrizeSelection, selHasPixels, deselect, maskFromCells } from './model.js';
 import { beginLiftHistory, liftSelection, liftSelectionSym,
   commitFloat, symFloatBounds } from './float.js';

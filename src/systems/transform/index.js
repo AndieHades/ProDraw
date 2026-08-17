@@ -3,7 +3,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, showMenuAt, toast, t } from '../../core/dom.js';
+import { $, showMenuAt, toast, t } from '../../ui/dom/ShellDom.ts';
 import { setUndoGuard, snapshot, snapshotRasterReferences } from '../../core/history.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { maskHas } from '../../core/selection.js';

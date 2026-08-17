@@ -12,7 +12,7 @@ import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { inMask, selectedPoints } from '../../core/selection.js';
 import { selectedLayerTargets } from '../../core/targets.js';
 import { rasterizeTextTargets } from '../../core/text-rasterize.js';
-import { t, toast } from '../../core/dom.js';
+import { t, toast } from '../../ui/dom/ShellDom.ts';
 import { commitFloat } from './float.js';
 import { clearFullSelection, fillFullSelection } from './full-canvas.js';
 

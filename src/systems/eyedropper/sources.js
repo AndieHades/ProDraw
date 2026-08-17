@@ -4,7 +4,7 @@
 // Возврат: [r,g,b] — цвет; null — над источником, но прозрачно/нет цвета;
 // undefined — курсор не над этим источником.
 import { S } from '../../core/state.js';
-import { $ } from '../../core/dom.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
 import { gridAt } from '../../core/viewport.js';
 import { compositeAt } from '../../core/layer-cache.js';
 

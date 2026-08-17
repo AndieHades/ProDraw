@@ -9,7 +9,7 @@ import { visitFloodRegion } from '../../logic/flood.js';
 import { inSel } from '../../core/selection.js';
 import { referenceIndexFor, symmetryConfig } from '../../core/layers.js';
 import { mirrorPoints } from '../../logic/symmetry.js';
-import { $ } from '../../core/dom.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { rasterizeActiveText } from '../../core/text-rasterize.js';
 import { isTextLayer } from '../../logic/text-model.js';

@@ -1,6 +1,6 @@
 // Рисует содержимое окна генератора: базовый цвет, шкалы тинтов/шейдов, блоки
 // гармонии и превью выбранных цветов. Чистый DOM — данные берёт из store и logic.
-import { $, t } from '../../core/dom.js';
+import { $, t } from '../../ui/dom/ShellDom.ts';
 import { rgb, rgbToHex } from '../../logic/color.js';
 import { generateTints, generateShades, generateTintShadeScalesForHarmony } from '../../logic/tint-shade.js';
 import { tsg, isSel, allSel, setGroup } from './store.js';

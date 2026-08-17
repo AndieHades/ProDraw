@@ -2,7 +2,7 @@
 // автосохранение, инициализация (на старте открываем галерею).
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, t, toast } from '../../core/dom.js';
+import { $, t, toast } from '../../ui/dom/ShellDom.ts';
 import { imageData, looksPixelArt } from '../../core/image.js';
 import { newWorkFromImage, newWorkFromLayers, beginConvertedWork, saveCurrent,
   autosave, autosaveInputStarted } from './doc.js';

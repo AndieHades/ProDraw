@@ -5,7 +5,7 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
-import { $ } from '../core/dom.js';
+import { $ } from '../ui/dom/ShellDom.ts';
 import { brushKey } from '../core/tools.js';
 import { saveBrushPrefs } from '../core/brush-prefs.js';
 import { BP_SMAX } from '../config/limits.ts';

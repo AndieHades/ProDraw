@@ -1,7 +1,7 @@
 // Общие запросы по слоям/папкам (с учётом вложенных групп).
 import { S } from '../../core/state.js';
 import { folderChain } from '../../core/layers.js';
-import { t } from '../../core/dom.js';
+import { t } from '../../ui/dom/ShellDom.ts';
 import { localeValues } from '../../i18n/index.ts';
 
 const inSubtree = (L, fid) => folderChain(L.fid).some((f) => f.id === fid); // слой лежит в поддереве папки

@@ -1,9 +1,9 @@
 // Геометрия HSV-диска пикера: размеры внешнего кольца тона и внутреннего
 // SV-квадрата по DOM-замерам (с запасными значениями для headless). Чистая
 // раскладка — отдельно от логики пикера ради размера модуля.
-import { $ } from '../core/dom.js';
-
-export const DISC_INNER_RATIO = 2 / 3, DISC_GAP = 5;
+import { $ } from '../ui/dom/ShellDom.ts';
+import { DISC_INNER_RATIO } from '../config/color-disc.ts';
+export { DISC_GAP, DISC_INNER_RATIO } from '../config/color-disc.ts';
 
 function cssPx(el, prop) {
   const view = el && el.ownerDocument && el.ownerDocument.defaultView;

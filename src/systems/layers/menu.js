@@ -3,7 +3,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, showMenuBeside } from '../../core/dom.js';
+import { $, showMenuBeside } from '../../ui/dom/ShellDom.ts';
 import { t } from '../../i18n/index.ts';
 import { folderLayers } from './helpers.js';
 import { clearLayerRefs, duplicateLayer, duplicateFolder, symmetrizeLayerRefs,

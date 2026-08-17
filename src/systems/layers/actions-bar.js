@@ -2,7 +2,7 @@
 // кнопок ПКМ/долгим тапом между верхней и нижней строкой.
 import { S } from '../../core/state.js';
 import * as actions from '../../core/actions.ts';
-import { $ } from '../../core/dom.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
 import { attachReorder } from '../../ui/shell/ReorderGesture.ts';
 import { folderLayers, selectedIdx } from './helpers.js';
 import {

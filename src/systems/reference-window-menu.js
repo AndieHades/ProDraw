@@ -1,4 +1,4 @@
-import { $, showMenuAt, t } from '../core/dom.js';
+import { $, showMenuAt, t } from '../ui/dom/ShellDom.ts';
 
 function menuEl() {
   let m = $('ref-ctx');

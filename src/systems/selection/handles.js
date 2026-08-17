@@ -2,7 +2,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, toast, t } from '../../core/dom.js';
+import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 import { selHit } from '../../core/selection.js';
 import { registerGlobal } from '../../core/canvas-handlers.js';
 import { cloneSelectionMask, resizeSelectionMask, shiftSelectionMask } from '../../logic/mask-ops.js';

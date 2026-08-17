@@ -3,9 +3,9 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, showMenuAt, t } from '../../core/dom.js';
+import { $, showMenuAt, t } from '../../ui/dom/ShellDom.ts';
 import { effVis } from '../../core/layers.js';
-import { floatingWindow } from '../../core/floating-window.js';
+import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { layList } from './list.js';
 import { activeOpacityRef } from './helpers.js';
 import { mountActionBars } from './actions-bar.js';

@@ -4,7 +4,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $ } from '../../core/dom.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
 import { paintStack } from '../../core/composite.js';
 import { ZOOM_MIN, ZOOM_MAX, VIEW_FIT_MARGIN_MIN, VIEW_FIT_MARGIN_RATIO } from '../../config/limits.ts';
 import { C } from '../../styles/canvas-colors.ts';

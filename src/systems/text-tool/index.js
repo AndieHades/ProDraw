@@ -1,7 +1,7 @@
 import { S, MAX_LAYERS } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, t, toast } from '../../core/dom.js';
+import { $, t, toast } from '../../ui/dom/ShellDom.ts';
 import { setTool } from '../../core/tools.js';
 import { registerGlobal, registerTool } from '../../core/canvas-handlers.js';
 import { markDirty } from '../../core/layer-cache.js';

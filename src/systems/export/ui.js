@@ -1,7 +1,7 @@
 // Окно Export: сегментированные группы (chips) для четырёх независимых
 // параметров. UI подстраивается под возможности формата (режимы включаются по
 // supports*-флагам), отдельные опции показываются только для режима Separate.
-import { $ } from '../../core/dom.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
 import { FORMATS, MODE_CAP } from './formats.js';
 import { runExport } from './pipeline.js';
 

@@ -2,7 +2,7 @@
 // Всё вставляется в ТЕКУЩИЙ документ верхним слоем/папкой; новый холст/проект не
 // создаём. Photo/File — прямая вставка, Pixelize — открыть конвертер.
 import * as actions from '../../core/actions.ts';
-import { $, showMenuAt, toast, t } from '../../core/dom.js';
+import { $, showMenuAt, toast, t } from '../../ui/dom/ShellDom.ts';
 import { readPsd } from '../../logic/psd.js';
 import { insertPsd } from './psd-insert.js';
 import { insertImageTop } from './index.js';

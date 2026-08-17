@@ -1,8 +1,8 @@
 // Перемещаемая панель эффектов: кнопка-звёздочка открывает/закрывает её,
 // иконки типов добавляют эффект (через окно настроек с превью).
 import * as actions from '../../core/actions.ts';
-import { $ } from '../../core/dom.js';
-import { floatingWindow } from '../../core/floating-window.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
+import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { openFxNew } from './settings.js';
 
 export function togglePanel() { const on = $('fx-panel').classList.toggle('on'); $('fx-btn').classList.toggle('on', on); }

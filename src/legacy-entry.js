@@ -3,8 +3,8 @@
 import './app.js';
 import * as actions from './core/actions.ts';
 import * as bus from './core/bus.ts';
-import { showMenuAt } from './core/dom.js';
-import { floatingWindow } from './core/floating-window.js';
+import { showMenuAt } from './ui/dom/ShellDom.ts';
+import { floatingWindow } from './ui/windows/FloatingWindow.ts';
 import { attachReorder } from './ui/shell/ReorderGesture.ts';
 import { setStampBrush } from './core/stamp-brush.js';
 import { legacyBrushStamp } from './logic/brush/legacyBrushAdapter.ts';

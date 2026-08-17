@@ -1,5 +1,5 @@
 import { makeCanvas } from '../core/canvas.js';
-import { toast, t } from '../core/dom.js';
+import { toast, t } from '../ui/dom/ShellDom.ts';
 
 let fallbackUrl = null;
 

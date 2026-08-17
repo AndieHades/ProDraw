@@ -6,7 +6,7 @@ import * as actions from '../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch,
   snapshot, snapshotEffects, addUndoGuard } from '../core/history.js';
 import { captureAdjustmentLayers, writeAdjustmentLayers } from '../core/adjustment-preview.js';
-import { $, t } from '../core/dom.js';
+import { $, t } from '../ui/dom/ShellDom.ts';
 import { adjustmentParams } from '../logic/adjustment.js';
 import { activeTarget } from './effects/shared.js';
 import { controlsToParams, setControls, syncLabels } from './brightness-contrast/form.js';

@@ -1,6 +1,6 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
-import { $ } from '../core/dom.js';
+import { $ } from '../ui/dom/ShellDom.ts';
 import { registerGlobal } from '../core/canvas-handlers.js';
 import { ensureSymmetryDefaults, resetSymmetryLine, symmetryConfig } from '../core/layers.js';
 import { clamp } from '../logic/math.ts';

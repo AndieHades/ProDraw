@@ -7,7 +7,7 @@ import { snapshot, snapshotRasterReferences } from '../core/history.js';
 import { boundsWithExt } from '../logic/raster.js';
 import { shiftLayerGrid } from '../core/document.js';
 import { markDirty } from '../core/layer-cache.js';
-import { toast, t } from '../core/dom.js';
+import { toast, t } from '../ui/dom/ShellDom.ts';
 
 function layerCell(L, x, y) {
   return x >= 0 && y >= 0 && y < L.grid.length && x < L.grid[0].length ? L.grid[y][x] : L.ext.get(x + ',' + y);

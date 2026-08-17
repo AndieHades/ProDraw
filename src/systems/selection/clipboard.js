@@ -9,7 +9,7 @@ import {
 } from '../../core/history.js';
 import { clearLayer } from '../../core/document.js';
 import { layerContentBounds, dirtyAll } from '../../core/layer-cache.js';
-import { toast, t } from '../../core/dom.js';
+import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { MAX_LAYERS } from '../../config/limits.ts';
 import { parseKey, setGridBounds } from '../../logic/raster.js';
 import { symA, symHA } from '../../core/layers.js';

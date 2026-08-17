@@ -5,7 +5,7 @@ import { S, newLayer, newEffect, blank } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { snapshot } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';
-import { toast, t } from '../../core/dom.js';
+import { toast, t } from '../../ui/dom/ShellDom.ts';
 
 function nextFid() { const max = S.folders.reduce((m, f) => Math.max(m, f.id), 0); S.folderSeq = Math.max(S.folderSeq, max) + 1; return S.folderSeq; }
 const mkFolder = (parent, name) => ({ id: nextFid(), name: name || '', open: true, visible: true, symLock: false, parent, effects: [] });

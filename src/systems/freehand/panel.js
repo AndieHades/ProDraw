@@ -4,7 +4,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $ } from '../../core/dom.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
 
 const syncChips = (box, val) => { for (const b of $(box).children) b.classList.toggle('on', b.dataset.v === val); };
 

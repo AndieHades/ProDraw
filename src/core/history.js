@@ -3,7 +3,7 @@
 import { S, cloneLayer } from './state.js';
 import * as bus from './bus.ts';
 import * as actions from './actions.ts';
-import { toast, t } from './dom.js';
+import { t } from '../i18n/index.ts';
 import { dirtyAll, markDirty } from './layer-cache.js';
 import { historyCap } from '../config/limits.ts';
 import { cloneGrid } from '../logic/raster.js';
@@ -119,12 +119,12 @@ export function doUndo() { if (S.rotMode && actions.run('transform.cancel')) ret
   for (const guard of [...undoGuards]) if (guard && guard()) return;
   if (undoGuard && undoGuard()) return;
   bus.emit('before-undo'); // незавершённые жесты (плавающее выделение) оседают до снимка
-  if (!S.undoStack.length) { toast(t('toast.nothingUndo')); return; }
+  if (!S.undoStack.length) { bus.emit('feedback', t('toast.nothingUndo')); return; }
   const entry = S.undoStack.pop();
   if (isScopedEntry(entry)) { const inverse = swapScoped(entry);
     if (!inverse) { S.undoStack.push(entry); return; } S.redoStack.push(inverse); bus.emitDoc(); }
   else { S.redoStack.push(snapState()); restore(entry); }
-  toast(t('toast.undone')); }
+  bus.emit('feedback', t('toast.undone')); }
 
 export function doRedo() { if (!S.redoStack.length) return;
   bus.emit('before-undo');
@@ -132,4 +132,4 @@ export function doRedo() { if (!S.redoStack.length) return;
   if (isScopedEntry(entry)) { const inverse = swapScoped(entry);
     if (!inverse) { S.redoStack.push(entry); return; } S.undoStack.push(inverse); bus.emitDoc(); }
   else { S.undoStack.push(snapState()); restore(entry); }
-  toast(t('toast.redone')); }
+  bus.emit('feedback', t('toast.redone')); }

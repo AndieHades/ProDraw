@@ -3,7 +3,7 @@ export const SHELL_EVENT_NAMES = [
   "brush", "brush-flags", "brushResize",
   "brushlib", "canvas-menu", "color-sync",
   "composite-ready", "cursor", "document-transition",
-  "eyedropper", "fit", "grid",
+  "eyedropper", "feedback", "fit", "grid",
   "layer-active", "layers", "locale",
   "overlay", "palette", "reference",
   "render", "selection", "selection-menu",

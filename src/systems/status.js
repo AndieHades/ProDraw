@@ -1,7 +1,7 @@
 // Индикатор размера документа и активной рамки (кроп, выделение, трансформ).
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
-import { $ } from '../core/dom.js';
+import { $ } from '../ui/dom/ShellDom.ts';
 
 const selSize = (s) => (s ? [s.x1 - s.x0 + 1, s.y1 - s.y0 + 1] : null);
 function activeSize() {

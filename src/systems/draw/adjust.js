@@ -2,7 +2,7 @@ import { S, G } from '../../core/state.js';
 import { symA, symHA } from '../../core/layers.js';
 import { inSel } from '../../core/selection.js';
 import { markDirty } from '../../core/layer-cache.js';
-import { $, showMenuForAnchor, t } from '../../core/dom.js';
+import { $, showMenuForAnchor, t } from '../../ui/dom/ShellDom.ts';
 import { setTool } from '../../core/tools.js';
 import * as bus from '../../core/bus.ts';
 import { ADJUST_MODES, ICONS } from '../../config/toolbar.ts';

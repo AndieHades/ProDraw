@@ -4,7 +4,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $ } from '../../core/dom.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
 import { selHit } from '../../core/selection.js';
 import { toolHandler, modeHandler, globalHandlers } from '../../core/canvas-handlers.js';
 import { canvasAt, gridAt } from '../../core/viewport.js';

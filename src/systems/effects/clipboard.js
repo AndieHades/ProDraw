@@ -4,7 +4,7 @@
 import { S, cloneFx } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { snapshotEffects } from '../../core/history.js';
-import { $, showMenuBeside, toast, t } from '../../core/dom.js';
+import { $, showMenuBeside, toast, t } from '../../ui/dom/ShellDom.ts';
 import { openFxEdit } from './settings.js';
 import { convertFxToLayer } from './convert.js';
 import { pasteTargets, getFxClip, setFxClip, ownerOf, selectedEffects } from './shared.js';

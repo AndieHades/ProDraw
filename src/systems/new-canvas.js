@@ -1,4 +1,4 @@
-import { $, toast } from '../core/dom.js';
+import { $, toast } from '../ui/dom/ShellDom.ts';
 import { commitNumericField, isNumericLiteral, numericFieldValue, setNumericField } from '../core/numeric-field.ts';
 import * as actions from '../core/actions.ts';
 import { CUSTOM_CANVAS_DEFAULT } from '../config/defaults.ts';

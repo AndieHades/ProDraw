@@ -8,20 +8,18 @@
 
 ## Resume Here
 
-- Current stage: `C1 — preserved shell and pure/shared TypeScript modules`
+- Current stage: `C2 — single tiled RGBA owner`
 - Status: `in_progress`
-- Last completed stage: `C0` in `0f12c2d`
-- Next action: inventory the complete preserved shell by action and owner, then
-  migrate its pure/shared leaves to strict TypeScript without changing markup,
-  gestures, labels or observable behaviour
+- Last completed stage: `C1` in this stage commit
+- Next action: cut Brush/Eraser/Smudge/Fill, base layer actions, render, history
+  and document persistence over to one `RasterDocument`/`RasterSurface` owner
 - Blockers: physical Huion acceptance remains a final device-only check; it does
   not block code migration or automated trace evidence
 - Working paths: `src`, `tests`, `tools`,
   `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`
-- Last checks: C0 full validation passed 129 legacy unit, 447 integration,
-  217 TypeScript and 53 performance checks; dependency audit is clean; packaged
-  Windows smoke passed; browser gallery -> 800x600 workspace passed without
-  console errors
+- Last checks: C1 typecheck/lint, 46-case boot and 393 integration checks pass;
+  221 TypeScript checks pass together and the only aggregate timeout passes in
+  isolation; cutover/cycles/interface/line gates and browser shell smoke pass
 - Last updated: 2026-08-17
 
 ## Outcome
@@ -52,8 +50,8 @@ all other rows remain required.
 | Stage | Outcome | Depends on | Status | Commit boundary |
 | --- | --- | --- | --- | --- |
 | `C0` | truthful gates, security and baseline health | none | done | `0f12c2d` |
-| `C1` | preserved shell and pure/shared modules in TypeScript | `C0` | in progress | `refactor: migrate the preserved shell to TypeScript` |
-| `C2` | drawing, render, history and layers use one RGBA owner | `C1` | pending | `refactor: cut editor state over to tiled RGBA` |
+| `C1` | preserved shell and pure/shared modules in TypeScript | `C0` | done | `refactor: migrate the preserved shell to TypeScript` |
+| `C2` | drawing, render, history and layers use one RGBA owner | `C1` | in progress | `refactor: cut editor state over to tiled RGBA` |
 | `C3` | layer tree, effects and selection parity | `C2` | pending | `feat: port layer effects and selection to RGBA` |
 | `C4` | transform, tools, text, colour and view parity | `C3` | pending | `feat: port creative tools to the typed editor` |
 | `C5` | gallery, files and animation parity | `C4` | pending | `feat: port document and timeline workflows` |

@@ -5,7 +5,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { registerTool } from '../../core/canvas-handlers.js';
 import { ensureLayer } from '../../core/document.js';
-import { toast, t } from '../../core/dom.js';
+import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { SHAPE_SNAP_MS } from '../../config/timings.ts';
 import { stamp } from './stamp.js';
 import { line, commitLine, commitContour, contourDab, contourStroke } from './shapes.js';

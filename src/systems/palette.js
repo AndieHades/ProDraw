@@ -4,7 +4,7 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
-import { $, toast, t } from '../core/dom.js';
+import { $, toast, t } from '../ui/dom/ShellDom.ts';
 import { rgb, rgbToHex, hexToRgb, eqc } from '../logic/color.js';
 import { sortPalette } from '../logic/palette-sort.js';
 import { setTool } from '../core/tools.js';

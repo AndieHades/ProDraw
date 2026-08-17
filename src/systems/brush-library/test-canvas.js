@@ -2,7 +2,7 @@
 // (режим/размер/расстояние/разброс) активным цветом. Тот же штамп-движок
 // (logic/brush-stamp), без дублирования. Отдельная скретч-сетка, не холст.
 import { S } from '../../core/state.js';
-import { $ } from '../../core/dom.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
 import { BP_SMAX } from '../../config/limits.ts';
 import { brushMask, grainAt, stampSize, planDab } from '../../logic/brush-stamp.js';
 import { C } from '../../styles/canvas-colors.ts';

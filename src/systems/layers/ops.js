@@ -7,7 +7,7 @@ import { snapshot, snapshotRasterReferences,
 import { cloneGrid, symmetrizeGrid } from '../../logic/raster.js';
 import { dirtyAll, layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { bakeFolder, bakeLayerIndices } from '../../core/layer-bake.js';
-import { toast, t } from '../../core/dom.js';
+import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { folderChain } from '../../core/layers.js';
 import { clearFolderEmptyPos, selectedIdx } from './helpers.js';
 import { deleteLayer, deleteFolder, deleteLayerRef } from './structure-delete.js';

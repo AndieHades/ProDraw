@@ -10,7 +10,7 @@ import { eqc } from '../../logic/color.js';
 import { anySym, symmetryConfig } from '../../core/layers.js';
 import { selectedLayerTargets } from '../../core/targets.js';
 import { layerContentBounds } from '../../core/layer-cache.js';
-import { toast, t } from '../../core/dom.js';
+import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { setTool } from '../../core/tools.js';
 import { commitFloat } from './float.js';
 import { fillSelection } from './content.js';

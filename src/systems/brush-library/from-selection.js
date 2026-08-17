@@ -5,7 +5,7 @@
 // Pipeline: bounds → композит → trim → alpha-маска → stamp-asset → активна.
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
-import { toast, t } from '../../core/dom.js';
+import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { paintStack } from '../../core/composite.js';
 import { makeCanvas } from '../../core/canvas.js';
 import { inMask } from '../../core/selection.js';

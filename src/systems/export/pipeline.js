@@ -2,7 +2,7 @@
 // Никаких отдельных веток «экспорт слоя/папки/проекта» — режим и формат
 // комбинируются над одним и тем же документом.
 import { saveFile } from '../../core/io.js';
-import { toast, t } from '../../core/dom.js';
+import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { buildExportDoc, docName, exportTargetRoot } from './tree.js';
 import { flattenNodes } from './render.js';
 import { applyBounds, visibleBounds, unionBounds, cropTo } from './bounds.js';

@@ -1,6 +1,6 @@
 // Экранное взаимодействие трансформации: захват ручек, перетаскивание, рамка.
 import { S } from '../../core/state.js';
-import { $ } from '../../core/dom.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
 import { C } from '../../styles/canvas-colors.ts';
 import { ROT_MIN_SCALE } from '../../config/limits.ts';
 import { rotFrame, rotCenter, rotWorldToLocal, rotState, rotHasChanges } from './math.js';

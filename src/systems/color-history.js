@@ -1,7 +1,7 @@
 // История использованных на холсте цветов: ряд свотчей под пикером, в
 // localStorage. Часть Color Picker — отдельный модуль ради размера. Клик по
 // свотчу делегируется обратно в пикер через колбэк, заданный initColorHistory.
-import { $ } from '../core/dom.js';
+import { $ } from '../ui/dom/ShellDom.ts';
 import { rgbToHex } from '../logic/color.js';
 
 const STORE = 'pixel-heart:color-used-history';

@@ -4,8 +4,8 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, showMenuAt, t, toast } from '../../core/dom.js';
-import { floatingWindow } from '../../core/floating-window.js';
+import { $, showMenuAt, t, toast } from '../../ui/dom/ShellDom.ts';
+import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { importBrushFile } from '../../core/brush-import/index.js';
 import { packSet, unpackSet } from '../../core/brush-pack.js';
 import { saveFile } from '../../core/io.js';

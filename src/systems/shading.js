@@ -3,10 +3,10 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
-import { $, t, toast } from '../core/dom.js';
-import { floatingWindow } from '../core/floating-window.js';
+import { t, toast } from '../ui/dom/ShellDom.ts';
 import { setTool } from '../core/tools.js';
-import { rgb, rgbToHex, eqc } from '../logic/color.js';
+import { eqc } from '../logic/color.js';
+import { ShadingRampPresenter } from '../ui/color/ShadingRampPresenter.ts';
 
 export const SHADING_MAX = 6;
 
@@ -33,21 +33,8 @@ export const hasRamp = () => state().colors.length > 1;
 export const active = () => hasRamp() && !!state().on;
 export const ramp = () => (hasRamp() ? state().colors : []);
 
-function render() {
-  const box = $('shade-list'); if (!box) return;
-  const sh = state();
-  box.innerHTML = '';
-  for (const c of ramp()) {
-    const b = document.createElement('button');
-    b.className = 'shade-sw';
-    b.style.background = rgb(c);
-    b.title = rgbToHex(c).toUpperCase();
-    b.onclick = reverse;
-    box.appendChild(b);
-  }
-  $('shade-pop').classList.toggle('on', sh.open);
-  $('shade-pick').classList.toggle('on', sh.picking);
-}
+let presenter;
+function render() { presenter?.render(); }
 
 function changed() { bus.emit('shading'); }
 
@@ -146,14 +133,10 @@ export function activateTool(colors = []) {
 }
 
 export function mount() {
-  $('shade-title').textContent = t('shade.title');
-  floatingWindow($('shade-pop'), { grip: $('shade-head'), handle: $('shade-rsz'), storeKey: 'shadewin', minW: 160, minH: 70,
-    onClose: close,
-    onResize: (w) => { $('shade-pop').style.width = Math.max(160, Math.min(innerWidth - 12, w)) + 'px'; } });
-  $('shade-pick').onclick = enablePick;
-  bus.on('locale', () => { $('shade-title').textContent = t('shade.title'); });
-  bus.on('tool', (id) => { if (id !== 'pencil') close(); });
-  bus.on('palette', render);
+  presenter = new ShadingRampPresenter({ state: () => ({ colors: ramp(), open: state().open,
+    picking: state().picking }), close, enablePick, reverse,
+    subscribe: (event, listener) => { bus.on(event, listener); } });
+  presenter.mount();
   actions.register('shading.setRamp', setRamp);
   actions.register('shading.clear', clear);
   actions.register('shading.close', close);

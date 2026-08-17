@@ -6,7 +6,7 @@ import * as actions from '../core/actions.ts';
 import { snapshot, snapshotRasterReferences } from '../core/history.js';
 import { flipRaster } from '../logic/raster-remap.js';
 import { markDirty } from '../core/layer-cache.js';
-import { toast, t } from '../core/dom.js';
+import { toast, t } from '../ui/dom/ShellDom.ts';
 import { flipSelection } from './selection-transform.js';
 
 function flipOne(L, horiz) {

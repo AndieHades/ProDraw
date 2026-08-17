@@ -1,5 +1,5 @@
 import { CANVAS_BACKGROUND_CHOICES, DEFAULT_CANVAS_BACKGROUND } from '../../config/canvas-background.ts';
-import { $ } from '../../core/dom.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
 import { t } from '../../i18n/index.ts';
 import { rgb } from '../../logic/color.js';
 

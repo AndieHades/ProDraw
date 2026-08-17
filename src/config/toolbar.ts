@@ -32,49 +32,49 @@ export const ICONS = {
   adjBurn: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor" stroke="none"/><path d="M12 6.5v11"/></svg>',
   adjColorize: '<svg viewBox="0 0 24 24"><path d="M12 3.5s6 6.4 6 10.5a6 6 0 0 1-12 0c0-4.1 6-10.5 6-10.5z"/><path d="M8.5 16.5h7" stroke-dasharray="2 2"/></svg>',
   adjMono: '<svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M12 5v14" stroke-dasharray="2 2"/><path d="M12 5h4a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-4z" fill="currentColor" stroke="none"/></svg>',
-};
+} as const;
 
 export const BRUSH_MODES = [
   { mode: 'normal', icon: 'pencil', key: 'tool.pencil' },
   { mode: 'shading', icon: 'shading', key: 'tool.brushShading' },
-];
+] as const;
 export const LINE_MODES = [
   { mode: 'line', icon: 'line', key: 'tool.lineStraight' },
   { mode: 'contour', icon: 'contour', key: 'tool.lineContour' },
-];
+] as const;
 export const SHAPE_MODES = [
   { tool: 'rect', fill: false, icon: 'rect', key: 'tool.rect' },
   { tool: 'rect', fill: true, icon: 'rectFill', key: 'tool.rectFill' },
   { tool: 'ellipse', fill: false, icon: 'ellipse', key: 'tool.ellipse' },
   { tool: 'ellipse', fill: true, icon: 'ellipseFill', key: 'tool.ellipseFill' },
-];
+] as const;
 export const SYM_MODES = [
   { flag: 'sym', icon: 'symV', key: 'side.symV', onKey: 'toast.symVon', offKey: 'toast.symVoff' },
   { flag: 'symH', icon: 'symH', key: 'side.symH', onKey: 'toast.symHon', offKey: 'toast.symHoff' },
   { flag: 'symD1', icon: 'symD1', key: 'side.symD1', onKey: 'toast.symD1on', offKey: 'toast.symD1off' },
   { flag: 'symD2', icon: 'symD2', key: 'side.symD2', onKey: 'toast.symD2on', offKey: 'toast.symD2off' },
-];
+] as const;
 export const SYM_TOOLS = [
   { mode: 'move', icon: 'symMove', key: 'side.symMove' },
   { mode: 'reset', icon: 'symReset', key: 'side.symReset' },
-];
+] as const;
 export const FLIP_MODES = [
   { mode: 'h', icon: 'flipH', key: 'side.flipH', action: 'layer.flipH' },
   { mode: 'v', icon: 'flipV', key: 'side.flipV', action: 'layer.flipV' },
   { mode: 'r', icon: 'rotate90', key: 'side.rotate', action: 'canvas.rotate' },
-];
+] as const;
 export const CENTER_MODES = [
   { mode: 'center', icon: 'center', key: 'side.center', action: 'layer.center' },
   { mode: 'fitShortSide', icon: 'centerFit', key: 'side.centerFit', action: 'layer.fitShortSide' },
-];
+] as const;
 export const ZOOM_MODES = [
   { mode: 'fit', icon: 'zoomReal', key: 'tool.realSize', action: 'view.realSize' },
   { mode: 'in', icon: 'zoomIn', key: 'tool.zoomIn', action: 'zoom.in' },
   { mode: 'out', icon: 'zoomOut', key: 'tool.zoomOut', action: 'zoom.out' },
-];
+] as const;
 export const ADJUST_MODES = [
   { mode: 'dodge', icon: 'adjDodge', key: 'adj.dodge' },
   { mode: 'burn', icon: 'adjBurn', key: 'adj.burn' },
   { mode: 'colorize', icon: 'adjColorize', key: 'adj.colorize' },
   { mode: 'mono', icon: 'adjMono', key: 'adj.mono' },
-];
+] as const;

@@ -2,7 +2,7 @@ import { S } from '../../core/state.js';
 import { saveFile } from '../../core/io.js';
 import { makeCanvas } from '../../core/canvas.js';
 import { activeTimeline, renderFrameToCanvas, saveActiveFrame } from '../../core/animation.js';
-import { toast, t } from '../../core/dom.js';
+import { toast, t } from '../../ui/dom/ShellDom.ts';
 
 const safeName = () => (S.docName || 'animation').replace(/[^\w.-]+/g, '_');
 

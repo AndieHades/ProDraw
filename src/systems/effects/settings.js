@@ -5,7 +5,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { snapshot, snapshotEffects, addUndoGuard } from '../../core/history.js';
 import { expandForEffects, needsEffectExpansion } from '../../core/document.js';
-import { $, t } from '../../core/dom.js';
+import { $, t } from '../../ui/dom/ShellDom.ts';
 import { EFFECT_FIELDS } from '../../config/defaults.ts';
 import { rgbToHex } from '../../logic/color.js';
 import { activeTarget } from './shared.js';

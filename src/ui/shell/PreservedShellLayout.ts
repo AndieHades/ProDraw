@@ -1,25 +1,12 @@
 import {
   defaultSidebarHeight, defaultSidebarWidth, resetPalette, resizePalette, resizeSidebar
 } from "./ShellWindowMetrics.ts";
-
-export interface FloatingWindowOptions {
-  readonly avoidOverlap?: boolean;
-  readonly clampBottom?: number;
-  readonly clampRight?: number;
-  readonly grip?: HTMLElement;
-  readonly handle?: HTMLElement;
-  readonly minH?: number;
-  readonly minW?: number;
-  readonly onClose?: () => void;
-  readonly onHeaderDblClick?: () => void;
-  readonly onResize?: (width: number, height: number) => void;
-  readonly storeKey?: string | undefined;
-}
+import { floatingWindow, nextFloatingZ } from "../windows/FloatingWindow.ts";
+import * as bus from "../../core/bus.ts";
+import { toast } from "../dom/ToastPresenter.ts";
 
 export interface PreservedShellLayoutPorts {
   readonly fitView: () => void;
-  readonly floatingWindow: (element: HTMLElement, options: FloatingWindowOptions) => void;
-  readonly nextFloatingZ: () => number;
 }
 
 const MENU_IDS = ["ctx", "lctx", "cctx", "sctx", "trctx", "fxctx", "impmenu",
@@ -75,28 +62,29 @@ function registerServiceWorker(): void {
 }
 
 export function mountPreservedShellLayout(ports: PreservedShellLayoutPorts): void {
-  ports.floatingWindow(element("palbar"), { grip: element("palgrip"),
+  bus.on<string>("feedback", toast);
+  floatingWindow(element("palbar"), { grip: element("palgrip"),
     handle: element("palrsz"), storeKey: "palwin", clampBottom: 50,
     onClose: () => element("palbar").classList.add("closed"),
     onHeaderDblClick: resetPalette, onResize: resizePalette });
   const sidebarWidth = defaultSidebarWidth();
   resizeSidebar(sidebarWidth, defaultSidebarHeight(sidebarWidth));
-  ports.floatingWindow(element("sidebar"), { grip: element("sb-grip"),
+  floatingWindow(element("sidebar"), { grip: element("sb-grip"),
     handle: element("sb-rsz"), storeKey: "sbwin-v2", minW: 38, clampRight: 46,
     clampBottom: 60, onResize: resizeSidebar });
   element("topbar").addEventListener("pointerdown", () => {
-    element("topbar").style.zIndex = String(ports.nextFloatingZ());
+    element("topbar").style.zIndex = String(nextFloatingZ());
   }, true);
   for (const id of ["selbar", "cropbar", "rotbar"] as const) {
     const bar = document.getElementById(id);
     if (!bar) continue;
-    ports.floatingWindow(bar, { grip: bar.querySelector<HTMLElement>(".crop-head") ?? bar,
+    floatingWindow(bar, { grip: bar.querySelector<HTMLElement>(".crop-head") ?? bar,
       storeKey: `action-${id}`, minW: 120, minH: 44, clampBottom: 64,
       avoidOverlap: false });
   }
   for (const windowElement of document.querySelectorAll<HTMLElement>(
     ".ovl .sheet, .ovl .new-panel")) {
-    ports.floatingWindow(windowElement, { grip: windowElement.querySelector<HTMLElement>(
+    floatingWindow(windowElement, { grip: windowElement.querySelector<HTMLElement>(
       ".new-head, .pop-head, h3") ?? windowElement,
     storeKey: windowElement.id ? `win-${windowElement.id}` : undefined });
   }

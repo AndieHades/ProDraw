@@ -6,7 +6,7 @@ import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { snapshotEffects } from '../../core/history.js';
-import { t } from '../../core/dom.js';
+import { t } from '../../ui/dom/ShellDom.ts';
 import { EYE, layList, layDragSquelch } from './list.js';
 import { onDoubleTap, onContext } from '../../ui/gestures/ContextGesture.ts';
 import { dragRow } from './drag.js';

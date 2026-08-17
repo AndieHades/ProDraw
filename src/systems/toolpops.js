@@ -1,6 +1,6 @@
 // Делает все всплывающие окна-инструменты (.toolpop: цвет, обводка, свечение,
 // тень, яркость/контраст, кисть-коррекция) перетаскиваемыми за заголовок.
-import { floatingWindow } from '../core/floating-window.js';
+import { floatingWindow } from '../ui/windows/FloatingWindow.ts';
 
 export function mount() {
   for (const pop of document.querySelectorAll('.toolpop')) {

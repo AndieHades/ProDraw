@@ -1,4 +1,4 @@
-import { $, toast, t } from '../core/dom.js';
+import { $, toast, t } from '../ui/dom/ShellDom.ts';
 
 const IMG_EXT = /\.(png|jpe?g|gif|webp|bmp|avif|svg)$/i;
 export const isImageFile = (f) => f && (((f.type || '').startsWith('image/')) || IMG_EXT.test(f.name || ''));

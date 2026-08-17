@@ -3,7 +3,7 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
-import { $, showMenuAt } from '../core/dom.js';
+import { $, showMenuAt } from '../ui/dom/ShellDom.ts';
 import { t, getLocale, locales, setLocale } from '../i18n/index.ts';
 import { toggleTheme, getTheme } from '../styles/theme.ts';
 import { SENS_PRESETS } from '../config/brush-resize.ts';

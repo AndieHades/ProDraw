@@ -8,7 +8,7 @@ import { dirtyAll, markDirty } from './layer-cache.js';
 import { applyLayerRemap } from './document-layer-remap.js';
 import { effectExpansion, needsEffectExpansion } from './effect-expansion.js';
 import { snapshot, snapshotDocumentRemap } from './history.js';
-import { toast, t } from './dom.js';
+import { t } from '../i18n/index.ts';
 import { ZOOM_MIN, ZOOM_MAX } from '../config/limits.ts';
 import { expandStoredFrames, cropStoredFrames } from './animation-canvas.js';
 
@@ -49,7 +49,7 @@ export function expandForEffects(target) {
   const { pl, pt, pr, pb } = margin;
   if (!(pl || pt || pr || pb)) return false;
   expandCanvas(pl, pt, pr, pb); bus.emitDoc();
-  toast(t('toast.canvasSize', { w: S.W, h: S.H })); return true;
+  bus.emit('feedback', t('toast.canvasSize', { w: S.W, h: S.H })); return true;
 }
 
 // кадрировать холст прямоугольником (может выходить за край — тогда обрезает/
@@ -64,7 +64,7 @@ export function applyCropRect(x0, y0, x1, y1) {
   keepCanvasScreenSize(oldW, oldH, nw, nh); S.sel = null;
   cropStoredFrames(x0, y0, oldW, oldH, nw, nh);
   bus.emit('selection'); dirtyAll({ preserveGridBounds: true }); bus.emitDoc();
-  toast(t('toast.canvasSize', { w: S.W, h: S.H }));
+  bus.emit('feedback', t('toast.canvasSize', { w: S.W, h: S.H }));
 }
 
 // вставить RGBA-картинку w×h новым слоем по центру холста (без snapshot/UI)

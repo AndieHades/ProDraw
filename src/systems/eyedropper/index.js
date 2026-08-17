@@ -7,7 +7,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $ } from '../../core/dom.js';
+import { $ } from '../../ui/dom/ShellDom.ts';
 import { setTool } from '../../core/tools.js';
 import { rgb, rgbToHex } from '../../logic/color.js';
 import { eventKey } from '../../logic/key-code.js';

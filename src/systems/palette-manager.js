@@ -1,8 +1,8 @@
 // Менеджер палитр: сохранить текущую, загрузить, собрать из изображения.
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
-import { $, showMenuAt, toast, t } from '../core/dom.js';
-import { createLibraryDialog } from '../core/library-dialog.js';
+import { $, showMenuAt, toast, t } from '../ui/dom/ShellDom.ts';
+import { createLibraryDialog } from '../ui/dom/LibraryDialogPresenter.ts';
 import { compositeAt, contentRevision } from '../core/layer-cache.js';
 import { PaletteCompositeCache } from '../core/palette-composite-cache.js';
 import { paletteFromCanvasSource, paletteFromImageData,

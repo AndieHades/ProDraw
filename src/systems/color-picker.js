@@ -3,10 +3,11 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
-import { $, t, toast, copyText } from '../core/dom.js';
+import { $, t, toast, copyText } from '../ui/dom/ShellDom.ts';
 import { rgb, rgbToHex, rgbToHsv, hsvToRgb, hexToRgb } from '../logic/color.js';
 import { initColorHistory, rememberUsedColor, clearColorHistory } from './color-history.js';
 import { DISC_INNER_RATIO, DISC_GAP, discBox, svDiscBox } from './color-disc.js';
+import { bindColorDiscGesture } from '../ui/color/ColorDiscGesture.ts';
 
 let colH = 0, colS = 0, colV = 100, replaceFrom = null; // replaceFrom — цвет или список цветов для режима замены
 let onPick = null; // режим «выбрать цвет для произвольной цели» (эффекты): колбэк(hex) на каждое изменение
@@ -96,44 +97,10 @@ export function mount() {
     if (!moved) { openColPop(); return; }
     if (!actions.run('layer.dropColorAt', S.active, e.clientX, e.clientY)) actions.run('edit.dropColorAt', S.active, e.clientX, e.clientY); });
   $('activewrap').addEventListener('pointercancel', () => { if (drop) { drop = null; $('swdrop').classList.remove('on'); } });
-  const svPoint = (e) => {
-    const disc = discBox(), sv = svDiscBox(disc), svLeft = disc.left + sv.left, svTop = disc.top + sv.top;
-    const svCx = svLeft + sv.width / 2, svCy = svTop + sv.height / 2;
-    if (Math.hypot(e.clientX - svCx, e.clientY - svCy) > Math.min(sv.width, sv.height) / 2) return null;
-    return {
-      s: Math.max(0, Math.min(100, (e.clientX - svLeft) / sv.width * 100)),
-      v: Math.max(0, Math.min(100, 100 - (e.clientY - svTop) / sv.height * 100)),
-      sv,
-    };
-  };
-  const snapSvPoint = (p) => {
-    const snaps = [[0, 100], [50, 100], [100, 100], [100, 58], [100, 24], [50, 0], [0, 24], [0, 58]];
-    let best = snaps[0], bd = Infinity;
-    for (const q of snaps) { const d = (q[0] - p.s) ** 2 + (q[1] - p.v) ** 2; if (d < bd) { bd = d; best = q; } }
-    setColorFromHsv(colH, best[0], best[1]);
-  };
-  const discPick = (e) => {
-    const r = discBox(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-    const dx = e.clientX - cx, dy = e.clientY - cy, d = Math.hypot(dx, dy), outer = Math.min(r.width, r.height) / 2, inner = outer * DISC_INNER_RATIO;
-    if (d >= inner + DISC_GAP && d <= outer) { setColorFromHsv((Math.atan2(dy, dx) * 180 / Math.PI + 90 + 360) % 360, colS, colV); return 'hue'; }
-    const p = svPoint(e); if (p) { setColorFromHsv(colH, p.s, p.v); return 'sv'; }
-    return '';
-  };
-  let discDrag = false, lastSvTap = null;
-  $('col-disc').addEventListener('contextmenu', (e) => e.preventDefault());
-  $('col-disc').addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse' && e.button !== 0 && e.button !== 2) return;
-    e.preventDefault();
-    if (e.pointerType === 'mouse' && e.button === 2) { if (discPick(e)) addCurrentToPalette(); return; }
-    const p = svPoint(e), now = Date.now();
-    prevColor = currentColor();
-    if (p && lastSvTap && now - lastSvTap.t < 360 && Math.hypot(e.clientX - lastSvTap.x, e.clientY - lastSvTap.y) < 22) {
-      snapSvPoint(p); lastSvTap = null; discDrag = false; return;
-    }
-    const mode = discPick(e); discDrag = !!mode; lastSvTap = mode === 'sv' ? { t: now, x: e.clientX, y: e.clientY } : null;
-    if (discDrag) try { $('col-disc').setPointerCapture(e.pointerId); } catch (err) {} });
-  $('col-disc').addEventListener('pointermove', (e) => { if (discDrag) discPick(e); });
-  $('col-disc').addEventListener('pointerup', () => { discDrag = false; });
-  $('col-disc').addEventListener('pointercancel', () => { discDrag = false; });
+  bindColorDiscGesture($('col-disc'), { discBox, svDiscBox,
+    state: () => ({ hue: colH, saturation: colS, value: colV }),
+    setHsv: setColorFromHsv, beforePick: () => { prevColor = currentColor(); },
+    addCurrent: addCurrentToPalette });
   for (const id of ['col-h', 'col-s', 'col-v']) $(id).addEventListener('pointerdown', () => { prevColor = currentColor(); });
   $('col-h').addEventListener('input', () => setColorFromHsv(+$('col-h').value, colS, colV));
   $('col-s').addEventListener('input', () => setColorFromHsv(colH, +$('col-s').value, colV));

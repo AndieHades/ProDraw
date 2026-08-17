@@ -1,8 +1,8 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, t } from '../../core/dom.js';
-import { floatingWindow } from '../../core/floating-window.js';
+import { $, t } from '../../ui/dom/ShellDom.ts';
+import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { ensureAnimator, activeTimeline, createFrame, createTimeline, renameTimeline, setTimelineFps, setTimelineMode, switchTimeline } from '../../core/animation.js';
 import { renderTimeline } from './timeline.js';
 import { exportSpriteSheet } from './export.js';

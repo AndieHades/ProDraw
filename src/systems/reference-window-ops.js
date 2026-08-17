@@ -3,6 +3,37 @@ import { makeCanvas } from '../core/canvas.js';
 export const selectedSet = (b) => new Set(Array.isArray(b.selected) ? b.selected : (b.selected == null ? [] : [b.selected]));
 export const setSelected = (b, ids) => { b.selected = [...new Set(ids)]; };
 export const selectedItems = (b) => { const ids = selectedSet(b); return b.items.filter((it) => ids.has(it.id)); };
+export function referencePoint(canvas, event) {
+  const rect = canvas.getBoundingClientRect();
+  return { x: event.clientX - (rect.left || 0), y: event.clientY - (rect.top || 0) };
+}
+export function referenceHit(board, canvas, event) {
+  const point = referencePoint(canvas, event), view = board.view;
+  const x = (point.x - view.x) / view.z, y = (point.y - view.y) / view.z;
+  for (let index = board.items.length - 1; index >= 0; index--) {
+    const item = board.items[index];
+    if (x >= item.x && y >= item.y && x <= item.x + item.w && y <= item.y + item.h) return item;
+  }
+  return null;
+}
+
+export function boardBounds(items) {
+  if (!items.length) return null;
+  let x = Infinity, y = Infinity, right = -Infinity, bottom = -Infinity;
+  for (const item of items) {
+    x = Math.min(x, item.x); y = Math.min(y, item.y);
+    right = Math.max(right, item.x + item.w); bottom = Math.max(bottom, item.y + item.h);
+  }
+  return { x, y, w: Math.max(1, right - x), h: Math.max(1, bottom - y) };
+}
+
+export function nextBoardPosition(board, size, itemWidth) {
+  if (!board.items.length) return { x: 0, y: 0 };
+  const bounds = boardBounds(board.items), gap = 12 / Math.max(0.05, board.view.z || 1);
+  const x = bounds.x + bounds.w + gap, y = bounds.y;
+  return board.view.x + (x + itemWidth) * board.view.z <= size.w - 8 ?
+    { x, y } : { x: bounds.x, y: bounds.y + bounds.h + gap };
+}
 
 export function bringFrontIds(b, ids) {
   const set = new Set(ids), rest = [], top = [];

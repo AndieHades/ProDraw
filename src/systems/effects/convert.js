@@ -1,5 +1,5 @@
 import * as bus from '../../core/bus.ts';
-import { toast, t } from '../../core/dom.js';
+import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { targetEffectRegion } from '../../core/effects-render.js';
 import { snapshotCompound } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';

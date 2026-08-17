@@ -5,7 +5,7 @@ import * as actions from '../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch, recordPixelBefore,
   snapshot, snapshotRasterReferences } from '../core/history.js';
 import { dirtyAll, layerContentBounds, markDirty } from '../core/layer-cache.js';
-import { toast, t } from '../core/dom.js';
+import { toast, t } from '../ui/dom/ShellDom.ts';
 import { rasterizeTextTargets } from '../core/text-rasterize.js';
 import { isTextLayer } from '../logic/text-model.js';
 import { forkRasterRows } from '../logic/raster-row-fork.js';

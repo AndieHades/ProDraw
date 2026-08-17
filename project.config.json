@@ -10,20 +10,14 @@
   "maxCanvasSide": 8192,
   "maxCanvasPixels": 50000000,
   "cutover": {
-    "stage": "C1",
+    "stage": "C2",
     "runtimeMode": "bridge",
     "productionEntry": "src/legacy-entry.js",
     "targetEntry": "src/raster-main.ts",
-    "maximumSourceJavaScriptFiles": 285,
+    "maximumSourceJavaScriptFiles": 281,
     "maximumLegacyStateJavaScriptFiles": 175
   },
   "legacyCodeOverLimit": [
-    "src/systems/color-picker.js",
-    "src/systems/crop.js",
-    "src/systems/palette-select.js",
-    "src/systems/reference-window.js",
-    "src/systems/shading.js",
-    "src/systems/toolbars.js",
     "test/module-int.mjs",
     "test/unit.mjs"
   ],

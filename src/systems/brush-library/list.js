@@ -2,7 +2,7 @@
 // как переносной тулбар с иконками. ЛКМ — выбор; двойной клик — настройки;
 // ПКМ без движения — меню, долгое нажатие / ПКМ-перетаскивание — перестановка.
 import { S } from '../../core/state.js';
-import { $, t } from '../../core/dom.js';
+import { $, t } from '../../ui/dom/ShellDom.ts';
 import { lib, allBrushes, setOrder } from './data.js';
 import { stampIcon } from '../../logic/brush-preview.js';
 import { paintCanvas, fillMask } from '../../core/canvas.js';

@@ -5,7 +5,7 @@ import * as actions from '../core/actions.ts';
 import { snapshotDocumentRemap } from '../core/history.js';
 import { dirtyAll } from '../core/layer-cache.js';
 import { applyLayerRemap, remappedLayer } from '../core/document-layer-remap.js';
-import { toast, t } from '../core/dom.js';
+import { toast, t } from '../ui/dom/ShellDom.ts';
 import { rotateRasterCentered } from '../logic/raster-remap.js';
 import { rotateSelection } from './selection-transform.js';
 import { liveFrameId, saveActiveFrame } from '../core/animation.js';

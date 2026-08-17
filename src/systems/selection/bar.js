@@ -4,7 +4,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, showMenuAt } from '../../core/dom.js';
+import { $, showMenuAt } from '../../ui/dom/ShellDom.ts';
 
 const closeMenu = () => $('sctx').classList.remove('on');
 

@@ -4,10 +4,15 @@
 // заданные initPaletteSelect (без кольцевых импортов).
 import { S } from '../core/state.js';
 import * as actions from '../core/actions.ts';
-import { $, toast, t, copyText, showMenuAt } from '../core/dom.js';
-import { rgbToHex, eqc } from '../logic/color.js';
+import { $, toast, t, showMenuAt } from '../ui/dom/ShellDom.ts';
+import { eqc } from '../logic/color.js';
 import { LONG_PRESS_MS } from '../config/timings.ts';
-import { dropZone, makeDropGap } from '../core/drop-gap.js';
+import { dropZone, makeDropGap } from '../ui/dragdrop/DropGap.ts';
+import { reorderPalette } from '../logic/paletteReorder.ts';
+import { mountPaletteContextMenu } from '../ui/palette/PaletteContextMenuPresenter.ts';
+import { finishPaletteDrag } from './palette-select/finish.js';
+import { colorsAtIndices, paletteRange } from '../logic/paletteSelection.ts';
+import { clearPendingShade, markMovingSwatches, updateShadeDrag } from '../ui/palette/PaletteDragVisuals.ts';
 
 let swHold = null, palDrag = null, palSquelch = false, ctxIdx = -1, ctxIdxs = [];
 let palSel = new Set(), palAnchorIdx = -1, palRef = S.palette;
@@ -27,17 +32,12 @@ function selectionForIdx(idx) { validSel(); return palSel.has(idx) && palSel.siz
 function openCtx(x, y, idx) { ctxIdx = idx; ctxIdxs = selectionForIdx(idx);
   const c = S.palette[idx]; if (c) setActive(c, false); showMenuAt($('ctx'), x, y, true); }
 
-function rangeIdx(from, to, max = Infinity) {
-  const out = [], step = to >= from ? 1 : -1;
-  for (let i = from; i >= 0 && i < S.palette.length && out.length < max; i += step) { out.push(i); if (i === to) break; }
-  return out;
-}
-const colorsFromIdx = (idxs) => idxs.map((i) => S.palette[i].slice(0, 3));
+const rangeIdx = (from, to, max = Infinity) => paletteRange(S.palette.length, from, to, max);
+const colorsFromIdx = (idxs) => colorsAtIndices(S.palette, idxs);
 export const selectedPaletteColors = () => { validSel(); return colorsFromIdx([...palSel]); };
 function setPaletteSelection(idxs, anchor = idxs[0]) { palSel = new Set(idxs); palAnchorIdx = anchor ?? -1; rebuild(); }
 function setShadingFromSelection(idxs) { const cols = colorsFromIdx(idxs); palSel = new Set(); palAnchorIdx = -1; actions.run('shading.setRamp', cols); }
-function markMoving(idxs, on) { const set = new Set(idxs);
-  for (const sw of $('pal').querySelectorAll('.sw:not(.plus)')) sw.classList.toggle('dragging', on && set.has(+sw.dataset.i)); }
+const markMoving = (idxs, on) => markMovingSwatches($('pal'), idxs, on);
 
 // ctrl/⌘ + клик — поштучный тумблер; shift + клик — диапазон от якоря (или от
 // активного цвета, если выделения ещё нет); ПКМ-протяжка — выделение наведением.
@@ -54,24 +54,13 @@ function paintSelect(i) { if (palSel.has(i)) return; palSel.add(i); if (palAncho
 export function clearPaletteSelection() { if (!palSel.size) return; palSel = new Set(); palAnchorIdx = -1; rebuild(); }
 actions.register('palette.clearSelection', clearPaletteSelection);
 
-function markShadeRange(toIdx) {
-  if (!palDrag) return;
-  const idxs = rangeIdx(palDrag.idx, toIdx), picked = new Set(idxs);
-  for (const sw of $('pal').querySelectorAll('.sw:not(.plus)')) { const i = +sw.dataset.i; sw.classList.toggle('shade-pending', picked.has(i)); }
-  palDrag.idxs = idxs;
-}
-function clearShadePending() { $('pal').querySelectorAll('.shade-pending').forEach((sw) => sw.classList.remove('shade-pending')); }
+const clearShadePending = () => clearPendingShade($('pal'));
 
 function reorderIdxs(idxs, targetIdx, after, select = true) {
-  const moving = [...idxs].sort((a, b) => a - b);
-  if (!moving.length || moving.includes(targetIdx)) return false;
-  const moveSet = new Set(moving), movingColors = moving.map((i) => S.palette[i]);
-  const rest = S.palette.filter((_, i) => !moveSet.has(i));
-  const insertRaw = targetIdx + (after ? 1 : 0);
-  const insertAt = Math.max(0, Math.min(rest.length, insertRaw - moving.filter((i) => i < insertRaw).length));
-  S.palette = [...rest.slice(0, insertAt), ...movingColors, ...rest.slice(insertAt)];
-  palRef = S.palette;
-  if (select) { palSel = new Set(movingColors.map((_, i) => insertAt + i)); palAnchorIdx = insertAt; }
+  const result = reorderPalette(S.palette, idxs, targetIdx, after);
+  if (!result) return false;
+  S.palette = [...result.palette]; palRef = S.palette;
+  if (select) { palSel = new Set(result.selection); palAnchorIdx = result.insertAt; }
   else { palSel = new Set(); palAnchorIdx = -1; }
   return true;
 }
@@ -115,8 +104,9 @@ export function wireSwatch(b, c, idx) {
 }
 
 function palShadeMove(tg) { const chip = $('paldrag'); // ramp-picking: короткий драг тянет диапазон оттенков
-  if (tg && tg !== palDrag.b) { palDrag.selecting = true; palDrag.b.classList.remove('dragging'); chip.classList.remove('on'); markShadeRange(+tg.dataset.i); }
-  else if (palDrag.selecting && tg) markShadeRange(+tg.dataset.i); }
+  const next = updateShadeDrag($('pal'), chip, palDrag.b, tg,
+    !!palDrag.selecting, (index) => rangeIdx(palDrag.idx, index));
+  palDrag.selecting = next.selecting; if (next.indices.length) palDrag.idxs = next.indices; }
 
 function palReorderMove(e, tg) { const pal = $('pal'), chip = $('paldrag');
   palDrag.reordering = true;
@@ -136,19 +126,11 @@ function palDragMove(e) { if (!palDrag) return;
 function palDragEnd(e) { if (!palDrag) return; clearTimeout(swHold);
   const d = palDrag, chip = $('paldrag'); palDrag = null; markMoving(d.moveIdxs || [d.idx], false);
   d.b.classList.remove('dragging', 'lifting'); chip.classList.remove('on'); delete chip.dataset.stack; clearShadePending();
-  const tgt = e ? document.elementFromPoint(e.clientX, e.clientY) : null;
-  const targetSw = d.gap?.target || (tgt && tgt.closest ? tgt.closest('#pal .sw:not(.plus)') : null);
-  const gapAfter = !!d.gap?.after, gapActive = !!d.gap?.active; d.gap?.remove();
-  if (d.rmb) { if (!d.moved) { if (e) openCtx(e.clientX, e.clientY, d.idx); } else rebuild(); return; } // клик → меню, протяжка → выделение наведением
-  if (d.selecting) { squelch();
-    if (d.idxs && d.idxs.length > 1) { if (S.shading && S.shading.picking) setShadingFromSelection(d.idxs); else setPaletteSelection(d.idxs, d.idx); } return; }
-  if (d.lifted && !d.moved) { if (e) openCtx(e.clientX, e.clientY, d.idx); return; } // тач: долгий тап без переноса → меню
-  if (d.reordering) { squelch();
-    const onPal = tgt && tgt.closest && tgt.closest('#pal');
-    if (!onPal && !d.moveSel) { if (!actions.run('layer.dropColorAt', S.palette[d.idx], e.clientX, e.clientY)) actions.run('edit.dropColorAt', S.palette[d.idx], e.clientX, e.clientY); rebuild(); return; } // бросок мимо палитры → слой/заливка
-    if (targetSw) { const r = targetSw.getBoundingClientRect();
-      if (reorderIdxs(d.moveIdxs, +targetSw.dataset.i, gapActive ? gapAfter : e.clientX >= r.left + r.width / 2, d.moveSel)) { rebuild(); return; } }
-    rebuild(); } }
+  finishPaletteDrag(d, e, { openContext: openCtx, rebuild, squelch,
+    selectShade: (indices, anchor) => { if (S.shading?.picking) setShadingFromSelection(indices);
+      else setPaletteSelection(indices, anchor); }, reorder: reorderIdxs,
+    dropColor: (index, x, y) => { if (!actions.run('layer.dropColorAt', S.palette[index], x, y))
+      actions.run('edit.dropColorAt', S.palette[index], x, y); } }); }
 
 // document-слушатели жеста + обработчик контекст-меню; колбэки связывают с рендером
 export function initPaletteSelect({ rebuild: rb, setActive: sa }) {
@@ -156,15 +138,12 @@ export function initPaletteSelect({ rebuild: rb, setActive: sa }) {
   document.addEventListener('pointermove', palDragMove);
   document.addEventListener('pointerup', palDragEnd);
   document.addEventListener('pointercancel', palDragEnd);
-  $('ctx').addEventListener('click', (e) => { const btn = e.target.closest('button'); if (!btn) return;
-    validSel();
-    const ids = (ctxIdxs.length ? ctxIdxs : [ctxIdx]).filter((i) => i >= 0 && i < S.palette.length);
-    const cols = colorsFromIdx(ids);
-    const col = cols[0]; $('ctx').classList.remove('on'); if (!col) return;
-    const act = btn.dataset.act;
-    if (act === 'copy') { const h = cols.map((c) => rgbToHex(c).toUpperCase()).join('\n'); copyText(h).then(() => toast(t('toast.copied', { s: h }))); }
-    else if (act === 'shade') { palSel = new Set(); palAnchorIdx = -1; actions.run('shading.setRamp', cols); }
-    else if (act === 'delete') deleteIdxs(ids);
-    else if (act === 'select') actions.run('selection.byColor', cols);
-    else if (act === 'replace') actions.run('color.replace', cols); });
+  mountPaletteContextMenu({ selection: () => { validSel();
+    const indices = (ctxIdxs.length ? ctxIdxs : [ctxIdx])
+      .filter((index) => index >= 0 && index < S.palette.length);
+    return { indices, colors: colorsFromIdx(indices) }; },
+    shade: (colors) => { palSel = new Set(); palAnchorIdx = -1;
+      actions.run('shading.setRamp', colors); }, delete: deleteIdxs,
+    select: (colors) => actions.run('selection.byColor', colors),
+    replace: (colors) => actions.run('color.replace', colors) });
 }

@@ -3,7 +3,7 @@ import { S, newLayer, cloneFx, cloneLayer } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { snapshotStructure } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';
-import { toast, t } from '../../core/dom.js';
+import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { MAX_LAYERS } from '../../config/limits.ts';
 import { folderChain } from '../../core/layers.js';
 import { localeValues } from '../../i18n/index.ts';

@@ -6,7 +6,7 @@ import { snapshot } from '../core/history.js';
 import { rotSprite } from '../logic/rotsprite.js';
 import { markDirty } from '../core/layer-cache.js';
 import { paintCanvas } from '../core/canvas.js';
-import { toast, t } from '../core/dom.js';
+import { toast, t } from '../ui/dom/ShellDom.ts';
 
 const cellInt = (c) => (c ? (((c[0] << 24) | (c[1] << 16) | (c[2] << 8) | (c.length > 3 ? c[3] : 255)) >>> 0) : 0);
 const intCell = (v) => (v ? [(v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255] : null);

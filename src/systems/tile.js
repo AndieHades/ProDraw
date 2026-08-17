@@ -4,7 +4,7 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
-import { $ } from '../core/dom.js';
+import { $ } from '../ui/dom/ShellDom.ts';
 
 const sync = () => { const b = $('tile-btn'); if (b) b.classList.toggle('on', !!(S.tile && S.tile.on)); };
 

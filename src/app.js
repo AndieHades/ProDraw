@@ -1,6 +1,5 @@
 import { S } from './core/state.js';
 import * as bus from './core/bus.ts';
-import { floatingWindow, nextFloatingZ } from './core/floating-window.js';
 import { fitView } from './systems/render/index.js';
 import { detect, applyDom } from './i18n/index.ts';
 import { applyTheme } from './styles/theme.ts';
@@ -66,7 +65,7 @@ export function start() {
   mountKeyboard();
   applyDom(); // проставить переводы в статичный UI
 
-  mountPreservedShellLayout({ fitView, floatingWindow, nextFloatingZ });
+  mountPreservedShellLayout({ fitView });
 }
 
 start();

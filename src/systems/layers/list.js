@@ -1,7 +1,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, t } from '../../core/dom.js';
+import { $, t } from '../../ui/dom/ShellDom.ts';
 import { menuGesture } from '../../ui/gestures/ContextGesture.ts';
 import { layerCanvas } from '../../core/layer-cache.js';
 import { makeCanvas } from '../../core/canvas.js';

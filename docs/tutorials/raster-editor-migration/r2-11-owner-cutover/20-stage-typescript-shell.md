@@ -2,7 +2,7 @@
 
 - Stable id: `C1`
 - Depends on: `C0`
-- Status: `in_progress`
+- Status: `done`
 - Scope: composition, DOM presenters, gestures, i18n/theme and pure shared helpers
 
 ## Change map
@@ -53,6 +53,13 @@ introduced.
 
 ## Completion record
 
-- Commit: pending
-- Checks: pending
-- Residual risk: pending
+- Commit: `refactor: migrate the preserved shell to TypeScript` (this stage
+  commit)
+- Checks: strict typecheck and lint; 46-case boot; 393 integration; 221
+  TypeScript checks plus the isolated shared-renderer preview; cutover, cycle,
+  interface and line validators; browser gallery/editor, Tile Mode, reference,
+  floating-window and balanced 7/7 layer-action smoke.
+- Residual risk: the inherited `LegacyBigSoft-160 < 50 ms` timing gate currently
+  measures 61-72 ms on both this candidate and the untouched
+  `codex/fix-large-brush-lag` worktree. It is isolated from C1 shell ownership
+  and remains an explicit performance repair before final acceptance.

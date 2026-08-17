@@ -15,7 +15,7 @@ import { dirtyAll } from '../../core/layer-cache.js';
 import { addImageLayerTop } from '../../core/document.js';
 import { snapshot } from '../../core/history.js';
 import { MAX_LAYERS } from '../../config/limits.ts';
-import { $, toast, t } from '../../core/dom.js';
+import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 
 let impData = null, impGrid = null, importMode = 'replace'; // 'replace' — новый проект; 'layer' — верхним слоем
 export const setImpData = (d) => { impData = d; };
