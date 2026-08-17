@@ -101,7 +101,7 @@ export const ruDocument: LocaleDictionary = {
   "fx.dropShadow": "Внешняя тень",
   "fx.innerShadow": "Внутренняя тень",
   "fx.monochrome": "Монохром",
-  "fx.adjustment": "Настройки",
+  "fx.adjustment": "Яркость/контраст",
   "fx.colorOverlay": "Наложение цвета",
   "fx.gradientOverlay": "Наложение градиента",
   "layer.psdMask": "Маска PSD",

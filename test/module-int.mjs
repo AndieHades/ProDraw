@@ -2387,7 +2387,7 @@ t("module-int case 212", () => { effects.mount(); resetWH(8, 8); S.undoStack.len
 });
 
 t("module-int case 213", () => { resetWH(8, 8); S.active = [12, 34, 56];
-  for (const type of EFFECT_TYPES) {
+  for (const type of EFFECT_TYPES.filter((entry) => entry !== 'adjustment')) {
     document.querySelector(`#fx-types button[data-fx="${type}"]`).click();
     if (EFFECT_FIELDS[type].includes('color'))
       assert.equal(S.fxDraft.eff.params.color, '#0c2238');
@@ -2411,6 +2411,41 @@ t('monochrome effect Apply, eye toggle, clone and Undo use generic effect state'
   assert.equal(effect.visible, false);
   history.doUndo(); assert.equal(S.layers[0].effects[0].visible, true);
   history.doUndo(); assert.equal(S.layers[0].effects.length, 0);
+});
+
+t('brightness/contrast effect has two live sliders and reopens on a selected row', () => {
+  resetWH(8, 8); S.undoStack.length = 0; S.redoStack.length = 0;
+  S.fxSel = new Set(); S.fxCur = null;
+  const buttons = [...document.querySelectorAll('#fx-types button')];
+  const mono = buttons.findIndex((button) => button.dataset.fx === 'monochrome');
+  const adjustment = buttons.findIndex((button) => button.dataset.fx === 'adjustment');
+  assert.equal(adjustment, mono + 1); buttons[adjustment].click();
+  assert.equal(S.fxDraft.eff.type, 'adjustment');
+  assert.ok(document.getElementById('bcpop').classList.contains('on'));
+  assert.equal(document.getElementById('bc-scope').style.display, 'none');
+  assert.equal(document.getElementById('bc-sat').closest('.irow').style.display, 'none');
+  assert.equal(document.getElementById('bc-hue').closest('.irow').style.display, 'none');
+  document.getElementById('bc-bri').value = '35'; document.getElementById('bc-con').value = '-20';
+  document.getElementById('bc-con').dispatchEvent(new window.Event('input', { bubbles: true }));
+  assert.equal(S.fxDraft.eff.params.brightness, 35); assert.equal(S.fxDraft.eff.params.contrast, -20);
+  document.getElementById('bc-apply').click(); const effect = S.layers[0].effects[0];
+  assert.deepEqual(cloneFx([effect])[0].params, effect.params);
+  document.getElementById('lay-pop').style.zIndex = String(nextFloatingZ());
+  layList(); document.querySelector('#lay-list .fxrow').click();
+  document.querySelector('#lay-list .fxrow').click();
+  assert.ok(document.getElementById('bcpop').classList.contains('on'));
+  assert.ok(+document.getElementById('bcpop').style.zIndex > +document.getElementById('lay-pop').style.zIndex);
+  assert.equal(document.getElementById('bc-bri').value, '35');
+  document.getElementById('bc-bri').value = '60';
+  document.getElementById('bc-bri').dispatchEvent(new window.Event('input', { bubbles: true }));
+  document.getElementById('bc-apply').click(); assert.equal(effect.params.brightness, 60);
+  history.doUndo(); assert.equal(S.layers[0].effects[0].params.brightness, 35);
+  buttons[adjustment].click(); assert.ok(document.getElementById('bcpop').classList.contains('on'));
+  buttons[mono].click(); assert.equal(document.getElementById('bcpop').classList.contains('on'), false);
+  assert.equal(S.fxDraft.eff.type, 'monochrome'); document.getElementById('fx-cancel').click();
+  buttons[0].click(); assert.ok(document.getElementById('fx-edit').classList.contains('on'));
+  buttons[adjustment].click(); assert.equal(document.getElementById('fx-edit').classList.contains('on'), false);
+  assert.equal(S.fxDraft.eff.type, 'adjustment'); document.getElementById('bc-cancel').click();
 });
 
 t("module-int case 215", () => { resetWH(8, 8); effects.mount(); S.undoStack.length = 0; S.redoStack.length = 0;

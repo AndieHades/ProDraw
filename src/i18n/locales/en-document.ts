@@ -101,7 +101,7 @@ export const enDocument: LocaleDictionary = {
   "fx.dropShadow": "Drop Shadow",
   "fx.innerShadow": "Inner Shadow",
   "fx.monochrome": "Monochrome",
-  "fx.adjustment": "Settings",
+  "fx.adjustment": "Brightness/contrast",
   "fx.colorOverlay": "Color Overlay",
   "fx.gradientOverlay": "Gradient Overlay",
   "layer.psdMask": "PSD Mask",

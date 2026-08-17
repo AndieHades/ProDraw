@@ -7,7 +7,7 @@ export const CUSTOM_CANVAS_DEFAULT = Object.freeze({ w: 800, h: 600 });
 export const ADJUST_DEFAULT = { mode: 'dodge', amount: 8 };
 
 // Неразрушающие эффекты слоя/папки (Photoshop-style). Порядок — порядок в меню.
-export const EFFECT_TYPES = ['stroke', 'glow', 'dropShadow', 'innerShadow', 'monochrome'];
+export const EFFECT_TYPES = ['stroke', 'glow', 'dropShadow', 'innerShadow', 'monochrome', 'adjustment'];
 export const EFFECT_DEFAULTS = {
   stroke: { size: 1, color: '#ff7a18' },
   glow: { size: 6, intensity: 0.8, color: '#78d7ff' },
@@ -26,7 +26,7 @@ export const EFFECT_FIELDS = {
   dropShadow: ['size', 'intensity', 'color', 'offset'],
   innerShadow: ['size', 'intensity', 'color', 'offset'],
   monochrome: [],
-  adjustment: ['brightness', 'contrast', 'saturation', 'hue'],
+  adjustment: ['brightness', 'contrast'],
   colorOverlay: ['color'],
   gradientOverlay: [],
 };

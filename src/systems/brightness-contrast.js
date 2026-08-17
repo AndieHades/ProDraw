@@ -7,6 +7,7 @@ import { beginPixelBatch, commitPixelPatch,
   snapshot, snapshotEffects, addUndoGuard } from '../core/history.js';
 import { captureAdjustmentLayers, writeAdjustmentLayers } from '../core/adjustment-preview.js';
 import { $, t } from '../ui/dom/ShellDom.ts';
+import { nextFloatingZ } from '../ui/windows/FloatingWindow.ts';
 import { adjustmentParams } from '../logic/adjustment.js';
 import { activeTarget } from './effects/shared.js';
 import { controlsToParams, setControls, syncLabels } from './brightness-contrast/form.js';
@@ -18,6 +19,7 @@ let undoGuardBound = false;
 let bcScope = 'layer';
 let bcLayerTargets = null;
 let bcLockScope = false;
+let bcEffectOnly = false;
 
 const targetForLayerScope = () => {
   const target = bcLayerTargets && bcLayerTargets[0] ? bcLayerTargets[0] : activeTarget();
@@ -27,6 +29,7 @@ const targetForLayerScope = () => {
 function syncScopeUi() {
   $('bc-title').textContent = t(bcScope === 'canvas' ? 'bc.titleCanvas' : 'fx.adjustment');
   $('bc-scope').style.display = bcLockScope ? 'none' : '';
+  for (const row of $('bcpop').querySelectorAll('.bc-color-row')) row.style.display = bcEffectOnly ? 'none' : '';
   for (const b of $('bc-scope').querySelectorAll('button')) b.classList.toggle('on', b.dataset.scope === bcScope);
 }
 
@@ -92,15 +95,17 @@ export function openBcPop(targets, title, opts = {}) {
   bcLayerTargets = targets && targets.length ? targets.filter((target) => target && target.effects) : [activeTarget()].filter(Boolean);
   bcScope = opts.scope || (targets && targets.length ? 'layer' : 'layer');
   bcLockScope = !!opts.lockScope;
+  bcEffectOnly = !!opts.effectOnly;
   setControls(opts.params || (opts.eff && opts.eff.params) || {});
   syncScopeUi();
-  $('bcpop').classList.add('on');
+  $('bcpop').style.zIndex = String(nextFloatingZ()); $('bcpop').classList.add('on');
   startScope(controlsToParams(), opts.eff ? { target: opts.target || targetForLayerScope(), eff: opts.eff } : null);
 }
 
 export function openBcEdit(target, eff) {
   if (!target || !eff || eff.type !== 'adjustment') return;
-  openBcPop([target], null, { scope: 'layer', lockScope: true, target, eff, params: eff.params });
+  openBcPop([target], null, { scope: 'layer', lockScope: true,
+    effectOnly: true, target, eff, params: eff.params });
 }
 
 export function bcApply() {
@@ -137,4 +142,5 @@ export function mount() {
 }
 
 actions.register('effect.bc', (targets, title, opts) => openBcPop(targets && targets.length ? targets : null, title, opts));
+actions.register('effect.bc.cancel', bcCancel);
 actions.register('effect.bc.edit', openBcEdit);

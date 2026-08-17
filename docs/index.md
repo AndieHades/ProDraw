@@ -17,8 +17,8 @@
 - [R2.11 TypeScript/RGBA owner cutover](tutorials/raster-editor-migration/r2-11-owner-cutover/README.md)
   — полный аудит и исполняемый перенос сохранённого интерфейса и всех функций с
   двойной JS/grid архитектуры на единственный TypeScript/RGBA runtime.
-- [Monochrome effect and PNG export](tutorials/monochrome-effect-png-export/README.md)
-  — переключаемый эффект слоя/папки и effect-aware быстрый PNG.
+- [Layer color effects and PNG export](tutorials/monochrome-effect-png-export/README.md)
+  — монохром, настраиваемая яркость/контраст и effect-aware быстрый PNG.
 - [Procreate brush parity](tutorials/procreate-brush-parity/README.md) —
   почему `.brush` рисует не как в Procreate и что нужно изменить в движке.
 - [PSD document import](tutorials/psd-document-import/README.md) — единый

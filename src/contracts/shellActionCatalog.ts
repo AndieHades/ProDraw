@@ -7,7 +7,7 @@ export const SHELL_ACTION_NAMES = [
   "color.used", "cursor.cycleMode", "doc.new",
   "edit.copy", "edit.cut", "edit.delete",
   "edit.dropColorAt", "edit.floodAt", "edit.paste",
-  "edit.redo", "edit.undo", "effect.bc",
+  "edit.redo", "edit.undo", "effect.bc", "effect.bc.cancel",
   "effect.bc.edit", "effect.mono", "export.layer",
   "export.targetPng", "eyedropper.capture", "file.export",
   "file.exportPng", "file.exportPsd", "file.import",

@@ -82,6 +82,10 @@ tile canvases до смены presentation revision. `TileHistory` ограни�
 меняет source pixels. Быстрый PNG слоя и папки строит один visibility-filtered
 export root и проходит через общий `paintStack`; whole-canvas/trim поэтому
 учитывают включённые эффекты и берут имя из выбранного слоя или папки.
+Тот же stack хранит `adjustment`: из панели эффектов он открывается как
+«Яркость/контраст» в отдельном окне с двумя live-ползунками. Первый клик выбирает
+его строку, повторный открывает сохранённые параметры; расширенные тон и
+насыщенность остаются только в совместимом canvas-adjustment contract.
 
 Архитектурные фикстуры запрещают DOM-типы в `src/contracts`, импорт mutable
 document/persistence в UI и композицию target systems вне `src/app`. Временный

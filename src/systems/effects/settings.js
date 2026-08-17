@@ -49,6 +49,9 @@ function open(target, eff, isNew) { if (ses) { revert(); close(); } // пере�
 const newFxParams = (type) => (EFFECT_FIELDS[type]?.includes('color') ? { color: rgbToHex(S.active) } : {});
 
 export function openFxNew(type) { const target = activeTarget(); if (!target) return;
+  if (type === 'adjustment') { fxCancel(); actions.run('effect.bc', [target], null,
+    { scope: 'layer', lockScope: true, effectOnly: true }); return; }
+  actions.run('effect.bc.cancel');
   const eff = newEffect(type, newFxParams(type)); open(target, eff, true); }
 export function openFxEdit(target, eff) {
   if (!target || !eff) return;

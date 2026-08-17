@@ -40,9 +40,11 @@ function effectRow(target, eff, depth) {
     vis.classList.toggle('off', eff.visible === false); row.classList.toggle('fxoff', eff.visible === false); bus.emit('visibility'); bus.emit('render'); });
   row.append(star, nm, vis);
   row.addEventListener('click', (e) => { e.stopPropagation(); if (layDragSquelch) return;
+    if (!e.shiftKey && !e.ctrlKey && !e.metaKey && eff.type === 'adjustment' &&
+      eff === S.fxCur && S.fxSel.size === 1) { actions.run('fx.edit', target, eff); return; }
     if (e.shiftKey && selectRange(row)) { layList(); return; } // shift-клик — диапазон от активной строки до этого эффекта
     selectFx(eff, e.ctrlKey || e.metaKey); }); // тап — выбрать
-  onDoubleTap(row, () => actions.run('fx.edit', target, eff)); // быстрый двойной тап/клик — правка эффекта/настройки
+  if (eff.type !== 'adjustment') onDoubleTap(row, () => actions.run('fx.edit', target, eff));
   onContext(row, (x, y) => { if (!S.fxSel.has(eff)) selectFx(eff, false); actions.run('fx.menu', x, y, target, eff); }); // ПКМ — меню
   dragRow(row, { kind: 'fx', eff, owner: target }); return row;
 }
