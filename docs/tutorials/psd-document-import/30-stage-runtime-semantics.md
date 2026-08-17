@@ -2,7 +2,7 @@
 
 - Stable id: `PSD3`
 - Depends on: `PSD2`
-- Status: `pending`
+- Status: `done`
 
 ## Scope
 
@@ -21,6 +21,11 @@ save/reopen, merge/export and Undo paths retain the same visible result.
 
 ## Completion Record
 
-- Commit: pending
-- Checks: pending
-- Residual risk: pending
+- Commit: `d0228af` (`feat: render imported psd semantics`)
+- Checks: 31 blend modes, mask density/relative coordinates, exact alpha edge,
+  ordered mask/clipping/group/effect blend fixture, all decoded effect families,
+  nested isolated/pass-through groups, gallery persistence, 393 module
+  integration checks, TypeScript/lint/cutover/cycles/lines and production build
+- Residual risk: Photoshop pattern resources remain metadata-only; feather,
+  noise-gradient, inner-glow, bevel, satin and height-family rendering are
+  deterministic approximations and create compatibility warnings

@@ -26,7 +26,20 @@ success is reported, and reopen produces the same layer metadata and pixels.
 
 ## Completion Record
 
-- Commits: pending
-- Automated checks: pending
-- Manual checks: pending
-- Known compatibility limits: pending
+- Commits: `62e947a`, `faaf146`, `51b6972`, `d0228af`, and the final
+  verification commit (`test: verify psd document import`)
+- Automated checks: PSD 9 files/48 tests; all 31 normalized blend modes; exact
+  alpha/mask/effect-order fixtures; nested isolated/pass-through groups; 393
+  module integration checks; 99 files/269 non-performance tests through
+  `validate:changed`; storage and module boot; TypeScript, ESLint, docs,
+  architecture, cutover, cycles, lines, desktop shell and production bundle
+- Packaged Windows smoke: renderer ready with 12 brushes/17 sources and alpha
+  `255`; temporary `win-unpacked/ProDraw.exe` launched successfully
+- Manual checks: physical Photoshop-authored fixture comparison was not run;
+  it is the only skipped acceptance profile and requires Photoshop plus the
+  packaged Windows app on a graphical machine
+- Known compatibility limits: external pattern-overlay resources are retained
+  and reported but not rendered. Feathered masks, noise gradients, inner glow,
+  bevel, satin and height-family blends use deterministic approximations and
+  report compatibility warnings. Text/vector/smart objects use the PSD-rendered
+  bitmap while preserving their source metadata; they are not native editors.

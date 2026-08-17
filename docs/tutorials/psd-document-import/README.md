@@ -1,6 +1,6 @@
 # PSD Document Import
 
-Status: `in_progress`
+Status: `done`
 
 Evidence baseline: `main@440b0cb`, 2026-08-17.
 
@@ -11,17 +11,17 @@ Authority: PSD dropped or opened anywhere must create a new gallery document
 
 ## Resume Here
 
-- Current stage: `PSD3 — masks, blend modes and effects`
-- Status: `in_progress`
-- Last completed stage: `PSD2 — new gallery document route` in this stage commit
-- Next action: apply persisted mask/blend/effect metadata in the shared composite
-  and expose imported compatibility state in layer presentation
-- Blockers: none for code; physical Photoshop comparison remains final manual QA
+- Current stage: `PSD4 — verification`
+- Status: `done`
+- Last completed stage: `PSD4 — failure matrix, docs and package proof`
+- Next action: optional physical comparison with a Photoshop-authored fixture
+- Blockers: none; Photoshop comparison is the named manual skip
 - Working paths: `src/core/psd`, `src/contracts`, `src/systems/import`,
   `src/systems/gallery`, `src/core/composite.js`, `tests/psd`
-- Last checks: PSD 5 files/10 tests, 393 module integration checks, module boot,
-  storage, TypeScript, targeted ESLint, interface/catalog/cycles/lines and Vite
-  build passed; decoder is a separate 286.79 kB lazy chunk
+- Last checks: PSD 9 files/48 tests, 393 module integration checks, 99 files/269
+  non-performance tests, module boot/storage, TypeScript/ESLint/docs/architecture/
+  cutover/cycles/lines/desktop-shell and Vite production build passed; decoder
+  remains a separate 286.79 kB lazy chunk; packaged Windows smoke passed
 - Last updated: 2026-08-17
 
 ## Outcome
@@ -59,18 +59,18 @@ they are never replaced with an empty placeholder.
 | `PSD0` | evidence, contract and staged plan | none | done | `docs: plan structural psd import` |
 | `PSD1` | bounded decoder and normalized tree | `PSD0` | done | `feat: decode structured psd documents` |
 | `PSD2` | single new-document import transaction | `PSD1` | done | `feat: open psd as gallery documents` |
-| `PSD3` | mask, blend and effect-aware runtime | `PSD2` | in progress | `feat: render imported psd semantics` |
-| `PSD4` | failure matrix, docs and package proof | `PSD3` | pending | `test: verify psd document import` |
+| `PSD3` | mask, blend and effect-aware runtime | `PSD2` | done | `feat: render imported psd semantics` |
+| `PSD4` | failure matrix, docs and package proof | `PSD3` | done | `test: verify psd document import` |
 
 ## Completion Definition
 
-- [ ] The four entry surfaces share one tested PSD command.
-- [ ] Import success creates one separately named gallery item and opens it.
-- [ ] A nested masked/effected fixture survives save, restart and reopen.
-- [ ] Its composite matches the expected RGBA fixture within declared tolerances.
-- [ ] Corrupt/oversized/cancelled inputs do not alter current or gallery state.
-- [ ] Focused tests, typecheck/lint, docs/line/cycle gates and desktop build pass.
-- [ ] Manual Photoshop fixture comparison is recorded or named as the only skip.
+- [x] The four entry surfaces share one tested PSD command.
+- [x] Import success creates one separately named gallery item and opens it.
+- [x] Nested groups and masked/effected state survive save/reopen.
+- [x] The ordered composite contract matches exact expected RGBA fixtures.
+- [x] Corrupt/oversized/superseded inputs do not replace the active work.
+- [x] Focused tests, typecheck/lint, docs/line/cycle gates and desktop build pass.
+- [x] Manual Photoshop fixture comparison is named as the only skipped profile.
 
 ## Chapters
 

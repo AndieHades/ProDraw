@@ -46,6 +46,17 @@ export function structuredPsd(compress = false): ArrayBuffer {
   return writePsd(psd, { compress, generateThumbnail: false });
 }
 
+export function nestedPsd(): ArrayBuffer {
+  const pixel = image(1, 1, [40, 80, 120, 192]);
+  const psd: Psd = { width: 1, height: 1, imageData: image(1, 1, [0, 0, 0, 0]),
+    children: [{ name: "Outer", blendMode: "normal", opacity: 0.8, children: [
+      { name: "Inner", blendMode: "pass through", children: [
+        { name: "Pixel", imageData: pixel }
+      ] }
+    ] }] };
+  return writePsd(psd, { generateThumbnail: false });
+}
+
 export function psdHeader(width: number, height: number, depth = 8): ArrayBuffer {
   const buffer = new ArrayBuffer(26), bytes = new Uint8Array(buffer);
   bytes.set([56, 66, 80, 83]);

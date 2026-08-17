@@ -66,7 +66,10 @@ PSD picker и window drop используют один lazy-loaded `ag-psd` ada
 завершается до смены активной работы; gallery transaction сохраняет прежний
 документ, атомарно создаёт отдельную запись и только затем открывает её. DPI,
 Unicode tree, alpha, masks, clipping, blend/effect metadata переживают reopen;
-их полное применение в recovery renderer принадлежит `PSD3`.
+маски применяются до clipping/эффектов, Photoshop blend modes проходят через
+явный Canvas/pure-RGBA mapping, а isolated/pass-through группы собираются общим
+композитором. Самодостаточные эффекты остаются неразрушающими строками слоя;
+неточные эквиваленты и внешние pattern-ресурсы дают сохранённое предупреждение.
 
 `DocumentCompositor` владеет revision-aware LRU composite cache и вычисляет
 только tiles в текущих viewport bounds. `CanvasPresenter` повторно использует
