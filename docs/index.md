@@ -14,6 +14,8 @@
 
 - [Raster editor migration](tutorials/raster-editor-migration/README.md) — переход
   от pixel-grid редактора к TypeScript/RGBA-движку и профессиональным кистям.
+- [Monochrome effect and PNG export](tutorials/monochrome-effect-png-export/README.md)
+  — переключаемый эффект слоя/папки и effect-aware быстрый PNG.
 - [Реестр планов](tutorials/README.md)
 
 ## Системы
