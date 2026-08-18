@@ -9,7 +9,7 @@ import { applyBounds, visibleBounds, unionBounds, cropTo } from './bounds.js';
 import { FORMATS } from './formats.js';
 import { planFolderPngTree } from '../../logic/export/folderPngPlan.ts';
 import { createFileTreeWriter,
-  FileTreeUnsupportedError } from '../../platform/fileTreeWriter.js';
+  FileTreeUnsupportedError } from '../../platform/fileTreeWriter.ts';
 
 // уникализировать имена файлов (Слой, Слой_2, …)
 function uniqueNames(items) { const seen = new Map();

@@ -1099,11 +1099,12 @@ await ta('layered PSD decodes with panel order matching the visible stack', asyn
   resetWH(1, 1);
   const layer = (name, fid, color) => ({ name, fid, grid: [[[...color, 255]]],
     opacity: 1, visible: true, clip: false, ext: new Map(), effects: [] });
+  const unicodeGroup = String.fromCodePoint(0x412, 0x43d, 0x443, 0x442, 0x440, 0x438);
   S.layers = [layer('Root Bottom', null, [1, 1, 1]),
     layer('Group Bottom', 1, [2, 2, 2]), layer('Nested', 2, [3, 3, 3]),
     layer('Group Top', 1, [4, 4, 4]), layer('Root Top', null, [5, 5, 5])];
   S.folders = [{ id: 1, name: 'Outer', open: true, visible: true, parent: null,
-    effects: [] }, { id: 2, name: 'Внутри', open: false, visible: true,
+    effects: [] }, { id: 2, name: unicodeGroup, open: false, visible: true,
     parent: 1, effects: [] }]; cache.dirtyAll();
   const output = await FORMATS.psd.encodeLayered(xtree.buildExportDoc('project', true), 'order');
   const bytes = new Uint8Array(await output.blob.arrayBuffer());
@@ -1114,7 +1115,7 @@ await ta('layered PSD decodes with panel order matching the visible stack', asyn
     ['Root Top', 'Outer', 'Root Bottom']);
   const outer = decoded.children[1];
   assert.deepEqual(outer.children.map((node) => node.name),
-    ['Group Top', 'Внутри', 'Group Bottom']);
+    ['Group Top', unicodeGroup, 'Group Bottom']);
   assert.deepEqual(outer.children[1].children.map((node) => node.name), ['Nested']);
 });
 await ta("module-int case 131", async () => { exportProject();

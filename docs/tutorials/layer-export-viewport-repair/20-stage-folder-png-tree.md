@@ -48,5 +48,8 @@ tree and reports a localized error without claiming success.
   TypeScript and targeted ESLint; desktop, shell catalog, interface,
   architecture, cycles and line validators; desktop build and packaged Windows
   renderer smoke.
+- Final validation moved the platform adapter from JavaScript to strict
+  TypeScript without changing its contract. The production cutover graph stays
+  at 281 source JavaScript modules and therefore does not regress `R2.11`.
 - Residual risk: the physical Explorer picker remains a named manual check;
   packaged smoke covered the preload/main boundary and renderer startup only.

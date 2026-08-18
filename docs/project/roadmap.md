@@ -44,3 +44,10 @@ acceptance-блокером F5, но не блокирует code cutover.
 а desktop smoke использует каноническую упаковку. Активен `C1`: полный
 сохранённый shell и его shared/pure leaves переводятся в TypeScript без замены
 интерфейса сокращённой оболочкой.
+
+Вне очереди больших стадий закрыт ограниченный
+[`layer-export-viewport-repair`](../tutorials/layer-export-viewport-repair/README.md):
+PSD теперь сохраняет top-first порядок панели, папка экспортирует отдельные PNG
+с восстановлением подкаталогов, а downscale viewport использует фильтрацию без
+изменения RGBA. Это исправление recovery-shell; оно не объявляет R4/R5
+завершёнными и не меняет активный owner-cutover `R2.11`.

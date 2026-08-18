@@ -1,6 +1,6 @@
 # Layer Export and Viewport Repair
 
-Status: `in_progress`
+Status: `done`
 
 Evidence baseline: clean `codex/layer-export-viewport-fixes@8e7faee`,
 2026-08-18, synchronized with `origin/main`.
@@ -10,16 +10,16 @@ the completed recovery-bridge PNG/PSD paths.
 
 ## Resume Here
 
-- Current stage: final verification
-- Status: `in_progress`
+- Current stage: package complete
+- Status: `done`
 - Last completed stage: `LEP3 — high-quality viewport downscale`
-- Next action: run the aggregate validation gate, record commit ids and close
-  the package
+- Next action: none; physical Photoshop, Explorer-picker and display-quality
+  checks remain optional manual supplements
 - Blockers: none
 - Working paths: `src/systems/export`, `src/systems/layers`, `src/platform`,
   `desktop`, `src/systems/render`, `src/i18n`, `index.html`, `tests`, `test`
-- Last checks: 398 module integration tests; viewport policy 1 file/1 test;
-  TypeScript and targeted render/test ESLint passed
+- Last checks: full `npm run validate`; packaged Windows desktop smoke with 12
+  brushes, 17 sources and alpha 255
 - Last updated: 2026-08-18
 
 ## Problems Recorded
@@ -65,8 +65,9 @@ the completed recovery-bridge PNG/PSD paths.
 
 ## Completion Definition
 
-- Exported nested PSD order and composite agree after decode/reopen.
-- Folder RMB writes one complete Explorer tree with one PNG per descendant.
-- Downscaled presentation is filtered while 100% and source bytes stay exact.
-- Focused behavior/failure tests, check/lint, docs/lines/cycles and production
+- [x] Exported nested PSD order and composite agree after decode/reopen.
+- [x] Folder RMB writes one complete Explorer tree with one PNG per descendant.
+- [x] Downscaled presentation is filtered while 100% and source bytes stay
+  exact.
+- [x] Focused behavior/failure tests, check/lint, docs/lines/cycles and production
   build pass; each stage records its commit and exact checks.
