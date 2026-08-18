@@ -37,6 +37,12 @@ describe("selectPlatform", () => {
         readState: vi.fn(async () => null),
         writeState: vi.fn(async () => undefined)
       },
+      fileTree: {
+        begin: vi.fn(async () => null),
+        write: vi.fn(async () => true),
+        commit: vi.fn(async () => ({ name: "Layers", location: "C:\\Art\\Layers" })),
+        abort: vi.fn(async () => true)
+      },
       openBinary: vi.fn(async () => ({
         name: "work.prodraw",
         location: "C:\\Art\\work.prodraw",

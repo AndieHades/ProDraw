@@ -2,6 +2,7 @@ import { app, BrowserWindow } from "electron";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { registerFileIpc } from "./electron-ipc.mjs";
+import { registerExportTreeIpc } from "./export-tree-ipc.mjs";
 import { registerBrushIpc } from "./brush-ipc.mjs";
 import { attachCloseHandshake, registerCloseIpc } from "./close-ipc.mjs";
 import { runPackagedSmoke } from "./desktop-smoke.mjs";
@@ -52,6 +53,7 @@ async function createWindow({ smoke = false } = {}) {
 
 async function start() {
   registerFileIpc();
+  registerExportTreeIpc();
   registerBrushIpc();
   registerCloseIpc();
   if (smokeOnly) {

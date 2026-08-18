@@ -34,6 +34,13 @@ export interface ConfirmDiscardRequest {
   readonly cancelLabel: string;
 }
 
+export interface DesktopFileTreeBridge {
+  begin(suggestedName: string): Promise<{ readonly token: string } | null>;
+  write(token: string, relativePath: readonly string[], bytes: ArrayBuffer): Promise<boolean>;
+  commit(token: string): Promise<{ readonly name: string; readonly location: string }>;
+  abort(token: string): Promise<boolean>;
+}
+
 export interface PlatformPort {
   readonly kind: PlatformKind;
   readonly brushStorage: BrushLibraryStoragePort | null;
@@ -48,6 +55,7 @@ export interface PlatformPort {
 export interface DesktopBridge {
   readonly platform: "windows";
   readonly brushStorage: DesktopBrushStorageBridge;
+  readonly fileTree: DesktopFileTreeBridge;
   openBinary(filters?: readonly FileFilter[]): Promise<{
     readonly name: string;
     readonly bytes: ArrayBuffer;

@@ -4,9 +4,12 @@
 import { saveFile } from '../../core/io.js';
 import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { buildExportDoc, docName, exportTargetRoot } from './tree.js';
-import { flattenNodes } from './render.js';
+import { flattenNodes, standaloneLayerCanvas } from './render.js';
 import { applyBounds, visibleBounds, unionBounds, cropTo } from './bounds.js';
 import { FORMATS } from './formats.js';
+import { planFolderPngTree } from '../../logic/export/folderPngPlan.ts';
+import { createFileTreeWriter,
+  FileTreeUnsupportedError } from '../../platform/fileTreeWriter.js';
 
 // уникализировать имена файлов (Слой, Слой_2, …)
 function uniqueNames(items) { const seen = new Map();
@@ -61,6 +64,33 @@ export async function exportTargetPng(target, tight) {
   const canvas = tight ? cropTo(rendered, bounds) : rendered;
   const output = await FORMATS.png.encode(canvas, node.name);
   await saveOne(output); return output;
+}
+
+export async function exportFolderLayersPng(target,
+  writerFactory = createFileTreeWriter) {
+  const node = exportTargetRoot(target, true);
+  if (!node || node.kind !== 'folder') return null;
+  const plan = planFolderPngTree(node);
+  if (!plan.items.length) { toast(t('toast.exportEmpty')); return null; }
+  let writer = null;
+  try {
+    writer = await writerFactory(plan.rootName);
+    if (!writer) return null;
+    for (const item of plan.items) {
+      const output = await FORMATS.png.encode(standaloneLayerCanvas(item.node),
+        item.node.name);
+      if (!output.blob) throw new Error('PNG encoder returned no data');
+      await writer.write(item.path, output.blob);
+    }
+    const result = await writer.commit();
+    toast(t('toast.exported', { n: plan.items.length }));
+    return { ...result, items: plan.items };
+  } catch (error) {
+    await writer?.abort().catch(() => undefined);
+    toast(t(error instanceof FileTreeUnsupportedError
+      ? 'toast.folderExportUnavailable' : 'toast.folderExportFailed'));
+    return null;
+  }
 }
 
 export const exportSingleLayer = exportTargetPng;

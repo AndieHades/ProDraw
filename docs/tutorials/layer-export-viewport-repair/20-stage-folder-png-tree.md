@@ -1,7 +1,7 @@
 # LEP2: Folder Layers as PNG Tree
 
 - Stable id: `LEP2`
-- Status: `planned`
+- Status: `done`
 - Depends on: `LEP1`
 - Requirements: `LEP-PNG-01..04`
 
@@ -43,6 +43,10 @@ tree and reports a localized error without claiming success.
 
 ## Completion record
 
-- Commit: pending
-- Checks: pending
-- Residual risk: physical Explorer picker remains part of packaged smoke.
+- Commit: this stage commit (`feat: export folder layers as png tree`).
+- Checks: 397 module integration tests; folder path/platform 3 files/6 tests;
+  TypeScript and targeted ESLint; desktop, shell catalog, interface,
+  architecture, cycles and line validators; desktop build and packaged Windows
+  renderer smoke.
+- Residual risk: the physical Explorer picker remains a named manual check;
+  packaged smoke covered the preload/main boundary and renderer startup only.

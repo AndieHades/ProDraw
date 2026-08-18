@@ -125,6 +125,8 @@ export const enFeedback: LocaleDictionary = {
   "toast.recoloredN": "Recolored: {n} px",
   "toast.exported": "Exported files: {n}",
   "toast.exportEmpty": "Nothing to export",
+  "toast.folderExportUnavailable": "Folder export is unavailable in this browser",
+  "toast.folderExportFailed": "Could not save the PNG tree",
   "toast.animationLastFrame": "This is the last frame",
   "toast.animationExported": "Animation exported",
 };
