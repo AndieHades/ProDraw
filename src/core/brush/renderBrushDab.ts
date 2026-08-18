@@ -7,6 +7,7 @@ import { visitRadialDab } from "./radialDab.ts";
 import { brushDabOpacity } from "../../logic/brush/brushOpacity.ts";
 import { dabStampPlan } from "../../logic/brush/dabStampPlan.ts";
 import { DEFAULT_PROPERTIES } from "../../config/brushDefaults.ts";
+import { responseCurve } from "../../logic/brush/responseCurve.ts";
 
 export type BrushDabVisitor = (x: number, y: number, opacity: number) => void;
 
@@ -15,8 +16,9 @@ export function pressureBrushSize(
   size: number,
   sample: Pick<StrokeSample, "pressure" | "tiltX" | "tiltY" | "sizeScale">
 ): number {
+  const curved = responseCurve(sample.pressure, brush.dynamics.pressureSizeCurve);
   const response = 1 - brush.dynamics.sizeByPressure +
-    brush.dynamics.sizeByPressure * sample.pressure;
+    brush.dynamics.sizeByPressure * curved;
   const tilt = brush.stylus.tiltEnabled
     ? Math.min(1, Math.hypot(sample.tiltX, sample.tiltY) / 90) : 0;
   const responsiveSize = size * response * (1 + brush.dynamics.tiltToSize * tilt) *

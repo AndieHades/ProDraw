@@ -36,11 +36,14 @@ export function createCellPainter(erase, dedupe = false) {
   const layer = S.layers[S.cur], grid = G(), layerIndex = S.cur;
   const symmetry = symmetryConfig(), color = S.active.slice();
   const pending = new PixelOpacityAccumulator(S.W, brushRaster.opacityAccumulatorTileSide);
+  const base = new Map();
   const opaqueColor = [color[0], color[1], color[2], 255];
   const symmetric = symmetry.x || symmetry.y || symmetry.d1 || symmetry.d2;
   let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
   const apply = (x, y, opacity) => {
-    const dst = grid[y][x]; if ((layer.alphaLock || erase) && !dst) return;
+    const key = y * S.W + x;
+    if (!base.has(key)) base.set(key, grid[y][x] ? grid[y][x].slice() : null);
+    const dst = base.get(key); if ((layer.alphaLock || erase) && !dst) return;
     recordPixelBefore(layerIndex, x, y, dst);
     if (erase) { const a1 = ((dst.length > 3 ? dst[3] : 255) / 255) * (1 - opacity);
       grid[y][x] = a1 < .04 ? null : [dst[0], dst[1], dst[2], Math.round(a1 * 255)]; }
@@ -61,10 +64,19 @@ export function createCellPainter(erase, dedupe = false) {
     for (const [px, py] of mirrorPoints(x, y, S.W, S.H, false, false, symmetry))
       if (inSel(px, py)) queue(px, py, o);
   };
-  return { paint, flush() {
-    if (pending.size) pending.drain(apply);
-    if (maxx >= minx) { markDirty(layerIndex, { minx, miny, maxx, maxy });
-      minx = Infinity; miny = Infinity; maxx = -Infinity; maxy = -Infinity; }
+  const dirty = () => { if (maxx >= minx) {
+    markDirty(layerIndex, { minx, miny, maxx, maxy });
+    minx = Infinity; miny = Infinity; maxx = -Infinity; maxy = -Infinity;
+  } };
+  return { paint, reset() {
+    for (const [key, cell] of base) { const x = key % S.W, y = Math.floor(key / S.W);
+      grid[y][x] = cell ? cell.slice() : null;
+      if (x < minx) minx = x; if (x > maxx) maxx = x;
+      if (y < miny) miny = y; if (y > maxy) maxy = y; }
+    base.clear(); pending.clear(); dirty();
+  }, flush() {
+    if (pending.size) pending.visitDirty(apply);
+    dirty();
   } };
 }
 

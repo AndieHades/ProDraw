@@ -13,11 +13,11 @@ Evidence baseline: `main@8e7faee`, 2026-08-18. Единственный пост
 
 ## Resume Here
 
-- Current stage: `PBP-4`
+- Current stage: `PBP-6`
 - Status: `in_progress`
-- Last completed stage: `PBP-3`
-- Next action: исправить semantics shape scatter/count, response curves,
-  pressure/taper и детерминированный stamp plan
+- Last completed stage: `PBP-5`
+- Next action: завершить versioned preview cache, persistence последней
+  кисти/цвета и закрепляемую библиотеку с назначаемыми клавишами
 - Blockers: нет. Владелец подтвердил правильность source PNG и берёт на себя
   финальное визуальное сравнение с Procreate (`D-7`)
 - Working paths: `src/app-folders/sources/` (данные, кодом не читаются),
@@ -25,7 +25,7 @@ Evidence baseline: `main@8e7faee`, 2026-08-18. Единственный пост
   `src/logic/brush/grainTile.ts`, `src/logic/stroke/`, `tests/brush/`
 - Last checks: 30 brush files / 66 tests; 18 performance files / 55 tests;
   check, targeted lint, lines, cycles и Vite reload smoke — зелёные
-- Last updated: `2026-08-18, PBP-3 закрыт; Resume Here — PBP-4`
+- Last updated: `2026-08-18, PBP-4/5 закрыты; Resume Here — PBP-6`
 
 ## Краткий вывод исследования
 
@@ -70,8 +70,8 @@ pointer event.
 | `PBP-1` | [`10-stage-parity-harness.md`](10-stage-parity-harness.md) | deferred |
 | `PBP-2` | [`20-stage-shape-grain-sources.md`](20-stage-shape-grain-sources.md) | completed |
 | `PBP-3` | [`30-stage-grain-domain.md`](30-stage-grain-domain.md) | completed |
-| `PBP-4` | [`40-stage-stroke-response.md`](40-stage-stroke-response.md) | draft |
-| `PBP-5` | [`50-stage-size-opacity-compositing.md`](50-stage-size-opacity-compositing.md) | draft |
+| `PBP-4` | [`40-stage-stroke-response.md`](40-stage-stroke-response.md) | completed |
+| `PBP-5` | [`50-stage-size-opacity-compositing.md`](50-stage-size-opacity-compositing.md) | completed |
 | `PBP-6` | [`60-stage-preview-cache.md`](60-stage-preview-cache.md) | planned |
 | `PBP-7` | [`70-stage-last-tools.md`](70-stage-last-tools.md) | planned |
 | `PBP-8` | [`80-stage-library-workflow.md`](80-stage-library-workflow.md) | planned |

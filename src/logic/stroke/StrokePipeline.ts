@@ -24,6 +24,7 @@ export class StrokePipeline {
   #travelled = 0;
   #distanceToNext = 0;
   #dab = 0;
+  #plan: StrokeSample[] = [];
 
   constructor(brush: BrushPreset | LoadedBrush, size: number) {
     this.#brush = brush;
@@ -44,6 +45,17 @@ export class StrokePipeline {
       output.push(this.plan(endpoint, true));
     }
     return output;
+  }
+
+  completedPlan(): readonly StrokeSample[] {
+    if (this.#plan.length <= 1) return this.#plan;
+    return this.#plan.map((sample) => {
+      const remaining = this.#travelled - (sample.travelled ?? 0);
+      const taper = taperResponse(this.#brush.taper, sample.travelled ?? 0, this.#size,
+        sample.pressure, sample.pointerType, remaining);
+      return { ...sample, sizeScale: taper.sizeScale,
+        opacityScale: taper.opacityScale };
+    });
   }
 
   private samples(points: readonly StrokeSample[]): StrokeSample[] {
@@ -87,6 +99,7 @@ export class StrokePipeline {
   private plan(sample: StrokeSample, exactPosition: boolean): StrokeSample {
     const previous = this.#plannedSource;
     const distance = previous ? Math.hypot(sample.x - previous.x, sample.y - previous.y) : 0;
+    const elapsed = previous ? Math.max(1, sample.time - previous.time) : 1;
     this.#travelled += distance;
     const directionX = distance > 0 && previous ? (sample.x - previous.x) / distance : 1;
     const directionY = distance > 0 && previous ? (sample.y - previous.y) / distance : 0;
@@ -111,11 +124,13 @@ export class StrokePipeline {
     const rotation = this.#brush.properties.orientToScreen ? 0 :
       ((this.#brush.shape.relativeToStroke ?? DEFAULT_SHAPE.relativeToStroke) ||
         shapeRotation !== 0 ? shapeAngle * shapeRotation : 0);
-    return { ...sample,
+    const planned = { ...sample,
       x: exactPosition ? sample.x : sample.x + directionX * linear - directionY * lateral,
       y: exactPosition ? sample.y : sample.y + directionY * linear + directionX * lateral,
       pressure: Math.max(0.01, sample.pressure * falloffScale),
+      speed: distance / elapsed, travelled: this.#travelled,
       sizeScale: taper.sizeScale, opacityScale: taper.opacityScale,
       rotation, dabIndex, exactPosition };
+    this.#plan.push(planned); return planned;
   }
 }

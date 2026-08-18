@@ -22,9 +22,18 @@ export function decodeKeyedArchiveRoot(
   if (!isUid(rootReference)) throw new Error("NSKeyed archive root is missing");
   const root = objects[rootReference.uid];
   if (!isRecord(root)) throw new Error("NSKeyed archive root is not a dictionary");
-  const resolved: Record<string, BinaryPlistValue> = {};
-  for (const [key, value] of Object.entries(root)) {
-    resolved[key] = isUid(value) ? objects[value.uid] ?? null : value;
-  }
-  return resolved;
+  const resolving = new Set<number>();
+  const resolve = (value: BinaryPlistValue): BinaryPlistValue => {
+    if (isUid(value)) {
+      if (resolving.has(value.uid)) return null;
+      resolving.add(value.uid);
+      const output = resolve(objects[value.uid] ?? null);
+      resolving.delete(value.uid); return output;
+    }
+    if (Array.isArray(value)) return value.map(resolve);
+    if (!isRecord(value)) return value;
+    return Object.fromEntries(Object.entries(value)
+      .map(([key, item]) => [key, resolve(item)]));
+  };
+  return resolve(root) as Readonly<Record<string, BinaryPlistValue>>;
 }

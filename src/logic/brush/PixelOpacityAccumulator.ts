@@ -15,6 +15,7 @@ export class PixelOpacityAccumulator {
   readonly #side: number;
   readonly #columns: number;
   #tiles = new Map<number, OpacityTile>();
+  #dirty = new Set<number>();
 
   constructor(width: number, side: number) {
     this.#width = width;
@@ -40,7 +41,8 @@ export class PixelOpacityAccumulator {
     const localX = x - tile.x, localY = y - tile.y;
     const index = localY * this.#side + localX;
     const before = tile.data[index] ?? 0;
-    tile.data[index] = 1 - (1 - before) * (1 - opacity);
+    tile.data[index] = Math.max(before, opacity);
+    this.#dirty.add(key);
     tile.minX = Math.min(tile.minX, localX); tile.maxX = Math.max(tile.maxX, localX);
     tile.minY = Math.min(tile.minY, localY); tile.maxY = Math.max(tile.maxY, localY);
   }
@@ -48,7 +50,19 @@ export class PixelOpacityAccumulator {
   drain(visit: OpacityVisitor): void {
     const tiles = this.#tiles;
     this.#tiles = new Map();
-    for (const tile of tiles.values()) {
+    this.#dirty.clear(); this.visitTiles(tiles.values(), visit);
+  }
+
+  clear(): void { this.#tiles.clear(); this.#dirty.clear(); }
+
+  visitDirty(visit: OpacityVisitor): void {
+    const dirty = [...this.#dirty]; this.#dirty.clear();
+    this.visitTiles(dirty.map((key) => this.#tiles.get(key)).filter(
+      (tile): tile is OpacityTile => !!tile), visit);
+  }
+
+  private visitTiles(tiles: Iterable<OpacityTile>, visit: OpacityVisitor): void {
+    for (const tile of tiles) {
       for (let y = tile.minY; y <= tile.maxY; y += 1) {
         const documentY = tile.y + y;
         for (let x = tile.minX; x <= tile.maxX; x += 1) {

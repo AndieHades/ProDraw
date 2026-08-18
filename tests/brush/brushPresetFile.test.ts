@@ -16,6 +16,10 @@ describe("ProDraw brush preset file", () => {
       grain: { ...base.grain, behavior: "moving" as const, movement: 0.84,
         offsetJitter: true, filtering: "none" as const },
       rendering: { ...base.rendering, mode: "heavy-glaze" as const },
+      dynamics: { ...base.dynamics, opacityJitter: 0.4, speedOpacity: -0.2,
+        tiltOpacity: 0.3, pressureSizeCurve: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+        pressureOpacityCurve: [{ x: 0, y: 0 },
+          { x: 0.4, y: 0.7 }, { x: 1, y: 1 }] },
       smudge: { flow: 0.64, pickup: 0.31, pull: 0.91 },
       stylus: { ...base.stylus,
         pressureCurve: [0, 0.18, 0.82, 1] as const,
@@ -37,6 +41,7 @@ describe("ProDraw brush preset file", () => {
     expect(parsed.shape).toEqual(edited.shape);
     expect(parsed.grain).toEqual(edited.grain);
     expect(parsed.rendering.mode).toBe("heavy-glaze");
+    expect(parsed.dynamics).toEqual(edited.dynamics);
     expect(parsed.smudge).toEqual({ flow: 0.64, pickup: 0.31, pull: 0.91 });
     expect(parsed.stylus.pressureCurve).toEqual([0, 0.18, 0.82, 1]);
     expect(parsed.stylus.barrelAction).toBe("smudge");

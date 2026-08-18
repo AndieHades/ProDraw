@@ -29,6 +29,7 @@ export interface BrushShapeSettings {
   readonly inputStyle: BrushInputStyle;
   readonly relativeToStroke: boolean;
   readonly rotation: number;
+  readonly scatter: number;
   readonly count: number;
   readonly countJitter: number;
   readonly randomized: boolean;

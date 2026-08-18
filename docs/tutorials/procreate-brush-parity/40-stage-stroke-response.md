@@ -1,6 +1,6 @@
 # Stage PBP-4: кривые отклика, динамики и taper
 
-- Status: `draft`
+- Status: `completed`
 - Depends on: `PBP-3`
 - Requirements: `PBP-04`, `PBP-05`
 
@@ -107,6 +107,7 @@ round-trip пресетов, browser smoke пером с реальным наж
 
 ## Completion record
 
-- Commit:
-- Checks:
-- Date:
+- Commit: this stage commit
+- Checks: focused golden-plan, curve, count/scatter, taper, archive round-trip
+  and compositing coverage; 18 performance files / 55 tests
+- Date: 2026-08-18

@@ -10,6 +10,8 @@ export interface StrokeSample {
   readonly rotation?: number;
   readonly dabIndex?: number;
   readonly exactPosition?: boolean;
+  readonly speed?: number;
+  readonly travelled?: number;
   readonly pointerType?: "pen" | "mouse" | "touch";
 }
 

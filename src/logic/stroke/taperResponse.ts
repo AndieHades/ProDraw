@@ -10,7 +10,8 @@ export interface TaperResponse {
 const clamp01 = (value: number): number => Math.max(0, Math.min(1, value));
 
 export function taperResponse(settings: BrushTaperSettings, travelled: number,
-  size: number, pressure: number, pointerType: StrokeSample["pointerType"]): TaperResponse {
+  size: number, pressure: number, pointerType: StrokeSample["pointerType"],
+  remaining?: number): TaperResponse {
   const touch = pointerType !== undefined && pointerType !== "pen";
   const start = touch ? settings.touchStart ?? DEFAULT_TAPER.touchStart :
     settings.start ?? DEFAULT_TAPER.start;
@@ -28,7 +29,9 @@ export function taperResponse(settings: BrushTaperSettings, travelled: number,
   const startAmount = start > 0
     ? 1 - Math.min(1, travelled / startDistance) : 0;
   const endLength = linked ? start : end;
-  const endAmount = endLength * (1 - clamp01(pressure));
+  const endDistance = Math.max(1, endLength * size * 4);
+  const endAmount = remaining === undefined || endLength <= 0 ? 0 :
+    1 - Math.min(1, remaining / endDistance);
   const rawAmount = Math.max(startAmount, endAmount);
   const sharpness = 1 + tip * 5;
   const animatedSharpness = (settings.tipAnimation ?? DEFAULT_TAPER.tipAnimation)

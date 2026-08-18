@@ -30,7 +30,8 @@ function planHash(brush: LoadedBrush): string {
   const pipeline = new StrokePipeline(brush, 36);
   const points = [{ x: 5, y: 10, pressure: 0.3, tiltX: 24, tiltY: 9, time: 0 },
     { x: 65, y: 28, pressure: 0.58, tiltX: 42, tiltY: 18, time: 12 }];
-  const plan = [...points.flatMap((point) => pipeline.push(point)), ...pipeline.finish()];
+  points.forEach((point) => pipeline.push(point)); pipeline.finish();
+  const plan = pipeline.completedPlan();
   return createHash("sha256").update(JSON.stringify(plan)).digest("hex");
 }
 

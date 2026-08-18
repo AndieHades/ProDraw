@@ -50,7 +50,14 @@ export interface BrushDynamics {
   readonly sizeByPressure: number;
   readonly opacityByPressure: number;
   readonly tiltToSize: number;
+  readonly pressureSizeCurve?: readonly BrushResponsePoint[];
+  readonly pressureOpacityCurve?: readonly BrushResponsePoint[];
+  readonly opacityJitter?: number;
+  readonly speedOpacity?: number;
+  readonly tiltOpacity?: number;
 }
+
+export interface BrushResponsePoint { readonly x: number; readonly y: number }
 
 export interface BrushSmudgeSettings {
   readonly flow: number;

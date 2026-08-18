@@ -35,7 +35,7 @@ describe("Brush Studio control surface", () => {
     expect(host.querySelector("canvas")?.width).toBe(32);
     expect(host.querySelectorAll(".studio-control").length).toBeGreaterThan(12);
     const count = [...host.querySelectorAll<HTMLInputElement>('input[type="range"]')]
-      .find((input) => input.max === "6");
+      .find((input) => input.max === "16");
     expect(count?.value).toBe("2");
     if (!count) throw new Error("Count control missing");
     count.value = "3"; count.dispatchEvent(new Event("input"));

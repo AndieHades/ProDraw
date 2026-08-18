@@ -20,7 +20,8 @@ const input: readonly StrokeSample[] = [
 
 function run(brush: BrushPreset): readonly StrokeSample[] {
   const pipeline = new StrokePipeline(brush, 20);
-  return [...input.flatMap((sample) => pipeline.push(sample)), ...pipeline.finish()];
+  input.forEach((sample) => pipeline.push(sample)); pipeline.finish();
+  return pipeline.completedPlan();
 }
 
 describe("StrokePipeline brush dynamics", () => {

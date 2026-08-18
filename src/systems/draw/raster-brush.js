@@ -47,7 +47,8 @@ export function moveRasterStroke(gx, gy, event) {
 
 export function finishRasterStroke() {
   if (!active) return false;
-  renderSamples(active.pipeline.finish());
+  active.pipeline.finish(); active.painter.reset();
+  renderSamples(active.pipeline.completedPlan());
   active = null;
   return true;
 }

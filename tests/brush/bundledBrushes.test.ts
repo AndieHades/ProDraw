@@ -31,6 +31,11 @@ describe("bundled brush catalog", () => {
     expect(loaded.compatibility.archiveName).toBe("LINEART");
     expect(loaded.stabilization.streamlineAmount).toBeCloseTo(0.6453877687);
     expect(loaded.stabilization.stabilizationAmount).toBeCloseTo(0.0584949069);
+    expect(loaded.shape).toMatchObject({ scatter: 0.19181033968925476, count: 4 });
+    expect(loaded.dynamics.pressureOpacityCurve).toContainEqual({
+      x: 0.29359, y: 0.56513 });
+    expect(loaded.compatibility.unsupportedActiveFields).not.toContain(
+      "dynamicsPressureOpacityCurve");
     expect(loaded.shape.sourceName).toBe("Brush-Pocket-Brick.png");
     expect(brushTipCoverage(loaded, 0.8, 0.8)).toBe(0);
     expect(brushTipCoverage(loaded, 0.35, 0)).toBeGreaterThan(0);

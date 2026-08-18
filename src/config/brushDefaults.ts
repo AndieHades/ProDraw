@@ -11,7 +11,7 @@ export const DEFAULT_TAPER: BrushTaperSettings = {
 
 export const DEFAULT_SHAPE: BrushShapeSettings = {
   hardness: 0.8, angle: 0, roundness: 1, inputStyle: "touch",
-  relativeToStroke: false, rotation: 0, count: 1, countJitter: 0,
+  relativeToStroke: false, rotation: 0, scatter: 0, count: 1, countJitter: 0,
   randomized: false, flipX: false, flipY: false, pressureRoundness: 0,
   tiltRoundness: 0, horizontalJitter: 0, verticalJitter: 0,
   filtering: "improved"

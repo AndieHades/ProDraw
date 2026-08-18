@@ -50,12 +50,14 @@ export function legacyBrushStamp(brush: LoadedBrush): LegacyBrushStamp {
   const cached = stampCache.get(brush);
   if (cached) return cached;
   const jitter = Math.max(brush.strokePath.scatter, brush.strokePath.lateralJitter);
+  const shapeScatter = brush.shape.scatter > 0.015 || brush.shape.count > 1;
   const sizeJitter = Math.max(brush.strokePath.spacingJitter,
     brush.strokePath.linearJitter * 0.5);
   const stamp: LegacyBrushStamp = {
     coverage: coverageMap(brush), grain: grainMap(brush),
     opacity: Math.max(0.04, clamp01(brush.rendering.flow * brush.rendering.opacity)),
-    params: { mode: jitter > 0.015 || sizeJitter > 0.01 ? "scatter" : "single",
+    params: { mode: shapeScatter || jitter > 0.015 || sizeJitter > 0.01
+      ? "scatter" : "single",
       spacing: Math.max(0.01, brush.strokePath.spacing), jitter, sizeJitter }
   };
   stampCache.set(brush, stamp);

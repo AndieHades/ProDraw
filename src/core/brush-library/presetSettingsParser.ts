@@ -3,6 +3,7 @@ import type {
   BrushRenderingMode
 } from "../../contracts/brush";
 import type { BrushPresetFileV1 } from "../../contracts/brushLibrary";
+import { normalizedResponseCurve } from "../../logic/brush/responseCurve";
 
 export const clamp = (value: unknown, minimum: number, maximum: number,
   fallback: number): number => {
@@ -71,7 +72,8 @@ export function parsePresetSettings(parsed: Partial<BrushPresetFileV1>,
         ["touch", "azimuth", "azimuth-roll"], base.shape.inputStyle),
       relativeToStroke: bool(shape?.relativeToStroke, base.shape.relativeToStroke),
       rotation: clamp(shape?.rotation, -1, 1, base.shape.rotation),
-      count: Math.round(clamp(shape?.count, 1, 6, base.shape.count)),
+      scatter: clamp(shape?.scatter, 0, 1, base.shape.scatter),
+      count: Math.round(clamp(shape?.count, 1, 16, base.shape.count)),
       countJitter: clamp(shape?.countJitter, 0, 1, base.shape.countJitter),
       randomized: bool(shape?.randomized, base.shape.randomized),
       flipX: bool(shape?.flipX, base.shape.flipX), flipY: bool(shape?.flipY, base.shape.flipY),
@@ -102,7 +104,15 @@ export function parsePresetSettings(parsed: Partial<BrushPresetFileV1>,
     dynamics: { sizeByPressure: clamp(dynamics?.sizeByPressure, 0, 1,
       base.dynamics.sizeByPressure), opacityByPressure: clamp(dynamics?.opacityByPressure,
       0, 1, base.dynamics.opacityByPressure), tiltToSize: clamp(dynamics?.tiltToSize,
-      -1, 1, base.dynamics.tiltToSize) },
+      -1, 1, base.dynamics.tiltToSize),
+      pressureSizeCurve: normalizedResponseCurve(dynamics?.pressureSizeCurve ??
+        base.dynamics.pressureSizeCurve),
+      pressureOpacityCurve: normalizedResponseCurve(dynamics?.pressureOpacityCurve ??
+        base.dynamics.pressureOpacityCurve),
+      opacityJitter: clamp(dynamics?.opacityJitter, 0, 1,
+        base.dynamics.opacityJitter ?? 0), speedOpacity: clamp(dynamics?.speedOpacity,
+        -1, 1, base.dynamics.speedOpacity ?? 0), tiltOpacity: clamp(dynamics?.tiltOpacity,
+        -1, 1, base.dynamics.tiltOpacity ?? 0) },
     smudge: { flow: clamp(smudge?.flow, 0, 1, base.smudge.flow),
       pickup: clamp(smudge?.pickup, 0, 1, base.smudge.pickup),
       pull: clamp(smudge?.pull, 0, 1, base.smudge.pull) },

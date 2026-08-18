@@ -6,6 +6,7 @@ import {
   archiveGrain, archivePreview, archiveProperties, archiveRendering, archiveShape,
   archiveTaper, clamp, numeric
 } from "./archiveControlMappings";
+import { archiveResponseCurve } from "./archiveResponseCurve";
 
 const supported = new Set([
   "plotSpacing", "plotSpacingJitter", "plotJitter", "plotJitterLongitudinal",
@@ -28,6 +29,8 @@ const supported = new Set([
   "previewRenderDisabled", "previewSize", "previewPressureMinimum",
   "previewPressureScale", "previewTiltAngleOffset", "dynamicsSmudgeAccumulation",
   "maxOpacity", "dynamicsPressureSize", "dynamicsPressureOpacity",
+  "dynamicsPressureSizeCurve", "dynamicsPressureOpacityCurve",
+  "dynamicsJitterOpacity", "dynamicsSpeedOpacity", "dynamicsTiltOpacity",
   "dynamicsTiltSize", "smudgeStrength", "smudgePickup", "smudgeFlow",
   "maxSize", "minSize", "bundledShapePath", "bundledGrainPath"
 ]);
@@ -83,7 +86,7 @@ export function applyBrushArchiveSettings(
       linearJitter: clamp(numeric(root, "plotJitterLongitudinal",
         preset.strokePath.linearJitter), 0, 4),
       fallOff: clamp(numeric(root, "dynamicsFalloff", preset.strokePath.fallOff), 0, 1),
-      scatter: clamp(numeric(root, "shapeScatter", preset.strokePath.scatter), 0, 4)
+      scatter: 0
     },
     stabilization: {
       streamlineAmount: clamp(numeric(root, "plotSmoothing",
@@ -106,7 +109,17 @@ export function applyBrushArchiveSettings(
       preset.dynamics.sizeByPressure), 0, 1),
       opacityByPressure: clamp(numeric(root, "dynamicsPressureOpacity",
         preset.dynamics.opacityByPressure), 0, 1),
-      tiltToSize: clamp(numeric(root, "dynamicsTiltSize", preset.dynamics.tiltToSize), -1, 1) },
+      tiltToSize: clamp(numeric(root, "dynamicsTiltSize", preset.dynamics.tiltToSize), -1, 1),
+      pressureSizeCurve: archiveResponseCurve(root.dynamicsPressureSizeCurve,
+        preset.dynamics.pressureSizeCurve),
+      pressureOpacityCurve: archiveResponseCurve(root.dynamicsPressureOpacityCurve,
+        preset.dynamics.pressureOpacityCurve),
+      opacityJitter: clamp(numeric(root, "dynamicsJitterOpacity",
+        preset.dynamics.opacityJitter ?? 0), 0, 1),
+      speedOpacity: clamp(numeric(root, "dynamicsSpeedOpacity",
+        preset.dynamics.speedOpacity ?? 0), -1, 1),
+      tiltOpacity: clamp(numeric(root, "dynamicsTiltOpacity",
+        preset.dynamics.tiltOpacity ?? 0), -1, 1) },
     smudge: { pull: clamp(numeric(root, "dynamicsSmudgeAccumulation",
       numeric(root, "smudgeStrength", preset.smudge.pull)), 0, 1),
       pickup: clamp(numeric(root, "smudgePickup", preset.smudge.pickup), 0, 1),

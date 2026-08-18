@@ -31,17 +31,15 @@ export function dabStampPlan(brush: BrushPreset | LoadedBrush,
   const tiltScale = 1 - (brush.shape.tiltRoundness ?? DEFAULT_SHAPE.tiltRoundness) * tilt;
   return Array.from({ length: count }, (_, index) => {
     const random = (channel: number) => strokeRandom(brush.id, dab * 7 + index, channel);
-    const scatterAngle = random(21) * Math.PI * 2;
-    const scatterRadius = sample.exactPosition ? 0 : Math.sqrt(random(22)) *
-      brush.strokePath.scatter * size;
     const horizontal = (random(23) * 2 - 1) *
       (brush.shape.horizontalJitter ?? DEFAULT_SHAPE.horizontalJitter);
     const vertical = (random(24) * 2 - 1) *
       (brush.shape.verticalJitter ?? DEFAULT_SHAPE.verticalJitter);
-    return { x: sample.x + Math.cos(scatterAngle) * scatterRadius,
-      y: sample.y + Math.sin(scatterAngle) * scatterRadius,
+    const scatterRotation = (random(21) * 2 - 1) * Math.PI *
+      (brush.shape.scatter ?? DEFAULT_SHAPE.scatter);
+    return { x: sample.x, y: sample.y,
       rotation: (sample.rotation ?? 0) + ((brush.shape.randomized ?? DEFAULT_SHAPE.randomized)
-        ? random(25) * Math.PI * 2 : 0),
+        ? random(25) * Math.PI * 2 : scatterRotation),
       scaleX: clampScale(pressureScale * (1 + horizontal)),
       scaleY: clampScale(tiltScale * (1 + vertical)),
       flipX: (brush.shape.flipX ?? DEFAULT_SHAPE.flipX) && random(26) >= 0.5,
