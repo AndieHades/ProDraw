@@ -24,7 +24,8 @@
 | `LEP-PNG-02` | nested full-canvas PNG tree | one picker, no flat downloads |
 | `LEP-PNG-03` | hidden/Unicode/effect leaves included | collisions safely suffixed |
 | `LEP-PNG-04` | staged commit publishes unique root | cancel/abort publishes none |
-| `LEP-VIEW-01` | filtered zoom-out | 100% exact, source unchanged |
+| `LEP-VIEW-01` | filtered zoom-out | 100% exact |
+| `LEP-VIEW-02` | filtered zoom-in | source unchanged |
 
 ## Final record
 
@@ -38,9 +39,13 @@
   legacy-state JavaScript modules; the new file writer is strict TypeScript.
 - Packaged Windows smoke: passed after the TypeScript cutover; renderer ready
   with 12 brushes, 17 sources and alpha 255.
+- Zoom-in follow-up: policy and live render assertions pass at 200%, source
+  bytes remain unchanged, and the Vite browser smoke reaches a filtered 200%
+  view through the real zoom command.
 - Manual checks not run: reopening the PSD in physical Photoshop, choosing a
-  real destination in the Explorer picker and subjective downscale inspection
+  real destination in the Explorer picker and subjective scaled-view inspection
   on the user's display. Generated-PSD decode, temporary-filesystem transaction
-  tests and live renderer sampling assertions cover their deterministic parts.
+  tests, live renderer sampling assertions and a Vite browser smoke cover their
+  deterministic parts.
 - Non-blocking build warning: the existing production bundle still contains
   chunks larger than 500 kB.
