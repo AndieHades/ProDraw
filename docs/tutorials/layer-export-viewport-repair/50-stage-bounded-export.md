@@ -1,7 +1,7 @@
 # LEP5: Bounded Multi-file Export
 
 - Stable id: `LEP5`
-- Status: `pending`
+- Status: `done`
 - Depends on: `LEP4`
 - Requirements: `LEP-EXP-01`, `LEP-EXP-02`
 
@@ -34,5 +34,9 @@ localized feedback. No export path calls the gallery system.
 
 ## Completion record
 
-- Commit: pending.
-- Checks: pending.
+- Commit: `fix: bound multi-file export memory`.
+- Checks: 400 module integration tests; 13 focused files / 57 tests; targeted
+  ESLint, docs, lines, 282-source cycles and production bundle.
+- Known external blocker: full TypeScript check reaches unrelated in-progress
+  brush files and stops on tuple-width errors in `brushArchiveSettings.ts` and
+  `procreateBrush.ts`; this stage does not modify those files.

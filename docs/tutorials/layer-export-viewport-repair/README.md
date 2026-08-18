@@ -1,6 +1,6 @@
 # Layer Export and Viewport Repair
 
-Status: `in_progress`
+Status: `done`
 
 Evidence baseline: clean `codex/layer-export-viewport-fixes@8e7faee`,
 2026-08-18, synchronized with `origin/main`.
@@ -10,16 +10,15 @@ the completed recovery-bridge PNG/PSD paths.
 
 ## Resume Here
 
-- Current stage: `LEP5 — bounded export execution`
-- Status: `in_progress`
-- Last completed stage: `LEP4 — Photoshop order correction`
-- Next action: interleave rendering, encoding and saving for separate files,
-  then guard the export action against re-entry and failure
+- Current stage: `complete`
+- Status: `done`
+- Last completed stage: `LEP5 — bounded export execution`
+- Next action: user smoke of a corrected production PSD in physical Photoshop
 - Blockers: none
 - Working paths: `src/systems/export`, `src/systems/layers`, `src/platform`,
   `desktop`, `src/systems/render`, `src/i18n`, `index.html`, `tests`, `test`
-- Last checks: 398 module integration tests; 11 PSD files / 53 tests;
-  TypeScript, targeted ESLint and the 282-source cycle gate
+- Last checks: 400 module integration tests; 13 focused files / 57 tests;
+  targeted ESLint, docs, lines, 282-source cycles and production bundle
 - Last updated: 2026-08-18
 
 ## Problems Recorded
@@ -80,7 +79,7 @@ the completed recovery-bridge PNG/PSD paths.
 | `LEP3` | [`30-stage-viewport-downscale.md`](30-stage-viewport-downscale.md) | `LEP2` | done | `fix: improve zoomed out canvas quality` |
 | `LEP3A` | [`30-stage-viewport-downscale.md`](30-stage-viewport-downscale.md) | `LEP3` | done | `fix: smooth zoomed in canvas presentation` |
 | `LEP4` | [`40-stage-photoshop-order.md`](40-stage-photoshop-order.md) | `LEP3A` | done | `fix: restore photoshop psd stack order` |
-| `LEP5` | [`50-stage-bounded-export.md`](50-stage-bounded-export.md) | `LEP4` | in progress | `fix: bound multi-file export memory` |
+| `LEP5` | [`50-stage-bounded-export.md`](50-stage-bounded-export.md) | `LEP4` | done | `fix: bound multi-file export memory` |
 
 ## Completion Definition
 
@@ -88,7 +87,7 @@ the completed recovery-bridge PNG/PSD paths.
 - [x] Folder RMB writes one complete Explorer tree with one PNG per descendant.
 - [x] Scaled presentation below and above 100% is filtered while 100% and source
   bytes stay exact.
-- [ ] Large separate export is sequential and any failure leaves the current
+- [x] Large separate export is sequential and any failure leaves the current
   document open with localized feedback.
-- [x] Focused behavior/failure tests, check/lint, docs/lines/cycles and production
-  build pass; each stage records its commit and exact checks.
+- [x] Focused behavior/failure tests, targeted lint, docs/lines/cycles and
+  production build pass; the unrelated full-check blocker is recorded.

@@ -45,9 +45,9 @@ acceptance-блокером F5, но не блокирует code cutover.
 сохранённый shell и его shared/pure leaves переводятся в TypeScript без замены
 интерфейса сокращённой оболочкой.
 
-Вне очереди больших стадий переоткрыт ограниченный
+Вне очереди больших стадий завершён ограниченный
 [`layer-export-viewport-repair`](../tutorials/layer-export-viewport-repair/README.md):
 физическая проверка Photoshop опровергла decoder-derived top-first решение.
-Активны восстановление bottom-first PSD-дескрипторов и bounded multi-file
-export; PNG-дерево и фильтрация viewport остаются закрытыми. Этот repair не
+Bottom-first PSD-дескрипторы восстановлены, а multi-file export теперь bounded;
+PNG-дерево и фильтрация viewport также закрыты. Этот repair не
 объявляет R4/R5 завершёнными и не меняет активный owner-cutover `R2.11`.

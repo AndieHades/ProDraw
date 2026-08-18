@@ -18,7 +18,7 @@
 
 | Requirement | Positive evidence | Failure/negative evidence |
 | --- | --- | --- |
-| `LEP-PSD-01` | decoded nested rows top-first | composite stack not reversed |
+| `LEP-PSD-01` | superseded by physical Photoshop fixture | decoder was not the panel oracle |
 | `LEP-PSD-02` | decoder accepts exported RGB PSD | no byte patch in test |
 | `LEP-PNG-01` | third folder RMB action dispatches | layer RMB hides it |
 | `LEP-PNG-02` | nested full-canvas PNG tree | one picker, no flat downloads |
@@ -45,11 +45,12 @@
 - Zoom-in follow-up: policy and live render assertions pass at 200%, source
   bytes remain unchanged, and the Vite browser smoke reaches a filtered 200%
   view through the real zoom command.
-- Manual checks not run: reopening the PSD in physical Photoshop, choosing a
-  real destination in the Explorer picker and subjective scaled-view inspection
-  on the user's display. Generated-PSD decode, temporary-filesystem transaction
-  tests, live renderer sampling assertions and a Vite browser smoke cover their
-  deterministic parts.
+- Manual checks remaining: reopening a corrected production PSD in physical
+  Photoshop, choosing a real destination in the Explorer picker and subjective
+  scaled-view inspection on the user's display. The raw-order fixture was
+  physically checked in Photoshop; generated-PSD decode, temporary-filesystem
+  transaction tests, live renderer sampling assertions and a Vite browser smoke
+  cover deterministic parts.
 - Non-blocking build warning: the existing production bundle still contains
   chunks larger than 500 kB.
 
@@ -62,4 +63,10 @@
 - `LEP4`: 398 module integration tests; 11 PSD files / 53 tests; TypeScript,
   targeted ESLint and the 282-source cycle gate passed. Raw descriptors now
   match the Photoshop-selected bottom-first fixture recursively.
-- Final aggregate checks: pending after `LEP5`.
+- `LEP5`: 400 module integration tests and 13 focused files / 57 tests passed,
+  including render/encode/save ordering, lightweight results, UI re-entry and
+  failure/editor-state regression. Targeted ESLint, docs, lines, 282-source
+  cycles and the production bundle passed.
+- Full TypeScript check is externally blocked by tuple-width errors in the
+  unrelated in-progress brush files `brushArchiveSettings.ts` and
+  `procreateBrush.ts`; no repair files are implicated.

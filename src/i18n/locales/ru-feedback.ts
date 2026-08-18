@@ -125,6 +125,7 @@ export const ruFeedback: LocaleDictionary = {
   "toast.recoloredN": "Перекрашено: {n} пикс.",
   "toast.exported": "Экспортировано файлов: {n}",
   "toast.exportEmpty": "Нечего экспортировать",
+  "toast.exportFailed": "Экспорт не завершён. Документ остаётся открытым.",
   "toast.folderExportUnavailable": "Экспорт папок недоступен в этом браузере",
   "toast.folderExportFailed": "Не удалось сохранить дерево PNG",
   "toast.animationLastFrame": "Это последний кадр",

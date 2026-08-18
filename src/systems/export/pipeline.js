@@ -23,35 +23,53 @@ function separateItems(root, mode) {
   return root.map((n) => ({ name: n.name, nodes: [n] })); // top-level items only
 }
 
-function separateCanvases(root, opts) {
-  const items = uniqueNames(separateItems(root, opts.separateMode));
-  const rendered = items.map((it) => ({ name: it.name, canvas: flattenNodes(it.nodes, opts.includeHidden) }));
-  if (opts.boundsMode === 'same' && opts.canvasBounds === 'trim') {
-    const b = unionBounds(rendered.map((r) => visibleBounds(r.canvas)));
-    return rendered.map((r) => ({ name: r.name, canvas: cropTo(r.canvas, b) }));
+async function saveOne(o) { await saveFile(o.blob, o.name, o.mime, o.desc); }
+const resultMeta = ({ name, mime, desc }) => ({ name, mime, desc });
+
+function sharedTrimBounds(items, opts, renderNodes) {
+  let bounds = null;
+  for (const item of items) {
+    const canvas = renderNodes(item.nodes, opts.includeHidden);
+    bounds = unionBounds([bounds, visibleBounds(canvas)]);
   }
-  return rendered.map((r) => ({ name: r.name, canvas: applyBounds(r.canvas, opts.canvasBounds) }));
+  return bounds;
 }
 
-async function saveOne(o) { await saveFile(o.blob, o.name, o.mime, o.desc); }
+async function exportSeparate(root, fmt, opts, saveOutput, renderNodes) {
+  const items = uniqueNames(separateItems(root, opts.separateMode));
+  const sameTrim = opts.boundsMode === 'same' && opts.canvasBounds === 'trim';
+  const sharedBounds = sameTrim ? sharedTrimBounds(items, opts, renderNodes) : null;
+  const results = [];
+  for (const item of items) {
+    const rendered = renderNodes(item.nodes, opts.includeHidden);
+    const canvas = sameTrim ? cropTo(rendered, sharedBounds)
+      : applyBounds(rendered, opts.canvasBounds);
+    const output = await fmt.encode(canvas, item.name);
+    await saveOutput(output);
+    results.push(resultMeta(output));
+  }
+  return results;
+}
 
-export async function runExport(opts) {
+export async function runExport(opts, saveOutput = saveOne,
+  renderNodes = flattenNodes) {
   const doc = buildExportDoc(opts.scope, opts.includeHidden);
   if (!doc.root.length) { toast(t('toast.exportEmpty')); return; }
   const fmt = FORMATS[opts.format], base = docName();
-  let outputs = [];
+  let results = [];
   if (opts.mode === 'layered' && fmt.encodeLayered) {
-    outputs = [await fmt.encodeLayered(doc, base)];
+    const output = await fmt.encodeLayered(doc, base);
+    await saveOutput(output); results = [resultMeta(output)];
   } else if (opts.mode === 'separate' && fmt.supportsSeparateFiles) {
-    const list = separateCanvases(doc.root, { ...opts, includeHidden: doc.includeHidden });
-    for (const c of list) outputs.push(await fmt.encode(c.canvas, c.name));
+    results = await exportSeparate(doc.root, fmt,
+      { ...opts, includeHidden: doc.includeHidden }, saveOutput, renderNodes);
   } else {
-    const canvas = applyBounds(flattenNodes(doc.root, doc.includeHidden, true), opts.canvasBounds);
-    outputs = [await fmt.encode(canvas, base)];
+    const canvas = applyBounds(renderNodes(doc.root, doc.includeHidden, true), opts.canvasBounds);
+    const output = await fmt.encode(canvas, base);
+    await saveOutput(output); results = [resultMeta(output)];
   }
-  for (const o of outputs) await saveOne(o);
-  toast(t('toast.exported', { n: outputs.length }));
-  return outputs;
+  toast(t('toast.exported', { n: results.length }));
+  return results;
 }
 
 // Быстрый PNG из RMB слоя/папки использует тот же effect-aware композит, что

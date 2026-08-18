@@ -48,6 +48,7 @@ const xtree = await import('../src/systems/export/tree.js');
 const xrender = await import('../src/systems/export/render.js');
 const xpipe = await import('../src/systems/export/pipeline.js');
 const xbounds = await import('../src/systems/export/bounds.js');
+const xui = await import('../src/systems/export/ui.js');
 const { psdLayerDescriptors } = await import('../src/systems/export/psd.js');
 const { writePsd } = await import('../src/systems/export/psd-write.js');
 const { FORMATS } = await import('../src/systems/export/formats.js');
@@ -1139,6 +1140,54 @@ await ta("module-int case 133", async () => { exportProject();
     encode: (c, name) => Promise.resolve({ name: name + '.fake', blob: new Blob([new Uint8Array([1])]), mime: 'x/fake', desc: 'fake' }) };
   const out = await xpipe.runExport({ scope: 'project', mode: 'flattened', format: 'fake', canvasBounds: 'current', includeHidden: false });
   got = out[0].name; delete FORMATS.fake; assert.ok(/\.fake$/.test(got)); });
+
+await ta('separate export encodes and saves one output at a time', async () => {
+  exportProject(); const events = [];
+  FORMATS.fake = { id: 'fake', supportsFlattened: true, supportsLayered: false,
+    supportsSeparateFiles: true, encode: async (canvas, name) => {
+      events.push(`encode:${name}`); return { name: `${name}.fake`,
+        blob: new Blob([name]), mime: 'x/fake', desc: 'fake' }; } };
+  try {
+    const out = await xpipe.runExport({ scope: 'project', mode: 'separate',
+      separateMode: 'leaf', boundsMode: 'same', format: 'fake',
+      canvasBounds: 'trim', includeHidden: true },
+    async (output) => { events.push(`save:${output.name}`); },
+    (nodes, ...args) => { events.push(`render:${nodes[0].name}`);
+      return xrender.flattenNodes(nodes, ...args); });
+    assert.equal(out.length, 3); assert.ok(out.every((item) => !('blob' in item)));
+    assert.equal(events.filter((event) => event.startsWith('render:')).length, 6);
+    const finalPass = events.slice(3);
+    for (let index = 0; index < finalPass.length; index += 3) {
+      const name = finalPass[index].slice(7);
+      assert.equal(finalPass[index], `render:${name}`);
+      assert.equal(finalPass[index + 1], `encode:${name}`);
+      assert.equal(finalPass[index + 2], `save:${name}.fake`);
+    }
+  } finally { delete FORMATS.fake; }
+});
+
+await ta('export UI blocks re-entry and keeps the editor open on failure', async () => {
+  exportProject(); S.marked = new Set([0]); xui.mountExportUI();
+  const button = document.getElementById('ex-run');
+  const overlay = document.getElementById('export-ovl');
+  const original = FORMATS.png.encode; let release, calls = 0;
+  const pending = new Promise((resolve) => { release = resolve; });
+  FORMATS.png.encode = async (canvas, name) => { calls++; await pending;
+    return { name: `${name}.png`, blob: new Blob([]), mime: 'image/png', desc: 'PNG' }; };
+  try {
+    overlay.classList.add('on'); document.body.classList.remove('gallery-open');
+    const first = button.onclick(), second = button.onclick();
+    assert.equal(button.disabled, true); assert.equal(calls, 1); await second;
+    release(); await first;
+    assert.equal(button.disabled, false); assert.ok(!overlay.classList.contains('on'));
+    FORMATS.png.encode = async () => { throw new Error('export probe'); };
+    overlay.classList.add('on'); await button.onclick();
+    assert.ok(overlay.classList.contains('on')); assert.equal(button.disabled, false);
+    assert.ok(!document.body.classList.contains('gallery-open'));
+    assert.equal(document.getElementById('toast').textContent,
+      i18n.t('toast.exportFailed'));
+  } finally { FORMATS.png.encode = original; overlay.classList.remove('on'); }
+});
 
 await ta('quick PNG keeps target names, effects and visible folder descendants', async () => {
   exportProject(); const layer = S.layers[0], folder = S.folders[0];
