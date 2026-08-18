@@ -1,7 +1,7 @@
 # LEP3: High-quality Viewport Downscale
 
 - Stable id: `LEP3`
-- Status: `planned`
+- Status: `done`
 - Depends on: `LEP2`
 - Requirements: `LEP-VIEW-01`
 
@@ -34,7 +34,8 @@ Grid and vector overlays are drawn after the raster and are not blurred.
 
 ## Completion record
 
-- Commit: pending
-- Checks: pending
+- Commit: this stage commit (`fix: improve zoomed out canvas quality`).
+- Checks: 398 module integration tests; viewport policy 1 file/1 test;
+  TypeScript check and targeted render/test ESLint.
 - Residual risk: subjective physical display comparison is a manual supplement,
   not a replacement for the sampling/state assertions.

@@ -10,6 +10,7 @@ import { ZOOM_MIN, ZOOM_MAX, VIEW_FIT_MARGIN_MIN, VIEW_FIT_MARGIN_RATIO } from '
 import { C } from '../../styles/canvas-colors.ts';
 import { hexToRgb } from '../../logic/color.js';
 import { clamp01 } from '../../logic/math.ts';
+import { shouldSmoothViewportScale } from '../../logic/view/viewportSampling.ts';
 import { makeCanvas, syncCanvasSize } from '../../core/canvas.js';
 import { contentGeneration, contentRevision,
   takeCompositeDamage } from '../../core/layer-cache.js';
@@ -77,8 +78,10 @@ export function render() {
   }
   bus.emit('composite-ready', { canvas: buf, width: W, height: H });
   ctx.save(); ctx.beginPath(); ctx.rect(bx0, by0, bw, bh); ctx.clip(); // итог клипуется блоком тайлов
+  ctx.imageSmoothingEnabled = shouldSmoothViewportScale(z);
+  if (ctx.imageSmoothingEnabled) ctx.imageSmoothingQuality = 'high';
   for (const j of rng) for (const i of rng) ctx.drawImage(buf, ox + i * tw, oy + j * th, tw, th);
-  ctx.restore();
+  ctx.restore(); ctx.imageSmoothingEnabled = false;
   if (tile) { ctx.save(); ctx.globalAlpha = .6; ctx.strokeStyle = C.accent; ctx.lineWidth = 1; ctx.strokeRect(ox + .5, oy + .5, tw - 1, th - 1); ctx.restore(); } // рамка исходного тайла
   if (z >= 7) drawGrid(1, 1, C.grid, W, H, ox, oy, z); // обычная попиксельная сетка
   if (!S.cropMode && S.grid && (S.grid.preview || S.grid.visible)) drawGrid(S.grid.w || 16, S.grid.h || 16, gridStroke(S.grid.color, S.grid.opacity), W, H, ox, oy, z);

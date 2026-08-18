@@ -10,17 +10,16 @@ the completed recovery-bridge PNG/PSD paths.
 
 ## Resume Here
 
-- Current stage: `LEP3 — high-quality viewport downscale`
-- Status: `ready`
-- Last completed stage: `LEP2 — folder layers as PNG tree`
-- Next action: add the pure downscale sampling policy and apply it only to the
-  scaled live composite draw
+- Current stage: final verification
+- Status: `in_progress`
+- Last completed stage: `LEP3 — high-quality viewport downscale`
+- Next action: run the aggregate validation gate, record commit ids and close
+  the package
 - Blockers: none
 - Working paths: `src/systems/export`, `src/systems/layers`, `src/platform`,
   `desktop`, `src/systems/render`, `src/i18n`, `index.html`, `tests`, `test`
-- Last checks: 397 module integration tests; 3 focused files/6 tests; TypeScript,
-  targeted ESLint, desktop/shell/interface/architecture/cycles/lines validators;
-  desktop build and packaged Windows renderer smoke passed
+- Last checks: 398 module integration tests; viewport policy 1 file/1 test;
+  TypeScript and targeted render/test ESLint passed
 - Last updated: 2026-08-18
 
 ## Problems Recorded
@@ -62,7 +61,7 @@ the completed recovery-bridge PNG/PSD paths.
 | `LEP0` | this evidence package | none | done | `docs: plan layer export and viewport repairs` |
 | `LEP1` | [`10-stage-psd-order.md`](10-stage-psd-order.md) | `LEP0` | done | `fix: preserve psd layer panel order` |
 | `LEP2` | [`20-stage-folder-png-tree.md`](20-stage-folder-png-tree.md) | `LEP1` | done | `feat: export folder layers as png tree` |
-| `LEP3` | [`30-stage-viewport-downscale.md`](30-stage-viewport-downscale.md) | `LEP2` | ready | `fix: improve zoomed out canvas quality` |
+| `LEP3` | [`30-stage-viewport-downscale.md`](30-stage-viewport-downscale.md) | `LEP2` | done | `fix: improve zoomed out canvas quality` |
 
 ## Completion Definition
 

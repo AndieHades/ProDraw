@@ -81,6 +81,11 @@ tile canvases до смены presentation revision. `TileHistory` ограни�
 операций и retained bytes. Измерения и CI ceilings принадлежат
 [`performance-budgets`](project/performance-budgets.md).
 
+Live recovery-shell viewport хранит точный offscreen composite: при zoom ниже
+100% только итоговый presentation draw использует high-quality smoothing, а на
+100% фильтрация выключена. После raster draw режим сбрасывается до оверлеев;
+масштабирование не меняет RGBA или history.
+
 В recovery bridge эффект `monochrome` использует тот же чистый Rec.601 helper,
 что разрушающая операция, но хранится в generic effect stack слоя/папки и не
 меняет source pixels. Быстрый PNG слоя и папки строит один visibility-filtered
