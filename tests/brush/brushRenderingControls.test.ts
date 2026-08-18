@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
-import type { BrushPreset } from "../../src/contracts/brush";
+import type { BrushPreset, LoadedBrush } from "../../src/contracts/brush";
 import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
 import { pressureBrushSize, renderBrushDab } from "../../src/core/brush/renderBrushDab";
 import { RasterEdit } from "../../src/core/history/RasterEdit";
 import { RasterSurface } from "../../src/core/raster/RasterSurface";
+import { testGrainMap } from "./brushTestMaps";
 
 const source = BUNDLED_BRUSHES[0]!;
 
-function alphaMetric(brush: BrushPreset): number {
+function alphaMetric(brush: BrushPreset | LoadedBrush): number {
   const surface = new RasterSurface("metric", 64, 64, 64);
   const edit = new RasterEdit(surface, "metric");
   renderBrushDab(edit, brush,
@@ -24,9 +25,16 @@ function alphaMetric(brush: BrushPreset): number {
 
 describe("brush rendering controls", () => {
   it("makes flow, opacity, grain strength, and pressure opacity visible", () => {
-    const plain = { ...source, grain: { ...source.grain, strength: 0, scale: 1 },
+    const loaded = (brush: BrushPreset): LoadedBrush => ({ ...brush,
+      shapeMap: null, grainMap: testGrainMap, nativeShapeMap: null,
+      nativeGrainMap: testGrainMap,
+      compatibility: { archiveVersion: null, archiveName: null, supportedFields: [],
+        unsupportedActiveFields: [], excludedSections: ["wet-mix", "color-dynamics", "materials"],
+        shapeSourceState: "missing", grainSourceState: "resolved", missingSourceNames: [] },
+      warnings: [] });
+    const plain = loaded({ ...source, grain: { ...source.grain, strength: 0, scale: 1 },
       rendering: { ...source.rendering, flow: 1, opacity: 1 },
-      dynamics: { ...source.dynamics, opacityByPressure: 0 } };
+      dynamics: { ...source.dynamics, opacityByPressure: 0 } });
     const variants = [
       { ...plain, rendering: { ...plain.rendering, flow: 0.4 } },
       { ...plain, rendering: { ...plain.rendering, opacity: 0.4 } },

@@ -39,7 +39,9 @@ function loaded(preset: BrushPreset, marker: number): LoadedBrush {
     nativeShapeMap: map, nativeGrainMap: null,
     compatibility: { archiveVersion: 4, archiveName: preset.name,
       supportedFields: [], unsupportedActiveFields: [],
-      excludedSections: ["wet-mix", "color-dynamics", "materials"] }, warnings: [] };
+      excludedSections: ["wet-mix", "color-dynamics", "materials"],
+      shapeSourceState: "missing", grainSourceState: "missing",
+      missingSourceNames: [] }, warnings: [] };
 }
 
 describe("WorkerBrushDecoder", () => {

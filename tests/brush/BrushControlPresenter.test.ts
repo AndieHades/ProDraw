@@ -2,8 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
 import { emptyBrushCompatibility } from "../../src/core/brush/procreateBrush";
-import { builtInBrushSource } from "../../src/logic/brush/builtinBrushSource";
 import { BrushControlPresenter } from "../../src/ui/brushes/BrushControlPresenter";
+import { testGrainMap, testShapeMap } from "./brushTestMaps";
 
 describe("Brush Studio control surface", () => {
   beforeEach(() => {
@@ -20,8 +20,8 @@ describe("Brush Studio control surface", () => {
 
   it("shows the resolved source and all editable Shape controls", () => {
     const base = BUNDLED_BRUSHES[0]!;
-    const shapeMap = builtInBrushSource("Brush-Pocket-Brick.png", "shape");
-    const grainMap = builtInBrushSource("Brush-Artery-Charcoal-Corse.jpg", "grain");
+    const shapeMap = testShapeMap;
+    const grainMap = testGrainMap;
     const loaded = { ...base, shape: { ...base.shape,
       sourceName: "Brush-Pocket-Brick.png", inputStyle: "azimuth" as const, count: 2 },
     grain: { ...base.grain, sourceName: "Brush-Artery-Charcoal-Corse.jpg" },
@@ -32,7 +32,7 @@ describe("Brush Studio control surface", () => {
     new BrushControlPresenter(host, vi.fn()).render("shape", loaded, onChange, vi.fn());
     expect(host.querySelector(".studio-source-name")?.textContent)
       .toBe("Brush-Pocket-Brick.png");
-    expect(host.querySelector("canvas")?.width).toBe(256);
+    expect(host.querySelector("canvas")?.width).toBe(32);
     expect(host.querySelectorAll(".studio-control").length).toBeGreaterThan(12);
     const count = [...host.querySelectorAll<HTMLInputElement>('input[type="range"]')]
       .find((input) => input.max === "6");

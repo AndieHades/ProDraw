@@ -34,6 +34,7 @@ export async function decodeCoverage(
   options: CoverageDecodeOptions = {}
 ): Promise<CoverageMap> {
   const bitmap = await createImageBitmap(new Blob([bytes]));
+  const scaleReference = Math.max(bitmap.width, bitmap.height);
   const scale = Math.min(1, maximumSide / Math.max(bitmap.width, bitmap.height));
   const width = Math.max(1, Math.round(bitmap.width * scale));
   const height = Math.max(1, Math.round(bitmap.height * scale));
@@ -43,5 +44,5 @@ export async function decodeCoverage(
   context.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
   const source = context.getImageData(0, 0, width, height).data;
-  return { width, height, data: coveragePixels(source, options) };
+  return { width, height, data: coveragePixels(source, options), scaleReference };
 }

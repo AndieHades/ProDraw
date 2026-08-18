@@ -19,5 +19,12 @@ export function brushSourcePanel(preset: BrushPreset | LoadedBrush,
   const source = preset.sources[kind]?.sourceBrushName ?? preset[kind].sourceName ?? "—";
   const caption = document.createElement("span");
   caption.className = "studio-source-name"; caption.textContent = source;
-  header.append(title, edit); section.append(header, canvas, caption); return section;
+  const state = document.createElement("span");
+  state.className = "studio-source-state";
+  if ("compatibility" in preset) {
+    const sourceState = kind === "shape" ? preset.compatibility.shapeSourceState :
+      preset.compatibility.grainSourceState;
+    state.textContent = t(`source.state.${sourceState}`);
+  }
+  header.append(title, edit); section.append(header, canvas, caption, state); return section;
 }

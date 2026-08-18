@@ -1,12 +1,13 @@
 import type {
   BrushCompatibilityReport, BrushPreset, CoverageMap, LoadedBrush
 } from "../../contracts/brush";
+import type { BrushSourceResolver } from "../../contracts/brushSourceResolver";
 import { unzipEntries } from "../archive/unzip";
 import { decodeKeyedArchiveRoot } from "../archive/keyedArchive";
 import { applyBrushArchiveSettings } from "./brushArchiveSettings";
 import { decodeCoverage, type CoverageDecodeOptions } from "./decodeCoverage";
 import { sourceCoverage } from "../../logic/brush/brushSourceAsset";
-import { builtInBrushSource } from "../../logic/brush/builtinBrushSource";
+import { brushSourceFolder } from "./brushSourceFolder";
 import rasterConfig from "../../config/brush-raster.json" with { type: "json" };
 
 function entryByBaseName(
@@ -28,7 +29,8 @@ function entryByBaseName(
 export const emptyBrushCompatibility = (): BrushCompatibilityReport => ({
   archiveVersion: null, archiveName: null, supportedFields: [],
   unsupportedActiveFields: [],
-  excludedSections: ["wet-mix", "color-dynamics", "materials"]
+  excludedSections: ["wet-mix", "color-dynamics", "materials"],
+  shapeSourceState: "missing", grainSourceState: "missing", missingSourceNames: []
 });
 
 async function coverage(
@@ -45,7 +47,8 @@ async function coverage(
 
 export async function decodeProcreateBrush(
   bytes: Uint8Array<ArrayBuffer>,
-  preset: BrushPreset
+  preset: BrushPreset,
+  sourceResolver: BrushSourceResolver = brushSourceFolder
 ): Promise<LoadedBrush> {
   const warnings: string[] = [];
   try {
@@ -74,13 +77,17 @@ export async function decodeProcreateBrush(
       "shape-decode-fallback", warnings, shapeOptions);
     const embeddedGrainMap = await coverage(grainBytes, rasterConfig.grainDecodeMaximumSide,
       "grain-decode-fallback", warnings, grainOptions);
-    const nativeShapeMap = embeddedShapeMap ??
-      builtInBrushSource(resolvedPreset.shape.sourceName, "shape");
-    const nativeGrainMap = embeddedGrainMap ??
-      builtInBrushSource(resolvedPreset.grain.sourceName, "grain");
+    const libraryShapeMap = await sourceResolver.resolve({ brushId: resolvedPreset.id,
+      kind: "shape", maximumSide: rasterConfig.sourceMaximumSide,
+      inverted: shapeOptions.inverted === true });
+    const libraryGrainMap = await sourceResolver.resolve({ brushId: resolvedPreset.id,
+      kind: "grain", maximumSide: rasterConfig.grainDecodeMaximumSide,
+      inverted: grainOptions.inverted === true });
+    const nativeShapeMap = libraryShapeMap ?? embeddedShapeMap;
+    const nativeGrainMap = libraryGrainMap ?? embeddedGrainMap;
     if (!nativeShapeMap) warnings.push("unresolved-shape-source");
     if (!nativeGrainMap && resolvedPreset.grain.strength > 0) {
-      warnings.push("procedural-grain-fallback");
+      warnings.push("unresolved-grain-source");
     }
     let shapeMap = nativeShapeMap;
     let grainMap = nativeGrainMap;
@@ -88,6 +95,16 @@ export async function decodeProcreateBrush(
       if (resolvedPreset.sources.shape) shapeMap = sourceCoverage(resolvedPreset.sources.shape);
       if (resolvedPreset.sources.grain) grainMap = sourceCoverage(resolvedPreset.sources.grain);
     } catch { warnings.push("embedded-source-fallback"); }
+    const shapeSourceState = resolvedPreset.sources.shape || libraryShapeMap
+      ? "resolved" as const : embeddedShapeMap ? "embedded" as const : "missing" as const;
+    const grainSourceState = resolvedPreset.sources.grain || libraryGrainMap
+      ? "resolved" as const : embeddedGrainMap ? "embedded" as const : "missing" as const;
+    const missingSourceNames = [shapeSourceState === "missing"
+      ? resolvedPreset.shape.sourceName : null, grainSourceState === "missing" &&
+      resolvedPreset.grain.strength > 0 ? resolvedPreset.grain.sourceName : null]
+      .filter((name): name is string => Boolean(name));
+    compatibility = { ...compatibility, shapeSourceState, grainSourceState,
+      missingSourceNames };
     return { ...resolvedPreset, shapeMap, grainMap, nativeShapeMap, nativeGrainMap,
       compatibility, warnings };
   } catch (error) {

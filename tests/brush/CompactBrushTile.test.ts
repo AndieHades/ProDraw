@@ -104,7 +104,9 @@ function loadedWithoutSources(brush: BrushPreset): LoadedBrush {
   return { ...brush, shapeMap: null, grainMap: null, nativeShapeMap: null,
     nativeGrainMap: null, compatibility: { archiveVersion: null, archiveName: null,
       supportedFields: [], unsupportedActiveFields: [],
-      excludedSections: ["wet-mix", "color-dynamics", "materials"] }, warnings: [] };
+      excludedSections: ["wet-mix", "color-dynamics", "materials"],
+      shapeSourceState: "missing", grainSourceState: "missing",
+      missingSourceNames: [] }, warnings: [] };
 }
 
 function shellPort(attach: (save: () => void) => void): CompactBrushShellPort {

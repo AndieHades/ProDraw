@@ -120,7 +120,8 @@ export function applyBrushArchiveSettings(
     supportedFields: keys.filter((key) => supported.has(key)).sort(),
     unsupportedActiveFields: keys.filter((key) => !supported.has(key) &&
       !metadata.test(key) && !excluded.test(key) && active(root[key] ?? null)).sort(),
-    excludedSections: ["wet-mix", "color-dynamics", "materials"]
+    excludedSections: ["wet-mix", "color-dynamics", "materials"],
+    shapeSourceState: "missing", grainSourceState: "missing", missingSourceNames: []
   };
   return { preset: mapped, compatibility };
 }

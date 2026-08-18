@@ -7,23 +7,6 @@ function shapeOf(brush: BrushPreset | LoadedBrush): CoverageMap | null {
   return "shapeMap" in brush ? brush.shapeMap : null;
 }
 
-function brushSeed(id: string): number {
-  let seed = 2166136261;
-  for (let index = 0; index < id.length; index += 1) {
-    seed ^= id.charCodeAt(index); seed = Math.imul(seed, 16777619);
-  }
-  return seed >>> 0;
-}
-
-function proceduralDistance(haggard: boolean, x: number, y: number,
-  seed: number): number {
-  if (haggard) {
-    const angle = Math.atan2(y, x), ripple = Math.sin(angle * 7 + seed % 31) * 0.06;
-    return Math.hypot(x, y * 1.35) * (1 + ripple);
-  }
-  return Math.hypot(x, y);
-}
-
 export interface BrushTipTransform {
   readonly rotation?: number;
   readonly scaleX?: number;
@@ -58,21 +41,17 @@ export function brushCoverageSampler(
   const cached = samplers.get(brush); if (cached) return cached;
   const shapeSettings = { ...DEFAULT_SHAPE, ...brush.shape };
   const grainSettings = { ...DEFAULT_GRAIN, ...brush.grain };
-  const radialBuiltIn = /brush-preset-(?:hard|soft)/i.test(shapeSettings.sourceName ?? "");
   const blankGrain = /brush-preset-blank/i.test(grainSettings.sourceName ?? "");
-  const shape = radialBuiltIn ? null : shapeOf(brush);
+  const shape = shapeOf(brush);
   const nativeGrain = "grainMap" in brush ? brush.grainMap : null;
   const roundness = Math.max(0.05, shapeSettings.roundness);
-  const exponent = 1 + (1 - shapeSettings.hardness) * 2;
   const edge = Math.max(0.001, 1 - shapeSettings.hardness);
   const strength = blankGrain ? 0 : grainSettings.strength;
   const scale = Math.max(0.05, grainSettings.scale);
   const grain = nativeGrain && !blankGrain ? logicalGrainTile(nativeGrain, scale) : null;
-  const seed = brushSeed(brush.id);
-  const haggard = /haggard-oval/i.test(shapeSettings.sourceName ?? "");
   const sampler: BrushCoverageSampler = {
-    textured: !(strength <= 0),
-    radialEdge: !shape && !haggard && shapeSettings.angle === 0 && roundness === 1
+    textured: strength > 0 && Boolean(grain),
+    radialEdge: !shape && shapeSettings.angle === 0 && roundness === 1
       ? edge : null,
     textureWidth: grain?.width ?? 0,
     textureHeight: grain?.height ?? 0,
@@ -86,9 +65,9 @@ export function brushCoverageSampler(
       const transformedX = sourceX * cosine + sourceY * sine;
       const transformedY = (-sourceX * sine + sourceY * cosine) / roundness;
       if (Math.abs(transformedX) > 1 || Math.abs(transformedY) > 1) return 0;
-      if (shape) return Math.pow(sampleCoverage(shape, (transformedX + 1) / 2,
-        (transformedY + 1) / 2, shapeSettings.filtering), exponent);
-      const distance = proceduralDistance(haggard, transformedX, transformedY, seed);
+      if (shape) return sampleCoverage(shape, (transformedX + 1) / 2,
+        (transformedY + 1) / 2, shapeSettings.filtering);
+      const distance = Math.hypot(transformedX, transformedY);
       return distance >= 1 ? 0 : Math.min(1, Math.max(0, (1 - distance) / edge));
     },
     texture: (x, y, transform) => {
@@ -104,10 +83,8 @@ export function brushCoverageSampler(
       const fallbackScale = grain ? 1 : scale;
       const sampleX = (sourceX * cosine + sourceY * sine) / (zoom * fallbackScale);
       const sampleY = (-sourceX * sine + sourceY * cosine) / (zoom * fallbackScale);
-      const sample = grain
-        ? sampleTile(grain, sampleX, sampleY, grainSettings.filtering)
-        : ((((Math.floor(sampleX) * 73856093) ^ (Math.floor(sampleY) * 19349663) ^
-          seed) >>> 0) % 997) / 996;
+      const sample = grain ? sampleTile(grain, sampleX, sampleY,
+        grainSettings.filtering) : 1;
       const contrast = 1 + grainSettings.contrast * 2;
       const adjusted = Math.max(0, Math.min(1,
         (sample - 0.5) * contrast + 0.5 + grainSettings.brightness * 0.5));

@@ -3,13 +3,13 @@ import { describe, expect, it } from "vitest";
 import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
 import { emptyBrushCompatibility } from "../../src/core/brush/procreateBrush";
 import { visitBrushDab } from "../../src/core/brush/renderBrushDab";
-import { builtInBrushSource } from "../../src/logic/brush/builtinBrushSource";
 import { StrokePipeline } from "../../src/logic/stroke/StrokePipeline";
 import type { LoadedBrush } from "../../src/contracts/brush";
+import { testGrainMap, testShapeMap } from "./brushTestMaps";
 
 const preset = BUNDLED_BRUSHES[0]!;
-const shapeMap = builtInBrushSource("Brush-Pocket-Brick.png", "shape");
-const grainMap = builtInBrushSource("Brush-Artery-Charcoal-Corse.jpg", "grain");
+const shapeMap = testShapeMap;
+const grainMap = testGrainMap;
 const base: LoadedBrush = { ...preset, strokePath: { ...preset.strokePath, scatter: 0.08 },
   shape: { ...preset.shape, sourceName: "Brush-Pocket-Brick.png", count: 2 },
   grain: { ...preset.grain, sourceName: "Brush-Artery-Charcoal-Corse.jpg",

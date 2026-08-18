@@ -2,12 +2,18 @@ import { describe, expect, it } from "vitest";
 import type { LoadedBrush } from "../../src/contracts/brush";
 import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
 import { legacyBrushStamp } from "../../src/logic/brush/legacyBrushAdapter";
+import { testGrainMap } from "./brushTestMaps";
 
 const loaded = (index: number): LoadedBrush => ({ ...BUNDLED_BRUSHES[index]!,
-  shapeMap: null, grainMap: null, nativeShapeMap: null, nativeGrainMap: null,
+  grain: { ...BUNDLED_BRUSHES[index]!.grain,
+    scale: index % 2 === 0 ? 5 : BUNDLED_BRUSHES[index]!.grain.scale },
+  shapeMap: null, grainMap: index % 2 === 0 ? testGrainMap : null,
+  nativeShapeMap: null, nativeGrainMap: index % 2 === 0 ? testGrainMap : null,
   compatibility: { archiveVersion: null, archiveName: null, supportedFields: [],
     unsupportedActiveFields: [],
-    excludedSections: ["wet-mix", "color-dynamics", "materials"] }, warnings: [] });
+    excludedSections: ["wet-mix", "color-dynamics", "materials"],
+    shapeSourceState: "missing", grainSourceState: index % 2 === 0 ? "resolved" : "missing",
+    missingSourceNames: [] }, warnings: [] });
 
 describe("typed brush adapter for the preserved canvas", () => {
   it("keeps preset opacity, spacing and scatter differences", () => {

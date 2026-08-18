@@ -23,9 +23,10 @@ function referenceDab(brush: LoadedBrush, sample: StrokeSample,
         const coverage = sampler.tip((x + 0.5 - stamp.x) / radius,
           (y + 0.5 - stamp.y) / radius, stamp);
         if (coverage <= 0) continue;
-        const opacity = baseOpacity * coverage * sampler.texture(x, y, {
+        const texture = sampler.textured ? sampler.texture(x, y, {
           centerX: stamp.x, centerY: stamp.y, offsetX: stamp.grainOffsetX,
-          offsetY: stamp.grainOffsetY, depthScale: stamp.grainDepthScale });
+          offsetY: stamp.grainOffsetY, depthScale: stamp.grainDepthScale }) : 1;
+        const opacity = baseOpacity * coverage * texture;
         if (opacity > 0) visit(x, y, opacity);
       }
     }
@@ -73,7 +74,14 @@ describe("brush dab optimized visitor", () => {
         (visit) => referenceDab(brush, sample, settings, visit));
       const actual = rgbaRaster(108, 104,
         (visit) => visitBrushDab(brush, sample, settings, visit));
-      expect(actual, preset.fileName).toEqual(expected);
+      let count = 0, first: number | null = null;
+      for (let index = 0; index < actual.length; index += 1) {
+        if (actual[index] === expected[index]) continue;
+        count += 1; if (first === null) first = index;
+      }
+      expect({ count, first, actual: first === null ? null : actual[first],
+        expected: first === null ? null : expected[first] }, preset.fileName)
+        .toEqual({ count: 0, first: null, actual: null, expected: null });
     }
   }, 30_000);
 });

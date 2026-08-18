@@ -1,6 +1,6 @@
 # Stage PBP-2: настоящие shape и grain вместо процедуры
 
-- Status: `in_progress`
+- Status: `completed`
 
 ## Проверенная раскладка
 
@@ -150,6 +150,8 @@ npx vitest run tests/brush-parity tests/brush
 
 ## Completion record
 
-- Commit:
-- Checks:
-- Date:
+- Commit: this stage commit
+- Checks: 30 brush files / 66 tests; `npm run check`; production Vite smoke
+  showed `Источник из библиотеки` for both Lineart shape and grain with no
+  console warnings/errors
+- Date: 2026-08-18

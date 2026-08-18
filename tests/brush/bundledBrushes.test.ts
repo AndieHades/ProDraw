@@ -5,6 +5,7 @@ import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
 import { decodeProcreateBrush } from "../../src/core/brush/procreateBrush";
 import { brushTipCoverage } from "../../src/logic/brush/brushCoverage";
 import { sourceAsset } from "../../src/logic/brush/brushSourceAsset";
+import { testBrushSourceResolver } from "./brushTestMaps";
 
 describe("bundled brush catalog", () => {
   it("owns all twelve source archives with distinct profiles", () => {
@@ -24,7 +25,7 @@ describe("bundled brush catalog", () => {
     const bytes = new Uint8Array(source.buffer.slice(
       source.byteOffset, source.byteOffset + source.byteLength
     ));
-    const loaded = await decodeProcreateBrush(bytes, preset);
+    const loaded = await decodeProcreateBrush(bytes, preset, testBrushSourceResolver);
     expect(loaded.id).toBe("lineart");
     expect(loaded.compatibility.archiveVersion).toBe(4);
     expect(loaded.compatibility.archiveName).toBe("LINEART");

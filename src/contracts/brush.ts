@@ -6,6 +6,7 @@ export interface CoverageMap {
 }
 
 export type BrushSourceKind = "shape" | "grain";
+export type BrushSourceState = "embedded" | "resolved" | "missing";
 
 export interface BrushSourceAsset {
   readonly sourceBrushName: string;
@@ -96,6 +97,9 @@ export interface BrushCompatibilityReport {
   readonly supportedFields: readonly string[];
   readonly unsupportedActiveFields: readonly string[];
   readonly excludedSections: readonly ["wet-mix", "color-dynamics", "materials"];
+  readonly shapeSourceState: BrushSourceState;
+  readonly grainSourceState: BrushSourceState;
+  readonly missingSourceNames: readonly string[];
 }
 
 export interface LoadedBrush extends BrushPreset {

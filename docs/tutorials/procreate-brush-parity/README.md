@@ -13,20 +13,19 @@ Evidence baseline: `main@8e7faee`, 2026-08-18. Единственный пост
 
 ## Resume Here
 
-- Current stage: `PBP-2`
+- Current stage: `PBP-3`
 - Status: `in_progress`
-- Last completed stage: none
-- Next action: удалить процедурные shape/grain placeholders и подключить
-  реальные sources по `brush-id`; затем исправить grain domain и общую
-  семантику stroke response
+- Last completed stage: `PBP-2`
+- Next action: убрать вырождение grain texture до микротайла и исправить
+  физический домен scale/depth без потери деталей исходного PNG
 - Blockers: нет. Владелец подтвердил правильность source PNG и берёт на себя
   финальное визуальное сравнение с Procreate (`D-7`)
 - Working paths: `src/app-folders/sources/` (данные, кодом не читаются),
   `src/core/brush/procreateBrush.ts`, `src/logic/brush/brushCoverage.ts`,
   `src/logic/brush/grainTile.ts`, `src/logic/stroke/`, `tests/brush/`
-- Last checks: rebaseline кода и Brush.archive; implementation checks ещё не
-  запускались
-- Last updated: `2026-08-18, PBP-2 начат по прямому решению владельца`
+- Last checks: 30 brush test files / 66 tests, `npm run check`, Vite browser
+  smoke реальных Lineart shape/grain — зелёные
+- Last updated: `2026-08-18, PBP-2 закрыт; Resume Here — PBP-3`
 
 ## Краткий вывод исследования
 
@@ -69,7 +68,7 @@ pointer event.
 | Stage | Chapter | Status |
 | --- | --- | --- |
 | `PBP-1` | [`10-stage-parity-harness.md`](10-stage-parity-harness.md) | deferred |
-| `PBP-2` | [`20-stage-shape-grain-sources.md`](20-stage-shape-grain-sources.md) | in progress |
+| `PBP-2` | [`20-stage-shape-grain-sources.md`](20-stage-shape-grain-sources.md) | completed |
 | `PBP-3` | [`30-stage-grain-domain.md`](30-stage-grain-domain.md) | draft |
 | `PBP-4` | [`40-stage-stroke-response.md`](40-stage-stroke-response.md) | draft |
 | `PBP-5` | [`50-stage-size-opacity-compositing.md`](50-stage-size-opacity-compositing.md) | draft |

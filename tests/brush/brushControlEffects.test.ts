@@ -1,11 +1,20 @@
 import { describe, expect, it } from "vitest";
-import type { BrushPreset } from "../../src/contracts/brush";
+import type { BrushPreset, LoadedBrush } from "../../src/contracts/brush";
 import { BUNDLED_BRUSHES } from "../../src/config/bundledBrushes";
 import { pressureBrushSize } from "../../src/core/brush/renderBrushDab";
 import { brushTexture, brushTipCoverage } from "../../src/logic/brush/brushCoverage";
+import { testGrainMap } from "./brushTestMaps";
 
 const source = BUNDLED_BRUSHES[0]!;
 const brush = (patch: Partial<BrushPreset>): BrushPreset => ({ ...source, ...patch });
+
+const textured = (preset: BrushPreset): LoadedBrush => ({ ...preset,
+  shapeMap: null, grainMap: testGrainMap, nativeShapeMap: null,
+  nativeGrainMap: testGrainMap,
+  compatibility: { archiveVersion: null, archiveName: null, supportedFields: [],
+    unsupportedActiveFields: [], excludedSections: ["wet-mix", "color-dynamics", "materials"],
+    shapeSourceState: "missing", grainSourceState: "resolved", missingSourceNames: [] },
+  warnings: [] });
 
 describe("brush coverage controls", () => {
   it("applies hardness, roundness, and shape angle to the tip", () => {
@@ -33,8 +42,8 @@ describe("brush coverage controls", () => {
   });
 
   it("uses grain scale to change texture sampling", () => {
-    const fine = brush({ grain: { ...source.grain, strength: 1, scale: 0.2 } });
-    const broad = brush({ grain: { ...source.grain, strength: 1, scale: 5 } });
+    const fine = textured(brush({ grain: { ...source.grain, strength: 1, scale: 0.2 } }));
+    const broad = textured(brush({ grain: { ...source.grain, strength: 1, scale: 5 } }));
     const samples = [[3, 7], [11, 5], [17, 23]] as const;
     expect(samples.map(([x, y]) => brushTexture(fine, x, y))).not.toEqual(
       samples.map(([x, y]) => brushTexture(broad, x, y)));
