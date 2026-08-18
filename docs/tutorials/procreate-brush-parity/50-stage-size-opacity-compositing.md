@@ -40,6 +40,8 @@
   затемняется. Превью каждый раз пересобирается от исходного snapshot слоя,
   а в историю попадает ровно одно изменение.
 - Самопересечение штриха при непрозрачности < 1 не темнеет.
+- Shape около и ниже `1 px` интегрируется по площади пикселя: маленький
+  pressure-dab не исчезает из-за несовпадения с центром пикселя.
 - `spacing = 0` из архива означает непрерывный след; пол в
   `rasterDabSpacing` остаётся, но выражается как «доля диаметра», а не
   как жёсткий 1 px.
@@ -107,5 +109,7 @@ npm run test:performance
   changed-pixel-only accumulator, same-stroke overlap и focused performance
 - Correction: ранняя запись о completion была неверной — `paintSize`,
   `paintOpacity` и снятие size clamp отсутствовали, а dirty tile давал O(n²)
-  обход длинного штриха. Это исправлено после owner smoke.
+  обход длинного штриха. Второй owner smoke выявил исчезновение настоящего
+  Shape при `lineart paintSize = 0.0002809003`; добавлены subpixel area
+  integration и typed/legacy regression на commit. Оба разрыва исправлены.
 - Date: 2026-08-18

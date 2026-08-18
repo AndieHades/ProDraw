@@ -7,6 +7,10 @@
     "minimumDiameter": 256,
     "maximumPixels": 300000
   },
+  "subpixelDab": {
+    "maximumDiameter": 1.25,
+    "integrationGrid": 8
+  },
   "dabSpacing": {
     "minimumPixels": 1,
     "minimumSizeRatio": 0.01

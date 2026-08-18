@@ -2328,6 +2328,31 @@ t("smudge transfers carried colour with the active brush", () => {
   assert.ok(S.layers[0].grid[2][3]);
   assert.ok(S.layers[0].grid[2][3][0] > 100);
 });
+t("real shape at one pixel survives legacy pointer release", () => {
+  resetWH(24, 16); S.undoStack = []; S.redoStack = [];
+  S.layers[0].kind = 'pixel'; S.active = [180, 40, 30];
+  S.brushes.pencil = { size: 1, op: .84 };
+  const shapeMap = { width: 4, height: 4, data: Uint8Array.from([
+    0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0,
+  ]) };
+  const loaded = { id: 'subpixel-shape', strokePath: { spacing: .1,
+    spacingJitter: 0, lateralJitter: 0, linearJitter: 0, fallOff: 0, scatter: 0 },
+    stabilization: { streamlineAmount: 0, streamlinePressure: 0,
+      stabilizationAmount: 0, motionFilteringAmount: 0, motionFilteringExpression: 0 },
+    taper: { start: 0, end: 0, pressure: 0 },
+    shape: { hardness: 1, angle: 0, roundness: 1, scatter: 0, count: 1 },
+    grain: { strength: 0, scale: 1 }, rendering: { flow: 1, opacity: 1 },
+    dynamics: { sizeByPressure: 0, opacityByPressure: 0, tiltToSize: 0 },
+    stylus: { minimumPressure: 0, pressureCurve: [0, .33, .67, 1],
+      tiltEnabled: true, barrelAction: 'eraser', eraserAction: 'eraser' },
+    properties: { minimumSize: 1, maximumSize: 64 }, shapeMap, grainMap: null };
+  S.stampBrush.pencil = { loaded }; const handler = toolHandler('pencil');
+  handler.down({ gx: 4, gy: 8, e: { pointerType: 'mouse', timeStamp: 1 } });
+  handler.move({ gx: 18, gy: 8, e: { pointerType: 'mouse', timeStamp: 18 } });
+  assert.equal(hasPixels(S.layers[0]), true); handler.up({});
+  assert.equal(hasPixels(S.layers[0]), true); S.stampBrush.pencil = null;
+});
 t("typed raster brush applies Huion pressure on the preserved canvas", () => {
   resetWH(24, 16); S.undoStack = []; S.redoStack = [];
   S.layers[0].kind = 'pixel';

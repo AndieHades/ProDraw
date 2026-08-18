@@ -16,17 +16,18 @@ Evidence baseline: `main@8e7faee`, 2026-08-18. Единственный пост
 - Current stage: owner validation (`PBP-1` / Huion smoke)
 - Status: `awaiting_owner_validation`
 - Last completed stage: `PBP-8`
-- Next action: проверить физическим пером изменение pressure в новом diagnostic,
-  затем визуально сравнить живой `lineart` с Procreate
+- Next action: проверить физическим пером, что `lineart` остаётся после
+  `pointerup`, затем сравнить диапазон pressure и вид штриха с Procreate
 - Blockers: автоматический рантайм не может воспроизвести Windows Ink конкретного
   Huion; тип ввода и raw pressure теперь видны в Brush Studio
 - Working paths: `src/app-folders/sources/` (данные, кодом не читаются),
   `src/core/brush/procreateBrush.ts`, `src/logic/brush/brushCoverage.ts`,
-  `src/logic/brush/grainTile.ts`, `src/logic/stroke/`, `tests/brush/`
-- Last checks: TS 114 files / 303 tests; performance 18 / 55; legacy 118 unit
-  и 395 integration; check, lint, lines, cycles, docs, shell catalog, build и
+  `src/core/brush/visitSubpixelDab.ts`, `src/logic/brush/grainTile.ts`,
+  `src/logic/stroke/`, `tests/brush/`, `tests/stroke/`
+- Last checks: TS 114 files / 304 tests; performance 18 / 55; legacy 118 unit
+  и 396 integration; check, lint, lines, cycles, docs, shell catalog, build и
   browser restart smoke — зелёные
-- Last updated: `2026-08-18, live feedback исправлен; Resume Here — Huion validation`
+- Last updated: `2026-08-18, subpixel Lineart repair; Resume Here — Huion validation`
 
 ## Краткий вывод исследования
 
@@ -36,7 +37,10 @@ Evidence baseline: `main@8e7faee`, 2026-08-18. Единственный пост
 `paintSize`/`paintOpacity` не были проведены в runtime, pressure повторно
 clamp-ился доменом кисти, а dirty tile заставлял каждый pointer event обходить
 всю историю штриха. Все три причины исправлены; alias sources получают
-собственную копию buffer и не обнуляются после worker transfer.
+собственную копию buffer и не обнуляются после worker transfer. Последующий
+owner smoke выявил ещё один разрыв: настоящий Shape около `1 px` мог не попасть
+ни в один центр пикселя. Для него добавлена area-интеграция без процедурной
+подмены формы.
 
 Подробности с путями и числами — [`01-current-state.md`](01-current-state.md).
 

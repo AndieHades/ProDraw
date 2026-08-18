@@ -7,6 +7,8 @@ import { visitRadialDab } from "./radialDab.ts";
 import { brushDabOpacity } from "../../logic/brush/brushOpacity.ts";
 import { dabStampPlan } from "../../logic/brush/dabStampPlan.ts";
 import { responseCurve } from "../../logic/brush/responseCurve.ts";
+import rasterConfig from "../../config/brush-raster.json" with { type: "json" };
+import { visitSubpixelDab } from "./visitSubpixelDab.ts";
 
 export type BrushDabVisitor = (x: number, y: number, opacity: number) => void;
 
@@ -51,6 +53,9 @@ export function visitBrushDab(
   if (baseOpacity <= 0) return;
   for (const stamp of dabStampPlan(brush, sample, size)) {
     const maximumScale = Math.max(stamp.scaleX, stamp.scaleY);
+    if (size * maximumScale <= rasterConfig.subpixelDab.maximumDiameter) {
+      visitSubpixelDab(sampler, stamp, size, baseOpacity, visit); continue;
+    }
     const stampRadius = radius * maximumScale;
     const bounds = [Math.floor(stamp.x - stampRadius - 1),
       Math.ceil(stamp.x + stampRadius + 1), Math.floor(stamp.y - stampRadius - 1),
