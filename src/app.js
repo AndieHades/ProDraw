@@ -8,6 +8,7 @@ import * as palette from './systems/palette.js';
 import * as brushBar from './systems/brush-bar.js';
 import * as brushResize from './systems/brush-resize.js';
 import * as colorPicker from './systems/color-picker.js';
+import * as colorPreferences from './systems/color-preferences.js';
 import * as toolbars from './systems/toolbars.js';
 import * as grid from './systems/grid.js';
 import * as tile from './systems/tile.js';
@@ -57,7 +58,7 @@ import './systems/free-rotate.js';
 import { mount as mountKeyboard } from './systems/keyboard/index.js';
 import * as xMirror from './systems/x-mirror.js';
 
-const MOUNTS = [palette, brushBar, brushResize, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, palManager, shading, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, toolpops, xMirror, tile, textTool];
+const MOUNTS = [colorPreferences, palette, brushBar, brushResize, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, palManager, shading, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, toolpops, xMirror, tile, textTool];
 
 export function start() {
   detect(); applyTheme(); refreshColors();

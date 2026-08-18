@@ -13,30 +13,30 @@ Evidence baseline: `main@8e7faee`, 2026-08-18. Единственный пост
 
 ## Resume Here
 
-- Current stage: `PBP-6`
-- Status: `in_progress`
-- Last completed stage: `PBP-5`
-- Next action: завершить versioned preview cache, persistence последней
-  кисти/цвета и закрепляемую библиотеку с назначаемыми клавишами
-- Blockers: нет. Владелец подтвердил правильность source PNG и берёт на себя
-  финальное визуальное сравнение с Procreate (`D-7`)
+- Current stage: owner validation (`PBP-1` / Huion smoke)
+- Status: `awaiting_owner_validation`
+- Last completed stage: `PBP-8`
+- Next action: проверить физическим пером изменение pressure в новом diagnostic,
+  затем визуально сравнить живой `lineart` с Procreate
+- Blockers: автоматический рантайм не может воспроизвести Windows Ink конкретного
+  Huion; тип ввода и raw pressure теперь видны в Brush Studio
 - Working paths: `src/app-folders/sources/` (данные, кодом не читаются),
   `src/core/brush/procreateBrush.ts`, `src/logic/brush/brushCoverage.ts`,
   `src/logic/brush/grainTile.ts`, `src/logic/stroke/`, `tests/brush/`
-- Last checks: 30 brush files / 66 tests; 18 performance files / 55 tests;
-  check, targeted lint, lines, cycles и Vite reload smoke — зелёные
-- Last updated: `2026-08-18, PBP-4/5 закрыты; Resume Here — PBP-6`
+- Last checks: TS 114 files / 303 tests; performance 18 / 55; legacy 118 unit
+  и 395 integration; check, lint, lines, cycles, docs, shell catalog, build и
+  browser restart smoke — зелёные
+- Last updated: `2026-08-18, live feedback исправлен; Resume Here — Huion validation`
 
 ## Краткий вывод исследования
 
-`lineart.brush` не содержит собственных `Shape.png`/`Grain.png` и ссылается на
-библиотеку Procreate. Правильные снятые sources уже лежат в
-`src/app-folders/sources/{shape,grain}/lineart.png`, но production decoder их не
-читает и продолжает подставлять процедурные заглушки. Поверх этого лежат
-независимые разрывы: grain-тайл вырождается до 2×2, `shapeScatter` ошибочно
-сдвигает stamps вместо их вращения, кривые отклика игнорируются, конечный taper
-подменён реакцией на pressure, а один stroke повторно композитится на каждом
-pointer event.
+`lineart.brush` ссылается на library Shape/Grain. Production decoder теперь
+читает снятые sources, а compact preview показывает сам Shape без процедурного
+круга. Live feedback выявил ещё три разрыва после раннего закрытия этапов:
+`paintSize`/`paintOpacity` не были проведены в runtime, pressure повторно
+clamp-ился доменом кисти, а dirty tile заставлял каждый pointer event обходить
+всю историю штриха. Все три причины исправлены; alias sources получают
+собственную копию buffer и не обнуляются после worker transfer.
 
 Подробности с путями и числами — [`01-current-state.md`](01-current-state.md).
 
@@ -72,14 +72,12 @@ pointer event.
 | `PBP-3` | [`30-stage-grain-domain.md`](30-stage-grain-domain.md) | completed |
 | `PBP-4` | [`40-stage-stroke-response.md`](40-stage-stroke-response.md) | completed |
 | `PBP-5` | [`50-stage-size-opacity-compositing.md`](50-stage-size-opacity-compositing.md) | completed |
-| `PBP-6` | [`60-stage-preview-cache.md`](60-stage-preview-cache.md) | planned |
-| `PBP-7` | [`70-stage-last-tools.md`](70-stage-last-tools.md) | planned |
-| `PBP-8` | [`80-stage-library-workflow.md`](80-stage-library-workflow.md) | planned |
+| `PBP-6` | [`60-stage-preview-cache.md`](60-stage-preview-cache.md) | completed |
+| `PBP-7` | [`70-stage-last-tools.md`](70-stage-last-tools.md) | completed |
+| `PBP-8` | [`80-stage-library-workflow.md`](80-stage-library-workflow.md) | completed |
 
-`PBP-1` больше не блокирует реализацию: владелец сам выполняет визуальное
-сравнение, а автоматические проверки доказывают source identity, численную
-семантику и отсутствие регрессий. `PBP-2..PBP-5` остаются линейными и каждый
-закрывается отдельным сфокусированным коммитом.
+`PBP-1` не блокировал реализацию, но остаётся финальным owner gate: только
+физический Huion и эталон Procreate могут подтвердить итоговый вид и Windows Ink.
 
 ## Целевой контракт и решения
 

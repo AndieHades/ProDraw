@@ -16,6 +16,7 @@ import { DocumentWorkflow } from "./DocumentWorkflow";
 import { mountInputSystems } from "./mountInputSystems";
 import type { InitialEditorState } from "./createInitialDocument";
 import { RasterEditorSession } from "./RasterEditorSession";
+import { preferredBrush } from "../logic/brush/preferredBrush";
 export class RasterEditorApp {
   readonly #workspace = new WorkspacePresenter();
   readonly #events = new EditorEventBus();
@@ -32,7 +33,7 @@ export class RasterEditorApp {
     library: BrushLibraryPort) {
     const allBrushes = library.snapshot.sets.flatMap(({ brushes }) => brushes);
     const brush = allBrushes.find(({ id }) => id === library.snapshot.activeBrushId) ??
-      allBrushes[0];
+      preferredBrush(allBrushes);
     if (!brush) throw new Error("Brush library is empty");
     const viewport = { width: this.#workspace.canvas.clientWidth,
       height: this.#workspace.canvas.clientHeight };
@@ -55,7 +56,12 @@ export class RasterEditorApp {
     }, async (name, bytes) => Boolean(await platform.saveBinary({
       suggestedName: name, bytes,
       filters: [{ name: "ProDraw Ink Trace", extensions: ["json"] }]
-    })));
+    })), {
+      read: (id) => library.snapshot.brushShortcuts[id] ?? "",
+      write: async (id, combo) => {
+        library.setShortcut(id, combo); await library.whenStateSaved();
+      }
+    });
     this.#brushes = new BrushLibraryPresenter(library, brush.id, platform, {
       select: (selected) => this.selectBrush(selected),
       edit: (selected) => this.#studio.open(selected),

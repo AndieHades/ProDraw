@@ -41,14 +41,14 @@ dialog.raster-modal::backdrop { background: rgba(4, 5, 8, .65); backdrop-filter:
   border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
 .studio-source-name { overflow: hidden; color: var(--txt2); font-size: var(--type-system);
   text-overflow: ellipsis; white-space: nowrap; }
-.studio-taper-diagram { width: 100%; height: 62px; border: 1px solid var(--line);
-  border-radius: var(--r-md); background: var(--surface); }
 .studio-preview-panel { display: grid; gap: 10px; }
 .studio-preview-render { width: 100%; height: 74px; object-fit: contain;
   border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
 .studio-preview-panel p { margin: 0; color: var(--txt2); font-size: var(--type-system); }
-.drawing-pad { display: grid; grid-template-rows: auto 1fr auto auto; min-width: 0; padding: 10px; background: var(--cv-prev-bg); }
+.drawing-pad { display: grid; grid-template-rows: auto auto 1fr auto auto; min-width: 0; padding: 10px; background: var(--cv-prev-bg); }
 .drawing-pad > header { padding: 6px; color: var(--txt2); }
+.studio-shortcut-field { display: grid; grid-template-columns: 1fr minmax(80px, 42%); gap: 8px; align-items: center; padding: 0 6px 8px; color: var(--txt2); }
+.studio-shortcut-field input { min-width: 0; height: 32px; color: var(--txt); text-align: center; background: var(--row); border: 1px solid var(--line); border-radius: var(--r-md); }
 #studio-pad { width: 100%; height: 100%; min-height: 210px; border-radius: var(--r-md); background: var(--surface); touch-action: none; }
 .stylus-diagnostics { min-height: 24px; padding-top: 6px; color: var(--txt2); font-size: var(--type-system); }
 .stylus-trace-actions { display: flex; gap: 6px; }

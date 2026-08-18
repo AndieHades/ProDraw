@@ -10,7 +10,7 @@ import { brushKey } from '../core/tools.js';
 import { saveBrushPrefs } from '../core/brush-prefs.js';
 import { BP_SMAX } from '../config/limits.ts';
 import { SENS_PRESETS, DIRECTIONS } from '../config/brush-resize.ts';
-import { eventKey } from '../logic/key-code.js';
+import { eventKey } from '../logic/key-code.ts';
 
 const STORE = 'brushResize';
 let active = false, acc = 0, last = null, holdBtn = false; // holdBtn — удержание кнопки bb-pick (планшет)

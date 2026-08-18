@@ -1,11 +1,6 @@
-import type {
-  BrushLibraryStoredState, BrushLibraryStoredStateV2, BrushSetModel
-} from "../../contracts/brushLibrary";
-import type { BrushLibraryStoragePort } from "../../contracts/brushStorage";
-
-const uniqueStrings = (value: unknown, allowed?: ReadonlySet<string>): string[] =>
-  Array.isArray(value) ? [...new Set(value.filter((item): item is string =>
-    typeof item === "string" && (!allowed || allowed.has(item))))].slice(0, 10_000) : [];
+import type { BrushLibraryStoredStateV3, BrushSetModel } from "../../contracts/brushLibrary";
+import type { BrushLibraryStatePort } from "../../contracts/brushStorage";
+import { normalizeBrushLibraryState } from "./normalizeBrushLibraryState";
 
 function reordered(values: readonly string[], value: string, before: string | null): string[] {
   const output = values.filter((candidate) => candidate !== value);
@@ -14,28 +9,21 @@ function reordered(values: readonly string[], value: string, before: string | nu
   return output;
 }
 
-function parseState(json: string | null): Partial<BrushLibraryStoredState> {
-  if (!json) return {};
-  try {
-    const value = JSON.parse(json) as Partial<BrushLibraryStoredState>;
-    return value.format === "prodraw-brush-library" &&
-      (value.version === 1 || value.version === 2) ? value : {};
-  } catch { return {}; }
-}
-
 export class BrushLibraryMetadata {
-  readonly #storage: BrushLibraryStoragePort | null;
+  readonly #storage: BrushLibraryStatePort | null;
   #currentSetName: string;
   #setOrder: string[];
   #brushOrder: Record<string, string[]>;
   #recent: string[];
   #favorites: string[];
   #active: string | null;
+  #shortcuts: Record<string, string>;
   #saving: Promise<void> = Promise.resolve();
 
-  private constructor(storage: BrushLibraryStoragePort | null,
+  private constructor(storage: BrushLibraryStatePort | null,
     currentSetName: string, setOrder: string[], brushOrder: Record<string, string[]>,
-    recent: string[], favorites: string[], active: string | null) {
+    recent: string[], favorites: string[], active: string | null,
+    shortcuts: Record<string, string>) {
     this.#storage = storage;
     this.#currentSetName = currentSetName;
     this.#setOrder = setOrder;
@@ -43,34 +31,20 @@ export class BrushLibraryMetadata {
     this.#recent = recent;
     this.#favorites = favorites;
     this.#active = active;
+    this.#shortcuts = shortcuts;
   }
 
-  static async create(storage: BrushLibraryStoragePort | null, sets: readonly BrushSetModel[]) {
-    const raw = parseState(storage ? await storage.readState() : null);
-    const setNames = new Set(sets.map(({ name }) => name));
-    const brushIds = new Set(sets.flatMap(({ brushes }) => brushes.map(({ id }) => id)));
-    const setOrder = uniqueStrings(raw.setOrder, setNames);
-    for (const name of setNames) if (!setOrder.includes(name)) setOrder.push(name);
-    const brushOrder: Record<string, string[]> = {};
-    for (const set of sets) {
-      const ids = new Set(set.brushes.map(({ id }) => id));
-      const order = uniqueStrings(raw.brushOrder?.[set.name], ids);
-      for (const id of ids) if (!order.includes(id)) order.push(id);
-      brushOrder[set.name] = order;
-    }
-    const preferred = typeof raw.currentSetName === "string" ? raw.currentSetName : "Main";
-    const current = setNames.has(preferred) ? preferred : setOrder[0] ?? "Main";
-    return new BrushLibraryMetadata(storage, current, setOrder, brushOrder,
-      uniqueStrings(raw.recentBrushIds, brushIds),
-      uniqueStrings(raw.favoriteBrushIds, brushIds),
-      "activeBrushId" in raw && typeof raw.activeBrushId === "string" &&
-        brushIds.has(raw.activeBrushId) ? raw.activeBrushId : null);
+  static async create(storage: BrushLibraryStatePort | null, sets: readonly BrushSetModel[]) {
+    const state = await normalizeBrushLibraryState(storage, sets);
+    return new BrushLibraryMetadata(storage, state.currentSetName, state.setOrder,
+      state.brushOrder, state.recent, state.favorites, state.active, state.shortcuts);
   }
 
   get currentSetName(): string { return this.#currentSetName; }
   get recentBrushIds(): readonly string[] { return this.#recent; }
   get favoriteBrushIds(): readonly string[] { return this.#favorites; }
   get activeBrushId(): string | null { return this.#active; }
+  get brushShortcuts(): Readonly<Record<string, string>> { return { ...this.#shortcuts }; }
 
   orderSets(sets: readonly BrushSetModel[]): BrushSetModel[] {
     const rank = new Map(this.#setOrder.map((name, index) => [name, index]));
@@ -91,6 +65,13 @@ export class BrushLibraryMetadata {
   toggleFavorite(id: string): void {
     this.#favorites = this.#favorites.includes(id)
       ? this.#favorites.filter((candidate) => candidate !== id) : [id, ...this.#favorites];
+    this.save();
+  }
+  setShortcut(id: string, combo: string | null): void {
+    for (const [brushId, assigned] of Object.entries(this.#shortcuts)) {
+      if (brushId === id || assigned === combo) delete this.#shortcuts[brushId];
+    }
+    if (combo) this.#shortcuts[id] = combo;
     this.save();
   }
   addSet(name: string): void {
@@ -134,14 +115,16 @@ export class BrushLibraryMetadata {
     this.#recent = this.#recent.filter((item) => item !== id);
     this.#favorites = this.#favorites.filter((item) => item !== id);
     if (this.#active === id) this.#active = null;
+    delete this.#shortcuts[id];
   }
 
   private save(): void {
     if (!this.#storage) return;
-    const state: BrushLibraryStoredStateV2 = { format: "prodraw-brush-library", version: 2,
+    const state: BrushLibraryStoredStateV3 = { format: "prodraw-brush-library", version: 3,
       currentSetName: this.#currentSetName, setOrder: this.#setOrder,
       brushOrder: this.#brushOrder, recentBrushIds: this.#recent,
-      favoriteBrushIds: this.#favorites, activeBrushId: this.#active };
+      favoriteBrushIds: this.#favorites, activeBrushId: this.#active,
+      brushShortcuts: this.#shortcuts };
     this.#saving = this.#saving.catch(() => undefined).then(() =>
       this.#storage!.writeState(JSON.stringify(state)));
   }

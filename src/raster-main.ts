@@ -16,7 +16,8 @@ export async function bootstrapRasterEditor(): Promise<void> {
   const repository = new DocumentRepository();
   const initial = await createInitialDocument(repository);
   const platform = createPlatform();
-  const brushes = await BrushLibraryService.create(platform.brushStorage, BUNDLED_BRUSHES);
+  const brushes = await BrushLibraryService.create(platform.brushStorage, BUNDLED_BRUSHES,
+    undefined, platform.brushStateStorage ?? platform.brushStorage);
   new RasterEditorApp(platform, repository, initial, brushes);
   if (rendererSmokeRequested()) await runRendererSmoke(platform, repository, brushes);
 }

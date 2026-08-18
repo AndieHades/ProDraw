@@ -26,7 +26,7 @@ import { unarchiveBrush } from '../src/core/brush-import/bplist.js';
 import { importAbr } from '../src/core/brush-import/abr.js';
 import { previewStroke, stampIcon } from '../src/logic/brush-preview.js';
 import { footprintMask, footprintRotation } from '../src/logic/brush-cursor.js';
-import { keyName, eventKey } from '../src/logic/key-code.js';
+import { keyName, eventKey } from '../src/logic/key-code.ts';
 import { normalizeTextPrefs, normalizeTextSource, moveTextSource, transformTextSource, textLayerName } from '../src/logic/text-model.js';
 import { displayText, lineAdvance, maxLineWidth } from '../src/logic/text-layout.js';
 import { sortGalleryItems, reorderedIds } from '../src/logic/gallery-grid.js';

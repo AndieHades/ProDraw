@@ -32,6 +32,11 @@ export interface BrushLibraryStoragePort {
   writeState(json: string): Promise<void>;
 }
 
+export interface BrushLibraryStatePort {
+  readState(): Promise<string | null>;
+  writeState(json: string): Promise<void>;
+}
+
 export interface DesktopBrushStorageBridge {
   ensureSeeded(setName: string, files: readonly { fileName: string; bytes: ArrayBuffer }[]): Promise<void>;
   listSets(): Promise<readonly BrushStoredSet[]>;

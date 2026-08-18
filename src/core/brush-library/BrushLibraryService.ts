@@ -1,7 +1,9 @@
 import type { BrushPreset } from "../../contracts/brush";
 import type { BrushLibrarySnapshot, BrushSetModel } from "../../contracts/brushLibrary";
 import type { BrushLibraryPort } from "../../contracts/brushLibraryPort";
-import type { BrushLibraryStoragePort } from "../../contracts/brushStorage";
+import type {
+  BrushLibraryStatePort, BrushLibraryStoragePort
+} from "../../contracts/brushStorage";
 import { uniqueBrushSetName } from "../../logic/brush/brushSetName";
 import { BrushLibraryMetadata } from "./BrushLibraryMetadata";
 import { BrushLibraryFileActions } from "./BrushLibraryFileActions";
@@ -24,10 +26,11 @@ export class BrushLibraryService implements BrushLibraryPort {
   }
 
   static async create(storage: BrushLibraryStoragePort | null, bundled: readonly BrushPreset[],
-    createId: () => string = () => crypto.randomUUID()): Promise<BrushLibraryService> {
+    createId: () => string = () => crypto.randomUUID(),
+    stateStorage: BrushLibraryStatePort | null = storage): Promise<BrushLibraryService> {
     const sets = storage ? await loadBrushSets(storage, bundled) :
       [{ name: "Main", brushes: bundled }];
-    const metadata = await BrushLibraryMetadata.create(storage, sets);
+    const metadata = await BrushLibraryMetadata.create(stateStorage, sets);
     return new BrushLibraryService(storage, sets, metadata, bundled, createId);
   }
 
@@ -35,7 +38,8 @@ export class BrushLibraryService implements BrushLibraryPort {
     return { sets: this.#sets, currentSetName: this.#metadata.currentSetName,
       activeBrushId: this.#metadata.activeBrushId,
       recentBrushIds: this.#metadata.recentBrushIds,
-      favoriteBrushIds: this.#metadata.favoriteBrushIds };
+      favoriteBrushIds: this.#metadata.favoriteBrushIds,
+      brushShortcuts: this.#metadata.brushShortcuts };
   }
 
   subscribe(listener: Listener): () => void {
@@ -47,8 +51,9 @@ export class BrushLibraryService implements BrushLibraryPort {
   }
   markRecent(id: string): void { this.#metadata.markRecent(id); this.emit(); }
   toggleFavorite(id: string): void { this.#metadata.toggleFavorite(id); this.emit(); }
+  setShortcut(id: string, combo: string | null): void {
+    this.#metadata.setShortcut(id, combo); this.emit(); }
   whenStateSaved(): Promise<void> { return this.#metadata.whenSaved(); }
-
   async createSet(name: string): Promise<void> {
     const trimmed = uniqueBrushSetName(name, this.#sets.map((set) => set.name));
     await this.#storage?.createSet(trimmed);
@@ -65,7 +70,6 @@ export class BrushLibraryService implements BrushLibraryPort {
       ? { name: to, brushes: set.brushes.map((brush) => ({ ...brush, setName: to })) } : set);
     this.#metadata.renameSet(from, to); this.emit();
   }
-
   async deleteSet(name: string): Promise<void> {
     if (name === "Main") throw new Error("Main brush set cannot be deleted");
     const set = this.requireSet(name);

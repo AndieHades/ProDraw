@@ -8,6 +8,7 @@ import { mountCompactBrushPanel } from "./mountCompactBrushPanel";
 import { BrushPreviewQueue } from "./BrushPreviewQueue";
 import type { CompactBrushShellPort } from "./CompactBrushShellPort";
 import { BrushPreviewCache } from "../../core/brush/BrushPreviewCache";
+import { preferredBrush } from "../../logic/brush/preferredBrush";
 export interface CompactBrushActions {
   readonly edit: (brush: BrushPreset) => void;
   readonly select: (brush: BrushPreset, loaded: LoadedBrush, mode: string) => void;
@@ -33,7 +34,7 @@ export class CompactBrushLibraryPresenter {
     this.#actions = brushActions;
     this.#previews.pause();
     const requested = library.snapshot.activeBrushId; this.#activeId = this.brushes()
-      .some(({ id }) => id === requested) ? requested : this.brushes()[0]?.id ?? null;
+      .some(({ id }) => id === requested) ? requested : preferredBrush(this.brushes())?.id ?? null;
     library.subscribe(() => { if (this.#opened) this.refresh(); });
     shell.registerOpen((mode) => this.toggle(mode));
     this.#menu.addEventListener("click", (event) => void this.runMenu(event));
@@ -114,7 +115,7 @@ export class CompactBrushLibraryPresenter {
     const brush = this.#menuBrush; if (!brush) return;
     await this.#library.delete(brush);
     requiredElement<HTMLDialogElement>("#delete-brush-dialog").close();
-    const fallback = this.brushes()[0]; this.#activeId = fallback?.id ?? null;
+    const fallback = preferredBrush(this.brushes()); this.#activeId = fallback?.id ?? null;
     if (fallback) this.choose(fallback);
   }
   private reorder(brush: BrushPreset, tile: HTMLElement): void {

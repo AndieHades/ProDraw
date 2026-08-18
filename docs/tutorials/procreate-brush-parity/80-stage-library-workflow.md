@@ -1,6 +1,6 @@
 # Stage PBP-8: persistent library и brush hotkeys
 
-- Status: `planned`
+- Status: `completed`
 - Depends on: `PBP-7`
 - Requirements: `PBP-09`, `PBP-10`
 
@@ -54,6 +54,7 @@ lint, `validate:lines`, browser smoke с открытой библиотекой
 
 ## Completion record
 
-- Commit:
-- Checks:
-- Date:
+- Commit: this stage commit
+- Checks: outside click/X callback, shortcut capture/conflict/restart/input guard,
+  browser smoke назначения `3`, переключения и повторного запуска
+- Date: 2026-08-18

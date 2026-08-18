@@ -125,9 +125,8 @@ describe("BrushLibraryService", () => {
     await library.delete(reset);
     expect(await library.restoreTrash()).toBeGreaterThan(0);
     expect(library.snapshot.sets[0]?.brushes.some(({ id }) => id === reset.id)).toBe(true);
-    expect(library.snapshot.activeBrushId).toBeNull();
+    expect(library.snapshot.activeBrushId).toBe("lineart");
   });
-
   it("rejects a corrupt imported brush without adding it", async () => {
     const storage = new MemoryBrushStorage();
     const library = await BrushLibraryService.create(storage, BUNDLED_BRUSHES);

@@ -12,6 +12,7 @@ import { EYEDROPPER } from '../config/eyedropper.ts';
 import { CURSOR } from '../config/cursor.ts';
 import { DEFAULT_CANVAS_BACKGROUND } from '../config/canvas-background.ts';
 import { loadBrushPrefs } from './brush-prefs.js';
+import { loadActiveColor } from './color-prefs.ts';
 import { cloneGrid, blank } from '../logic/raster.js';
 import { cloneTextSource } from '../logic/text-model.js';
 import { defaultReferenceBoard } from './reference-board.js';
@@ -51,6 +52,7 @@ export const newEffect = (type, params = {}) => ({ id: ++fxSeq, type, visible: t
 export const cloneFx = (list) => (list || []).map((e) => ({ id: ++fxSeq, type: e.type, visible: e.visible !== false, opacity: e.opacity ?? 1, params: { ...e.params } }));
 
 const pal0 = defaultPalette();
+const active0 = loadActiveColor(pal0[DEFAULT_ACTIVE]);
 const brushPrefs = loadBrushPrefs(BRUSH_DEFAULTS(), FLAGS_DEFAULT);
 // единый контейнер изменяемого состояния
 export const S = {
@@ -61,7 +63,7 @@ export const S = {
   folders: [], folderSeq: 0, marked: new Set(), selFolder: null, markedFolders: new Set(),
   fxSel: new Set(), fxCur: null, fxDraft: null, // выделенные строки эффектов + черновик окна
 
-  palette: pal0, active: pal0[DEFAULT_ACTIVE].slice(),
+  palette: pal0, active: active0,
   colorMode: 'rgba',
   shading: { colors: [], on: false, open: false, picking: false }, // palette ramp + Aseprite-like shading brush mode
   tool: 'pencil', sym: false, symH: false, symD1: false, symD2: false, symEnabled: true,

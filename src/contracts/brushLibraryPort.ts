@@ -7,6 +7,7 @@ export interface BrushLibraryPort {
   selectSet(name: string): void;
   markRecent(id: string): void;
   toggleFavorite(id: string): void;
+  setShortcut(id: string, combo: string | null): void;
   whenStateSaved(): Promise<void>;
   createSet(name: string): Promise<void>;
   renameSet(from: string, name: string): Promise<void>;

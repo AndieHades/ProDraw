@@ -21,6 +21,7 @@ export interface BrushLibrarySnapshot {
   readonly activeBrushId: string | null;
   readonly recentBrushIds: readonly string[];
   readonly favoriteBrushIds: readonly string[];
+  readonly brushShortcuts: Readonly<Record<string, string>>;
 }
 
 export interface BrushLibraryStoredStateV1 {
@@ -40,5 +41,12 @@ export interface BrushLibraryStoredStateV2 extends Omit<
   readonly activeBrushId: string | null;
 }
 
+export interface BrushLibraryStoredStateV3 extends Omit<
+  BrushLibraryStoredStateV2, "version"
+> {
+  readonly version: 3;
+  readonly brushShortcuts: Readonly<Record<string, string>>;
+}
+
 export type BrushLibraryStoredState = BrushLibraryStoredStateV1 |
-  BrushLibraryStoredStateV2;
+  BrushLibraryStoredStateV2 | BrushLibraryStoredStateV3;

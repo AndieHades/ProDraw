@@ -2,14 +2,14 @@
 // карте (дефолт + пользовательские переопределения из localStorage) и запускает
 // его из реестра. Перенастройка — rebind()/resetKeymap(), сохраняется.
 import * as actions from '../../core/actions.ts';
+import { brushIdForShortcut } from '../../core/brush-library/brushShortcutRegistry.ts';
 import { DEFAULT_KEYMAP } from './keymap.js';
-import { keyName } from '../../logic/key-code.js';
+import { keyboardCombo } from '../../logic/key-code.ts';
 
 const STORE = 'keymap';
 
 let spaceHeld = false; // Space как зажатый модификатор: Space+X / Space+Y — флип тайла на кисти
-export function comboOf(e) { const k = keyName(e.code); if (!k) return null;
-  return (e.ctrlKey || e.metaKey ? 'mod+' : '') + (e.shiftKey ? 'shift+' : '') + (e.altKey ? 'alt+' : '') + (spaceHeld && k !== 'space' ? 'space+' : '') + k; }
+export function comboOf(e) { return keyboardCombo(e, spaceHeld); }
 
 let overrides = {};
 try { overrides = JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) {}
@@ -25,15 +25,16 @@ const typing = (t) => !!((t && t.matches && t.matches('input, textarea')) || (t 
 
 export function handle(e) {
   const combo = comboOf(e); if (!combo) return false;
-  const action = keymap[combo];
-  if (e.repeat && (combo.startsWith('space+') || action === 'tool.pencil')) return false;
+  const brushId = brushIdForShortcut(combo);
+  const action = brushId ? 'brush.selectById' : keymap[combo];
+  if (e.repeat && (brushId || combo.startsWith('space+') || action === 'tool.pencil')) return false;
   if (!action || !actions.has(action)) return false;
   const undoRedo = action === 'edit.undo' || action === 'edit.redo';
   const target = e.target, domTarget = target && typeof target.nodeType === 'number' ? target : null;
   const editPop = domTarget && [...document.querySelectorAll('#bcpop.on, #fx-edit.on')].some((p) => p.contains(domTarget));
   const undoInEditPop = undoRedo && editPop;
   if ((typing(target) && !undoInEditPop) || (document.querySelector('.ovl.on') && !undoInEditPop)) return false; // ввод текста / открыт диалог
-  e.preventDefault(); actions.run(action); return true;
+  e.preventDefault(); actions.run(action, ...(brushId ? [brushId] : [])); return true;
 }
 
 export function mount() {

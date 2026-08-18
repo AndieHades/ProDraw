@@ -18,6 +18,9 @@ import { BrushStudioPad } from "./BrushStudioPad";
 import { BrushStudioStylusDiagnostics } from "./BrushStudioStylusDiagnostics";
 import { BrushStudioTracePresenter } from "./BrushStudioTracePresenter";
 import { BrushSourceLibraryPresenter } from "./BrushSourceLibraryPresenter";
+import {
+  BrushShortcutField, noBrushShortcuts, type BrushShortcutPort
+} from "./BrushShortcutField";
 
 export class BrushStudioPresenter {
   readonly #dialog = requiredElement<HTMLDialogElement>("#brush-studio-dialog");
@@ -28,8 +31,11 @@ export class BrushStudioPresenter {
   readonly #controls: BrushControlPresenter;
   readonly #pad: BrushStudioPad;
   readonly #sourceLibrary: BrushSourceLibraryPresenter;
+  readonly #shortcutField = new BrushShortcutField(
+    requiredElement<HTMLInputElement>("#studio-brush-shortcut"));
   readonly #load: (brush: BrushPreset) => Promise<LoadedBrush>;
   readonly #onApply: (source: BrushPreset, draft: BrushPreset) => Promise<void>;
+  readonly #shortcuts: BrushShortcutPort;
   #source: BrushPreset | null = null;
   #draft: BrushPreset | null = null;
   #loaded: LoadedBrush | null = null;
@@ -40,9 +46,11 @@ export class BrushStudioPresenter {
   constructor(getBrushes: () => readonly BrushPreset[],
     load: (brush: BrushPreset) => Promise<LoadedBrush>,
     onApply: (source: BrushPreset, draft: BrushPreset) => Promise<void>,
-    saveTrace: (name: string, bytes: Uint8Array<ArrayBuffer>) => Promise<boolean>) {
+    saveTrace: (name: string, bytes: Uint8Array<ArrayBuffer>) => Promise<boolean>,
+    shortcuts: BrushShortcutPort = noBrushShortcuts) {
     this.#load = load;
     this.#onApply = onApply;
+    this.#shortcuts = shortcuts;
     this.#controls = new BrushControlPresenter(requiredElement("#studio-controls"),
       (kind) => this.openSource(kind));
     this.#sourceLibrary = new BrushSourceLibraryPresenter(getBrushes, load);
@@ -60,6 +68,7 @@ export class BrushStudioPresenter {
     this.#loaded = null;
     this.#draftVersion = 0;
     this.#section = "strokePath";
+    this.#shortcutField.set(this.#shortcuts.read(brush.id));
     this.#dialog.showModal();
     this.render();
     requestAnimationFrame(() => this.#pad.resetPreview());
@@ -117,6 +126,7 @@ export class BrushStudioPresenter {
     button.disabled = true;
     try {
       await this.#onApply(source, draft);
+      await this.#shortcuts.write(source.id, this.#shortcutField.value || null);
       this.#dialog.close();
     } finally {
       button.disabled = false;

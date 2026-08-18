@@ -10,6 +10,7 @@ import { BrushLibraryFilePresenter } from "./BrushLibraryFilePresenter";
 import { renderBrushPreview } from "./renderBrushPreview";
 import { BrushSetDialogPresenter } from "./BrushSetDialogPresenter";
 import { BrushSetContextMenuPresenter } from "./BrushSetContextMenuPresenter";
+import { preferredBrush } from "../../logic/brush/preferredBrush";
 
 export interface BrushLibraryActions {
   readonly select: (brush: BrushPreset) => void;
@@ -43,7 +44,7 @@ export class BrushLibraryPresenter {
       const previous = this.allBrushes().find(({ id }) => id === this.#selectedId);
       this.#snapshot = snapshot;
       const selected = this.allBrushes().find(({ id }) => id === this.#selectedId);
-      if (!selected) { const fallback = this.allBrushes()[0];
+      if (!selected) { const fallback = preferredBrush(this.allBrushes());
         if (fallback) this.choose(fallback); return; }
       if (previous && (previous.setName !== selected.setName ||
         previous.fileName !== selected.fileName)) this.#actions.select(selected);
@@ -143,6 +144,6 @@ export class BrushLibraryPresenter {
 
   private afterDelete(brush: BrushPreset): void {
     if (brush.id !== this.#selectedId) return;
-    const fallback = this.allBrushes()[0]; if (fallback) this.choose(fallback);
+    const fallback = preferredBrush(this.allBrushes()); if (fallback) this.choose(fallback);
   }
 }

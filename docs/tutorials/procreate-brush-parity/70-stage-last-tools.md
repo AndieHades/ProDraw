@@ -1,6 +1,6 @@
 # Stage PBP-7: последняя кисть и активный цвет
 
-- Status: `planned`
+- Status: `completed`
 - Depends on: `PBP-6`
 - Requirement: `PBP-08`
 
@@ -20,7 +20,7 @@ Windows desktop.
 | `src/core/brush-library/BrushLibraryMetadata.ts` | сохранённый active id |
 | `src/platform/brush/BrowserBrushLibraryState.ts` | web state adapter |
 | `src/app/mountCompactBrushLibrary.ts` | desktop/web state wiring |
-| `src/core/color-prefs.js` | guarded RGB load/save |
+| `src/core/color-prefs.ts` | guarded RGB load/save |
 | `src/core/state.js`, `src/app.js` | startup restore и mutation events |
 | `tests/brush/`, `test/` | round-trip/failure/restart coverage |
 
@@ -54,6 +54,7 @@ targeted lint, `validate:lines`, desktop/web restart smoke.
 
 ## Completion record
 
-- Commit:
-- Checks:
-- Date:
+- Commit: this stage commit (delivered with final library-state schema)
+- Checks: first-run/selected-brush restart, browser state and corrupt RGB
+  round-trips; legacy unit/module integration; `npm run check`; lines
+- Date: 2026-08-18

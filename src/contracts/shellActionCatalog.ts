@@ -1,5 +1,5 @@
 export const SHELL_ACTION_NAMES = [
-  "bg.clear", "bg.fill", "brush.bigger",
+  "bg.clear", "bg.fill", "brush.bigger", "brush.selectById",
   "brush.fromSelection", "brush.smaller", "brushResize.capture",
   "brushResize.cycleDir", "brushResize.cycleSens", "canvas.crop",
   "canvas.rotate", "canvas.trim", "color.for",
