@@ -1,6 +1,6 @@
 # Stage PBP-3: домен зерна
 
-- Status: `draft`
+- Status: `completed`
 - Depends on: `PBP-2`
 - Requirement: `PBP-03`
 
@@ -19,9 +19,9 @@
 схлопнутый тайл: раньше зерно было почти плоским множителем и хвост выживал.
 Оба изменения идут одним шагом и обоснуются одним эталоном.
 
-Коэффициент нормировки берётся из эталона `PBP-1`: нужно знать, осветляет ли
-Procreate штрих при полной глубине или модулирует вокруг среднего. Поэтому
-этап не стартует раньше.
+По решению `D-7` визуальную приёмку выполняет владелец. Численный контракт
+фиксирует модуляцию вокруг собственного среднего grain: фактура растёт без
+глобального осветления штриха.
 
 ## Scope
 
@@ -66,10 +66,10 @@ Procreate штрих при полной глубине или модулиру�
    даунсемпл под лимит памяти с полом 32 px.
 2. Перенести `scale` в делитель координат в `brushCoverage.texture`.
 3. Нормировать зерно по его среднему при применении глубины.
-4. Откалибровать `scaleFactor` по эталонам из `PBP-1` на кисти с выраженным
-   зерном (`gundersen`, `pencil_waxy`) и на `lineart`.
+4. Зафиксировать `scaleFactor = 1`: физический период равен исходной стороне,
+   умноженной на archive `textureScale` и `textureZoom`.
 5. Заменить `grainScaleDivisor` в `brush-raster.json` на именованную
-   калибровочную константу с комментарием, откуда она получена.
+   `grainScaleCalibration`.
 
 ## Edge и failure cases
 
@@ -111,6 +111,7 @@ npx vitest run tests/brush tests/brush-parity
 
 ## Completion record
 
-- Commit:
-- Checks:
-- Date:
+- Commit: this stage commit
+- Checks: 30 brush files / 66 tests; 18 performance files / 55 tests;
+  `npm run check`; targeted ESLint; lines; cycles; Vite reload smoke
+- Date: 2026-08-18

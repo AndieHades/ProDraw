@@ -13,19 +13,19 @@ Evidence baseline: `main@8e7faee`, 2026-08-18. Единственный пост
 
 ## Resume Here
 
-- Current stage: `PBP-3`
+- Current stage: `PBP-4`
 - Status: `in_progress`
-- Last completed stage: `PBP-2`
-- Next action: убрать вырождение grain texture до микротайла и исправить
-  физический домен scale/depth без потери деталей исходного PNG
+- Last completed stage: `PBP-3`
+- Next action: исправить semantics shape scatter/count, response curves,
+  pressure/taper и детерминированный stamp plan
 - Blockers: нет. Владелец подтвердил правильность source PNG и берёт на себя
   финальное визуальное сравнение с Procreate (`D-7`)
 - Working paths: `src/app-folders/sources/` (данные, кодом не читаются),
   `src/core/brush/procreateBrush.ts`, `src/logic/brush/brushCoverage.ts`,
   `src/logic/brush/grainTile.ts`, `src/logic/stroke/`, `tests/brush/`
-- Last checks: 30 brush test files / 66 tests, `npm run check`, Vite browser
-  smoke реальных Lineart shape/grain — зелёные
-- Last updated: `2026-08-18, PBP-2 закрыт; Resume Here — PBP-3`
+- Last checks: 30 brush files / 66 tests; 18 performance files / 55 tests;
+  check, targeted lint, lines, cycles и Vite reload smoke — зелёные
+- Last updated: `2026-08-18, PBP-3 закрыт; Resume Here — PBP-4`
 
 ## Краткий вывод исследования
 
@@ -69,7 +69,7 @@ pointer event.
 | --- | --- | --- |
 | `PBP-1` | [`10-stage-parity-harness.md`](10-stage-parity-harness.md) | deferred |
 | `PBP-2` | [`20-stage-shape-grain-sources.md`](20-stage-shape-grain-sources.md) | completed |
-| `PBP-3` | [`30-stage-grain-domain.md`](30-stage-grain-domain.md) | draft |
+| `PBP-3` | [`30-stage-grain-domain.md`](30-stage-grain-domain.md) | completed |
 | `PBP-4` | [`40-stage-stroke-response.md`](40-stage-stroke-response.md) | draft |
 | `PBP-5` | [`50-stage-size-opacity-compositing.md`](50-stage-size-opacity-compositing.md) | draft |
 | `PBP-6` | [`60-stage-preview-cache.md`](60-stage-preview-cache.md) | planned |

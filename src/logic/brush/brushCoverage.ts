@@ -1,7 +1,8 @@
 import type { BrushPreset, CoverageMap, LoadedBrush } from "../../contracts/brush";
-import { logicalGrainTile } from "./grainTile.ts";
+import rasterConfig from "../../config/brush-raster.json" with { type: "json" };
 import { sampleCoverage, sampleTile } from "./coverageSampling.ts";
 import { DEFAULT_GRAIN, DEFAULT_SHAPE } from "../../config/brushDefaults.ts";
+import { adjustGrain, adjustedGrainMean } from "./grainAdjustment.ts";
 
 function shapeOf(brush: BrushPreset | LoadedBrush): CoverageMap | null {
   return "shapeMap" in brush ? brush.shapeMap : null;
@@ -48,13 +49,20 @@ export function brushCoverageSampler(
   const edge = Math.max(0.001, 1 - shapeSettings.hardness);
   const strength = blankGrain ? 0 : grainSettings.strength;
   const scale = Math.max(0.05, grainSettings.scale);
-  const grain = nativeGrain && !blankGrain ? logicalGrainTile(nativeGrain, scale) : null;
+  const grain = nativeGrain && !blankGrain ? nativeGrain : null;
+  const grainMean = grain ? adjustedGrainMean(grain, grainSettings.brightness,
+    grainSettings.contrast) : 1;
+  const reference = grain?.scaleReference ?? grain?.width ?? 0;
+  const physicalScale = scale * rasterConfig.grainScaleCalibration;
+  const physicalWidth = reference * physicalScale * Math.max(0.05, grainSettings.zoom);
+  const physicalHeight = reference > 0 && grain
+    ? physicalWidth * grain.height / grain.width : 0;
   const sampler: BrushCoverageSampler = {
     textured: strength > 0 && Boolean(grain),
     radialEdge: !shape && shapeSettings.angle === 0 && roundness === 1
       ? edge : null,
-    textureWidth: grain?.width ?? 0,
-    textureHeight: grain?.height ?? 0,
+    textureWidth: Math.round(physicalWidth),
+    textureHeight: Math.round(physicalHeight),
     tip: (normalizedX, normalizedY, transform = {}) => {
       const angle = shapeSettings.angle + (transform.rotation ?? 0);
       const cosine = Math.cos(angle), sine = Math.sin(angle);
@@ -80,17 +88,17 @@ export function brushCoverageSampler(
       const sourceY = y * (1 - movement) + localY * movement + (transform?.offsetY ?? 0);
       const cosine = Math.cos(grainSettings.rotation), sine = Math.sin(grainSettings.rotation);
       const zoom = Math.max(0.05, grainSettings.zoom);
-      const fallbackScale = grain ? 1 : scale;
-      const sampleX = (sourceX * cosine + sourceY * sine) / (zoom * fallbackScale);
-      const sampleY = (-sourceX * sine + sourceY * cosine) / (zoom * fallbackScale);
+      const decodedRatio = grain && reference > 0 ? grain.width / reference : 1;
+      const coordinateScale = zoom * physicalScale;
+      const sampleX = (sourceX * cosine + sourceY * sine) * decodedRatio / coordinateScale;
+      const sampleY = (-sourceX * sine + sourceY * cosine) * decodedRatio / coordinateScale;
       const sample = grain ? sampleTile(grain, sampleX, sampleY,
         grainSettings.filtering) : 1;
-      const contrast = 1 + grainSettings.contrast * 2;
-      const adjusted = Math.max(0, Math.min(1,
-        (sample - 0.5) * contrast + 0.5 + grainSettings.brightness * 0.5));
+      const adjusted = adjustGrain(sample, grainSettings.brightness,
+        grainSettings.contrast);
       const depth = Math.max(grainSettings.minimumDepth,
         strength * (transform?.depthScale ?? 1));
-      return 1 - depth + adjusted * depth;
+      return Math.max(0, 1 + (adjusted - grainMean) * depth);
     }
   };
   samplers.set(brush, sampler); return sampler;
