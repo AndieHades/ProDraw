@@ -3,6 +3,7 @@
 
 import 'fake-indexeddb/auto';
 import assert from 'node:assert/strict';
+import { readPsd } from 'ag-psd';
 import { makeDom } from './harness.mjs';
 
 const { window } = makeDom();
@@ -1078,6 +1079,28 @@ await ta("module-int case 130", async () => { exportProject();
   for (const scope of ['selected', 'folder', 'project']) { S.selFolder = scope === 'folder' ? 1 : null; S.marked = new Set([0]);
     const out = await xpipe.runExport({ scope, mode: 'layered', format: 'psd', canvasBounds: 'current', includeHidden: false });
     assert.equal(out.length, 1); assert.ok(/\.psd$/.test(out[0].name)); } });
+await ta('layered PSD decodes with panel order matching the visible stack', async () => {
+  resetWH(1, 1);
+  const layer = (name, fid, color) => ({ name, fid, grid: [[[...color, 255]]],
+    opacity: 1, visible: true, clip: false, ext: new Map(), effects: [] });
+  S.layers = [layer('Root Bottom', null, [1, 1, 1]),
+    layer('Group Bottom', 1, [2, 2, 2]), layer('Nested', 2, [3, 3, 3]),
+    layer('Group Top', 1, [4, 4, 4]), layer('Root Top', null, [5, 5, 5])];
+  S.folders = [{ id: 1, name: 'Outer', open: true, visible: true, parent: null,
+    effects: [] }, { id: 2, name: 'Внутри', open: false, visible: true,
+    parent: 1, effects: [] }]; cache.dirtyAll();
+  const output = await FORMATS.psd.encodeLayered(xtree.buildExportDoc('project', true), 'order');
+  const bytes = new Uint8Array(await output.blob.arrayBuffer());
+  assert.equal(bytes[25], 3); // RGB, not CMYK
+  const decoded = readPsd(bytes, { skipLayerImageData: true,
+    skipCompositeImageData: true });
+  assert.deepEqual(decoded.children.map((node) => node.name),
+    ['Root Top', 'Outer', 'Root Bottom']);
+  const outer = decoded.children[1];
+  assert.deepEqual(outer.children.map((node) => node.name),
+    ['Group Top', 'Внутри', 'Group Bottom']);
+  assert.deepEqual(outer.children[1].children.map((node) => node.name), ['Nested']);
+});
 await ta("module-int case 131", async () => { exportProject();
   const out = await xpipe.runExport({ scope: 'project', mode: 'separate', separateMode: 'leaf', boundsMode: 'each', format: 'png', canvasBounds: 'current', includeHidden: true });
   assert.equal(out.length, 3); }); // a, b, c

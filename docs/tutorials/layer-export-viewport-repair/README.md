@@ -1,6 +1,6 @@
 # Layer Export and Viewport Repair
 
-Status: `ready`
+Status: `in_progress`
 
 Evidence baseline: clean `codex/layer-export-viewport-fixes@8e7faee`,
 2026-08-18, synchronized with `origin/main`.
@@ -10,17 +10,16 @@ the completed recovery-bridge PNG/PSD paths.
 
 ## Resume Here
 
-- Current stage: `LEP1 — PSD structural order`
+- Current stage: `LEP2 — folder layers as PNG tree`
 - Status: `ready`
-- Last completed stage: `LEP0 — evidence and plan`
-- Next action: add an exported-PSD round-trip fixture, then correct record order
-  and RGB header without changing the embedded composite
+- Last completed stage: `LEP1 — PSD structural order`
+- Next action: implement the pure path plan and staged desktop directory writer,
+  then connect the third folder-only RMB action
 - Blockers: none
 - Working paths: `src/systems/export`, `src/systems/layers`, `src/platform`,
   `desktop`, `src/systems/render`, `src/i18n`, `index.html`, `tests`, `test`
-- Last checks: clean branch; current PSD decoded only after correcting its
-  colour-mode byte in-memory and exposed bottom-first panel rows; live render
-  keeps smoothing disabled below 100%
+- Last checks: 395 module integration tests, PSD 11 files/53 tests, TypeScript
+  check and targeted export/test ESLint passed
 - Last updated: 2026-08-18
 
 ## Problems Recorded
@@ -60,8 +59,8 @@ the completed recovery-bridge PNG/PSD paths.
 | Stage | Chapter | Depends on | Status | Commit boundary |
 | --- | --- | --- | --- | --- |
 | `LEP0` | this evidence package | none | done | `docs: plan layer export and viewport repairs` |
-| `LEP1` | [`10-stage-psd-order.md`](10-stage-psd-order.md) | `LEP0` | ready | `fix: preserve psd layer panel order` |
-| `LEP2` | [`20-stage-folder-png-tree.md`](20-stage-folder-png-tree.md) | `LEP1` | planned | `feat: export folder layers as png tree` |
+| `LEP1` | [`10-stage-psd-order.md`](10-stage-psd-order.md) | `LEP0` | done | `fix: preserve psd layer panel order` |
+| `LEP2` | [`20-stage-folder-png-tree.md`](20-stage-folder-png-tree.md) | `LEP1` | ready | `feat: export folder layers as png tree` |
 | `LEP3` | [`30-stage-viewport-downscale.md`](30-stage-viewport-downscale.md) | `LEP2` | planned | `fix: improve zoomed out canvas quality` |
 
 ## Completion Definition

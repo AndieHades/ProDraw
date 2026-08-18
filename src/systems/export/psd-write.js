@@ -33,7 +33,7 @@ function record(li, L, W, H) {
 
 export function writePsd({ W, H, layers, comp }) {
   const m = bw();
-  m.ascii('8BPS'); m.u16(1); m.zeros(6); m.u16(4); m.u32(H); m.u32(W); m.u16(8); m.u16(4);
+  m.ascii('8BPS'); m.u16(1); m.zeros(6); m.u16(4); m.u32(H); m.u32(W); m.u16(8); m.u16(3);
   m.u32(0); m.u32(0); // color mode data + image resources (пусто)
   const li = bw(); li.u16(layers.length & 0xffff);
   for (const L of layers) record(li, L, W, H);

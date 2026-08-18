@@ -13,16 +13,17 @@ const rasterDesc = (name, surface) => ({ name, opacity: 255, hidden: false,
     materializeEffectSurface(surface, S.W, S.H), S.W, S.H) });
 const divider = (lsct, name, hidden) => ({ name, opacity: 255, hidden: !!hidden, clip: false, lsct, data: null });
 
-// дерево → плоский список слоёв (низ→верх) с разделителями групп
+// PSD records are exposed top-first even though ProDraw composites bottom-first.
 function emit(nodes, out) {
-  for (const n of nodes) {
+  for (let index = nodes.length - 1; index >= 0; index--) {
+    const n = nodes[index];
     if (n.kind === 'layer') { out.push(leafDesc(n)); continue; }
     out.push(divider(3, '</Layer group>', false));
-    const below = n.effects.length ? folderFx(n.folder, 'below') : null;
-    if (below) out.push(rasterDesc(n.name + ' fx', below));
-    emit(n.children, out);
     const above = n.effects.length ? folderFx(n.folder, 'above') : null;
     if (above) out.push(rasterDesc(n.name + ' fx+', above));
+    emit(n.children, out);
+    const below = n.effects.length ? folderFx(n.folder, 'below') : null;
+    if (below) out.push(rasterDesc(n.name + ' fx', below));
     out.push(divider(n.open ? 1 : 2, n.name, !n.visible));
   }
 }

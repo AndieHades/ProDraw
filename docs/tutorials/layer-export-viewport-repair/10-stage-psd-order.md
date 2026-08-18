@@ -1,7 +1,7 @@
 # LEP1: PSD Structural Order
 
 - Stable id: `LEP1`
-- Status: `ready`
+- Status: `done`
 - Depends on: `LEP0`
 - Requirements: `LEP-PSD-01`, `LEP-PSD-02`
 
@@ -39,6 +39,7 @@ from the original bottom-first tree and are not reordered.
 
 ## Completion record
 
-- Commit: pending
-- Checks: pending
+- Commit: this stage commit (`fix: preserve psd layer panel order`).
+- Checks: 395 module integration tests; PSD 11 files/53 tests; TypeScript check;
+  targeted ESLint for the writer, encoder and integration fixture.
 - Residual risk: physical Photoshop comparison remains a named manual check.
