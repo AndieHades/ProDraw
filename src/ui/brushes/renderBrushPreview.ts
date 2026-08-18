@@ -4,7 +4,6 @@ import { RasterEdit } from "../../core/history/RasterEdit";
 import { RasterSurface } from "../../core/raster/RasterSurface";
 import { StrokePipeline } from "../../logic/stroke/StrokePipeline";
 
-const compactCache = new Map<string, Uint8ClampedArray<ArrayBuffer>>();
 const previewColor = { red: 245, green: 245, blue: 248, alpha: 255 } as const;
 
 export function renderBrushPreview(
@@ -32,10 +31,10 @@ export function renderBrushPreview(
       tiltX: brush.preview.tiltAngle * 90, tiltY: 0, time: index,
       pointerType: "pen" as const
     };
-    for (const sample of pipeline.push(source)) renderBrushDab(edit, brush, sample,
-      { size, opacity: 1, erase: false }, previewColor);
+    pipeline.push(source);
   }
-  for (const sample of pipeline.finish()) renderBrushDab(edit, brush, sample,
+  pipeline.finish();
+  for (const sample of pipeline.completedPlan()) renderBrushDab(edit, brush, sample,
     { size, opacity: 1, erase: false }, previewColor);
   edit.commit(); paintSurface(canvas, surface);
 }
@@ -51,25 +50,23 @@ function paintSurface(canvas: HTMLCanvasElement, surface: RasterSurface): void {
 export function renderCompactBrushPreview(
   canvas: HTMLCanvasElement,
   brush: BrushPreset | LoadedBrush
-): void {
+): Uint8ClampedArray | null {
   const size = 80;
   canvas.width = size; canvas.height = size;
-  const cacheKey = `stamp-v4:${brush.id}@${brush.revision}`;
-  const cached = compactCache.get(cacheKey);
-  const context = canvas.getContext("2d"); if (!context) return;
-  if (cached) {
-    context.putImageData(new ImageData(new Uint8ClampedArray(cached), size, size), 0, 0);
-    return;
-  }
+  const context = canvas.getContext("2d"); if (!context) return null;
   const surface = new RasterSurface(`compact-preview/${brush.id}`, size, size, size);
   const edit = new RasterEdit(surface, "Compact preview");
   renderTextureStamp(edit, brush, size - 8, size);
   edit.commit();
-  surface.visitTiles((_coordinate, bytes) => {
-    const pixels = new Uint8ClampedArray(bytes);
-    compactCache.set(cacheKey, pixels);
-    context.putImageData(new ImageData(new Uint8ClampedArray(pixels), size, size), 0, 0);
-  });
+  const pixels = surface.copyTile(0, 0) ?? new Uint8ClampedArray(size * size * 4);
+  paintCompactBrushPreview(canvas, pixels); return pixels;
+}
+
+export function paintCompactBrushPreview(canvas: HTMLCanvasElement,
+  pixels: Uint8ClampedArray): void {
+  const size = 80, context = canvas.getContext("2d"); if (!context) return;
+  canvas.width = size; canvas.height = size;
+  context.putImageData(new ImageData(new Uint8ClampedArray(pixels), size, size), 0, 0);
 }
 
 function renderTextureStamp(edit: RasterEdit, brush: BrushPreset | LoadedBrush,

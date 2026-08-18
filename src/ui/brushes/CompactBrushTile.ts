@@ -2,6 +2,8 @@ import type { BrushPreset, LoadedBrush } from "../../contracts/brush";
 import type { BrushPreviewJob } from "./BrushPreviewQueue";
 import { BrushPreviewQueue } from "./BrushPreviewQueue";
 import { renderCompactBrushPreview } from "./renderBrushPreview";
+import { paintCompactBrushPreview } from "./renderBrushPreview";
+import type { BrushPreviewCache } from "../../core/brush/BrushPreviewCache";
 import type { CompactBrushShellPort } from "./CompactBrushShellPort";
 
 export interface CompactBrushTileActions {
@@ -12,6 +14,7 @@ export interface CompactBrushTileActions {
   readonly load: (brush: BrushPreset) => Promise<LoadedBrush>;
   readonly shell: CompactBrushShellPort;
   readonly previews: BrushPreviewQueue;
+  readonly cache?: BrushPreviewCache;
 }
 
 const cleanupByTile = new WeakMap<HTMLElement, () => void>();
@@ -69,13 +72,16 @@ function attachVisiblePreview(tile: HTMLElement, preview: HTMLCanvasElement,
   let observer: IntersectionObserver | null = null;
   let job: BrushPreviewJob | null = null;
   let rendered = false;
+  const cached = actions.cache?.read(brush);
+  if (cached) { paintCompactBrushPreview(preview, cached); rendered = true; }
   const schedule = (): void => {
     if (job || rendered) return;
     const scheduled = actions.previews.schedule(async (signal) => {
       if (signal.aborted || !tile.isConnected) return;
       const loaded = await actions.load(brush);
       if (signal.aborted || !tile.isConnected) return;
-      renderCompactBrushPreview(preview, loaded);
+      const pixels = renderCompactBrushPreview(preview, loaded);
+      if (pixels) actions.cache?.write(brush, pixels);
       rendered = true;
       observer?.disconnect();
     });
@@ -84,6 +90,7 @@ function attachVisiblePreview(tile: HTMLElement, preview: HTMLCanvasElement,
       if (job === scheduled && !rendered) job = null;
     });
   };
+  if (rendered) return;
   if (typeof IntersectionObserver === "undefined") schedule();
   else {
     observer = new IntersectionObserver((entries) => {

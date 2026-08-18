@@ -8,6 +8,7 @@ import {
   compactBrushTile, disposeCompactBrushTile
 } from "../../src/ui/brushes/CompactBrushTile";
 import { BrushPreviewQueue } from "../../src/ui/brushes/BrushPreviewQueue";
+import { BrushPreviewCache } from "../../src/core/brush/BrushPreviewCache";
 
 describe("compact original brush tile", () => {
   beforeEach(() => {
@@ -92,6 +93,18 @@ describe("compact original brush tile", () => {
       menu: vi.fn(), reorder: vi.fn(), load, shell: shellPort(() => undefined), previews });
     disposeCompactBrushTile(tile);
     await previews.whenIdle();
+    expect(load).not.toHaveBeenCalled();
+  });
+
+  it("paints a persistent cache hit without decoding the brush", async () => {
+    const brush = BUNDLED_BRUSHES[0]!, load = vi.fn(pendingLoad);
+    const cache = new BrushPreviewCache();
+    cache.write(brush, new Uint8ClampedArray(80 * 80 * 4));
+    const previews = new BrushPreviewQueue();
+    const tile = compactBrushTile(brush, null, { choose: vi.fn(), edit: vi.fn(),
+      menu: vi.fn(), reorder: vi.fn(), load, shell: shellPort(() => undefined),
+      previews, cache });
+    document.body.append(tile); await previews.whenIdle();
     expect(load).not.toHaveBeenCalled();
   });
 });

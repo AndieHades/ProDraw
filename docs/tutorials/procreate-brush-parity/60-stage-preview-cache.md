@@ -1,6 +1,6 @@
 # Stage PBP-6: быстрые previews библиотеки
 
-- Status: `planned`
+- Status: `completed`
 - Depends on: `PBP-5`
 - Requirement: `PBP-07`
 
@@ -49,6 +49,7 @@
 
 ## Completion record
 
-- Commit:
-- Checks:
-- Date:
+- Commit: this stage commit
+- Checks: preview cache round-trip/corruption/revision and cache-hit-before-load
+  tests; `npm run check`; targeted lint; lines; browser reopen smoke
+- Date: 2026-08-18

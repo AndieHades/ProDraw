@@ -7,13 +7,12 @@ import { compactBrushTile, disposeCompactBrushTile } from "./CompactBrushTile";
 import { mountCompactBrushPanel } from "./mountCompactBrushPanel";
 import { BrushPreviewQueue } from "./BrushPreviewQueue";
 import type { CompactBrushShellPort } from "./CompactBrushShellPort";
-
+import { BrushPreviewCache } from "../../core/brush/BrushPreviewCache";
 export interface CompactBrushActions {
   readonly edit: (brush: BrushPreset) => void;
   readonly select: (brush: BrushPreset, loaded: LoadedBrush, mode: string) => void;
   readonly load: (brush: BrushPreset) => Promise<LoadedBrush>;
 }
-
 export class CompactBrushLibraryPresenter {
   readonly #panel = requiredElement<HTMLElement>("#brush-pop");
   readonly #list = requiredElement<HTMLElement>("#brush-list");
@@ -22,6 +21,7 @@ export class CompactBrushLibraryPresenter {
   readonly #platform: PlatformPort;
   readonly #shell: CompactBrushShellPort;
   readonly #previews = new BrushPreviewQueue();
+  readonly #previewCache = new BrushPreviewCache();
   readonly #actions: CompactBrushActions; #activeId: string | null;
   #menuBrush: BrushPreset | null = null;
   #mode = "pencil";
@@ -61,7 +61,8 @@ export class CompactBrushLibraryPresenter {
         edit: (value) => { this.choose(value); this.#actions.edit(value); },
         menu: (value, event) => this.openMenu(value, event),
         reorder: (value, tile) => this.reorder(value, tile),
-        load: this.#actions.load, shell: this.#shell, previews: this.#previews } )));
+        load: this.#actions.load, shell: this.#shell, previews: this.#previews,
+        cache: this.#previewCache } )));
   }
   private refresh(): void {
     const key = this.brushes().map(({ id, revision, setName }) =>
@@ -83,7 +84,6 @@ export class CompactBrushLibraryPresenter {
   }
   private close(): void {
     this.#opened = false; this.#panel.classList.remove("on"); this.#previews.pause();
-    this.#previews.cancelAll(); this.#renderKey = "";
   }
   private choose(brush: BrushPreset): void {
     this.#activeId = brush.id; this.syncSelection(); this.#library.markRecent(brush.id);
