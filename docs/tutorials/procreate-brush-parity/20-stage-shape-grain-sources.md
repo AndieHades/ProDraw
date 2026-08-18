@@ -1,6 +1,6 @@
 # Stage PBP-2: настоящие shape и grain вместо процедуры
 
-- Status: `draft`
+- Status: `in_progress`
 
 ## Проверенная раскладка
 
@@ -11,23 +11,25 @@
 имён:
 
 ```text
-src/app-folders/sources/<brush-id>/shape.png
-src/app-folders/sources/<brush-id>/grain.png
+src/app-folders/sources/shape/<brush-id>.png
+src/app-folders/sources/grain/<brush-id>.png
 ```
 
 `<brush-id>` совпадает с `BrushPreset.id`, то есть с именем `.brush` без
-расширения. Для `lineart.brush` это `sources/lineart/`. Индекс собирается через
+расширения. Для `lineart.brush` это `sources/shape/lineart.png` и
+`sources/grain/lineart.png`. Индекс собирается через
 `import.meta.glob` в `src/config/brushSourceAssets.ts`, загрузка и кеш —
 `src/core/brush/brushSourceFolder.ts`.
 
-Приоритет: `preset.sources.*` → папка кисти → ассет внутри архива → процедурный
-fallback. Папка выигрывает у архива сознательно: это явное действие владельца и
-единственный способ поправить источник, не трогая `.brush`.
+Приоритет: `preset.sources.*` → source library → ассет внутри архива → явно
+помеченный `missing`. Процедурных shape/grain sources в цепочке больше нет.
+Папка выигрывает у архива сознательно: это явное действие владельца и
+единственный способ поправить source, не трогая `.brush`.
 
 Одна и та же картинка для двух кистей дублируется (`lineart` и
 `lineart_long`). Для личного инструмента это дешевле таблицы имён.
-- Depends on: `PBP-1`; снятые по [`04-source-capture.md`](04-source-capture.md)
-  ассеты `Brush-Pocket-Brick.png` и `Brush-Artery-Charcoal-Corse.jpg`
+- Depends on: решение владельца `D-7`; снятые по
+  [`04-source-capture.md`](04-source-capture.md) реальные sources
 - Requirement: `PBP-02`
 
 ## Scope
@@ -44,8 +46,9 @@ fallback. Папка выигрывает у архива сознательно
 
 | Путь | Действие |
 | --- | --- |
-| `src/app-folders/brush-sources/` | новый — ассеты в git, как шрифты и палитры |
-| `src/core/brush/bundledSourceLibrary.ts` | новый — резолв по имени файла |
+| `src/app-folders/sources/{shape,grain}/` | реальные sources в git |
+| `src/config/brushSourceAssets.ts` | индекс sources по brush id |
+| `src/core/brush/brushSourceFolder.ts` | загрузка и decode sources |
 | `src/core/brush/procreateBrush.ts` | резолв вместо процедурного fallback |
 | `src/contracts/brush.ts` | `shapeSourceState`, `grainSourceState` в отчёте |
 | `src/core/brush/brushArchiveSettings.ts` | прокинуть состояния источников |
@@ -58,36 +61,37 @@ fallback. Папка выигрывает у архива сознательно
 
 ## Контракты
 
-- `resolveBundledSource(name, kind)` ищет файл в библиотеке источников по имени
-  из `bundledShapePath`/`bundledGrainPath` без учёта регистра и расширения.
+- `resolveBrushSource(brushId, kind)` ищет файл в библиотеке источников по id
+  пресета без учёта регистра и расширения.
   Возвращает `CoverageMap | null`. Библиотека собирается через
   `import.meta.glob`, как бандлы кистей в `bundledBrushes.ts:11`.
 - Порядок разрешения формы и зерна строго такой:
-  `preset.sources.*` → ассет внутри архива → библиотека источников → `missing`.
+  `preset.sources.*` → библиотека источников → ассет внутри архива → `missing`.
   Процедурного шага в цепочке больше нет.
 - `CoverageMap` из библиотеки декодируется тем же `decodeCoverage`, что и
   встроенный ассет, и получает `scaleReference = исходная сторона до
   даунсемпла`.
 - Состояние источника: `"embedded" | "resolved" | "missing"`. `missing`
   обязателен в `warnings` и означает неполную библиотеку, а не штатный режим.
-- Кисть с `missing` формой рисует нейтральным радиальным кончиком и не роняет
-  приложение (правило «ошибка кисти не роняет app»), но помечена в UI.
+- Кисть с `missing` формой рисует нейтральным radial safety tip и не роняет
+  приложение, но помечена в UI. Это не source и не называется аналогом
+  оригинальной формы. `missing` grain означает отсутствие texture, без шума.
 - Для image-формы покрытие ассета больше не возводится в степень: `exponent`
   применяется только к радиальному кончику.
 
 ## Шаги
 
-1. Положить снятые ассеты в `src/app-folders/brush-sources/` и добавить рядом
-   `README.md` с таблицей имён из [`04-source-capture.md`](04-source-capture.md).
-2. Реализовать `bundledSourceLibrary.ts` (≤ 150 строк): индекс каталога,
-   нормализация имени, ленивая загрузка и кеш.
+1. Проверить уже добавленные sources в `src/app-folders/sources/` и добавить
+   индекс, который не требует копирования бинарников.
+2. Реализовать `brushSourceFolder.ts` (≤ 150 строк): индекс каталога,
+   ленивая загрузка, decode и кеш.
 3. Встроить резолв в `procreateBrush.ts` вместо `builtInBrushSource`;
    сохранить порядок из контракта.
 4. Расширить `BrushCompatibilityReport` полями состояний и списком
    `missingSourceNames`.
-5. Удалить `brick`, `arterySoft`, `haggardOval` из `builtinShapeSources.ts`,
-   удалить `builtinGrainSources.ts` и `builtInBrushSource` целиком. Радиальный
-   `circle(hard|soft)` остаётся до измерения по `D-5`.
+5. Удалить `builtinShapeSources.ts`, `builtinGrainSources.ts` и
+   `builtInBrushSource` целиком. Нейтральный radial safety tip остаётся частью
+   renderer-а, но не выдаётся за source Procreate.
 6. Снять `hardness`-экспоненту с image-формы в `brushCoverage.ts:66` и убрать
    угаданные значения `hardness` из профилей `bundledBrushes.ts`.
 7. Показать состояние источника в `BrushSourcePanel` через i18n-строки.
@@ -110,8 +114,8 @@ fallback. Папка выигрывает у архива сознательно
 ## Persistence и rollback
 
 Пресеты не меняются: резолв происходит на загрузке, в `.prodraw-brush` ничего
-не вшивается (решение `D-6`). Откат — `git revert` этапа; вместе с ним
-вернутся процедурные генераторы.
+не вшивается (решение `D-6`). Откат — `git revert` этапа; procedural
+generators не являются допустимым rollback target и не возвращаются.
 
 ## i18n и ассеты
 
@@ -134,8 +138,8 @@ npx vitest run tests/brush-parity tests/brush
 
 - `lineart.brush` даёт `shapeSourceState: "resolved"`,
   `grainSourceState: "resolved"` и ни одного предупреждения.
-- Метрики `PBP-1` по всем пяти фикстурам улучшаются относительно baseline;
-  улучшение зафиксировано числами в completion record.
+- Контрактные тесты доказывают, что `lineart` потребляет library maps, а не
+  procedural source; визуальное сравнение выполняет владелец по `D-7`.
 - Ни одна кисть из `src/app-folders/brushes/main/` не остаётся в состоянии
   `missing`, либо недостающие имена перечислены поимённо в completion record
   как сознательно отложенные.

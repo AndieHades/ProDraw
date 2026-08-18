@@ -55,6 +55,9 @@ check/lint.
 | `PBP-3` | + `npm run test:performance`, визуальный прогон 12 бандлов |
 | `PBP-4` | + round-trip пресетов, smoke пером с нажимом |
 | `PBP-5` | + `tests/history`, smoke: пересечение, отмена, ластик, симметрия |
+| `PBP-6` | preview cache unit/integration + open/close browser timing smoke |
+| `PBP-7` | web/desktop preference round-trip + missing-brush/corrupt-color cases |
+| `PBP-8` | floating-window outside click + shortcut conflict/restart/input guards |
 
 Перед каждым коммитом — `git diff --check` и перечитанный `git status`.
 Пропущенные проверки называются точным именем и причиной.

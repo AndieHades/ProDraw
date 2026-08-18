@@ -1,9 +1,10 @@
 # Procreate Brush Parity (lineart.brush)
 
-Status: `draft`
+Status: `in_progress`
 
-Evidence baseline: `main@64ec94e`, 2026-08-17. Рабочее дерево содержит
-незакоммиченный tilemap-removal; кисточная поверхность им не затронута.
+Evidence baseline: `main@8e7faee`, 2026-08-18. Единственный посторонний файл в
+рабочем дереве — untracked `.claude/launch.json`; он не относится к кистям и
+не изменяется.
 
 Пакет владеет одним вопросом: почему `.brush` из Procreate рисует в ProDraw
 иначе, чем в Procreate, и что нужно изменить, чтобы штрих совпадал. Эталон
@@ -12,30 +13,31 @@ Evidence baseline: `main@64ec94e`, 2026-08-17. Рабочее дерево со�
 
 ## Resume Here
 
-- Current stage: `PBP-1`
-- Status: `draft`
+- Current stage: `PBP-2`
+- Status: `in_progress`
 - Last completed stage: none
-- Next action: закрыть `PBP-1` — без метрики любое подключение источников
-  проверяется на глаз и откатывается при первом же расхождении
-- Blockers: нет. `D-1` решён; форма и зерно для `lineart` сняты и лежат в
-  `src/app-folders/sources/lineart/` **в неподключенном состоянии**
+- Next action: удалить процедурные shape/grain placeholders и подключить
+  реальные sources по `brush-id`; затем исправить grain domain и общую
+  семантику stroke response
+- Blockers: нет. Владелец подтвердил правильность source PNG и берёт на себя
+  финальное визуальное сравнение с Procreate (`D-7`)
 - Working paths: `src/app-folders/sources/` (данные, кодом не читаются),
   `src/core/brush/procreateBrush.ts`, `src/logic/brush/brushCoverage.ts`,
-  `src/logic/brush/grainTile.ts`, `tests/`
-- Last checks: `npm run check`, `validate:cycles`, `validate:docs` — зелёные на
-  откатанном дереве. `validate:lines` падает на пре-существующих stale
-  exemptions cutover-а
-- Last updated: `2026-08-17, пробное подключение источников откатано, см. 05-attempt-log.md`
+  `src/logic/brush/grainTile.ts`, `src/logic/stroke/`, `tests/brush/`
+- Last checks: rebaseline кода и Brush.archive; implementation checks ещё не
+  запускались
+- Last updated: `2026-08-18, PBP-2 начат по прямому решению владельца`
 
 ## Краткий вывод исследования
 
-`lineart.brush` не содержит собственных `Shape.png`/`Grain.png` — он ссылается на
-встроенную библиотеку Procreate (`Brush-Pocket-Brick.png`,
-`Brush-Artery-Charcoal-Corse.jpg`). ProDraw этих ассетов не имеет и подставляет
-процедурные заглушки, поэтому отпечаток кончика неправильный ещё до любой
-динамики. Поверх этого лежат четыре независимых разрыва: вырождение grain-тайла
-до 2×2 пикселей, полностью игнорируемые кривые отклика Procreate, эвристики
-плана даба/taper и некалиброванные домены размера/непрозрачности.
+`lineart.brush` не содержит собственных `Shape.png`/`Grain.png` и ссылается на
+библиотеку Procreate. Правильные снятые sources уже лежат в
+`src/app-folders/sources/{shape,grain}/lineart.png`, но production decoder их не
+читает и продолжает подставлять процедурные заглушки. Поверх этого лежат
+независимые разрывы: grain-тайл вырождается до 2×2, `shapeScatter` ошибочно
+сдвигает stamps вместо их вращения, кривые отклика игнорируются, конечный taper
+подменён реакцией на pressure, а один stroke повторно композитится на каждом
+pointer event.
 
 Подробности с путями и числами — [`01-current-state.md`](01-current-state.md).
 
@@ -53,20 +55,32 @@ Evidence baseline: `main@64ec94e`, 2026-08-17. Рабочее дерево со�
   документированной семантике Procreate, включая настоящий хвостовой taper.
 - `PBP-06`: домены размера и непрозрачности калиброваны, а штрих
   композитится один раз, без самозатемнения при пересечении.
+- `PBP-07`: повторное открытие библиотеки не декодирует и не рендерит заново
+  неизменённые previews; видимые карточки появляются из versioned cache.
+- `PBP-08`: последняя выбранная кисть и последний активный цвет переживают
+  перезапуск web-development и Windows desktop runtime.
+- `PBP-09`: библиотека остаётся открытой до явного крестика, а назначенные
+  кистям клавиши переключают их без открытия панели.
+- `PBP-10`: `lineart` является first-run и invalid-selection default; живой
+  сохранённый выбор имеет приоритет.
 
 ## Delivery
 
 | Stage | Chapter | Status |
 | --- | --- | --- |
-| `PBP-1` | [`10-stage-parity-harness.md`](10-stage-parity-harness.md) | draft |
-| `PBP-2` | [`20-stage-shape-grain-sources.md`](20-stage-shape-grain-sources.md) | draft |
+| `PBP-1` | [`10-stage-parity-harness.md`](10-stage-parity-harness.md) | deferred |
+| `PBP-2` | [`20-stage-shape-grain-sources.md`](20-stage-shape-grain-sources.md) | in progress |
 | `PBP-3` | [`30-stage-grain-domain.md`](30-stage-grain-domain.md) | draft |
 | `PBP-4` | [`40-stage-stroke-response.md`](40-stage-stroke-response.md) | draft |
 | `PBP-5` | [`50-stage-size-opacity-compositing.md`](50-stage-size-opacity-compositing.md) | draft |
+| `PBP-6` | [`60-stage-preview-cache.md`](60-stage-preview-cache.md) | planned |
+| `PBP-7` | [`70-stage-last-tools.md`](70-stage-last-tools.md) | planned |
+| `PBP-8` | [`80-stage-library-workflow.md`](80-stage-library-workflow.md) | planned |
 
-Зависимости строго линейные: `PBP-1` даёт измерение, `PBP-2` снимает
-доминирующую ошибку, дальше по убыванию вклада. Каждый этап — один
-сфокусированный коммит.
+`PBP-1` больше не блокирует реализацию: владелец сам выполняет визуальное
+сравнение, а автоматические проверки доказывают source identity, численную
+семантику и отсутствие регрессий. `PBP-2..PBP-5` остаются линейными и каждый
+закрывается отдельным сфокусированным коммитом.
 
 ## Целевой контракт и решения
 

@@ -1,7 +1,7 @@
 # Stage PBP-1: измеримая метрика расхождения
 
-- Status: `draft`
-- Depends on: none
+- Status: `deferred`
+- Depends on: пользовательские Procreate reference PNG; не блокирует PBP-2
 - Requirement: `PBP-01`
 
 ## Scope
@@ -81,4 +81,4 @@ npx vitest run tests/brush-parity
 
 - Commit:
 - Checks:
-- Date:
+- Date: deferred 2026-08-18 по `D-7`; визуальную приёмку выполняет владелец
