@@ -11,3 +11,5 @@
   совпадения штриха `.brush` с Procreate на эталоне `lineart.brush`.
 - [`psd-document-import/`](psd-document-import/README.md) — исполняемый
   вертикальный план открытия PSD новым документом с сохранением структуры.
+- [`layer-export-viewport-repair/`](layer-export-viewport-repair/README.md) —
+  активный repair-план порядка PSD, PNG-дерева папки и качества zoom-out.

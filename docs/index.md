@@ -23,6 +23,8 @@
   почему `.brush` рисует не как в Procreate и что нужно изменить в движке.
 - [PSD document import](tutorials/psd-document-import/README.md) — единый
   drag/open workflow, структурные слои, группы, маски, alpha и эффекты PSD.
+- [Layer export and viewport repair](tutorials/layer-export-viewport-repair/README.md)
+  — порядок PSD, иерархический PNG папки и качественный zoom-out.
 - [Реестр планов](tutorials/README.md)
 
 ## Системы
