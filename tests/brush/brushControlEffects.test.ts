@@ -49,14 +49,14 @@ describe("brush coverage controls", () => {
       samples.map(([x, y]) => brushTexture(broad, x, y)));
   });
 
-  it("clamps size and responds to Huion pressure and tilt", () => {
+  it("responds to Huion pressure and tilt without a second size clamp", () => {
     const responsive = brush({
       dynamics: { sizeByPressure: 1, opacityByPressure: 0, tiltToSize: 1 },
       properties: { ...source.properties, minimumSize: 5, maximumSize: 30 }
     });
     expect(pressureBrushSize(responsive, 20,
-      { pressure: 0, tiltX: 0, tiltY: 0 })).toBe(5);
+      { pressure: 0, tiltX: 0, tiltY: 0 })).toBe(0.05);
     expect(pressureBrushSize(responsive, 20,
-      { pressure: 1, tiltX: 90, tiltY: 0 })).toBe(30);
+      { pressure: 1, tiltX: 90, tiltY: 0 })).toBe(40);
   });
 });

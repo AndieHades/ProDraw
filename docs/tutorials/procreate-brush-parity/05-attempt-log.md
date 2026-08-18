@@ -111,4 +111,23 @@ Procreate, попавшая в экспорт. Замер:
 - `src/app-folders/sources/grain/lineart.png` — 1160×1160, диапазон 44-220,
   правится только при выявленной несшивности тайла.
 
-Кодом эти файлы сейчас не читаются.
+Это было состоянием откатанной попытки; после `PBP-2` production decoder читает
+оба файла как library sources.
+
+## Находка 5 — live preview и длинный штрих (2026-08-18)
+
+После раннего completion owner smoke показал, что compact library остаётся на
+круговых заглушках. Причины: idle callback без timeout и общий cached buffer,
+который отсоединялся при worker transfer; `lineart_long` получал уже пустой
+alias. Queue теперь имеет bounded wait, активная кисть получает приоритет, а
+source resolver выдаёт каждому decode собственную копию.
+
+Тормоз длинного мазка был не в PNG: `PixelOpacityAccumulator.visitDirty()` на
+каждом событии повторно обходил полный исторический rectangle затронутого tile.
+Теперь dirty set содержит только пиксели, чей максимум покрытия вырос.
+
+## Находка 6 — `Давление 1.00` не доказывает работу пера
+
+Старый diagnostic скрывал `pointerType`: мышиный fallback выглядел как давление
+`1.00`. Studio теперь отдельно показывает `перо`/`мышь`/`касание` и raw pressure;
+для мыши выводится требование Windows Ink. Физический Huion остаётся owner gate.

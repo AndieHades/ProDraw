@@ -7,10 +7,10 @@
 ## Scope
 
 Убрать повторный тяжёлый decode/render всех видимых кистей при каждом открытии
-компактной библиотеки. Первый cache miss остаётся background-работой; повторное
-открытие и новый запуск используют сохранённые RGBA previews.
+компактной библиотеки и показывать настоящий Shape. Первый cache miss остаётся
+background-работой; повторное открытие использует сохранённые RGBA previews.
 
-Вне scope: изменение внешнего вида карточки и QuickLook stroke.
+Вне scope: QuickLook stroke.
 
 ## Change map
 
@@ -46,10 +46,13 @@
 - Второе открытие неизменённой 12-brush библиотеки вызывает 0 новых decodes.
 - Cache hit отображается до первого idle callback.
 - Неудачный preview одной кисти не задерживает остальные.
+- Отсутствующий Shape остаётся пустым/missing и не подменяется кругом.
 
 ## Completion record
 
-- Commit: this stage commit
-- Checks: preview cache round-trip/corruption/revision and cache-hit-before-load
-  tests; `npm run check`; targeted lint; lines; browser reopen smoke
+- Commit: original cache commit plus corrective live-feedback commit
+- Checks: cache round-trip/corruption/revision, bounded idle wait, active priority,
+  real-shape pixels, owned alias buffer; browser smoke Lineart/Lineart Long
+- Correction: первый вариант мог бесконечно ждать idle callback и передавал
+  общий source buffer worker-а, после чего alias preview становился пустым.
 - Date: 2026-08-18

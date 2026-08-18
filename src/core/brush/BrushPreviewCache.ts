@@ -1,6 +1,6 @@
 import type { BrushPreset } from "../../contracts/brush";
 
-const rendererVersion = "stamp-v5";
+const rendererVersion = "shape-v7";
 const prefix = "prodraw.brush-preview.";
 const expectedBytes = 80 * 80 * 4;
 const maximumEntries = 64;

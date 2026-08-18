@@ -84,6 +84,8 @@ export interface BrushPreset {
   readonly baseFileName: string;
   readonly replacesFileName: string | null;
   readonly sourceUrl: string;
+  readonly savedSize?: number;
+  readonly savedOpacity?: number;
   readonly strokePath: BrushStrokePath;
   readonly stabilization: BrushStabilization;
   readonly taper: BrushTaperSettings;

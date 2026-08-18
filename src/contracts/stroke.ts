@@ -17,6 +17,7 @@ export interface StrokeSample {
 
 export interface StylusDiagnosticSample extends StrokeSample {
   readonly pointerType: "pen" | "mouse" | "touch";
+  readonly rawPressure: number;
   readonly button: number;
   readonly buttons: number;
 }

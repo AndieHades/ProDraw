@@ -29,7 +29,7 @@ export function compactBrushTile(brush: BrushPreset, activeId: string | null,
   tile.setAttribute("aria-label", brush.name);
   const preview = document.createElement("canvas");
   preview.className = "btile-ic";
-  renderFallbackTip(preview, brush.shape.hardness);
+  preview.width = 80; preview.height = 80;
   const name = document.createElement("span");
   name.className = "bname"; name.textContent = brush.name;
   tile.append(preview, name);
@@ -58,7 +58,7 @@ export function compactBrushTile(brush: BrushPreset, activeId: string | null,
   tile.addEventListener("contextmenu", (event) => event.preventDefault());
   actions.shell.attachReorder(tile, () => actions.reorder(brush, tile),
     () => { squelchUntil = performance.now() + 350; });
-  attachVisiblePreview(tile, preview, brush, actions);
+  attachVisiblePreview(tile, preview, brush, brush.id === activeId, actions);
   return tile;
 }
 
@@ -68,10 +68,11 @@ export function disposeCompactBrushTile(tile: HTMLElement): void {
 }
 
 function attachVisiblePreview(tile: HTMLElement, preview: HTMLCanvasElement,
-  brush: BrushPreset, actions: CompactBrushTileActions): void {
+  brush: BrushPreset, priority: boolean, actions: CompactBrushTileActions): void {
   let observer: IntersectionObserver | null = null;
   let job: BrushPreviewJob | null = null;
   let rendered = false;
+  let disposed = false;
   const cached = actions.cache?.read(brush);
   if (cached) { paintCompactBrushPreview(preview, cached); rendered = true; }
   const schedule = (): void => {
@@ -80,11 +81,15 @@ function attachVisiblePreview(tile: HTMLElement, preview: HTMLCanvasElement,
       if (signal.aborted || !tile.isConnected) return;
       const loaded = await actions.load(brush);
       if (signal.aborted || !tile.isConnected) return;
+      if (!loaded.shapeMap && !loaded.nativeShapeMap) {
+        preview.classList.add("missing-source"); rendered = true;
+        observer?.disconnect(); return;
+      }
       const pixels = renderCompactBrushPreview(preview, loaded);
       if (pixels) actions.cache?.write(brush, pixels);
       rendered = true;
       observer?.disconnect();
-    });
+    }, priority);
     job = scheduled;
     void scheduled.finished.finally(() => {
       if (job === scheduled && !rendered) job = null;
@@ -99,18 +104,10 @@ function attachVisiblePreview(tile: HTMLElement, preview: HTMLCanvasElement,
     });
     observer.observe(tile);
   }
-  cleanupByTile.set(tile, () => { observer?.disconnect(); job?.cancel(); });
-}
-
-function renderFallbackTip(canvas: HTMLCanvasElement, hardness: number): void {
-  const size = 80;
-  canvas.width = size; canvas.height = size;
-  const context = canvas.getContext("2d"); if (!context) return;
-  const gradient = context.createRadialGradient(40, 40, 3, 40, 40, 36);
-  const edge = Math.max(0.05, Math.min(0.98, hardness));
-  gradient.addColorStop(0, "rgba(245,245,248,1)");
-  gradient.addColorStop(edge, "rgba(245,245,248,1)");
-  gradient.addColorStop(1, "rgba(245,245,248,0)");
-  context.fillStyle = gradient;
-  context.beginPath(); context.arc(40, 40, 36, 0, Math.PI * 2); context.fill();
+  queueMicrotask(() => {
+    if (!disposed && tile.isConnected) schedule();
+  });
+  cleanupByTile.set(tile, () => {
+    disposed = true; observer?.disconnect(); job?.cancel();
+  });
 }

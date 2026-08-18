@@ -2,6 +2,8 @@ interface OpacityTile {
   readonly x: number;
   readonly y: number;
   readonly data: Float64Array<ArrayBuffer>;
+  readonly dirty: Uint8Array<ArrayBuffer>;
+  readonly changed: number[];
   minX: number;
   minY: number;
   maxX: number;
@@ -15,7 +17,7 @@ export class PixelOpacityAccumulator {
   readonly #side: number;
   readonly #columns: number;
   #tiles = new Map<number, OpacityTile>();
-  #dirty = new Set<number>();
+  #dirtyTiles = new Set<number>();
 
   constructor(width: number, side: number) {
     this.#width = width;
@@ -35,14 +37,18 @@ export class PixelOpacityAccumulator {
     if (!tile) {
       tile = { x: tileX * this.#side, y: tileY * this.#side,
         data: new Float64Array(this.#side * this.#side),
+        dirty: new Uint8Array(this.#side * this.#side), changed: [],
         minX: this.#side, minY: this.#side, maxX: -1, maxY: -1 };
       this.#tiles.set(key, tile);
     }
     const localX = x - tile.x, localY = y - tile.y;
     const index = localY * this.#side + localX;
     const before = tile.data[index] ?? 0;
-    tile.data[index] = Math.max(before, opacity);
-    this.#dirty.add(key);
+    if (opacity <= before) return;
+    tile.data[index] = opacity;
+    if (!tile.dirty[index]) {
+      tile.dirty[index] = 1; tile.changed.push(index); this.#dirtyTiles.add(key);
+    }
     tile.minX = Math.min(tile.minX, localX); tile.maxX = Math.max(tile.maxX, localX);
     tile.minY = Math.min(tile.minY, localY); tile.maxY = Math.max(tile.maxY, localY);
   }
@@ -50,15 +56,24 @@ export class PixelOpacityAccumulator {
   drain(visit: OpacityVisitor): void {
     const tiles = this.#tiles;
     this.#tiles = new Map();
-    this.#dirty.clear(); this.visitTiles(tiles.values(), visit);
+    this.#dirtyTiles.clear(); this.visitTiles(tiles.values(), visit);
   }
 
-  clear(): void { this.#tiles.clear(); this.#dirty.clear(); }
+  clear(): void { this.#tiles.clear(); this.#dirtyTiles.clear(); }
 
   visitDirty(visit: OpacityVisitor): void {
-    const dirty = [...this.#dirty]; this.#dirty.clear();
-    this.visitTiles(dirty.map((key) => this.#tiles.get(key)).filter(
-      (tile): tile is OpacityTile => !!tile), visit);
+    const dirty = [...this.#dirtyTiles]; this.#dirtyTiles.clear();
+    for (const key of dirty) {
+      const tile = this.#tiles.get(key);
+      if (!tile) continue;
+      for (const index of tile.changed) {
+        tile.dirty[index] = 0;
+        const x = index % this.#side, y = Math.floor(index / this.#side);
+        const opacity = tile.data[index] ?? 0;
+        if (opacity > 0) visit(tile.x + x, tile.y + y, opacity);
+      }
+      tile.changed.length = 0;
+    }
   }
 
   private visitTiles(tiles: Iterable<OpacityTile>, visit: OpacityVisitor): void {

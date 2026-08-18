@@ -25,7 +25,7 @@ const curve = (value: unknown, fallback: readonly [number, number, number, numbe
 export function parsePresetSettings(parsed: Partial<BrushPresetFileV1>,
   base: BrushPreset): Pick<BrushPreset, "strokePath" | "stabilization" | "taper" |
     "shape" | "grain" | "rendering" | "dynamics" | "smudge" | "stylus" |
-    "properties" | "preview"> {
+    "properties" | "preview" | "savedSize" | "savedOpacity"> {
   const path = parsed.strokePath, stabilization = parsed.stabilization;
   const taper = parsed.taper, shape = parsed.shape, grain = parsed.grain;
   const rendering = parsed.rendering, dynamics = parsed.dynamics, smudge = parsed.smudge;
@@ -33,6 +33,8 @@ export function parsePresetSettings(parsed: Partial<BrushPresetFileV1>,
   const shapeSource = sourceName(shape?.sourceName, base.shape.sourceName);
   const grainSource = sourceName(grain?.sourceName, base.grain.sourceName);
   return {
+    savedSize: clamp(parsed.savedSize, 0, 1, base.savedSize ?? 0),
+    savedOpacity: clamp(parsed.savedOpacity, 0, 1, base.savedOpacity ?? 1),
     strokePath: { spacing: clamp(path?.spacing, 0.01, 4, base.strokePath.spacing),
       spacingJitter: clamp(path?.spacingJitter, 0, 1, base.strokePath.spacingJitter),
       lateralJitter: clamp(path?.lateralJitter, 0, 4, base.strokePath.lateralJitter),

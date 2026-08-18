@@ -54,12 +54,19 @@ export function renderCompactBrushPreview(
   const size = 80;
   canvas.width = size; canvas.height = size;
   const context = canvas.getContext("2d"); if (!context) return null;
+  const pixels = compactBrushPreviewPixels(brush);
+  paintCompactBrushPreview(canvas, pixels); return pixels;
+}
+
+export function compactBrushPreviewPixels(
+  brush: BrushPreset | LoadedBrush
+): Uint8ClampedArray {
+  const size = 80;
   const surface = new RasterSurface(`compact-preview/${brush.id}`, size, size, size);
   const edit = new RasterEdit(surface, "Compact preview");
-  renderTextureStamp(edit, brush, size - 8, size);
+  renderShapeSourceStamp(edit, brush, size - 8, size);
   edit.commit();
-  const pixels = surface.copyTile(0, 0) ?? new Uint8ClampedArray(size * size * 4);
-  paintCompactBrushPreview(canvas, pixels); return pixels;
+  return surface.copyTile(0, 0) ?? new Uint8ClampedArray(size * size * 4);
 }
 
 export function paintCompactBrushPreview(canvas: HTMLCanvasElement,
@@ -81,5 +88,21 @@ function renderTextureStamp(edit: RasterEdit, brush: BrushPreset | LoadedBrush,
         Math.min(1, brush.preview.pressureScale)),
       tiltX: brush.preview.tiltAngle * 90, tiltY: 0, time: 0,
       pointerType: "pen" },
+    { size: brushSize, opacity: 1, erase: false }, previewColor);
+}
+
+function renderShapeSourceStamp(edit: RasterEdit, brush: BrushPreset | LoadedBrush,
+  brushSize: number, canvasWidth: number): void {
+  const displayBrush = { ...brush,
+    shape: { ...brush.shape, angle: 0, roundness: 1, inputStyle: "touch" as const,
+      relativeToStroke: false, rotation: 0, scatter: 0, count: 1, countJitter: 0,
+      randomized: false, flipX: false, flipY: false },
+    grain: { ...brush.grain, strength: 0 },
+    rendering: { ...brush.rendering, flow: 1, opacity: 1 },
+    dynamics: { sizeByPressure: 0, opacityByPressure: 0, tiltToSize: 0 },
+    properties: { ...brush.properties, minimumSize: 1, maximumSize: canvasWidth } };
+  renderBrushDab(edit, displayBrush,
+    { x: canvasWidth / 2, y: canvasWidth / 2, pressure: 1,
+      tiltX: 0, tiltY: 0, time: 0, pointerType: "pen" },
     { size: brushSize, opacity: 1, erase: false }, previewColor);
 }

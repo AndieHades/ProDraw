@@ -16,17 +16,14 @@ describe("compact original brush tile", () => {
       constructor(readonly data: Uint8ClampedArray, readonly width: number,
         readonly height: number) {}
     });
-    const gradient = { addColorStop: vi.fn() };
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
-      createRadialGradient: () => gradient, beginPath: vi.fn(), arc: vi.fn(),
-      fill: vi.fn(), putImageData: vi.fn(),
-      set fillStyle(_value: string | CanvasGradient) { /* test canvas */ }
+      putImageData: vi.fn()
     } as unknown as CanvasRenderingContext2D);
   });
   afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals();
     document.body.replaceChildren(); });
 
-  it("keeps circular tip preview, double-click edit and RMB menu", () => {
+  it("keeps an empty source slot, double-click edit and RMB menu", () => {
     const brush = BUNDLED_BRUSHES[0]!;
     const choose = vi.fn(), edit = vi.fn(), menu = vi.fn();
     let reorder: (() => void) | null = null;
@@ -50,7 +47,7 @@ describe("compact original brush tile", () => {
     expect(reorder).not.toBeNull();
   });
 
-  it("keeps the circular fallback when a brush has no Shape source", async () => {
+  it("marks a missing Shape source without inventing a circular tip", async () => {
     const brush = BUNDLED_BRUSHES[0]!;
     const previews = new BrushPreviewQueue();
     const tile = compactBrushTile(brush, null, { choose: vi.fn(), edit: vi.fn(),
@@ -58,10 +55,11 @@ describe("compact original brush tile", () => {
       shell: shellPort(() => undefined), previews });
     document.body.append(tile);
     await previews.whenIdle();
-    expect(tile.querySelector<HTMLCanvasElement>("canvas")?.width).toBe(80);
+    expect(tile.querySelector<HTMLCanvasElement>("canvas")?.classList
+      .contains("missing-source")).toBe(true);
   });
 
-  it("does not load a tile until IntersectionObserver reports it visible", async () => {
+  it("schedules a connected tile even when IntersectionObserver is late", async () => {
     let reveal = (): void => undefined;
     class TestObserver {
       constructor(callback: IntersectionObserverCallback) {
@@ -78,10 +76,10 @@ describe("compact original brush tile", () => {
     const tile = compactBrushTile(brush, null, { choose: vi.fn(), edit: vi.fn(),
       menu: vi.fn(), reorder: vi.fn(), load, shell: shellPort(() => undefined), previews });
     document.body.append(tile);
-    expect(load).not.toHaveBeenCalled();
-
-    reveal();
+    await Promise.resolve();
     await previews.whenIdle();
+    expect(load).toHaveBeenCalledOnce();
+    reveal();
     expect(load).toHaveBeenCalledOnce();
   });
 

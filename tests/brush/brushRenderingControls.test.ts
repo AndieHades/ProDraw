@@ -44,7 +44,7 @@ describe("brush rendering controls", () => {
     for (const variant of variants) expect(alphaMetric(variant)).not.toBe(alphaMetric(plain));
   });
 
-  it("makes pressure, tilt enablement, and size limits affect dab size", () => {
+  it("makes pressure and tilt affect size without re-clamping the response", () => {
     const responsive = { ...source,
       dynamics: { sizeByPressure: 1, opacityByPressure: 0, tiltToSize: 1 },
       properties: { ...source.properties, minimumSize: 1, maximumSize: 100 } };
@@ -59,6 +59,6 @@ describe("brush rendering controls", () => {
     expect(disabled).toBe(pressure);
     expect(pressureBrushSize({ ...responsive, properties: { ...source.properties,
       minimumSize: 12, maximumSize: 14 } }, 100,
-    { pressure: 1, tiltX: 0, tiltY: 0 })).toBe(14);
+    { pressure: 1, tiltX: 0, tiltY: 0 })).toBe(100);
   });
 });

@@ -20,4 +20,17 @@ describe("PixelOpacityAccumulator", () => {
     expect(() => pending.visitDirty(() => { throw new Error("clean"); })).not.toThrow();
     pending.drain(() => undefined); expect(pending.size).toBe(0);
   });
+
+  it("only revisits pixels whose maximum coverage increased", () => {
+    const pending = new PixelOpacityAccumulator(512, 64);
+    pending.add(3, 4, 0.8);
+    pending.visitDirty(() => undefined);
+    pending.add(400, 4, 0.6);
+    pending.add(3, 4, 0.7);
+    const pixels: Array<readonly [number, number, number]> = [];
+
+    pending.visitDirty((x, y, opacity) => pixels.push([x, y, opacity]));
+
+    expect(pixels).toEqual([[400, 4, 0.6]]);
+  });
 });

@@ -125,7 +125,7 @@ export class BrushStudioPad {
       pointerType: event.pointerType === "pen" ? "pen" as const :
         event.pointerType === "touch" ? "touch" as const : "mouse" as const };
     this.#onSample({ ...sample, pointerType: sample.pointerType,
-      button: event.button, buttons: event.buttons });
+      rawPressure: event.pressure, button: event.button, buttons: event.buttons });
     return sample;
   }
 

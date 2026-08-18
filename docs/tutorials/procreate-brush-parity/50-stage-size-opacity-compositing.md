@@ -102,7 +102,10 @@ npm run test:performance
 
 ## Completion record
 
-- Commit: this stage commit
-- Checks: same-stroke overlap, cancel и one-step undo integration tests;
-  18 performance files / 55 tests; обновлённые deterministic golden plans
+- Commit: original stage commit plus corrective live-feedback commit
+- Checks: authored size/opacity mapping, unclamped pressure response,
+  changed-pixel-only accumulator, same-stroke overlap и focused performance
+- Correction: ранняя запись о completion была неверной — `paintSize`,
+  `paintOpacity` и снятие size clamp отсутствовали, а dirty tile давал O(n²)
+  обход длинного штриха. Это исправлено после owner smoke.
 - Date: 2026-08-18

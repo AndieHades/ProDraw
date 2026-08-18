@@ -181,7 +181,7 @@ t("layer-cache: one dirty layer does not invalidate every layer revision", () =>
   assert.ok(cache.contentRevision() > content);
   S.layers[0].grid[1][2] = [10, 20, 30, 255]; cache.dirtyAll();
 });
-t("cell painter combines repeated hits into one source-over write", () => {
+t("cell painter keeps maximum coverage for repeated hits in one stroke", () => {
   resetWH(8, 8); S.active = [30, 60, 90]; let writes = 0;
   const row = S.layers[0].grid[2]; S.layers[0].grid[2] = new Proxy(row, {
     set(target, property, value) { if (property === '3') writes++; target[property] = value; return true; },
@@ -189,10 +189,10 @@ t("cell painter combines repeated hits into one source-over write", () => {
   const painter = createCellPainter(false);
   painter.paint(3, 2, .2); painter.paint(3, 2, .3); assert.equal(writes, 0);
   painter.flush(); assert.equal(writes, 1);
-  assert.deepEqual(S.layers[0].grid[2][3], [30, 60, 90, 112]);
+  assert.deepEqual(S.layers[0].grid[2][3], [30, 60, 90, 77]);
   S.layers[0].grid[2][3] = [30, 60, 90, 200]; writes = 0;
   const eraser = createCellPainter(true); eraser.paint(3, 2, .2); eraser.paint(3, 2, .3); eraser.flush();
-  assert.equal(writes, 1); assert.deepEqual(S.layers[0].grid[2][3], [30, 60, 90, 112]);
+  assert.equal(writes, 1); assert.deepEqual(S.layers[0].grid[2][3], [30, 60, 90, 140]);
   resetWH(4, 4); S.layers[0].grid[1][2] = [10, 20, 30, 255]; cache.dirtyAll();
 });
 t("module-int case 002", () => { assert.deepEqual(cache.compositeAt(2, 1), [10, 20, 30]); assert.equal(cache.compositeAt(0, 0), null); });

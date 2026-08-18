@@ -1,8 +1,24 @@
 /** @vitest-environment jsdom */
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { BrushPreviewQueue } from "../../src/ui/brushes/BrushPreviewQueue";
 
 describe("brush preview scheduling", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("bounds browser idle waiting so previews cannot starve", async () => {
+    const idle = vi.fn((callback: IdleRequestCallback) => {
+      callback({ didTimeout: true, timeRemaining: () => 0 }); return 1;
+    });
+    vi.stubGlobal("requestIdleCallback", idle);
+    vi.stubGlobal("cancelIdleCallback", vi.fn());
+    const queue = new BrushPreviewQueue();
+    queue.schedule(() => undefined);
+
+    await queue.whenIdle();
+
+    expect(idle).toHaveBeenCalledWith(expect.any(Function), { timeout: 50 });
+  });
+
   it("starts foreground selection before a yielded background preview", async () => {
     const queue = new BrushPreviewQueue();
     const order: string[] = [];
@@ -12,6 +28,16 @@ describe("brush preview scheduling", () => {
     await queue.whenIdle();
 
     expect(order).toEqual(["selection", "background"]);
+  });
+
+  it("moves an active-brush preview ahead of queued background work", async () => {
+    const queue = new BrushPreviewQueue(); queue.pause();
+    const order: string[] = [];
+    queue.schedule(() => { order.push("first"); });
+    queue.schedule(() => { order.push("active"); }, true);
+    queue.resume(); await queue.whenIdle();
+
+    expect(order).toEqual(["active", "first"]);
   });
 
   it("cancels queued preview work while the owner is paused", async () => {

@@ -6,6 +6,7 @@ import {
   BRUSH_SOURCE_ASSET_COUNT, brushSourceAssetUrl
 } from "../../src/config/brushSourceAssets";
 import { decodeProcreateBrush } from "../../src/core/brush/procreateBrush";
+import { cloneCoverageMap } from "../../src/core/brush/brushSourceFolder";
 import { testBrushSourceResolver, testGrainMap, testShapeMap } from "./brushTestMaps";
 
 describe("real brush source library", () => {
@@ -33,5 +34,13 @@ describe("real brush source library", () => {
       grainSourceState: "resolved", missingSourceNames: [] });
     expect(loaded.warnings).not.toContain("unresolved-shape-source");
     expect(loaded.warnings).not.toContain("unresolved-grain-source");
+  });
+
+  it("keeps an owned source copy when a worker transfers an alias", () => {
+    const cached = { width: 2, height: 1, data: Uint8Array.of(0, 255) };
+    const transferable = cloneCoverageMap(cached);
+    transferable?.data.fill(0);
+
+    expect(cached.data).toEqual(Uint8Array.of(0, 255));
   });
 });

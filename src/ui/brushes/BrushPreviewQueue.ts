@@ -15,7 +15,7 @@ export interface BrushPreviewJob {
 const yieldToInterface = (signal: AbortSignal): Promise<void> => new Promise((resolve) => {
   if (signal.aborted) { resolve(); return; }
   if (typeof window.requestIdleCallback === "function") {
-    const handle = window.requestIdleCallback(() => resolve());
+    const handle = window.requestIdleCallback(() => resolve(), { timeout: 50 });
     signal.addEventListener("abort", () => {
       if (typeof window.cancelIdleCallback === "function") {
         window.cancelIdleCallback(handle);
@@ -38,12 +38,12 @@ export class BrushPreviewQueue {
   #foreground = 0;
   #idle: Array<() => void> = [];
 
-  schedule(task: PreviewTask): BrushPreviewJob {
+  schedule(task: PreviewTask, priority = false): BrushPreviewJob {
     let resolve = (): void => undefined;
     const finished = new Promise<void>((done) => { resolve = done; });
     const entry: PreviewEntry = { task, controller: new AbortController(), resolve,
       settled: false };
-    this.#pending.push(entry);
+    if (priority) this.#pending.unshift(entry); else this.#pending.push(entry);
     this.#pump();
     return { finished, cancel: () => this.#cancel(entry) };
   }

@@ -11,7 +11,6 @@ import {
 import { brushAboutPanel } from "./BrushAboutPanel";
 import { brushPreviewPanel } from "./BrushPreviewPanel";
 import { brushSourcePanel } from "./BrushSourcePanel";
-import { brushTaperDiagram } from "./BrushTaperDiagram";
 
 export class BrushControlPresenter {
   readonly #host: HTMLElement;
@@ -34,8 +33,7 @@ export class BrushControlPresenter {
     const controls = BRUSH_STUDIO_CONTROLS[section] ?? [];
     const source = section === "shape" || section === "grain"
       ? [brushSourcePanel(preset, section, this.#editSource)] :
-        section === "preview" ? [brushPreviewPanel(preset)] :
-          section === "taper" ? [brushTaperDiagram(preset)] : [];
+          section === "preview" ? [brushPreviewPanel(preset)] : [];
     this.#host.replaceChildren(...source, ...controls.map((control) =>
       this.control(control, preset, onChange, onCommit)));
   }

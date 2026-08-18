@@ -6,7 +6,6 @@ import type { RasterEdit } from "../history/RasterEdit";
 import { visitRadialDab } from "./radialDab.ts";
 import { brushDabOpacity } from "../../logic/brush/brushOpacity.ts";
 import { dabStampPlan } from "../../logic/brush/dabStampPlan.ts";
-import { DEFAULT_PROPERTIES } from "../../config/brushDefaults.ts";
 import { responseCurve } from "../../logic/brush/responseCurve.ts";
 
 export type BrushDabVisitor = (x: number, y: number, opacity: number) => void;
@@ -23,8 +22,7 @@ export function pressureBrushSize(
     ? Math.min(1, Math.hypot(sample.tiltX, sample.tiltY) / 90) : 0;
   const responsiveSize = size * response * (1 + brush.dynamics.tiltToSize * tilt) *
     (sample.sizeScale ?? 1);
-  return Math.max(brush.properties.minimumSize ?? DEFAULT_PROPERTIES.minimumSize,
-    Math.min(brush.properties.maximumSize ?? DEFAULT_PROPERTIES.maximumSize, responsiveSize));
+  return Math.max(0.05, responsiveSize);
 }
 
 export function renderBrushDab(

@@ -32,7 +32,8 @@ const supported = new Set([
   "dynamicsPressureSizeCurve", "dynamicsPressureOpacityCurve",
   "dynamicsJitterOpacity", "dynamicsSpeedOpacity", "dynamicsTiltOpacity",
   "dynamicsTiltSize", "smudgeStrength", "smudgePickup", "smudgeFlow",
-  "maxSize", "minSize", "bundledShapePath", "bundledGrainPath"
+  "maxSize", "minSize", "paintSize", "paintOpacity",
+  "bundledShapePath", "bundledGrainPath"
 ]);
 const metadata = /^(?:\$class|name|version|author|creation|bundled|saved|preview|hover|erase|paint|color|signature)/i;
 const excluded = /(?:wet|mix|bleed|hue|saturation|brightness|lightness|darkness|secondaryColor|metallic|roughness|height)/i;
@@ -78,6 +79,8 @@ export function applyBrushArchiveSettings(
     : preset.properties.minimumSize;
   const archiveName = root.name;
   const mapped: BrushPreset = { ...preset,
+    savedSize: clamp(numeric(root, "paintSize", preset.savedSize ?? 0), 0, 1),
+    savedOpacity: clamp(numeric(root, "paintOpacity", preset.savedOpacity ?? 1), 0, 1),
     strokePath: {
       spacing: clamp(numeric(root, "plotSpacing", preset.strokePath.spacing), 0.01, 4),
       spacingJitter: clamp(numeric(root, "plotSpacingJitter",
