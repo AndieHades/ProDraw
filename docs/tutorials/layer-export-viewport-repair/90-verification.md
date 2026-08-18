@@ -26,6 +26,9 @@
 | `LEP-PNG-04` | staged commit publishes unique root | cancel/abort publishes none |
 | `LEP-VIEW-01` | filtered zoom-out | 100% exact |
 | `LEP-VIEW-02` | filtered zoom-in | source unchanged |
+| `LEP-PSD-03` | Photoshop-validated bottom-first descriptors | decoder convention cannot reverse raw order |
+| `LEP-EXP-01` | render/encode/save interleave | no retained output blob collection |
+| `LEP-EXP-02` | awaited single UI run | failure keeps editor active |
 
 ## Final record
 
@@ -49,3 +52,11 @@
   deterministic parts.
 - Non-blocking build warning: the existing production bundle still contains
   chunks larger than 500 kB.
+
+## Reopened regression record
+
+- `LEP1` is superseded: Photoshop 2026 accepted the bottom-first fixture and
+  rejected the top-first hierarchy as the intended order.
+- The full separate-export path retained all canvases and blobs; `LEP5` replaces
+  it with bounded sequential processing.
+- Final corrective commits and aggregate checks: pending.

@@ -2,11 +2,11 @@
 
 ## PSD boundary
 
-ProDraw keeps its internal flat raster stack bottom-first. The PSD encoder alone
-maps every sibling collection to top-first records. Group boundary records stay
-well-formed, nested group order is mapped recursively, and optional baked folder
-effect rows occupy their visual above/below positions. The embedded composite is
-not used to hide a structural mismatch.
+ProDraw keeps its internal flat raster stack bottom-first. The PSD encoder writes
+that same bottom-first order at every nesting depth, as confirmed by opening two
+minimal raw-order fixtures in Photoshop 2026. Group boundary records stay
+well-formed and optional baked folder-effect rows occupy their visual above/below
+positions. The embedded composite is not used to hide a structural mismatch.
 
 The writer declares RGB mode for R, G, B and alpha channels. A decoder round trip
 must recover Unicode names, groups and sibling order without patching bytes.
@@ -38,7 +38,14 @@ separate downloads preserved folders.
 
 ## Viewport presentation
 
-Source RGBA remains untouched. When the effective presentation scale is below
-one source pixel per display pixel, Canvas2D smoothing is enabled with high
-quality before the composite draw. At exact 100%, smoothing remains disabled so
-pixel alignment and the existing actual-size view are unchanged.
+Source RGBA remains untouched. Canvas2D smoothing is enabled with high quality
+for positive presentation scales below or above 100%. At exact 100%, smoothing
+remains disabled so pixel alignment and the existing actual-size view are
+unchanged.
+
+## Export execution
+
+Separate export measures and writes items sequentially. Shared trim bounds may
+require a second render pass, but canvases and encoded blobs are never collected
+for every layer at once. The export window owns one awaited run, rejects re-entry
+and reports failure without changing document or gallery state.

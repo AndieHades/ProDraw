@@ -1,6 +1,6 @@
 # Layer Export and Viewport Repair
 
-Status: `done`
+Status: `in_progress`
 
 Evidence baseline: clean `codex/layer-export-viewport-fixes@8e7faee`,
 2026-08-18, synchronized with `origin/main`.
@@ -10,16 +10,16 @@ the completed recovery-bridge PNG/PSD paths.
 
 ## Resume Here
 
-- Current stage: package complete
-- Status: `done`
+- Current stage: `LEP4 — Photoshop order correction`
+- Status: `in_progress`
 - Last completed stage: `LEP3A — high-quality viewport upscale follow-up`
-- Next action: none; physical Photoshop, Explorer-picker and display-quality
-  checks remain optional manual supplements
+- Next action: restore Photoshop bottom-first descriptor order and replace the
+  decoder-derived acceptance assertion
 - Blockers: none
 - Working paths: `src/systems/export`, `src/systems/layers`, `src/platform`,
   `desktop`, `src/systems/render`, `src/i18n`, `index.html`, `tests`, `test`
-- Last checks: viewport policy test; 398 module integration tests; Vite browser
-  smoke at 200%; TypeScript and targeted ESLint
+- Last checks: user opened the two generated raw-order fixtures in Photoshop
+  2026 and confirmed `bottom-first.psd` is correct
 - Last updated: 2026-08-18
 
 ## Problems Recorded
@@ -33,6 +33,12 @@ the completed recovery-bridge PNG/PSD paths.
 3. Scaled presentation used nearest-neighbour sampling. The first repair covered
    zoom-out, but user verification exposed the same defect above 100%; source
    RGBA itself remains unchanged.
+4. `LEP1` trusted the installed decoder's top-first tree convention as a
+   Photoshop panel oracle. Physical Photoshop validation disproved that
+   assumption: current exports reverse the real hierarchy and visual stack.
+5. Separate export materializes every full-size canvas and encoded blob before
+   the first save. Large all-option exports can exhaust the renderer; after the
+   process restarts, ProDraw opens on its normal gallery startup screen.
 
 ## Requirements
 
@@ -56,22 +62,33 @@ the completed recovery-bridge PNG/PSD paths.
   interpolation; 100% retains exact pixel alignment.
 - `LEP-VIEW-02`: presentation scaling above 100% uses the same high-quality
   interpolation and no zoom operation mutates source RGBA.
+- `LEP-PSD-03`: raw PSD records remain bottom-first at every nesting depth,
+  matching the Photoshop-validated fixture; decoder tree conventions cannot
+  reverse this boundary.
+- `LEP-EXP-01`: separate export retains at most one rendered item and one
+  encoded output at a time; shared trim bounds use a bounded measurement pass.
+- `LEP-EXP-02`: export UI prevents concurrent runs, awaits completion, catches
+  failure and never requests a gallery transition.
 
 ## Delivery Order
 
 | Stage | Chapter | Depends on | Status | Commit boundary |
 | --- | --- | --- | --- | --- |
 | `LEP0` | this evidence package | none | done | `docs: plan layer export and viewport repairs` |
-| `LEP1` | [`10-stage-psd-order.md`](10-stage-psd-order.md) | `LEP0` | done | `fix: preserve psd layer panel order` |
+| `LEP1` | [`10-stage-psd-order.md`](10-stage-psd-order.md) | `LEP0` | superseded | `fix: preserve psd layer panel order` |
 | `LEP2` | [`20-stage-folder-png-tree.md`](20-stage-folder-png-tree.md) | `LEP1` | done | `feat: export folder layers as png tree` |
 | `LEP3` | [`30-stage-viewport-downscale.md`](30-stage-viewport-downscale.md) | `LEP2` | done | `fix: improve zoomed out canvas quality` |
 | `LEP3A` | [`30-stage-viewport-downscale.md`](30-stage-viewport-downscale.md) | `LEP3` | done | `fix: smooth zoomed in canvas presentation` |
+| `LEP4` | [`40-stage-photoshop-order.md`](40-stage-photoshop-order.md) | `LEP3A` | in progress | `fix: restore photoshop psd stack order` |
+| `LEP5` | [`50-stage-bounded-export.md`](50-stage-bounded-export.md) | `LEP4` | pending | `fix: bound multi-file export memory` |
 
 ## Completion Definition
 
-- [x] Exported nested PSD order and composite agree after decode/reopen.
+- [ ] Exported nested PSD order and recomposed stack agree in Photoshop.
 - [x] Folder RMB writes one complete Explorer tree with one PNG per descendant.
 - [x] Scaled presentation below and above 100% is filtered while 100% and source
   bytes stay exact.
+- [ ] Large separate export is sequential and any failure leaves the current
+  document open with localized feedback.
 - [x] Focused behavior/failure tests, check/lint, docs/lines/cycles and production
   build pass; each stage records its commit and exact checks.

@@ -1,7 +1,7 @@
 # LEP1: PSD Structural Order
 
 - Stable id: `LEP1`
-- Status: `done`
+- Status: `superseded`
 - Depends on: `LEP0`
 - Requirements: `LEP-PSD-01`, `LEP-PSD-02`
 
@@ -43,3 +43,6 @@ from the original bottom-first tree and are not reordered.
 - Checks: 395 module integration tests; PSD 11 files/53 tests; TypeScript check;
   targeted ESLint for the writer, encoder and integration fixture.
 - Residual risk: physical Photoshop comparison remains a named manual check.
+- Superseded on 2026-08-18: physical Photoshop 2026 validation showed that the
+  decoder-derived top-first assertion inverted Photoshop's actual hierarchy.
+  Corrective stage: `LEP4`.
