@@ -59,4 +59,7 @@
   rejected the top-first hierarchy as the intended order.
 - The full separate-export path retained all canvases and blobs; `LEP5` replaces
   it with bounded sequential processing.
-- Final corrective commits and aggregate checks: pending.
+- `LEP4`: 398 module integration tests; 11 PSD files / 53 tests; TypeScript,
+  targeted ESLint and the 282-source cycle gate passed. Raw descriptors now
+  match the Photoshop-selected bottom-first fixture recursively.
+- Final aggregate checks: pending after `LEP5`.

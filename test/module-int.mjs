@@ -48,6 +48,7 @@ const xtree = await import('../src/systems/export/tree.js');
 const xrender = await import('../src/systems/export/render.js');
 const xpipe = await import('../src/systems/export/pipeline.js');
 const xbounds = await import('../src/systems/export/bounds.js');
+const { psdLayerDescriptors } = await import('../src/systems/export/psd.js');
 const { writePsd } = await import('../src/systems/export/psd-write.js');
 const { FORMATS } = await import('../src/systems/export/formats.js');
 const imp = await import('../src/systems/import/convert.js');
@@ -1097,7 +1098,7 @@ await ta("module-int case 130", async () => { exportProject();
   for (const scope of ['selected', 'folder', 'project']) { S.selFolder = scope === 'folder' ? 1 : null; S.marked = new Set([0]);
     const out = await xpipe.runExport({ scope, mode: 'layered', format: 'psd', canvasBounds: 'current', includeHidden: false });
     assert.equal(out.length, 1); assert.ok(/\.psd$/.test(out[0].name)); } });
-await ta('layered PSD decodes with panel order matching the visible stack', async () => {
+await ta('PSD descriptors preserve Photoshop-validated bottom-first order', async () => {
   resetWH(1, 1);
   const layer = (name, fid, color) => ({ name, fid, grid: [[[...color, 255]]],
     opacity: 1, visible: true, clip: false, ext: new Map(), effects: [] });
@@ -1108,16 +1109,22 @@ await ta('layered PSD decodes with panel order matching the visible stack', asyn
   S.folders = [{ id: 1, name: 'Outer', open: true, visible: true, parent: null,
     effects: [] }, { id: 2, name: unicodeGroup, open: false, visible: true,
     parent: 1, effects: [] }]; cache.dirtyAll();
-  const output = await FORMATS.psd.encodeLayered(xtree.buildExportDoc('project', true), 'order');
+  const document = xtree.buildExportDoc('project', true);
+  assert.deepEqual(psdLayerDescriptors(document).map(({ name, lsct }) => [name, lsct]), [
+    ['Root Bottom', 0], ['</Layer group>', 3], ['Group Bottom', 0],
+    ['</Layer group>', 3], ['Nested', 0], [unicodeGroup, 2],
+    ['Group Top', 0], ['Outer', 1], ['Root Top', 0],
+  ]);
+  const output = await FORMATS.psd.encodeLayered(document, 'order');
   const bytes = new Uint8Array(await output.blob.arrayBuffer());
   assert.equal(bytes[25], 3); // RGB, not CMYK
   const decoded = readPsd(bytes, { skipLayerImageData: true,
     skipCompositeImageData: true });
   assert.deepEqual(decoded.children.map((node) => node.name),
-    ['Root Top', 'Outer', 'Root Bottom']);
+    ['Root Bottom', 'Outer', 'Root Top']);
   const outer = decoded.children[1];
   assert.deepEqual(outer.children.map((node) => node.name),
-    ['Group Top', unicodeGroup, 'Group Bottom']);
+    ['Group Bottom', unicodeGroup, 'Group Top']);
   assert.deepEqual(outer.children[1].children.map((node) => node.name), ['Nested']);
 });
 await ta("module-int case 131", async () => { exportProject();

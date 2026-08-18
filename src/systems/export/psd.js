@@ -13,19 +13,22 @@ const rasterDesc = (name, surface) => ({ name, opacity: 255, hidden: false,
     materializeEffectSurface(surface, S.W, S.H), S.W, S.H) });
 const divider = (lsct, name, hidden) => ({ name, opacity: 255, hidden: !!hidden, clip: false, lsct, data: null });
 
-// PSD records are exposed top-first even though ProDraw composites bottom-first.
+// Photoshop-validated PSD records preserve ProDraw's bottom-first stack.
 function emit(nodes, out) {
-  for (let index = nodes.length - 1; index >= 0; index--) {
-    const n = nodes[index];
+  for (const n of nodes) {
     if (n.kind === 'layer') { out.push(leafDesc(n)); continue; }
     out.push(divider(3, '</Layer group>', false));
-    const above = n.effects.length ? folderFx(n.folder, 'above') : null;
-    if (above) out.push(rasterDesc(n.name + ' fx+', above));
-    emit(n.children, out);
     const below = n.effects.length ? folderFx(n.folder, 'below') : null;
     if (below) out.push(rasterDesc(n.name + ' fx', below));
+    emit(n.children, out);
+    const above = n.effects.length ? folderFx(n.folder, 'above') : null;
+    if (above) out.push(rasterDesc(n.name + ' fx+', above));
     out.push(divider(n.open ? 1 : 2, n.name, !n.visible));
   }
+}
+
+export function psdLayerDescriptors(doc) {
+  const layers = []; emit(doc.root, layers); return layers;
 }
 
 export const PSD = {
@@ -34,7 +37,7 @@ export const PSD = {
   supportsFolders: true, supportsLayerEffects: true, supportsHiddenLayers: true,
   // один файл со всей структурой слоёв/папок
   encodeLayered(doc, base) {
-    const layers = []; emit(doc.root, layers);
+    const layers = psdLayerDescriptors(doc);
     const comp = splitChannels(flattenNodes(doc.root, false, true), S.W, S.H);
     return Promise.resolve({ name: base + '.psd', blob: writePsd({ W: S.W, H: S.H, layers, comp }), mime: this.mime, desc: this.desc });
   },

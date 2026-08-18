@@ -1,7 +1,7 @@
 # LEP4: Photoshop PSD Order Correction
 
 - Stable id: `LEP4`
-- Status: `in_progress`
+- Status: `done`
 - Depends on: `LEP3A`
 - Requirements: `LEP-PSD-03`
 
@@ -30,5 +30,6 @@ also bottom-first; its panel reverses that stack only for presentation.
 
 ## Completion record
 
-- Commit: pending.
-- Checks: pending.
+- Commit: `fix: restore photoshop psd stack order`.
+- Checks: 398 module integration tests; 11 PSD files / 53 tests; TypeScript,
+  targeted ESLint and the 282-source cycle gate.

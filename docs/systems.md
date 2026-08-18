@@ -70,10 +70,11 @@ Unicode tree, alpha, masks, clipping, blend/effect metadata переживают
 явный Canvas/pure-RGBA mapping, а isolated/pass-through группы собираются общим
 композитором. Самодостаточные эффекты остаются неразрушающими строками слоя;
 неточные эквиваленты и внешние pattern-ресурсы дают сохранённое предупреждение.
-Layered PSD export keeps the internal bottom-first stack unchanged, but emits
-top-first PSD records recursively so external layer panels and the independently
-generated embedded composite describe the same visual order. Four-channel
-exports declare RGB plus alpha rather than CMYK.
+Layered PSD export keeps ProDraw's internal bottom-first stack unchanged and
+emits PSD records in that same Photoshop-validated bottom-first order,
+recursively for every folder. The independently generated embedded composite
+describes the same visual result. Four-channel exports declare RGB plus alpha
+rather than CMYK.
 
 `DocumentCompositor` владеет revision-aware LRU composite cache и вычисляет
 только tiles в текущих viewport bounds. `CanvasPresenter` повторно использует

@@ -10,16 +10,16 @@ the completed recovery-bridge PNG/PSD paths.
 
 ## Resume Here
 
-- Current stage: `LEP4 — Photoshop order correction`
+- Current stage: `LEP5 — bounded export execution`
 - Status: `in_progress`
-- Last completed stage: `LEP3A — high-quality viewport upscale follow-up`
-- Next action: restore Photoshop bottom-first descriptor order and replace the
-  decoder-derived acceptance assertion
+- Last completed stage: `LEP4 — Photoshop order correction`
+- Next action: interleave rendering, encoding and saving for separate files,
+  then guard the export action against re-entry and failure
 - Blockers: none
 - Working paths: `src/systems/export`, `src/systems/layers`, `src/platform`,
   `desktop`, `src/systems/render`, `src/i18n`, `index.html`, `tests`, `test`
-- Last checks: user opened the two generated raw-order fixtures in Photoshop
-  2026 and confirmed `bottom-first.psd` is correct
+- Last checks: 398 module integration tests; 11 PSD files / 53 tests;
+  TypeScript, targeted ESLint and the 282-source cycle gate
 - Last updated: 2026-08-18
 
 ## Problems Recorded
@@ -42,7 +42,7 @@ the completed recovery-bridge PNG/PSD paths.
 
 ## Requirements
 
-- `LEP-PSD-01`: exported PSD rows are top-first at every nesting depth and
+- `LEP-PSD-01` (superseded): exported PSD rows are top-first at every nesting depth and
   decode to the same semantic stack that produced the embedded composite.
 - `LEP-PSD-02`: exported four-channel artwork declares RGB colour mode and a
   round-trip decoder accepts it without an in-memory repair.
@@ -79,12 +79,12 @@ the completed recovery-bridge PNG/PSD paths.
 | `LEP2` | [`20-stage-folder-png-tree.md`](20-stage-folder-png-tree.md) | `LEP1` | done | `feat: export folder layers as png tree` |
 | `LEP3` | [`30-stage-viewport-downscale.md`](30-stage-viewport-downscale.md) | `LEP2` | done | `fix: improve zoomed out canvas quality` |
 | `LEP3A` | [`30-stage-viewport-downscale.md`](30-stage-viewport-downscale.md) | `LEP3` | done | `fix: smooth zoomed in canvas presentation` |
-| `LEP4` | [`40-stage-photoshop-order.md`](40-stage-photoshop-order.md) | `LEP3A` | in progress | `fix: restore photoshop psd stack order` |
-| `LEP5` | [`50-stage-bounded-export.md`](50-stage-bounded-export.md) | `LEP4` | pending | `fix: bound multi-file export memory` |
+| `LEP4` | [`40-stage-photoshop-order.md`](40-stage-photoshop-order.md) | `LEP3A` | done | `fix: restore photoshop psd stack order` |
+| `LEP5` | [`50-stage-bounded-export.md`](50-stage-bounded-export.md) | `LEP4` | in progress | `fix: bound multi-file export memory` |
 
 ## Completion Definition
 
-- [ ] Exported nested PSD order and recomposed stack agree in Photoshop.
+- [x] PSD descriptors match the Photoshop-selected raw order recursively.
 - [x] Folder RMB writes one complete Explorer tree with one PNG per descendant.
 - [x] Scaled presentation below and above 100% is filtered while 100% and source
   bytes stay exact.
