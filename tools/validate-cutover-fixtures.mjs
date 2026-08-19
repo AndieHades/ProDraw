@@ -3,11 +3,11 @@ import { cutoverErrors } from "./cutover-rules.mjs";
 import { importedSpecifiers } from "./production-graph.mjs";
 
 const bridge = {
-  stage: "C0", runtimeMode: "bridge", productionEntry: "src/legacy-entry.js",
+  stage: "C0", runtimeMode: "bridge", productionEntry: "src/legacy-entry.ts",
   targetEntry: "src/raster-main.ts", maximumSourceJavaScriptFiles: 345,
   maximumLegacyStateJavaScriptFiles: 206
 };
-const bridgeGraph = new Set(["src/legacy-entry.js", "src/app.js", "src/main.ts"]);
+const bridgeGraph = new Set(["src/legacy-entry.ts", "src/app.js", "src/main.ts"]);
 const model = { cutover: bridge, entries: [bridge.productionEntry], graph: bridgeGraph,
   sourceJavaScriptCount: 345, legacyStateJavaScriptCount: 206 };
 

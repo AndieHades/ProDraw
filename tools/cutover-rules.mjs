@@ -15,7 +15,7 @@ export function cutoverErrors(model) {
     errors.push(`legacy state JavaScript grew to ${legacyStateJavaScriptCount}`);
   }
   if (cutover.runtimeMode === "bridge") {
-    for (const required of ["src/legacy-entry.js", "src/app.js", "src/main.ts"]) {
+    for (const required of [cutover.productionEntry, "src/app.js", "src/main.ts"]) {
       if (!graph.has(required)) errors.push(`bridge graph is missing ${required}`);
     }
     if (graph.has(cutover.targetEntry)) {

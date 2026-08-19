@@ -2,10 +2,10 @@ import { readdir, readFile } from "node:fs/promises";
 
 const html = await readFile("index.html", "utf8");
 const main = await readFile("src/main.ts", "utf8");
-const bridge = await readFile("src/legacy-entry.js", "utf8");
 const rasterMain = await readFile("src/raster-main.ts", "utf8");
 const rasterConfig = await readFile("src/config/raster.ts", "utf8");
 const projectConfig = JSON.parse(await readFile("project.config.json", "utf8"));
+const bridge = await readFile(projectConfig.cutover.productionEntry, "utf8");
 const brushFiles = (await readdir("src/app-folders/brushes/main"))
   .filter((file) => file.endsWith(".brush"));
 const errors = [];

@@ -41,6 +41,6 @@ acceptance-блокером F5, но не блокирует code cutover.
 
 `R2.11/C0` закрыт в `0f12c2d`: production-граф теперь измеряется, его JS/grid
 счётчики не могут расти, Electron IPC проверяет sender, dependency audit чист,
-а desktop smoke использует каноническую упаковку. Активен `C1`: полный
-сохранённый shell и его shared/pure leaves переводятся в TypeScript без замены
-интерфейса сокращённой оболочкой.
+а desktop smoke использует каноническую упаковку. `C1` завершён; активен `C2`:
+drawing, render, history, base layers и persistence переводятся на одного
+владельца `RasterDocument`/`RasterSurface`.

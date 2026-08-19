@@ -94,5 +94,7 @@ export const S = {
   replaceMode: null,
 };
 
+export const activeColorSnapshot = () => S.active.slice(0, 3);
+
 // активная сетка текущего слоя
 export const G = () => S.layers[S.cur].grid;

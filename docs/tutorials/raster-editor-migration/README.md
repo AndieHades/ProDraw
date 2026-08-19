@@ -8,27 +8,23 @@ Canonical owner: this package.
 
 ## Resume Here
 
-- Current stage: `R2 / R2.11 / C1 — preserved TypeScript shell`
+- Current stage: `R2 / R2.11 / C2 — single tiled RGBA owner`
 - Status: `in_progress`
-- Last completed stage: `R2.11/C0` in `0f12c2d`; F3-R1..F3-R5 and the bounded
+- Last completed stage: `R2.11/C1`; F3-R1..F3-R5 and the bounded
   P1 merge/document-remap recovery also remain complete
-- Next action: migrate the complete preserved UI shell and shared pure leaves
-  to strict TypeScript under the registered
+- Next action: cut drawing, render, history, base layers and persistence over to
+  one `RasterDocument`/`RasterSurface` owner under the registered
   [`R2.11 owner cutover`](r2-11-owner-cutover/README.md)
 - Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace;
   R2 engine acceptance remains revoked until the restored UI uses typed RGBA owners
 - Working paths: `src/app.js`, `src/raster-main.ts`, `src/core`, `src/systems`,
   `src/ui`, `tests/system`, `tests/performance`, `test/module-int.mjs`
-- Last checks: focused checks pass for brush 22, bounded effects/bulk/autosave/
-  render 20, selection 11, text 16, transform 11, text callers 22, palette 3,
-  sparse backing 18, effect surfaces 21, document remap 8 and layer merge 12.
-  Legacy 128 unit, storage/reconnect, 441 module-integration and module-boot
-  checks passed; the gallery New/Open matrix covers startup, immediate create,
-  rapid repeat input, persistence and active-stroke cancellation;
-  the aggregate TypeScript suite passed 80 files/202 checks and the sequential
-  performance suite passed 17 files/52 checks. `npm run validate` and a fresh
-  packaged Windows smoke passed (`12` brushes, `8` sources, alpha `255`).
-- Last updated: `2026-08-17, C0 closed at 0f12c2d and C1 started`
+- Last checks: `npm run validate` passed 118 legacy unit, storage/reconnect,
+  397 module-integration, boot, 115 TypeScript files/305 checks and the
+  sequential 18 performance files/56 checks; architecture, docs, cutover,
+  desktop and production build gates passed. A fresh packaged Windows smoke
+  passed (`12` brushes, `12` sources, alpha `255`).
+- Last updated: `2026-08-18, C1 closed and C2 active`
 
 ## Product Outcome
 
