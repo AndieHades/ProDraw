@@ -486,6 +486,23 @@ t("module-int case 020", () => {
   assert.ok(S.view.zoom >= ZOOM_MIN && S.view.zoom < 1);
   assert.ok(S.view.ox > 0 && S.view.oy > 0);
 });
+t('viewport filters scaled presentation without changing source pixels', () => {
+  reset4(); S.layers[0].grid[1][1] = [10, 20, 30, 255]; cache.dirtyAll();
+  const canvas = document.getElementById('cv'), context = canvas.getContext('2d');
+  const original = context.drawImage, samples = [], before = JSON.stringify(S.layers[0].grid);
+  context.drawImage = function (...args) {
+    samples.push([this.imageSmoothingEnabled, this.imageSmoothingQuality]);
+    return original.apply(this, args);
+  };
+  try {
+    for (const [zoom, expected] of [[0.5, true], [1, false], [2, true]]) {
+      samples.length = 0; S.view = { zoom, ox: 0, oy: 0 }; render.render();
+      assert.equal(samples.at(-1)[0], expected);
+      if (expected) assert.equal(samples.at(-1)[1], 'high');
+    }
+  } finally { context.drawImage = original; }
+  assert.equal(JSON.stringify(S.layers[0].grid), before);
+});
 t("module-int case 021", () => { reset4();
   const cv = document.getElementById('cv');
   Object.defineProperty(cv, 'clientWidth', { configurable: true, value: 800 });

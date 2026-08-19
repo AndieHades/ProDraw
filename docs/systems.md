@@ -77,6 +77,10 @@ tile canvases до смены presentation revision. `TileHistory` ограни�
 операций и retained bytes. Измерения и CI ceilings принадлежат
 [`performance-budgets`](project/performance-budgets.md).
 
+Recovery renderer включает high-quality Canvas2D sampling для любого масштаба,
+кроме точных 100%; при 1:1 фильтрация выключена для точного pixel alignment.
+Sampling меняет только presentation draw и никогда не записывается в RGBA.
+
 В recovery bridge эффект `monochrome` использует тот же чистый Rec.601 helper,
 что разрушающая операция, но хранится в generic effect stack слоя/папки и не
 меняет source pixels. Быстрый PNG слоя и папки строит один visibility-filtered
