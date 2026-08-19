@@ -12,6 +12,31 @@ export function yieldToGalleryIdle() {
   });
 }
 
+const arrayIndex = (key, length) => { const index = Number(key);
+  return Number.isInteger(index) && index >= 0 && index < length &&
+    String(index) === key ? index : -1; };
+
+function persistedSparseRows(grid) {
+  if (!Array.isArray(grid) || !grid.length) return null;
+  const rows = Object.keys(grid).map((key) => arrayIndex(key, grid.length))
+    .filter((index) => index >= 0);
+  return rows.length < grid.length ? rows : null;
+}
+
+function clonePersistedSparseGrid(grid, rows, bounds, isCurrent) {
+  const output = new Array(grid.length);
+  for (const y of rows) {
+    if (!isCurrent()) return null;
+    const row = grid[y] || [], copy = new Array(row.length); output[y] = copy;
+    if (bounds === null || (bounds && (y < bounds.miny || y > bounds.maxy))) continue;
+    const minx = bounds ? Math.max(0, bounds.minx) : 0;
+    const maxx = bounds ? Math.min(row.length - 1, bounds.maxx) : row.length - 1;
+    for (const key of Object.keys(row)) { const x = arrayIndex(key, row.length);
+      if (x >= minx && x <= maxx && row[x]) copy[x] = row[x].slice(); }
+  }
+  return output;
+}
+
 export async function cloneGridIdle(grid, bounds, isCurrent,
   yieldWork = yieldToGalleryIdle) {
   if (!isCurrent()) return null;
@@ -20,6 +45,11 @@ export async function cloneGridIdle(grid, bounds, isCurrent,
   // look frozen for seconds and could leave the dialog busy. Clone it directly
   // in O(painted cells); dense compatibility grids keep the cancellable path.
   if (sparseGridStats(grid)) return cloneGrid(grid);
+  // IndexedDB preserves sparse Array holes but strips the bridge's prototype
+  // metadata. Reuse those stored row/cell keys instead of yielding for every
+  // empty canvas row, which made edited layered PSD files look impossible to open.
+  const storedRows = persistedSparseRows(grid);
+  if (storedRows) return clonePersistedSparseGrid(grid, storedRows, bounds, isCurrent);
   const output = new Array(grid.length);
   for (let y = 0; y < grid.length; y++) {
     if (!isCurrent()) return null;

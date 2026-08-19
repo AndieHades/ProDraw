@@ -36,6 +36,23 @@ describe("legacy A4 autosave work", () => {
     expect(yields).toBe(Math.floor(3508 / 8));
   });
 
+  it("clones persisted sparse PSD rows without yielding through array holes", async () => {
+    type Cell = number[] | null | undefined;
+    const grid = new Array<Cell[]>(578);
+    const lower = new Array<Cell>(265), upper = new Array<Cell>(265);
+    lower[12] = [10, 20, 30, 255]; upper[220] = [40, 50, 60, 128];
+    grid[20] = lower; grid[540] = upper;
+    let yields = 0;
+    const output = await cloneGridIdle(grid, undefined, () => true,
+      async () => { yields += 1; });
+
+    expect(yields).toBe(0);
+    expect(output).toHaveLength(578);
+    expect(Object.keys(output ?? {})).toEqual(["20", "540"]);
+    expect(output?.[20]?.[12]).toEqual([10, 20, 30, 255]);
+    expect(output?.[540]?.[220]).toEqual([40, 50, 60, 128]);
+  });
+
   it("abandons A4 cloning at the first yield after pen input starts", async () => {
     type Cell = number[] | null | undefined;
     const row = { length: 2480 } as unknown as Cell[];
