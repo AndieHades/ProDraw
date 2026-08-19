@@ -48,6 +48,7 @@ const xtree = await import('../src/systems/export/tree.js');
 const xrender = await import('../src/systems/export/render.js');
 const xpipe = await import('../src/systems/export/pipeline.js');
 const xbounds = await import('../src/systems/export/bounds.js');
+const xui = await import('../src/systems/export/ui.js');
 const { writePsd } = await import('../src/systems/export/psd-write.js');
 const { FORMATS } = await import('../src/systems/export/formats.js');
 const imp = await import('../src/systems/import/convert.js');
@@ -1115,6 +1116,54 @@ await ta("module-int case 133", async () => { exportProject();
   const out = await xpipe.runExport({ scope: 'project', mode: 'flattened', format: 'fake', canvasBounds: 'current', includeHidden: false });
   got = out[0].name; delete FORMATS.fake; assert.ok(/\.fake$/.test(got)); });
 
+await ta('separate export encodes and saves one output at a time', async () => {
+  exportProject(); const events = [];
+  FORMATS.fake = { id: 'fake', supportsFlattened: true, supportsLayered: false,
+    supportsSeparateFiles: true, encode: async (canvas, name) => {
+      events.push(`encode:${name}`); return { name: `${name}.fake`,
+        blob: new Blob([name]), mime: 'x/fake', desc: 'fake' }; } };
+  try {
+    const out = await xpipe.runExport({ scope: 'project', mode: 'separate',
+      separateMode: 'leaf', boundsMode: 'same', format: 'fake',
+      canvasBounds: 'trim', includeHidden: true },
+    async (output) => { events.push(`save:${output.name}`); },
+    (nodes, ...args) => { events.push(`render:${nodes[0].name}`);
+      return xrender.flattenNodes(nodes, ...args); });
+    assert.equal(out.length, 3); assert.ok(out.every((item) => !('blob' in item)));
+    assert.equal(events.filter((event) => event.startsWith('render:')).length, 6);
+    const finalPass = events.slice(3);
+    for (let index = 0; index < finalPass.length; index += 3) {
+      const name = finalPass[index].slice(7);
+      assert.equal(finalPass[index], `render:${name}`);
+      assert.equal(finalPass[index + 1], `encode:${name}`);
+      assert.equal(finalPass[index + 2], `save:${name}.fake`);
+    }
+  } finally { delete FORMATS.fake; }
+});
+
+await ta('export UI blocks re-entry and keeps the editor open on failure', async () => {
+  exportProject(); S.marked = new Set([0]); xui.mountExportUI();
+  const button = document.getElementById('ex-run');
+  const overlay = document.getElementById('export-ovl');
+  const original = FORMATS.png.encode; let release, calls = 0;
+  const pending = new Promise((resolve) => { release = resolve; });
+  FORMATS.png.encode = async (canvas, name) => { calls++; await pending;
+    return { name: `${name}.png`, blob: new Blob([]), mime: 'image/png', desc: 'PNG' }; };
+  try {
+    overlay.classList.add('on'); document.body.classList.remove('gallery-open');
+    const first = button.onclick(), second = button.onclick();
+    assert.equal(button.disabled, true); assert.equal(calls, 1); await second;
+    release(); await first;
+    assert.equal(button.disabled, false); assert.ok(!overlay.classList.contains('on'));
+    FORMATS.png.encode = async () => { throw new Error('export probe'); };
+    overlay.classList.add('on'); await button.onclick();
+    assert.ok(overlay.classList.contains('on')); assert.equal(button.disabled, false);
+    assert.ok(!document.body.classList.contains('gallery-open'));
+    assert.equal(document.getElementById('toast').textContent,
+      i18n.t('toast.exportFailed'));
+  } finally { FORMATS.png.encode = original; overlay.classList.remove('on'); }
+});
+
 await ta('quick PNG keeps target names, effects and visible folder descendants', async () => {
   exportProject(); const layer = S.layers[0], folder = S.folders[0];
   layer.name = 'Hero Colors'; layer.effects = [newEffect('monochrome'),
@@ -1135,6 +1184,33 @@ await ta('quick PNG keeps target names, effects and visible folder descendants',
     assert.equal((await xpipe.exportTargetPng(folder, false)).name, 'Effects Pack.png');
   } finally { FORMATS.png.encode = original; }
   assert.deepEqual(seen, [[6, 6, 'Hero Colors'], [6, 6, 'Effects Pack']]);
+});
+await ta('folder PNG tree includes hidden leaves and nested directories', async () => {
+  exportProject(); S.folders.push({ id: 2, name: 'Nested', open: true,
+    visible: false, parent: 1, effects: [] }); S.layers[2].fid = 2; cache.dirtyAll();
+  const writes = [], encoded = [], original = FORMATS.png.encode;
+  FORMATS.png.encode = (canvas, name) => { encoded.push([canvas.width, canvas.height, name]);
+    return Promise.resolve({ name: `${name}.png`, blob: new Blob([]),
+      mime: 'image/png', desc: 'PNG' }); };
+  const writerFactory = async (rootName) => ({
+    write: async (path) => writes.push(path),
+    commit: async () => ({ name: rootName, location: 'C:\\Art\\' + rootName }),
+    abort: async () => undefined,
+  });
+  try {
+    const result = await xpipe.exportFolderLayersPng(S.folders[0], writerFactory);
+    assert.equal(result.items.length, 2);
+  } finally { FORMATS.png.encode = original; }
+  assert.deepEqual(writes, [['b.png'], ['Nested', 'c.png']]);
+  assert.deepEqual(encoded, [[6, 6, 'b'], [6, 6, 'c']]);
+});
+await ta('folder PNG tree aborts its writer after a failed file write', async () => {
+  exportProject(); let aborted = 0;
+  const writerFactory = async () => ({ write: async () => { throw new Error('disk'); },
+    commit: async () => assert.fail('commit after failure'),
+    abort: async () => { aborted++; } });
+  assert.equal(await xpipe.exportFolderLayersPng(S.folders[0], writerFactory), null);
+  assert.equal(aborted, 1);
 });
 
 t('PNG trim bounds include the alpha reach of final visible effects', () => {
@@ -3070,13 +3146,20 @@ t("module-int case 284", () => { resetWH(8, 8); layers.mount(); effects.mount();
   assert.equal(document.getElementById('lctx-paste-fx').disabled, false);
   fxShared.setFxClip([]);
 });
-t('folder context menu exposes whole-canvas and cropped PNG actions', () => {
+t('folder context menu exposes flattened and layer-tree PNG actions', () => {
   exportProject(); layers.mount(); document.getElementById('lay-pop').classList.add('on'); layList();
+  let target = null; actions.registerOrReplace('export.folderLayersPng', (folder) => { target = folder; });
   const row = document.querySelector('#lay-list .frow[data-fid="1"]');
   row.dispatchEvent(new window.MouseEvent('contextmenu',
     { bubbles: true, cancelable: true, clientY: 120 }));
   assert.notEqual(document.getElementById('lctx-png-full').style.display, 'none');
   assert.notEqual(document.getElementById('lctx-png-tight').style.display, 'none');
+  assert.notEqual(document.getElementById('lctx-png-tree').style.display, 'none');
+  document.getElementById('lctx-png-tree').click(); assert.equal(target, S.folders[0]);
+  const layer = document.querySelector('#lay-list .lrow[data-li="1"]');
+  layer.dispatchEvent(new window.MouseEvent('contextmenu',
+    { bubbles: true, cancelable: true, clientY: 120 }));
+  assert.equal(document.getElementById('lctx-png-tree').style.display, 'none');
 });
 t("module-int case 289", () => {
   const pop = document.getElementById('lay-pop'), edge = pop.querySelector('.fw-rsz-w');

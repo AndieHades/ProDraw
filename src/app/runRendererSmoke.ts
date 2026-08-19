@@ -37,6 +37,7 @@ export async function runRendererSmoke(
   if (platform.kind !== "windows" || !platform.brushStorage || !window.prodrawDesktop) {
     throw new Error("Desktop preload bridge is unavailable");
   }
+  if (!window.prodrawDesktop.fileTree) throw new Error("Desktop export tree bridge is unavailable");
   if (!document.querySelector("#paint-canvas, #cv")) {
     throw new Error("Editor workspace did not mount");
   }

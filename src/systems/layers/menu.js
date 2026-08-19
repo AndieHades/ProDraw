@@ -34,6 +34,7 @@ export function openLctx(x, y, kind, ref) { lctxRef = { kind, ref };
   showItem('lctx-ung', isFolder); showItem('lctx-clip', isLayer);
   for (const id of ['lctx-select', 'lctx-invert', 'lctx-lock', 'lctx-alpha', 'lctx-ref']) showItem(id, isLayer);
   for (const id of ['lctx-png-full', 'lctx-png-tight']) showItem(id, isLayer || isFolder);
+  showItem('lctx-png-tree', isFolder);
   showItem('lctx-del', !isBg); showItem('lctx-fill', true); showItem('lctx-clear', true); // фон не удаляется
   if (isLayer) for (const id of LAYER_MENU_HIDDEN) showItem(id, false);
   if (isFolder) for (const id of FOLDER_MENU_HIDDEN) showItem(id, false);
@@ -74,6 +75,7 @@ export function mountMenu() {
   $('lctx-del').onclick = () => { close(); if (!lctxRef) return; if (lctxRef.kind === 'folder') deleteFolder(lctxRef.ref); else deleteLayerRef(lctxRef.ref); };
   $('lctx-png-full').onclick = () => { close(); if (lctxRef && ['layer', 'folder'].includes(lctxRef.kind)) actions.run('export.targetPng', lctxRef.ref, false); };
   $('lctx-png-tight').onclick = () => { close(); if (lctxRef && ['layer', 'folder'].includes(lctxRef.kind)) actions.run('export.targetPng', lctxRef.ref, true); };
+  $('lctx-png-tree').onclick = () => { close(); if (lctxRef?.kind === 'folder') actions.run('export.folderLayersPng', lctxRef.ref); };
   $('lctx-ung').onclick = () => { close();
     if (lctxRef?.kind === 'folder') ungroupFolder(lctxRef.ref); };
   $('ren-ok').onclick = () => { if (renRef) { const v = $('ren-name').value.trim();

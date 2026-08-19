@@ -49,7 +49,11 @@ end-to-end workflow suitable for daily illustration and game-art use.
 Focused recovery-bridge evidence for non-destructive monochrome and effect-aware
 layer/folder PNG is complete in
 [`monochrome-effect-png-export`](../monochrome-effect-png-export/README.md).
-It closes current-shell parity only; typed RGBA transfer in this stage remains.
+Folder RMB также восстанавливает отдельную команду «Сохранить слои в PNG»:
+она включает все листья поддерева, сохраняет вложенные папки и регистрацию на
+полном холсте через одну bounded directory-сессию. Это не structural **Save as
+canvas**: PNG-дерево не сохраняет редактируемые свойства документа. Typed RGBA
+transfer и layered canvas-save в этом этапе остаются.
 
 ## Context menu contract
 
@@ -85,10 +89,11 @@ last successful directory is offered again, while cancel leaves it unchanged.
 
 ## Completion record
 
-- Baseline note: the retired pixel editor contained single-layer PNG full/tight
-  handlers and a broader export tree, but the R2 raster UI intentionally does not
-  import them. The current raster build therefore has no working layer-context
-  **Save as canvas** command; R5 must port behavior through typed raster contracts.
+- Baseline note: single-target PNG full/tight and folder PNG-tree exports are
+  restored through current effect-aware render and staged platform contracts.
+  The current raster build still has no structural layer-context **Save as
+  canvas** command; R5 must port that distinct behavior through typed raster
+  contracts.
 - Audit safety rebaseline: the single-record delayed autosave can lose the last
   stroke or replace the only work on New Canvas. Crash-safe identity, revisions,
   Open/Save/Save As and close flushing are therefore pulled forward as repair

@@ -5,6 +5,10 @@ const channels = {
   fileSave: "prodraw:file:save",
   fileWrite: "prodraw:file:write",
   fileConfirmDiscard: "prodraw:file:confirm-discard",
+  exportTreeBegin: "prodraw:export-tree:begin",
+  exportTreeWrite: "prodraw:export-tree:write",
+  exportTreeCommit: "prodraw:export-tree:commit",
+  exportTreeAbort: "prodraw:export-tree:abort",
   closeRequest: "prodraw:window:close-request",
   closeDecision: "prodraw:window:close-decision",
   brushSeed: "prodraw:brush:seed",
@@ -46,6 +50,14 @@ contextBridge.exposeInMainWorld("prodrawDesktop", {
   },
   confirmDiscard(request) {
     return ipcRenderer.invoke(channels.fileConfirmDiscard, request);
+  },
+  fileTree: {
+    begin: (suggestedName) =>
+      ipcRenderer.invoke(channels.exportTreeBegin, suggestedName),
+    write: (token, relativePath, bytes) =>
+      ipcRenderer.invoke(channels.exportTreeWrite, token, relativePath, bytes),
+    commit: (token) => ipcRenderer.invoke(channels.exportTreeCommit, token),
+    abort: (token) => ipcRenderer.invoke(channels.exportTreeAbort, token)
   },
   onCloseRequested(listener) {
     const handler = () => listener();

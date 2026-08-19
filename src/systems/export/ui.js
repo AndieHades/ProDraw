@@ -1,7 +1,7 @@
 // Окно Export: сегментированные группы (chips) для четырёх независимых
 // параметров. UI подстраивается под возможности формата (режимы включаются по
 // supports*-флагам), отдельные опции показываются только для режима Separate.
-import { $ } from '../../ui/dom/ShellDom.ts';
+import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 import { FORMATS, MODE_CAP } from './formats.js';
 import { runExport } from './pipeline.js';
 
@@ -31,11 +31,18 @@ export function mountExportUI() {
 
   [scope, format, mode, sepmode, sepbounds, canvas].forEach((g) => g.reset()); // дефолты + первичная синхронизация
 
-  $('ex-run').onclick = () => {
-    runExport({ scope: scope.get(), mode: mode.get(), format: format.get(),
-      separateMode: sepmode.get(), boundsMode: sepbounds.get(), canvasBounds: canvas.get(),
-      includeHidden: $('ex-hidden-in').checked });
-    close();
+  const runButton = $('ex-run');
+  runButton.onclick = async () => {
+    if (runButton.disabled) return;
+    runButton.disabled = true;
+    try {
+      const result = await runExport({ scope: scope.get(), mode: mode.get(), format: format.get(),
+        separateMode: sepmode.get(), boundsMode: sepbounds.get(), canvasBounds: canvas.get(),
+        includeHidden: $('ex-hidden-in').checked });
+      if (result) close();
+    } catch {
+      toast(t('toast.exportFailed'));
+    } finally { runButton.disabled = false; }
   };
   $('ex-cancel').onclick = close;
 }

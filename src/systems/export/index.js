@@ -2,9 +2,9 @@
 // именованные действия (универсальный пайплайн); старые команды-совместимости
 // (быстрый PNG/PSD всего проекта, PNG слоя) тоже идут через него — без дублей.
 import * as actions from '../../core/actions.ts';
-import { $ } from '../../ui/dom/ShellDom.ts';
+import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
-import { runExport, exportTargetPng } from './pipeline.js';
+import { runExport, exportFolderLayersPng, exportTargetPng } from './pipeline.js';
 import { mountExportUI, openExport } from './ui.js';
 
 export function mount() {
@@ -16,7 +16,9 @@ export function mount() {
 // универсальный экспорт по параметрам (для хоткеев/кнопок)
 actions.register('file.export', openExport);
 // совместимость со старыми точками вызова (тулбар, хоткеи, меню слоя)
-actions.register('file.exportPng', () => runExport({ scope: 'project', mode: 'flattened', format: 'png', canvasBounds: 'current', includeHidden: false }));
-actions.register('file.exportPsd', () => runExport({ scope: 'project', mode: 'layered', format: 'psd', canvasBounds: 'current', includeHidden: false }));
+const safeExport = (opts) => runExport(opts).catch(() => toast(t('toast.exportFailed')));
+actions.register('file.exportPng', () => safeExport({ scope: 'project', mode: 'flattened', format: 'png', canvasBounds: 'current', includeHidden: false }));
+actions.register('file.exportPsd', () => safeExport({ scope: 'project', mode: 'layered', format: 'psd', canvasBounds: 'current', includeHidden: false }));
 actions.register('export.targetPng', (target, tight) => exportTargetPng(target, tight));
+actions.register('export.folderLayersPng', (folder) => exportFolderLayersPng(folder));
 actions.register('export.layer', (layer, tight) => exportTargetPng(layer, tight));
