@@ -3,7 +3,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, t } from '../../ui/dom/ShellDom.ts';
 import { menuGesture } from '../../ui/gestures/ContextGesture.ts';
-import { layerCanvas } from '../../core/layer-cache.js';
+import { layerCanvas, layerContentBounds } from '../../core/layer-cache.js';
 import { makeCanvas } from '../../core/canvas.js';
 import { C } from '../../styles/canvas-colors.ts';
 import { folderChain } from '../../core/layers.js';
@@ -36,7 +36,8 @@ export let layDragSquelch = false;
 export const setSquelch = (v) => { layDragSquelch = v; };
 export function layerThumbnail(i) { const th = makeCanvas(40, 40); th.className = 'lth';
   const tx = th.getContext('2d'); tx.imageSmoothingEnabled = false; tx.fillStyle = C.checkA; tx.fillRect(0, 0, 40, 40);
-  tx.drawImage(layerCanvas(i), 0, 0, 40, 40); return th; }
+  const b = layerContentBounds(i); if (b) tx.drawImage(layerCanvas(i), b.minx, b.miny,
+    b.maxx - b.minx + 1, b.maxy - b.miny + 1, 0, 0, 40, 40); return th; }
 function folderCountSpan(f) {
   const n = folderLayers(f).length;
   if (!n) return null;
