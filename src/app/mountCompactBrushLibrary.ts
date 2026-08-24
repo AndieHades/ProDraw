@@ -7,7 +7,6 @@ import { BrushStudioPresenter } from "../ui/brushes/BrushStudioPresenter";
 import { CompactBrushLibraryPresenter } from "../ui/brushes/CompactBrushLibraryPresenter";
 import { requiredElement } from "../ui/dom/query";
 import { createPlatform } from "./createPlatform";
-import * as shellActions from "../core/actions";
 import { setBrushShortcuts } from "../core/brush-library/brushShortcutRegistry";
 
 export interface CompactBrushMount {
@@ -47,10 +46,5 @@ export async function mountCompactBrushLibrary(
     load: (brush) => catalog.load(brush)
   });
   library.subscribe(({ brushShortcuts }) => setBrushShortcuts(brushShortcuts));
-  shellActions.registerOrReplace("brush.selectById", (id: string) => {
-    const brush = library.snapshot.sets.flatMap(({ brushes }) => brushes)
-      .find((candidate) => candidate.id === id);
-    if (brush) compact.select(brush);
-  });
   return { platform, library };
 }

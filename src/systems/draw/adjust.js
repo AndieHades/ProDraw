@@ -79,7 +79,7 @@ export function adjustCell(x, y) {
 }
 
 export function adjustStamp(x, y) {
-  const sz = S.brushes.pencil.size, off = sz >> 1, sa = symA(), sha = symHA();
+  const sz = S.pencilSize, off = sz >> 1, sa = symA(), sha = symHA();
   let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
   const put = (px, py) => { if (!writeCell(px, py)) return;
     if (px < minx) minx = px; if (px > maxx) maxx = px;

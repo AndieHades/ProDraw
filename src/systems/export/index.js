@@ -5,6 +5,7 @@ import * as actions from '../../core/actions.ts';
 import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { runExport, exportFolderLayersPng, exportTargetPng } from './pipeline.js';
+import { exportSelectedPsd } from './selected-psd.js';
 import { mountExportUI, openExport } from './ui.js';
 
 export function mount() {
@@ -19,6 +20,7 @@ actions.register('file.export', openExport);
 const safeExport = (opts) => runExport(opts).catch(() => toast(t('toast.exportFailed')));
 actions.register('file.exportPng', () => safeExport({ scope: 'project', mode: 'flattened', format: 'png', canvasBounds: 'current', includeHidden: false }));
 actions.register('file.exportPsd', () => safeExport({ scope: 'project', mode: 'layered', format: 'psd', canvasBounds: 'current', includeHidden: false }));
+actions.register('export.selectedPsd', () => safeExport(exportSelectedPsd(runExport)));
 actions.register('export.targetPng', (target, tight) => exportTargetPng(target, tight));
 actions.register('export.folderLayersPng', (folder) => exportFolderLayersPng(folder));
 actions.register('export.layer', (layer, tight) => exportTargetPng(layer, tight));

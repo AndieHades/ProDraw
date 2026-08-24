@@ -22,10 +22,10 @@ function defaultPath(suggestedName) {
   return path.join(directory, path.basename(String(suggestedName)));
 }
 
-function nativeDocumentLocation(value) {
+function writableDocumentLocation(value) {
   const location = path.resolve(String(value));
-  if (path.extname(location).toLowerCase() !== ".prodraw") {
-    throw new Error("Existing writes require a .prodraw document path");
+  if (!new Set([".prodraw", ".psd"]).has(path.extname(location).toLowerCase())) {
+    throw new Error("Existing writes require a .prodraw or .psd document path");
   }
   return location;
 }
@@ -56,7 +56,7 @@ export function registerFileIpc() {
   });
 
   handleTrusted(channels.fileWrite, async (_event, request) => {
-    await atomicWriteFile(nativeDocumentLocation(request.location), request.bytes);
+    await atomicWriteFile(writableDocumentLocation(request.location), request.bytes);
     lastDirectory = path.dirname(request.location);
     return true;
   });

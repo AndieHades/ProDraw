@@ -1,5 +1,5 @@
 import {
-  BRUSH_MODES, CENTER_MODES, FLIP_MODES, ICONS, LINE_MODES, SHAPE_MODES,
+  CENTER_MODES, FLIP_MODES, ICONS, LINE_MODES, SHAPE_MODES,
   SYM_MODES, SYM_TOOLS, ZOOM_MODES
 } from "../../config/toolbar.ts";
 import { t } from "../../i18n/index.ts";
@@ -9,7 +9,6 @@ import type { ShapeChoice, SymmetryFlag } from "./ToolPanelTypes.ts";
 export interface ToolChoiceCallbacks {
   readonly action: (group: "center" | "flip" | "zoom", mode: string,
     action: ShellActionName) => void;
-  readonly brush: (mode: string) => void;
   readonly shape: (mode: ShapeChoice) => void;
   readonly symmetryFlag: (flag: SymmetryFlag) => void;
   readonly symmetryTool: (mode: string) => void;
@@ -23,15 +22,6 @@ function choiceButton(icon: keyof typeof ICONS, key: string): HTMLButtonElement 
 }
 
 export function buildToolChoices(callbacks: ToolChoiceCallbacks): void {
-  const brush = menu("brush-choice");
-  if (brush && !brush.dataset.ready) {
-    brush.dataset.ready = "1";
-    for (const mode of BRUSH_MODES) {
-      const button = choiceButton(mode.icon, mode.key); button.dataset.brushMode = mode.mode;
-      button.onclick = () => { brush.classList.remove("on"); callbacks.brush(mode.mode); };
-      brush.appendChild(button);
-    }
-  }
   const shape = menu("shape-choice");
   if (shape && !shape.dataset.ready) {
     shape.dataset.ready = "1";

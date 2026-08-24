@@ -1,13 +1,12 @@
 export const SHELL_EVENT_NAMES = [
   "animation", "before-tool-change", "before-undo",
-  "brush", "brush-flags", "brushResize",
-  "brushlib", "canvas-menu", "color-sync",
+  "canvas-menu", "color-sync",
   "composite-ready", "cursor", "document-transition",
   "eyedropper", "feedback", "fit", "grid",
   "layer-active", "layers", "locale",
   "overlay", "palette", "reference",
   "render", "selection", "selection-menu",
-  "shading", "snapshot", "stroke-begin",
+  "snapshot", "stroke-begin",
   "theme", "tool",
   "transform-menu", "visibility"
 ] as const;

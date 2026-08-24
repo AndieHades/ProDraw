@@ -18,7 +18,7 @@ export function commitLine() {
   beginStroke(S.layers[S.cur]?.kind === 'pixel', true);
   const painter = createCellPainter(false, true);
   const draw = (x, y) => brushStampWith(x, y, 'pencil',
-    (px, py) => painter.paint(px, py, S.brushes.pencil.op));
+    (px, py) => painter.paint(px, py, 1));
   if (S.tool === 'rect') (S.fillShape.rect ? rectFill : rectEdges)(lp[0], lp[1], lp[2], lp[3], draw);
   else if (S.tool === 'ellipse') (S.fillShape.ellipse ? ellipseFill : ellipseEdges)(lp[0], lp[1], lp[2], lp[3], draw);
   else bres(lp[0], lp[1], lp[2], lp[3], draw);
@@ -32,7 +32,7 @@ function contourCell() {
 }
 
 export function contourDab(cx, cy, cell = contourCell()) {
-  const m = maskRound(S.brushes.pencil.size), ox = m.w >> 1, oy = m.h >> 1;
+  const m = maskRound(S.pencilSize), ox = m.w >> 1, oy = m.h >> 1;
   for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) if (m.data[y * m.w + x]) setCell(cx - ox + x, cy - oy + y, cell);
 }
 
@@ -41,7 +41,7 @@ export function contourStroke(x0, y0, x1, y1, cell = contourCell()) {
 }
 
 function contourDabMask(set, cx, cy) {
-  const m = maskRound(S.brushes.pencil.size), ox = m.w >> 1, oy = m.h >> 1;
+  const m = maskRound(S.pencilSize), ox = m.w >> 1, oy = m.h >> 1;
   for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) if (m.data[y * m.w + x]) {
     const px = cx - ox + x, py = cy - oy + y;
     if (px >= 0 && py >= 0 && px < S.W && py < S.H) set.add(px + ',' + py);

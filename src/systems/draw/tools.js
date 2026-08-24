@@ -11,12 +11,8 @@ import { stamp } from './stamp.js';
 import { line, commitLine, commitContour, contourDab, contourStroke } from './shapes.js';
 import { beginStroke, afterStroke, cancelStroke } from './stroke.js';
 import { qsBegin, qsMove, qsRelease } from './quickshape.js';
-import { shadingActive } from './shading.js';
 import { clamp } from '../../logic/math.ts';
-import { smudge } from './smudge.js';
 import { floodAt } from './fill.js';
-import { beginRasterStroke, cancelRasterStroke, finishRasterStroke,
-  moveRasterStroke, hasRasterBrush, rasterStrokeActive } from './raster-brush.js';
 
 let last = null;
 
@@ -43,20 +39,16 @@ function armSnap(gx, gy) { clearTimeout(snapTimer);
 function endSnap() { clearTimeout(snapTimer); snapTimer = null; snapCell = null; snapped = false; }
 
 const brush = {
-  down({ gx, gy, rx, ry, e }) { ensureLayer();
-    const localPatch = (hasRasterBrush(S.tool) || S.tool === 'adjust') &&
-      S.layers[S.cur]?.kind === 'pixel';
-    beginStroke(localPatch);
-    if (beginRasterStroke(S.tool, rx ?? gx + .5, ry ?? gy + .5, e)) { last = null; bus.emit('render'); return; }
+  down({ gx, gy }) { ensureLayer();
+    beginStroke(S.tool === 'adjust' && S.layers[S.cur]?.kind === 'pixel');
     qsBegin(gx, gy); stamp(gx, gy); last = [gx, gy]; bus.emit('render'); },
-  move({ gx, gy, rx, ry, e }) { if (rasterStrokeActive()) { moveRasterStroke(rx ?? gx + .5,
-    ry ?? gy + .5, e); bus.emit('render'); return; }
+  move({ gx, gy }) {
     if (qsMove(gx, gy)) { bus.emit('render'); return; } // QuickShape выровнял форму — raw больше не рисуем
     if (last) line(last[0], last[1], gx, gy); else stamp(gx, gy); last = [gx, gy]; bus.emit('render'); },
-  up() { if (!finishRasterStroke()) qsRelease(); S.stroke = false; last = null;
-    if ((S.tool === 'pencil' && !shadingActive()) || (S.tool === 'adjust' && S.adjMode === 'colorize')) actions.run('color.used', S.active);
+  up() { qsRelease(); S.stroke = false; last = null;
+    if (S.tool === 'pencil' || (S.tool === 'adjust' && S.adjMode === 'colorize')) actions.run('color.used', S.active);
     afterStroke(); bus.emit('render'); }, // удержал → коммитит ровную форму, иначе raw остаётся
-  cancel() { const hadStroke = S.stroke; cancelRasterStroke(); qsRelease();
+  cancel() { const hadStroke = S.stroke; qsRelease();
     if (hadStroke) { S.stroke = true; cancelStroke(); }
     last = null; bus.emit('render'); },
 };
@@ -82,7 +74,6 @@ const shape = {
 const fill = { down({ gx, gy }) { if (!S.bgSel) ensureLayer(); floodAt(gx, gy); afterStroke(); } };
 
 for (const t of ['pencil', 'eraser', 'adjust']) registerTool(t, brush);
-registerTool('smudge', smudge);
 for (const t of ['line', 'rect', 'ellipse']) registerTool(t, shape);
 registerTool('fill', fill);
 bus.on('before-tool-change', () => { if (S.linePath) commitContour(); });

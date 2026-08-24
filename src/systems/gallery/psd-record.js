@@ -59,7 +59,7 @@ function documentTree(document, warnings) {
   return { layers, folders, folderSeq };
 }
 
-export function buildPsdGalleryRecord(id, name, document) {
+export function buildPsdGalleryRecord(id, name, document, sourceLocation = null) {
   const warnings = new Set(document.warnings), tree = documentTree(document, warnings);
   const palette = defaultPalette(), now = Date.now();
   return { id, kind: 'doc', folder: null, name, W: document.width, H: document.height,
@@ -68,5 +68,6 @@ export function buildPsdGalleryRecord(id, name, document) {
     referenceBoard: defaultReferenceBoard(), grid: {}, bg: { color: null, visible: true },
     palette, active: palette[DEFAULT_ACTIVE].slice(), colorMode: 'rgba',
     preview: psdGalleryPreview(document),
-    psdWarnings: [...warnings], sourceFormat: 'psd', order: now, updated: now };
+    psdWarnings: [...warnings], sourceFormat: 'psd', sourceLocation,
+    order: now, updated: now };
 }

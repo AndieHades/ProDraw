@@ -38,7 +38,6 @@ import { expandMask, mirrorDeltas } from '../src/logic/symmetry.js';
 import { ZOOM_MIN, ZOOM_MAX, historyCap } from '../src/config/limits.ts';
 import { SIZE_PRESETS, DEFAULT_DOC } from '../src/config/presets.js';
 import { defaultPalette, DEFAULT_PALETTE_HEX, DEFAULT_ACTIVE } from '../src/config/palette.js';
-import { FLAGS_DEFAULT } from '../src/config/defaults.ts';
 import { t as tr } from '../src/i18n/index.ts';
 import { ru } from '../src/i18n/locales/ru.ts';
 import { en } from '../src/i18n/locales/en.ts';
@@ -46,7 +45,6 @@ import { en } from '../src/i18n/locales/en.ts';
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('  ok   ' + name); };
 
 t("unit case 001", () => { assert.equal(S.W, 32); assert.equal(S.layers.length, 1); assert.equal(S.cur, 0); assert.equal(MAX_LAYERS, Infinity); });
-t("unit case 002", () => { assert.equal(FLAGS_DEFAULT.pixelPerfect, false); assert.equal(S.ppOn, false); });
 t('state: blank/newLayer', () => { const L = newLayer('x', 4, 3); assert.equal(L.grid.length, 3); assert.equal(L.grid[0].length, 4); assert.equal(L.grid[0][0], null); });
 t("unit case 003", () => { assert.equal(G(), S.layers[S.cur].grid); });
 

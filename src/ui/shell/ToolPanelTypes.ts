@@ -11,8 +11,6 @@ export interface ToolPanelState {
   readonly lineMode: string;
   readonly rotationActive: boolean;
   readonly selectionActive: boolean;
-  readonly shadingActive: boolean;
-  readonly shadingColorCount: number;
   readonly shapeTool: string;
   readonly symEnabled: boolean;
   readonly symFlags: Readonly<Record<SymmetryFlag, boolean>>;
@@ -32,6 +30,6 @@ export interface ToolPanelPort {
   readonly setSymLineMode: (mode: string | null) => void;
   readonly setTool: (tool: string) => void;
   readonly state: () => ToolPanelState;
-  readonly subscribe: (event: "selection" | "shading" | "tool", listener: () => void) => void;
+  readonly subscribe: (event: "selection" | "tool", listener: () => void) => void;
   readonly toggleSymmetry: (flag: SymmetryFlag) => boolean;
 }

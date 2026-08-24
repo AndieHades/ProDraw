@@ -11,7 +11,7 @@ export interface PreservedShellLayoutPorts {
 
 const MENU_IDS = ["ctx", "lctx", "cctx", "sctx", "trctx", "fxctx", "impmenu",
   "setmenu", "rowctx", "tctx", "brush-plus", "brush-menu", "font-menu",
-  "brush-choice", "shape-choice", "sym-choice", "flip-choice", "center-choice",
+  "shape-choice", "sym-choice", "flip-choice", "center-choice",
   "zoom-choice", "pal-new-choice"] as const;
 
 function element(id: string): HTMLElement {

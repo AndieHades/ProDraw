@@ -12,8 +12,6 @@ const presenter = new ToolPanelPresenter({
     lineMode: S.lineMode,
     rotationActive: Boolean(S.rotMode),
     selectionActive: Boolean(S.sel),
-    shadingActive: Boolean(S.shading?.on || S.shading?.picking),
-    shadingColorCount: S.shading?.colors?.length || 0,
     shapeTool: S.shapeTool,
     symEnabled: S.symEnabled !== false,
     symFlags: { sym: Boolean(S.sym), symH: Boolean(S.symH),

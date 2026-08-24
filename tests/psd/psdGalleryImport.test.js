@@ -12,10 +12,10 @@ describe('PSD gallery transaction', () => {
     globalThis.indexedDB = new IDBFactory();
     const decoded = decodePsdDocument(structuredPsd());
     const token = beginPsdImport();
-    const result = await completePsdImport(token, decoded, 'Imported');
+    const result = await completePsdImport(token, decoded, 'Imported', 'C:/assets/Imported.psd');
     expect(result).toEqual({ status: 'opened', layerCount: 1, warningCount: 1 });
     expect(S).toMatchObject({ W: 3, H: 2, dpi: 300, docName: 'Imported',
-      sourceFormat: 'psd' });
+      sourceFormat: 'psd', sourceLocation: 'C:/assets/Imported.psd' });
     expect(S.layers[0]).toMatchObject({ name: 'Masked α', visible: false,
       blendMode: 'multiply', clip: true, lock: true, alphaLock: true });
     expect(S.layers[0].grid[0][1]).toEqual([255, 0, 0, 1]);
@@ -31,7 +31,7 @@ describe('PSD gallery transaction', () => {
       blendMode: 'pass through' });
     const stored = await getDoc(curWorkId());
     expect(stored).toMatchObject({ kind: 'doc', name: 'Imported', dpi: 300,
-      sourceFormat: 'psd' });
+      sourceFormat: 'psd', sourceLocation: 'C:/assets/Imported.psd' });
     expect(stored.layers[0].masks[0].alpha).toEqual(new Uint8Array([0, 64, 128, 255]));
     expect(stored.layers[0].psdBounds).toEqual({ left: 1, top: 0, width: 2, height: 2 });
     expect(stored.layers[0].effects.map(({ type }) => type))

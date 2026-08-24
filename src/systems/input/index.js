@@ -8,10 +8,8 @@ import { $ } from '../../ui/dom/ShellDom.ts';
 import { selHit } from '../../core/selection.js';
 import { toolHandler, modeHandler, globalHandlers } from '../../core/canvas-handlers.ts';
 import { canvasAt, gridAt } from '../../core/viewport.js';
-import { actualPointerEvents } from '../../core/input/actualPointerEvents.ts';
-import { STABILIZE, DRAG_THRESHOLD } from '../../config/timings.ts';
+import { DRAG_THRESHOLD } from '../../config/timings.ts';
 import { ZOOM_MIN, ZOOM_MAX } from '../../config/limits.ts';
-import { CURSOR_TOOLS } from '../../config/cursor.ts';
 import { mountGestures } from './gestures.js';
 
 const cv = () => $('cv');
@@ -26,20 +24,12 @@ const startPan = (e) => {
   rdrag = { x: e.clientX, y: e.clientY, ox: S.view.ox, oy: S.view.oy, moved: false, btn: e.button };
 };
 
-let rdrag = null, drawing = false, stabPt = null, activeGlobal = null;
+let rdrag = null, drawing = false, activeGlobal = null;
 let activePointerId = null;
-function rememberInput(e) { const pen = e?.pointerType === 'pen';
-  S.hoverInput = { pressure: pen && e.pressure > 0 ? Math.min(1, e.pressure) : 1,
-    tiltX: pen ? e.tiltX || 0 : 0, tiltY: pen ? e.tiltY || 0 : 0,
-    pointerType: e?.pointerType || 'mouse' }; }
 function releaseCapture(e) { const id = e?.pointerId ?? activePointerId;
   if (id == null || (activePointerId != null && id !== activePointerId)) return;
   activePointerId = null; try { cv().releasePointerCapture(id); } catch (error) {} }
-function smooth(e) { if (!S.stabOn) return [e.clientX, e.clientY];
-  if (!stabPt) { stabPt = { x: e.clientX, y: e.clientY }; return [e.clientX, e.clientY]; }
-  stabPt.x += (e.clientX - stabPt.x) * STABILIZE; stabPt.y += (e.clientY - stabPt.y) * STABILIZE; return [stabPt.x, stabPt.y]; }
-
-export function down(e) { rememberInput(e);
+export function down(e) {
   if (e.pointerId != null) { activePointerId = e.pointerId; capture(e.pointerId); }
   if (e.pointerType === 'mouse' && e.button === 2 && S.rotMode) { bus.emit('transform-menu', e); return; }
   const [rx, ry] = toCanvas(e), gx = Math.floor(rx), gy = Math.floor(ry);
@@ -47,7 +37,6 @@ export function down(e) { rememberInput(e);
       && (e.button === 1 || e.button === 2 || (e.button === 0 && !inWorkArea(gx, gy)))) {
     startPan(e); return; }
   if (e.pointerType === 'mouse' && e.button && !(S.cropMode && e.button === 2)) return;
-  stabPt = { x: e.clientX, y: e.clientY };
   const m = activeMode(); if (m) { m.down({ gx, gy, rx, ry, e }); drawing = true; return; }
   for (const gh of globalHandlers()) if (gh.down && gh.down({ gx, gy, rx, ry, e })) { activeGlobal = gh; drawing = true; return; }
   if (S.sel && S.tool !== 'select' && S.tool !== 'lasso' && !selHit(gx, gy)) { actions.run('select.none'); return; } // лассо строит контур поверх существующего выделения (add/subtract/intersect)
@@ -55,12 +44,10 @@ export function down(e) { rememberInput(e);
 }
 
 export function move(e) {
-  rememberInput(e);
   if (e.pointerType !== 'touch') { const [hx, hy] = toGrid(e); // в Tile Mode курсор виден над всем блоком 3×3
     const over = inWorkArea(hx, hy);
     S.hoverPx = over ? [hx, hy] : null;
-    // под кистью прячем нативный crosshair — наводку рисует Brush Cursor Renderer (прицел + отпечаток)
-    let cur = over ? (S.eyedrop.active || CURSOR_TOOLS.includes(S.tool) ? 'none' : 'crosshair') : 'default'; // инструмент может подсказать курсор (ручки выделения и т.п.)
+    let cur = over && S.eyedrop.active ? 'none' : over ? 'crosshair' : 'default';
     const ht = toolHandler(S.tool), gh = globalHandlers().map((h) => h.hover && h.hover({ gx: hx, gy: hy, e })).find(Boolean);
     if (!S.eyedrop.active && !drawing && !rdrag && !activeMode()) { if (gh) cur = gh; else if (ht && ht.hover) { const c2 = ht.hover({ gx: hx, gy: hy, e }); if (c2) cur = c2; } }
     cv().style.cursor = cur; }
@@ -71,10 +58,9 @@ export function move(e) {
   if (m) { const [gx, gy] = toGrid(e); if (drawing) m.move({ gx, gy, e }); else if (m.hover) m.hover({ gx, gy, e }); return; }
   const h = toolHandler(S.tool);
   if (drawing && h && h.move) { const r = cv().getBoundingClientRect();
-    for (const actual of actualPointerEvents(e)) { const [sx, sy] = smooth(actual);
-      const rx = (sx - r.left - S.view.ox) / S.view.zoom;
-      const ry = (sy - r.top - S.view.oy) / S.view.zoom;
-      h.move({ gx: Math.floor(rx), gy: Math.floor(ry), rx, ry, e: actual }); } }
+    const rx = (e.clientX - r.left - S.view.ox) / S.view.zoom;
+    const ry = (e.clientY - r.top - S.view.oy) / S.view.zoom;
+    h.move({ gx: Math.floor(rx), gy: Math.floor(ry), rx, ry, e }); }
   else if (e.pointerType !== 'touch') bus.emit('render'); // перерисовка контура кисти
 }
 
@@ -83,7 +69,6 @@ export function up(e) { try {
     bus.emit(S.sel && !S.selFloat ? 'selection-menu' : 'canvas-menu', e);
     rdrag = null; return; }
   if (activeGlobal) { if (activeGlobal.up) activeGlobal.up({ e }); activeGlobal = null; drawing = false; return; }
-  stabPt = null;
   const m = activeMode(); if (m) { if (drawing && m.up) m.up({ e }); drawing = false; return; }
   const h = toolHandler(S.tool); if (drawing && h && h.up) h.up({ e }); drawing = false;
   } finally { releaseCapture(e); }
@@ -91,7 +76,7 @@ export function up(e) { try {
 
 export function cancel(e) {
   const wasDrawing = drawing, owner = activeGlobal || activeMode() || toolHandler(S.tool);
-  drawing = false; activeGlobal = null; rdrag = null; stabPt = null;
+  drawing = false; activeGlobal = null; rdrag = null;
   try { if (wasDrawing && owner?.cancel) owner.cancel({ e }); }
   finally { releaseCapture(e); bus.emit('render'); }
 }

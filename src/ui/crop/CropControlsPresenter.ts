@@ -4,15 +4,7 @@ export interface CropControlsPort {
   readonly bindCanvasMode: () => void;
   readonly cancel: () => void;
   readonly dimensionInput: (dimension: "h" | "w", commit: boolean) => void;
-  readonly gridChanged: (visible: boolean) => void;
-  readonly setCellSize: (commit: boolean) => void;
-  readonly subscribeGrid: (listener: () => void) => void;
-  readonly syncGrid: () => void;
   readonly toggle: () => void;
-  readonly toggleLink: () => void;
-  readonly toggleSymmetry: () => void;
-  readonly toggleTrim: () => void;
-  readonly toggleUnits: () => void;
 }
 
 const element = <T extends HTMLElement>(id: string): T => {
@@ -32,17 +24,6 @@ export function mountCropControls(port: CropControlsPort): void {
   element<HTMLButtonElement>("crop").onclick = port.toggle;
   element<HTMLButtonElement>("crop-ok").onclick = port.apply;
   element<HTMLButtonElement>("crop-cancel").onclick = port.cancel;
-  element<HTMLButtonElement>("crop-sym").onclick = port.toggleSymmetry;
-  element<HTMLButtonElement>("crop-link").onclick = port.toggleLink;
-  element<HTMLButtonElement>("crop-units").onclick = port.toggleUnits;
-  element<HTMLButtonElement>("crop-trim").onclick = port.toggleTrim;
-  const gridVisible = element<HTMLInputElement>("crop-grid-visible");
-  gridVisible.addEventListener("change", () => port.gridChanged(gridVisible.checked));
-  const cellSize = element<HTMLInputElement>("crop-cell-size");
-  cellSize.addEventListener("input", () => port.setCellSize(false));
-  cellSize.addEventListener("blur", () => port.setCellSize(true));
-  commitOnEnter(cellSize);
-  port.subscribeGrid(port.syncGrid); port.syncGrid();
   for (const dimension of ["w", "h"] as const) {
     const input = element<HTMLInputElement>(`crop-${dimension}`);
     input.addEventListener("input", () => port.dimensionInput(dimension, false));

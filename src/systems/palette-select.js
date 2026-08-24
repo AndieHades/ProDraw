@@ -12,7 +12,7 @@ import { reorderPalette } from '../logic/paletteReorder.ts';
 import { mountPaletteContextMenu } from '../ui/palette/PaletteContextMenuPresenter.ts';
 import { finishPaletteDrag } from './palette-select/finish.js';
 import { colorsAtIndices, paletteRange } from '../logic/paletteSelection.ts';
-import { clearPendingShade, markMovingSwatches, updateShadeDrag } from '../ui/palette/PaletteDragVisuals.ts';
+import { markMovingSwatches } from '../ui/palette/PaletteDragVisuals.ts';
 
 let swHold = null, palDrag = null, palSquelch = false, ctxIdx = -1, ctxIdxs = [];
 let palSel = new Set(), palAnchorIdx = -1, palRef = S.palette;
@@ -36,7 +36,6 @@ const rangeIdx = (from, to, max = Infinity) => paletteRange(S.palette.length, fr
 const colorsFromIdx = (idxs) => colorsAtIndices(S.palette, idxs);
 export const selectedPaletteColors = () => { validSel(); return colorsFromIdx([...palSel]); };
 function setPaletteSelection(idxs, anchor = idxs[0]) { palSel = new Set(idxs); palAnchorIdx = anchor ?? -1; rebuild(); }
-function setShadingFromSelection(idxs) { const cols = colorsFromIdx(idxs); palSel = new Set(); palAnchorIdx = -1; actions.run('shading.setRamp', cols); }
 const markMoving = (idxs, on) => markMovingSwatches($('pal'), idxs, on);
 
 // ctrl/⌘ + клик — поштучный тумблер; shift + клик — диапазон от якоря (или от
@@ -54,8 +53,6 @@ function paintSelect(i) { if (palSel.has(i)) return; palSel.add(i); if (palAncho
 export function clearPaletteSelection() { if (!palSel.size) return; palSel = new Set(); palAnchorIdx = -1; rebuild(); }
 actions.register('palette.clearSelection', clearPaletteSelection);
 
-const clearShadePending = () => clearPendingShade($('pal'));
-
 function reorderIdxs(idxs, targetIdx, after, select = true) {
   const result = reorderPalette(S.palette, idxs, targetIdx, after);
   if (!result) return false;
@@ -68,11 +65,9 @@ function reorderIdxs(idxs, targetIdx, after, select = true) {
 function deleteIdxs(idxs) {
   const del = new Set(idxs);
   if (!del.size) return;
-  const removed = S.palette.filter((_, i) => del.has(i));
   S.palette = S.palette.filter((_, i) => !del.has(i));
   palRef = S.palette; palSel = new Set(); palAnchorIdx = -1;
-  if (S.shading && S.shading.colors && S.shading.colors.some((c) => removed.some((r) => eqc(c, r)))) actions.run('shading.clear');
-  else rebuild();
+  rebuild();
   toast(t('toast.colorRemoved'));
 }
 
@@ -93,20 +88,15 @@ export function wireSwatch(b, c, idx) {
   b.addEventListener('pointerdown', (e) => {
     validSel();
     const moveSel = palSel.has(idx) && palSel.size > 1; // перенос всего выделения, если тянем выделенный свотч
-    const moveIdxs = moveSel ? [...palSel] : [idx], picking = !!(S.shading && S.shading.picking);
+    const moveIdxs = moveSel ? [...palSel] : [idx];
     const gap = makeDropGap({ className: 'palette-drop-gap', enabled: false }); // «без gap»: место вставки считаем, но свотчи не раздвигаем
-    const base = { b, idx, x: e.clientX, y: e.clientY, moved: false, moveSel, moveIdxs, gap, picking };
+  const base = { b, idx, x: e.clientX, y: e.clientY, moved: false, moveSel, moveIdxs, gap };
     if (e.pointerType === 'touch') { // тач: долгий тап поднимает для перестановки/меню (правой кнопки нет)
       const armLift = () => { if (palDrag && !palDrag.moved) { palDrag.lifted = true; if (!palDrag.moveSel) b.classList.add('lifting'); } };
       clearTimeout(swHold); swHold = setTimeout(armLift, LONG_PRESS_MS); palDrag = { ...base, touch: true }; return; }
     if (e.button === 2) { e.preventDefault(); palDrag = { b, idx, rmb: true, x: e.clientX, y: e.clientY, moved: false, gap: null }; return; }
     if (e.button === 0) palDrag = { ...base, left: true }; });
 }
-
-function palShadeMove(tg) { const chip = $('paldrag'); // ramp-picking: короткий драг тянет диапазон оттенков
-  const next = updateShadeDrag($('pal'), chip, palDrag.b, tg,
-    !!palDrag.selecting, (index) => rangeIdx(palDrag.idx, index));
-  palDrag.selecting = next.selecting; if (next.indices.length) palDrag.idxs = next.indices; }
 
 function palReorderMove(e, tg) { const pal = $('pal'), chip = $('paldrag');
   palDrag.reordering = true;
@@ -120,15 +110,13 @@ function palDragMove(e) { if (!palDrag) return;
   if (!palDrag.moved) { if (Math.hypot(e.clientX - palDrag.x, e.clientY - palDrag.y) <= 6) return; palDrag.moved = true; clearTimeout(swHold); }
   const tg = swAt(e);
   if (palDrag.rmb) { if (!palDrag.painted) { palDrag.painted = true; paintSelect(palDrag.idx); } if (tg) paintSelect(+tg.dataset.i); return; }
-  if (palDrag.picking) { palShadeMove(tg); return; }
   if (palDrag.left || palDrag.lifted || palDrag.moveSel) palReorderMove(e, tg); }
 
 function palDragEnd(e) { if (!palDrag) return; clearTimeout(swHold);
   const d = palDrag, chip = $('paldrag'); palDrag = null; markMoving(d.moveIdxs || [d.idx], false);
-  d.b.classList.remove('dragging', 'lifting'); chip.classList.remove('on'); delete chip.dataset.stack; clearShadePending();
+  d.b.classList.remove('dragging', 'lifting'); chip.classList.remove('on'); delete chip.dataset.stack;
   finishPaletteDrag(d, e, { openContext: openCtx, rebuild, squelch,
-    selectShade: (indices, anchor) => { if (S.shading?.picking) setShadingFromSelection(indices);
-      else setPaletteSelection(indices, anchor); }, reorder: reorderIdxs,
+    selectShade: (indices, anchor) => setPaletteSelection(indices, anchor), reorder: reorderIdxs,
     dropColor: (index, x, y) => { if (!actions.run('layer.dropColorAt', S.palette[index], x, y))
       actions.run('edit.dropColorAt', S.palette[index], x, y); } }); }
 
@@ -141,9 +129,7 @@ export function initPaletteSelect({ rebuild: rb, setActive: sa }) {
   mountPaletteContextMenu({ selection: () => { validSel();
     const indices = (ctxIdxs.length ? ctxIdxs : [ctxIdx])
       .filter((index) => index >= 0 && index < S.palette.length);
-    return { indices, colors: colorsFromIdx(indices) }; },
-    shade: (colors) => { palSel = new Set(); palAnchorIdx = -1;
-      actions.run('shading.setRamp', colors); }, delete: deleteIdxs,
+    return { indices, colors: colorsFromIdx(indices) }; }, delete: deleteIdxs,
     select: (colors) => actions.run('selection.byColor', colors),
     replace: (colors) => actions.run('color.replace', colors) });
 }

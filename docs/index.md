@@ -23,6 +23,8 @@
   почему `.brush` рисует не как в Procreate и что нужно изменить в движке.
 - [PSD document import](tutorials/psd-document-import/README.md) — единый
   drag/open workflow, структурные слои, группы, маски, alpha и эффекты PSD.
+- [Asset editor cutover](tutorials/asset-editor-cutover/README.md) — переход
+  к лёгкому редактору игровых PSD/PNG-ассетов без brush subsystem.
 - [Реестр планов](tutorials/README.md)
 
 ## Системы

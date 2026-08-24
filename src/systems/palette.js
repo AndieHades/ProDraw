@@ -8,7 +8,7 @@ import { $, toast, t } from '../ui/dom/ShellDom.ts';
 import { rgb, rgbToHex, hexToRgb, eqc } from '../logic/color.js';
 import { sortPalette } from '../logic/palette-sort.js';
 import { setTool } from '../core/tools.js';
-import { initPaletteSelect, wireSwatch, clearPaletteSelection, selectedPaletteColors, validSel } from './palette-select.js';
+import { initPaletteSelect, wireSwatch, clearPaletteSelection, validSel } from './palette-select.js';
 import { usedColorKeys } from './palette-used-colors.js';
 import { attachReorder } from '../ui/shell/ReorderGesture.ts';
 
@@ -17,13 +17,7 @@ const COLOR_TOOLS = new Set(['pencil', 'fill', 'line', 'rect', 'ellipse']);
 
 export const refreshActive = () => { $('active').style.background = rgb(S.active); };
 const colorKey = (c) => c ? c[0] + ',' + c[1] + ',' + c[2] : '';
-const inShadeRamp = (c) => S.shading && S.shading.picking && S.shading.colors && S.shading.colors.some((x) => eqc(x, c));
 const keepsColorTool = () => COLOR_TOOLS.has(S.tool) || (S.tool === 'adjust' && S.adjMode === 'colorize');
-function syncShadingButton() {
-  const btn = $('pal-shading'); if (!btn) return;
-  const on = !!(S.shading && S.shading.on), canStart = selectedPaletteColors().length > 1;
-  btn.classList.toggle('on', on); btn.disabled = !on && !canStart;
-}
 
 // «использованные» в реальном времени: при включённом showUsed обновляем только
 // классы .used на готовых свотчах (без пересборки DOM каждый кадр рисования)
@@ -67,7 +61,6 @@ export function buildPalette() {
     const b = document.createElement('button'); b.className = 'sw'; b.style.background = rgb(c); b.dataset.i = idx;
     b.title = rgbToHex(c).toUpperCase();
     if (!activeShown && eqc(c, S.active)) { b.classList.add('on'); activeShown = true; }
-    if (inShadeRamp(c)) b.classList.add('shade-sel');
     if (used && used.has(colorKey(c))) b.classList.add('used');
     wireSwatch(b, c, idx); // выделение/drag/контекст-меню + класс pal-sel
     box.appendChild(b);
@@ -78,22 +71,17 @@ export function buildPalette() {
     S.palette.push(S.active.slice()); buildPalette(); toast(t('toast.colorAdded')); });
   add.addEventListener('contextmenu', (e) => { e.preventDefault(); actions.run('color.pick'); });
   box.appendChild(add);
-  syncShadingButton();
 }
-
-function toggleShading() { actions.run('tool.shading', selectedPaletteColors()); }
 
 export function mount() {
   initPaletteSelect({ rebuild: buildPalette, setActive: setActiveColor });
-  $('pal-shading').onclick = toggleShading;
   $('pal-used').addEventListener('click', () => { showUsed = !showUsed; $('pal-used').classList.toggle('on', showUsed); buildPalette(); });
   bus.on('palette', () => { buildPalette(); refreshActive(); });
   bus.on('render', refreshUsed); // живое обновление «использованных» цветов прямо во время рисования
-  bus.on('shading', syncShadingButton);
   bus.on('tool', (id) => { if (id !== 'pencil') clearPaletteSelection(); });
   bus.on('locale', buildPalette);
   wirePalActReorder();
-  refreshActive(); buildPalette(); syncShadingButton();
+  refreshActive(); buildPalette();
 }
 
 // перенос иконок тулбара палитры зажатым ПКМ/долгим тапом (как в тулбаре тайлов)

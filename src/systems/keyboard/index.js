@@ -2,7 +2,6 @@
 // карте (дефолт + пользовательские переопределения из localStorage) и запускает
 // его из реестра. Перенастройка — rebind()/resetKeymap(), сохраняется.
 import * as actions from '../../core/actions.ts';
-import { brushIdForShortcut } from '../../core/brush-library/brushShortcutRegistry.ts';
 import { DEFAULT_KEYMAP } from './keymap.js';
 import { keyboardCombo } from '../../logic/key-code.ts';
 
@@ -25,16 +24,15 @@ const typing = (t) => !!((t && t.matches && t.matches('input, textarea')) || (t 
 
 export function handle(e) {
   const combo = comboOf(e); if (!combo) return false;
-  const brushId = brushIdForShortcut(combo);
-  const action = brushId ? 'brush.selectById' : keymap[combo];
-  if (e.repeat && (brushId || combo.startsWith('space+') || action === 'tool.pencil')) return false;
+  const action = keymap[combo];
+  if (e.repeat && (combo.startsWith('space+') || action === 'tool.pencil')) return false;
   if (!action || !actions.has(action)) return false;
   const undoRedo = action === 'edit.undo' || action === 'edit.redo';
   const target = e.target, domTarget = target && typeof target.nodeType === 'number' ? target : null;
   const editPop = domTarget && [...document.querySelectorAll('#bcpop.on, #fx-edit.on')].some((p) => p.contains(domTarget));
   const undoInEditPop = undoRedo && editPop;
   if ((typing(target) && !undoInEditPop) || (document.querySelector('.ovl.on') && !undoInEditPop)) return false; // ввод текста / открыт диалог
-  e.preventDefault(); actions.run(action, ...(brushId ? [brushId] : [])); return true;
+  e.preventDefault(); actions.run(action); return true;
 }
 
 export function mount() {

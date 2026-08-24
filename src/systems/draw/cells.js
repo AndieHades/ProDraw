@@ -7,10 +7,7 @@ import { mirrorPoints } from '../../logic/symmetry.js';
 import { inSel } from '../../core/selection.js';
 import { markDirty } from '../../core/layer-cache.js';
 import { rasterizeActiveText } from '../../core/text-rasterize.js';
-import { strokeSeen } from './seen.js';
 import { recordPixelBefore } from '../../core/history.js';
-import brushRaster from '../../config/brush-raster.json' with { type: 'json' };
-import { PixelOpacityAccumulator } from '../../logic/brush/PixelOpacityAccumulator.ts';
 
 // Tile Mode: координата заворачивается по модулю холста → рисование по любому из
 // 9 тайлов и заворот кисти через шов правят один исходный тайл.
@@ -31,11 +28,10 @@ export function setCell(x, y, c) {
   if (bounds) markDirty(S.cur, bounds);
 }
 
-export function createCellPainter(erase, dedupe = false) {
+export function createCellPainter(erase) {
   rasterizeActiveText();
   const layer = S.layers[S.cur], grid = G(), layerIndex = S.cur;
   const symmetry = symmetryConfig(), color = S.active.slice();
-  const pending = new PixelOpacityAccumulator(S.W, brushRaster.opacityAccumulatorTileSide);
   const base = new Map();
   const opaqueColor = [color[0], color[1], color[2], 255];
   const symmetric = symmetry.x || symmetry.y || symmetry.d1 || symmetry.d2;
@@ -52,17 +48,15 @@ export function createCellPainter(erase, dedupe = false) {
     if (x < minx) minx = x; if (x > maxx) maxx = x;
     if (y < miny) miny = y; if (y > maxy) maxy = y;
   };
-  const queue = (x, y, opacity) => pending.add(x, y, opacity);
   const paint = (x, y, opacity) => {
     if (layer.lock) return;
     if (S.tile && S.tile.on) { x = wrapC(x, S.W); y = wrapC(y, S.H); }
     if (x < 0 || y < 0 || x >= S.W || y >= S.H || !inSel(x, y)) return;
-    const o = Math.max(0, Math.min(1, opacity)), key = y * S.W + x;
+    const o = Math.max(0, Math.min(1, opacity));
     if (o <= 0) return;
-    if (dedupe && o < 1) { if (strokeSeen.has(key)) return; strokeSeen.add(key); }
-    if (!symmetric) { queue(x, y, o); return; }
+    if (!symmetric) { apply(x, y, o); return; }
     for (const [px, py] of mirrorPoints(x, y, S.W, S.H, false, false, symmetry))
-      if (inSel(px, py)) queue(px, py, o);
+      if (inSel(px, py)) apply(px, py, o);
   };
   const dirty = () => { if (maxx >= minx) {
     markDirty(layerIndex, { minx, miny, maxx, maxy });
@@ -73,19 +67,15 @@ export function createCellPainter(erase, dedupe = false) {
       grid[y][x] = cell ? cell.slice() : null;
       if (x < minx) minx = x; if (x > maxx) maxx = x;
       if (y < miny) miny = y; if (y > maxy) maxy = y; }
-    base.clear(); pending.clear(); dirty();
-  }, flush() {
-    if (pending.size) pending.visitDirty(apply);
-    dirty();
-  } };
+    base.clear(); dirty();
+  }, flush: dirty };
 }
 
-export function paintCellOpacity(x, y, erase, opacity, dedupe = false) {
-  const painter = createCellPainter(erase, dedupe);
+export function paintCellOpacity(x, y, erase, opacity) {
+  const painter = createCellPainter(erase);
   painter.paint(x, y, opacity); painter.flush();
 }
 
-export function paintCell(x, y, erase) { // legacy square/imported stamp
-  const brush = S.brushes[erase ? 'eraser' : 'pencil'];
-  paintCellOpacity(x, y, erase, brush.op, true);
+export function paintCell(x, y, erase, opacity = 1) {
+  paintCellOpacity(x, y, erase, opacity);
 }

@@ -27,7 +27,7 @@ describe('A4 sparse layer backing', () => {
     expect(source.ext.get('-1,1700')).toEqual([7, 8, 9, 200]);
   });
 
-  it('keeps brush-like hot indexed access inside the pointer budget', () => {
+  it('keeps hot indexed access inside one presentation frame', () => {
     const grid = newLayer('A4', W, H).grid, row = grid[1700];
     for (let x = 0; x < W; x++) row[x] = [x & 255, 2, 3, 255];
     let checksum = 0; const started = globalThis.performance.now();

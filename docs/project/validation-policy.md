@@ -25,7 +25,8 @@ import cycles и production build. `validate:changed` может выбират�
 набор, но не заменяет доказательство поведения.
 
 После R2 production entrypoint больше не создаёт legacy pixel DOM, поэтому
-`test/module-int.mjs` и `test/module-boot.mjs` остаются pre-cutover oracle, но не
-входят в зелёный gate. `npm run test:legacy` выполняет 128 чистых legacy unit
-tests и storage tests; новый runtime доказывают Vitest, `validate:raster-entry`
+`test/module-int.mjs` и `test/module-boot.mjs` относятся к удалённому
+pre-cutover brush shell и не входят в зелёный gate. `npm run test:legacy`
+выполняет чистые legacy unit tests и storage tests; новый runtime доказывают
+Vitest, `validate:raster-entry`
 и browser/packaged smoke.

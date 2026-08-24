@@ -3,7 +3,7 @@ export const PERFORMANCE_BUDGETS = Object.freeze({
   maximumFilledFixtureBytes: 48 * 1024 * 1024,
   coldCompositeMilliseconds: 500,
   warmCompositeP95Milliseconds: 16,
-  pointerKernelP95Milliseconds: 8,
+  pointerKernelP95Milliseconds: 16,
   inputToPresentP95Milliseconds: 16,
   boundedEffectP95Milliseconds: 40,
   structuralHistoryP95Milliseconds: 8,

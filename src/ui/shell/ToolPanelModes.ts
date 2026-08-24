@@ -1,5 +1,5 @@
 import {
-  BRUSH_MODES, CENTER_MODES, FLIP_MODES, ICONS, LINE_MODES, SHAPE_MODES,
+  CENTER_MODES, FLIP_MODES, ICONS, LINE_MODES, SHAPE_MODES,
   SYM_MODES, SYM_TOOLS, ZOOM_MODES
 } from "../../config/toolbar.ts";
 import { t } from "../../i18n/index.ts";
@@ -18,17 +18,12 @@ function setButtonIcon(button: HTMLElement | null, mode: IconMode): void {
 }
 
 export class ToolPanelModes {
-  brush = "normal";
   shape: ShapeChoice = { kind: "shape", tool: "rect", fill: false };
   symmetry: SymChoice = { kind: "flag", flag: "sym" };
   flip = "h";
   center = "center";
   zoom = "fit";
 
-  brushConfig(state: ToolPanelState): IconMode {
-    const mode = state.tool === "pencil" && state.shadingActive ? "shading" : this.brush;
-    return BRUSH_MODES.find((item) => item.mode === mode) ?? BRUSH_MODES[0];
-  }
   shapeConfig(): IconMode {
     const shape = this.shape;
     if (shape.kind === "line") {
@@ -63,7 +58,7 @@ export class ToolPanelModes {
   }
 
   sync(state: ToolPanelState): void {
-    setButtonIcon(element("t-pencil"), this.brushConfig(state));
+    setButtonIcon(element("t-pencil"), { icon: "pencil", key: "tool.pencil" });
     setButtonIcon(element("t-shape"), this.shapeConfig());
     setButtonIcon(element("sym"), this.symmetryConfig());
     setButtonIcon(element("flip-h"), this.flipConfig());
@@ -74,8 +69,6 @@ export class ToolPanelModes {
   }
 
   private syncChoices(state: ToolPanelState): void {
-    element("brush-choice")?.querySelectorAll<HTMLElement>("button").forEach((button) =>
-      button.classList.toggle("on", button.dataset.brushMode === this.brush));
     element("shape-choice")?.querySelectorAll<HTMLElement>("button").forEach((button) => {
       if (button.dataset.lineMode) button.classList.toggle("on",
         this.shape.kind === "line" && button.dataset.lineMode === this.shape.mode);

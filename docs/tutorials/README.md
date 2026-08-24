@@ -11,3 +11,5 @@
   совпадения штриха `.brush` с Procreate на эталоне `lineart.brush`.
 - [`psd-document-import/`](psd-document-import/README.md) — исполняемый
   вертикальный план открытия PSD новым документом с сохранением структуры.
+- [`asset-editor-cutover/`](asset-editor-cutover/README.md) — удаление brush
+  subsystem, простой ластик и постоянное отражение документа.

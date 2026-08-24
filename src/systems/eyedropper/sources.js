@@ -4,18 +4,28 @@
 // Возврат: [r,g,b] — цвет; null — над источником, но прозрачно/нет цвета;
 // undefined — курсор не над этим источником.
 import { S } from '../../core/state.js';
+import * as bus from '../../core/bus.ts';
 import { $ } from '../../ui/dom/ShellDom.ts';
 import { gridAt } from '../../core/viewport.js';
 import { compositeAt } from '../../core/layer-cache.js';
 
 const inRect = (el, x, y) => { const r = el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; };
+let composite = null;
+bus.on('composite-ready', ({ canvas, width, height }) => { composite = { canvas, width, height }; });
+
+function compositeColor(x, y) {
+  if (!composite || x < 0 || y < 0 || x >= composite.width || y >= composite.height) return null;
+  const pixel = composite.canvas.getContext('2d', { willReadFrequently: true })
+    .getImageData(x, y, 1, 1).data;
+  return pixel[3] ? [pixel[0], pixel[1], pixel[2]] : null;
+}
 
 // холст: итоговый видимый цвет (слои+порядок+прозрачность+эффекты+zoom/pan)
 function fromCanvas(x, y) { const cv = $('cv'); if (!inRect(cv, x, y)) return undefined;
   let [gx, gy] = gridAt(x, y);
   if (S.tile && S.tile.on) { gx = ((gx % S.W) + S.W) % S.W; gy = ((gy % S.H) + S.H) % S.H; } // Tile Mode: пипетка по любому тайлу
   if (gx < 0 || gy < 0 || gx >= S.W || gy >= S.H) return undefined;
-  return compositeAt(gx, gy) || null; }
+  return compositeColor(gx, gy) || compositeAt(gx, gy) || null; }
 
 // референс: читаем реально отрисованные пиксели #refcv — zoom/pan/поворот учтены сами
 function fromReference(x, y) { const win = $('refwin'); if (!win || !win.classList.contains('on')) return undefined;

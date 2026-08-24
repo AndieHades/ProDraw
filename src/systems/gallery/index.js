@@ -7,6 +7,7 @@ import { imageData, looksPixelArt } from '../../core/image.js';
 import { newWorkFromImage, beginConvertedWork, saveCurrent,
   autosave, autosaveInputStarted, beginPsdImport, completePsdImport } from './doc.js';
 import { configure, render, goBack, setSelecting, isSelecting, stackSelected, dupSelected, delSelected } from './screen.js';
+import { openDesktopFile, PSD_FILTERS } from '../import/desktop-file.js';
 
 let galleryChange = 0, readyTask = Promise.resolve(true), mounted = false;
 function setGalleryOpen(on) {
@@ -38,8 +39,11 @@ function fromFile(f) { const im = new Image(), url = URL.createObjectURL(f);
     if (looksPixelArt(im)) { const d = imageData(im, im.naturalWidth, im.naturalHeight, false); hide(); newWorkFromImage(d.width, d.height, d.data, f.name.replace(/\.\w+$/, '')); }
     else { beginConvertedWork(); actions.run('import.openFile', f); } }; im.src = url; } // конвертер поверх галереи; уйдём по «Применить»
 function photo() { pick('image/*', fromFile); } // не-пиксельная графика уходит в конвертер автоматически (fromFile)
-export const importPsdSelection = (file) => actions.run('import.psdFile', file);
-function importPsd() { pick('.psd,.psb,image/vnd.adobe.photoshop', importPsdSelection); }
+export const importPsdSelection = (file, location = null) => actions.run('import.psdFile', file, location);
+function importPsd() { void openDesktopFile(PSD_FILTERS).then((opened) => {
+  if (opened !== undefined) return opened && importPsdSelection(opened.file, opened.location);
+  pick('.psd,.psb,image/vnd.adobe.photoshop', importPsdSelection);
+}); }
 
 export async function mount() {
   if (mounted) return whenReady(); mounted = true;
@@ -52,8 +56,8 @@ export async function mount() {
   actions.register('gallery.hide', hide); // конвертер/импорт после «Применить» уводят с галереи в редактор
   actions.register('gallery.importDrop', fromFile); // drop картинки в галерею → новый проект (через Pixelize)
   actions.register('gallery.beginPsdImport', beginPsdImport);
-  actions.register('gallery.completePsdImport', async (token, document, name) => {
-    const result = await completePsdImport(token, document, name);
+  actions.register('gallery.completePsdImport', async (token, document, name, sourceLocation) => {
+    const result = await completePsdImport(token, document, name, sourceLocation);
     if (result.status === 'opened') { hide(); toast(result.warningCount
       ? t('toast.psdCompatibility') : t('toast.psdImported', { n: result.layerCount })); }
     return result.status;

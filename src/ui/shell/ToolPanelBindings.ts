@@ -1,10 +1,8 @@
-import { longPress } from "../gestures/ContextGesture.ts";
 import { showMenuForAnchor } from "../dom/AnchoredMenuPresenter.ts";
 
 export interface ToolPanelCallbacks {
   readonly adjust: () => void;
-  readonly brush: (tool: "eraser" | "pencil" | "smudge") => void;
-  readonly brushLibrary: (tool: "eraser" | "pencil") => void;
+  readonly brush: (tool: "eraser" | "pencil") => void;
   readonly center: () => void;
   readonly fill: () => void;
   readonly flip: () => void;
@@ -34,9 +32,6 @@ function bindChoiceMenu(buttonId: string, menuId: string, beforeOpen: () => void
 export function bindToolPanelButtons(callbacks: ToolPanelCallbacks): void {
   element<HTMLButtonElement>("t-pencil").onclick = () => callbacks.brush("pencil");
   element<HTMLButtonElement>("t-eraser").onclick = () => callbacks.brush("eraser");
-  element<HTMLButtonElement>("t-smudge").onclick = () => callbacks.brush("smudge");
-  longPress(element("t-pencil"), () => callbacks.brushLibrary("pencil"));
-  longPress(element("t-eraser"), () => callbacks.brushLibrary("eraser"));
   element<HTMLButtonElement>("t-shape").onclick = callbacks.shape;
   bindChoiceMenu("t-shape", "shape-choice", callbacks.showModes);
   element<HTMLButtonElement>("t-move").onclick = callbacks.move;

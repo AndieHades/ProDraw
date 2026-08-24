@@ -10,7 +10,7 @@ const MIGRATIONS: Readonly<Record<string, string | null>> = {
 const ALLOWED: Readonly<Record<PanelId, ReadonlySet<string>>> = {
   "tb-left": new Set(["docsbtn", "imp-btn", "export-btn", "prev", "refbtn"]),
   "tb-right": new Set(["layers", "activewrap"]),
-  sidebar: new Set(["t-pencil", "t-eraser", "t-smudge", "t-fill", "t-move",
+  sidebar: new Set(["t-pencil", "t-eraser", "t-fill", "t-move",
     "crop", "t-select", "t-lasso", "flip-h", "sym", "t-shape", "t-adjust",
     "tile-btn", "center", "t-text", "zoom"])
 };

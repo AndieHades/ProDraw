@@ -6,7 +6,7 @@ import { bindToolPanelButtons } from "./ToolPanelBindings.ts";
 import { ToolPanelModes } from "./ToolPanelModes.ts";
 import type { ShapeChoice, SymmetryFlag, ToolPanelPort } from "./ToolPanelTypes.ts";
 
-const TOOL_IDS = ["pencil", "eraser", "smudge", "fill", "select", "lasso", "move", "adjust"];
+const TOOL_IDS = ["pencil", "eraser", "fill", "select", "lasso", "move", "adjust"];
 const element = <T extends HTMLElement>(id: string): T => {
   const found = document.getElementById(id);
   if (!found) throw new Error(`Missing tool-panel element: ${id}`);
@@ -26,7 +26,6 @@ export class ToolPanelPresenter {
 
   mount(): void {
     buildToolChoices({
-      brush: (mode) => this.activateBrush(mode, true),
       shape: (mode) => this.activateShape(mode),
       symmetryFlag: (flag) => { this.#modes.symmetry = { kind: "flag", flag };
         this.toggleSymmetry(flag); },
@@ -38,11 +37,10 @@ export class ToolPanelPresenter {
     this.#port.replaceAction("tool.pencil", () => this.brushClick("pencil"));
     bindToolPanelButtons({
       brush: (tool) => tool === "pencil" ? void this.#port.run("tool.pencil") : this.brushClick(tool),
-      brushLibrary: (tool) => { this.#port.run("ui.brushLibrary", tool); },
-      shape: () => this.shapeToolActive() ? this.activateBrush("normal") :
+      shape: () => this.shapeToolActive() ? this.activateBrush() :
         this.activateShape(this.#modes.shape),
       move: () => { if (this.#port.state().rotationActive) {
-        this.#port.run("transform.apply"); this.activateBrush("normal");
+        this.#port.run("transform.apply"); this.activateBrush();
       } else this.#port.run("transform.enter"); },
       select: () => { const state = this.#port.state();
         if (state.tool === "select" || state.selectionActive) this.clearSelection();
@@ -50,9 +48,9 @@ export class ToolPanelPresenter {
       lasso: () => this.#port.state().tool === "lasso" ?
         this.clearSelection() : this.#port.setTool("lasso"),
       fill: () => this.#port.state().tool === "fill" ?
-        this.activateBrush("normal") : void this.#port.run("tool.fill"),
+        this.activateBrush() : void this.#port.run("tool.fill"),
       adjust: () => this.#port.state().tool === "adjust" ?
-        this.activateBrush("normal") : this.#port.setTool("adjust"),
+        this.activateBrush() : this.#port.setTool("adjust"),
       symmetry: () => this.activateLastSymmetry(),
       flip: () => { this.#port.run(this.#modes.flipConfig().action); },
       imageSettings: () => { this.#port.run("effect.bc", null, null,
@@ -61,24 +59,13 @@ export class ToolPanelPresenter {
       zoom: () => { this.#port.run(this.#modes.zoomConfig().action); },
       showModes: () => this.syncModes()
     });
-    for (const event of ["tool", "selection", "shading"] as const) {
+    for (const event of ["tool", "selection"] as const) {
       this.#port.subscribe(event, () => this.syncTools());
     }
     this.syncTools();
   }
 
-  private activateBrush(mode = this.#modes.brush, configure = false): void {
-    this.#modes.brush = mode; this.#port.setTool("pencil");
-    if (mode === "shading") {
-      if (configure) {
-        this.#port.run("shading.open");
-        if (this.#port.state().shadingColorCount < 2) this.#port.run("shading.pickColors");
-      } else if (!this.#port.run("shading.enable")) {
-        this.#modes.brush = "normal"; this.#port.run("shading.disable");
-      }
-    } else this.#port.run("shading.disable");
-    this.syncModes();
-  }
+  private activateBrush(): void { this.#port.setTool("pencil"); this.syncModes(); }
 
   private activateShape(mode: ShapeChoice): void {
     this.#modes.shape = { ...mode };
@@ -120,13 +107,13 @@ export class ToolPanelPresenter {
     const current = this.#port.state().tool;
     if (tool === "pencil") {
       this.activateBrush(); if (current === "pencil") this.#port.run("ui.brushLibrary", "pencil");
-    } else if (current === tool) this.activateBrush("normal");
-    else { this.#port.run("shading.disable"); this.#port.setTool(tool); }
+    } else if (current === tool) this.activateBrush();
+    else this.#port.setTool(tool);
   }
 
   private clearSelection(): void {
     if (this.#port.state().selectionActive) this.#port.run("select.none");
-    this.activateBrush("normal");
+    this.activateBrush();
   }
   private shapeToolActive(): boolean { return ["line", "rect", "ellipse"].includes(this.#port.state().tool); }
   private syncModes(): void { this.#modes.sync(this.#port.state()); }

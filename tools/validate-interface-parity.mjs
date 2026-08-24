@@ -12,7 +12,7 @@ const errors = [];
 
 const requiredIds = [
   "cv", "topbar", "sidebar", "sb-grip", "sb-rsz", "brushbar",
-  "brush-pop", "brush-head", "brush-list", "brush-rsz", "brush-menu",
+  "brush-pop", "brush-list",
   "bp-size-sl", "bp-op-sl", "palbar", "palgrip", "pal", "palrsz",
   "lay-pop", "lay-head", "lay-list", "lay-rsz", "col-disc",
   "gallery", "gal-top", "gal-grid", "refwin", "refgrip", "refcv", "refrsz"
@@ -22,7 +22,7 @@ const requiredStyleParts = [
   "topbar.css", "sidebar.css", "palette-window.css", "layers-panel.css",
   "brushbar-eyedropper.css", "gallery.css", "shading-reference.css"
 ];
-const expectedSidebarOrder = ["t-pencil", "t-eraser", "t-smudge", "t-fill",
+const expectedSidebarOrder = ["t-pencil", "t-eraser", "t-fill",
   "t-move", "crop", "t-select", "t-lasso", "flip-h", "sym", "t-shape",
   "t-adjust", "tile-btn", "center", "t-text", "zoom"];
 
@@ -68,19 +68,13 @@ if (JSON.stringify(sidebarOrder) !== JSON.stringify(expectedSidebarOrder)) {
 for (const retired of ["pp", "stab"]) {
   if (sidebar.includes(`id="${retired}"`)) errors.push(`#${retired} is retired from sidebar`);
 }
-if (!panels.includes("panelOrderV2") || !panels.includes('"t-smudge"') ||
-    !panels.includes('"t-text"')) {
-  errors.push("movable two-column sidebar must persist Smudge and Text order");
+if (!panels.includes("panelOrderV2") || !panels.includes('"t-text"')) {
+  errors.push("movable two-column sidebar must persist Text order");
 }
 for (const owner of ["layersUI", "gallery", "reference"]) {
   if (!app.includes(owner)) errors.push(`original runtime owner is missing: ${owner}`);
 }
-const brushActions = [...html.matchAll(/data-act="(edit|duplicate|delete)"/g)]
-  .map((match) => match[1]);
-if (!brushActions.includes("edit") || !brushActions.includes("duplicate") ||
-    !brushActions.includes("delete")) {
-  errors.push("compact brush menu must expose Edit, Duplicate and Delete");
-}
+if (!html.includes('id="brush-list"')) errors.push("simple brush library is missing");
 if (html.includes('id="brush-library-dialog"') || html.includes('id="brush-settings"')) {
   errors.push("replacement brush library and retired settings panel must stay absent");
 }

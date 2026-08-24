@@ -52,10 +52,10 @@ async function exportSeparate(root, fmt, opts, saveOutput, renderNodes) {
 }
 
 export async function runExport(opts, saveOutput = saveOne,
-  renderNodes = flattenNodes) {
+  renderNodes = flattenNodes, formats = FORMATS) {
   const doc = buildExportDoc(opts.scope, opts.includeHidden);
   if (!doc.root.length) { toast(t('toast.exportEmpty')); return; }
-  const fmt = FORMATS[opts.format], base = docName();
+  const fmt = formats[opts.format], base = docName();
   let results = [];
   if (opts.mode === 'layered' && fmt.encodeLayered) {
     const output = await fmt.encodeLayered(doc, base);

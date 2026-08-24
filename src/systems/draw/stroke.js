@@ -9,7 +9,6 @@ import { beginPixelBatch, beginPixelPatch, cancelPixelPatch, commitPixelPatch,
 import { swapRasterReferenceEntry } from '../../core/history/rasterReferencePatch.js';
 import { markDirty } from '../../core/layer-cache.js';
 import { isTextLayer } from '../../logic/text-model.js';
-import { resetPP } from './pixel-perfect.js';
 import { resetScatter } from './brush.js';
 
 let referenceStroke = null;
@@ -30,7 +29,7 @@ export function beginStroke(lightweight = false, bulk = false) { bus.emit('strok
   referenceStroke = null;
   const started = lightweight && (bulk ? beginPixelBatch([S.cur]) : beginPixelPatch());
   if (!started && !beginTextReference()) snapshot();
-  S.stroke = true; resetPP(); resetScatter(); }
+  S.stroke = true; resetScatter(); }
 export function cancelStroke() { if (!S.stroke) return;
   const patched = pixelPatchActive();
   if (patched) { const changed = cancelPixelPatch(); S.stroke = false;

@@ -7,7 +7,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $ } from '../../ui/dom/ShellDom.ts';
+import { $, copyText } from '../../ui/dom/ShellDom.ts';
 import { setTool } from '../../core/tools.js';
 import { rgb, rgbToHex } from '../../logic/color.js';
 import { eventKey } from '../../logic/key-code.ts';
@@ -63,7 +63,12 @@ function onUp(e) { clearHold(); if (!picking) return; picking = false;
   if (e.button === 2) swallowClick = false;                                  // ПКМ не даёт обычный click — не глотаем следующий UI-клик
   if (via === 'btn') btnPicked = true;                                       // цвет взят во время удержания bb-pick — не считаем это коротким кликом
   const picked = !!found;
-  if (picked) { actions.run('color.setActive', found); if (addOnPick) actions.run('palette.addRgb', found); setTool('pencil'); } // прозрачный пиксель (null) активный цвет/инструмент не меняет
+  if (picked) {
+    actions.run('color.setActive', found);
+    void copyText(rgbToHex(found).toUpperCase());
+    if (addOnPick) actions.run('palette.addRgb', found);
+    setTool('pencil');
+  } // прозрачный пиксель (null) активный цвет/инструмент не меняет
   addOnPick = false;
   if (picked && pickVia !== 'alt') setArmed(false);
   else if (pickVia === 'touch') setArmed(false);

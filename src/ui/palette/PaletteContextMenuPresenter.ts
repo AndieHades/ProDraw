@@ -12,7 +12,6 @@ export interface PaletteContextPort {
   readonly replace: (colors: readonly Rgb[]) => void;
   readonly select: (colors: readonly Rgb[]) => void;
   readonly selection: () => PaletteContextSelection;
-  readonly shade: (colors: readonly Rgb[]) => void;
 }
 
 const colorHex = (color: Rgb): string => `#${color.map((value) =>
@@ -33,8 +32,7 @@ export function mountPaletteContextMenu(port: PaletteContextPort): void {
     if (action === "copy") {
       const text = colors.map(colorHex).join("\n");
       void copyText(text).then(() => toast(t("toast.copied", { s: text })));
-    } else if (action === "shade") port.shade(colors);
-    else if (action === "delete") port.delete(indices);
+    } else if (action === "delete") port.delete(indices);
     else if (action === "select") port.select(colors);
     else if (action === "replace") port.replace(colors);
   });

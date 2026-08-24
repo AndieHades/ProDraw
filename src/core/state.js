@@ -2,22 +2,19 @@
 // Системы общаются с ним только через этот модуль — прямых связей между
 // системами нет. Поля менять как S.W = …, не реэкспортируя биндинги.
 // Настраиваемые значения берутся из src/config (а не зашиты тут).
-import { MAX_LAYERS, MAX_SIZE, BP_SMAX } from '../config/limits.ts';
+import { MAX_LAYERS, MAX_SIZE } from '../config/limits.ts';
 import { DEFAULT_DOC } from '../config/presets.js';
 import { defaultPalette, DEFAULT_ACTIVE } from '../config/palette.js';
-import { BRUSH_DEFAULTS, FLAGS_DEFAULT, ADJUST_DEFAULT, EFFECT_DEFAULTS } from '../config/defaults.ts';
+import { PENCIL_DEFAULT_SIZE, ERASER_DEFAULT_SIZE, ADJUST_DEFAULT, EFFECT_DEFAULTS } from '../config/defaults.ts';
 import { LASSO_DEFAULT } from '../config/lasso.ts';
-import { BRUSH_RESIZE } from '../config/brush-resize.ts';
 import { EYEDROPPER } from '../config/eyedropper.ts';
-import { CURSOR } from '../config/cursor.ts';
 import { DEFAULT_CANVAS_BACKGROUND } from '../config/canvas-background.ts';
-import { loadBrushPrefs } from './brush-prefs.js';
 import { loadActiveColor } from './color-prefs.ts';
 import { cloneGrid, blank } from '../logic/raster.js';
 import { cloneTextSource } from '../logic/text-model.js';
 import { defaultReferenceBoard } from './reference-board.js';
 import { t } from '../i18n/index.ts';
-export { MAX_LAYERS, MAX_SIZE, BP_SMAX };
+export { MAX_LAYERS, MAX_SIZE };
 
 export { blank };
 
@@ -53,7 +50,6 @@ export const cloneFx = (list) => (list || []).map((e) => ({ id: ++fxSeq, type: e
 
 const pal0 = defaultPalette();
 const active0 = loadActiveColor(pal0[DEFAULT_ACTIVE]);
-const brushPrefs = loadBrushPrefs(BRUSH_DEFAULTS(), FLAGS_DEFAULT);
 // единый контейнер изменяемого состояния
 export const S = {
   W: DEFAULT_DOC.w, H: DEFAULT_DOC.h, dpi: 72, layerSeq: 1, docName: '',
@@ -73,23 +69,22 @@ export const S = {
   tile: { on: false }, // Tile Mode: бесшовный 3×3-повтор холста с заворотом рисования (как в Aseprite)
   lineMode: 'line', shapeTool: 'rect',
   fillShape: { rect: false, ellipse: false }, // режимы общей кнопки фигур: контур/заливка
-  brushes: brushPrefs.brushes, stampBrush: { pencil: null, eraser: null }, // активная кисть-штамп по инструменту (null = квадрат)
-  ppOn: false, stabOn: false, stroke: false,
+  pencilSize: PENCIL_DEFAULT_SIZE, eraserSize: ERASER_DEFAULT_SIZE,
+  brushOpacity: { pencil: 1, eraser: 1 },
+  brushShape: { pencil: 'round', eraser: 'round' }, stroke: false,
   adjMode: ADJUST_DEFAULT.mode, adjAmt: ADJUST_DEFAULT.amount,
   sel: null, selMask: null, selFloat: null,
   lassoMode: LASSO_DEFAULT.mode, lassoOp: LASSO_DEFAULT.op, lassoPath: null,
-  cursorMode: CURSOR.mode, // прозрачный контур реального отпечатка
-  brushResize: { ...BRUSH_RESIZE, capturing: false }, // жест Brush Size Modifier (настройки + захват клавиши)
   eyedrop: { ...EYEDROPPER, capturing: false }, // Eyedropper System (Hot Key + захват клавиши)
   referenceBoard: defaultReferenceBoard(),
-  psdWarnings: [], sourceFormat: null,
+  psdWarnings: [], sourceFormat: null, sourceLocation: null,
   view: { zoom: 12, ox: 0, oy: 0 },
   undoStack: [], redoStack: [],
   // общая интерактивная/превью-стейт, которую читает рендер и пишут системы
   // (system-private мелочь вроде ppPath/strokeSeen живёт внутри своих систем)
   qsShape: null, // QuickShape: распознанная ровная форма для превью/коммита
   cropMode: null, rotMode: null, rotPrev: null, rotQuad: null, moveDrag: null,
-  hoverPx: null, hoverInput: { pressure: 1, tiltX: 0, tiltY: 0, pointerType: 'mouse' },
+  hoverPx: null,
   lineStart: null, linePrev: null, linePath: null,
   replaceMode: null,
 };

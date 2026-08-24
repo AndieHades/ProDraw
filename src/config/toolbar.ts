@@ -4,7 +4,6 @@
 // на i18n, `action` — на core/actions.
 export const ICONS = {
   pencil: '<svg viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.6L16.6 4.7a2.05 2.05 0 0 1 2.9 2.9L8.3 18.8l-3.8.7z"/><path d="M14.7 6.6l2.9 2.9"/></svg>',
-  shading: '<svg viewBox="0 0 24 24"><path d="M5 17.5c2.2-6.8 7.5-11.2 14-12"/><path d="M5 17.5h14"/><path d="M8 14.5h3.2M11 11.5h3.2M14 8.5h3.2"/></svg>',
   line: '<svg viewBox="0 0 24 24"><path d="M6 18 18 6"/></svg>',
   contour: '<svg viewBox="0 0 24 24"><path d="M5 15c1.3-6.5 8.6-10.2 12.6-5.4 3.7 4.4-1.4 9.5-7.2 8.6-2.7-.4-4.6-1.5-5.4-3.2z"/></svg>',
   rect: '<svg viewBox="0 0 24 24"><rect x="4.5" y="6.5" width="15" height="11" rx="1.5"/></svg>',
@@ -34,10 +33,6 @@ export const ICONS = {
   adjMono: '<svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M12 5v14" stroke-dasharray="2 2"/><path d="M12 5h4a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-4z" fill="currentColor" stroke="none"/></svg>',
 } as const;
 
-export const BRUSH_MODES = [
-  { mode: 'normal', icon: 'pencil', key: 'tool.pencil' },
-  { mode: 'shading', icon: 'shading', key: 'tool.brushShading' },
-] as const;
 export const LINE_MODES = [
   { mode: 'line', icon: 'line', key: 'tool.lineStraight' },
   { mode: 'contour', icon: 'contour', key: 'tool.lineContour' },

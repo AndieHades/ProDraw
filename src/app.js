@@ -5,8 +5,8 @@ import { detect, applyDom } from './i18n/index.ts';
 import { applyTheme } from './styles/theme.ts';
 import { refreshColors } from './styles/canvas-colors.ts';
 import * as palette from './systems/palette.js';
-import * as brushBar from './systems/brush-bar.js';
-import * as brushResize from './systems/brush-resize.js';
+import * as eraserBar from './systems/eraser-bar.js';
+import * as simpleBrushLibrary from './systems/simple-brush-library.js';
 import * as colorPicker from './systems/color-picker.js';
 import * as colorPreferences from './systems/color-preferences.js';
 import * as toolbars from './systems/toolbars.js';
@@ -18,8 +18,8 @@ import * as fontLibrary from './systems/font-library/index.js';
 import * as importSys from './systems/import/index.js';
 import * as importEditor from './systems/import/editor.js';
 import * as exportSys from './systems/export/index.js';
+import * as documentSave from './systems/document-save.js';
 import * as palManager from './systems/palette-manager.js';
-import * as shading from './systems/shading.js';
 import * as tintShade from './systems/tint-shade/index.js';
 import * as preview from './systems/preview-window.js';
 import * as reference from './systems/reference-window.js';
@@ -58,7 +58,7 @@ import './systems/free-rotate.js';
 import { mount as mountKeyboard } from './systems/keyboard/index.js';
 import * as xMirror from './systems/x-mirror.js';
 
-const MOUNTS = [colorPreferences, palette, brushBar, brushResize, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, palManager, shading, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, toolpops, xMirror, tile, textTool];
+const MOUNTS = [colorPreferences, palette, eraserBar, simpleBrushLibrary, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, documentSave, palManager, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, toolpops, xMirror, tile, textTool];
 
 export function start() {
   detect(); applyTheme(); refreshColors();

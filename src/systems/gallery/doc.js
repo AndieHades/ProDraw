@@ -68,7 +68,7 @@ function applyRec(rec) { retireTilemapRecord(rec);
   S.referenceBoard = normalizeReferenceBoard(rec.referenceBoard);
   S.animator = rec.animator ? cloneAnimator(rec.animator) : null;
   S.docName = rec.name; S.colorMode = rec.colorMode || 'rgba';
-  S.psdWarnings = (rec.psdWarnings || []).slice(); S.sourceFormat = rec.sourceFormat || null;
+  S.psdWarnings = (rec.psdWarnings || []).slice(); S.sourceFormat = rec.sourceFormat || null; S.sourceLocation = rec.sourceLocation || null;
   S.cur = 0; S.marked.clear(); S.undoStack.length = 0; S.redoStack.length = 0;
   S.sel = S.selMask = S.selFloat = S.cropMode = S.rotMode = S.fxDraft = null;
   if (S.animator) loadFrame(S.animator.liveFrameId || S.animator.timelines[0].selectedFrameId, { emit: false });
@@ -83,7 +83,7 @@ function blankWork(w, h, name, colorMode = 'rgba') { nextWorkChange(); curId = u
   S.referenceBoard = defaultReferenceBoard(); bus.emit('reference');
   S.bg = { color: null, visible: true }; S.bgSel = false;
   S.animator = null;
-  S.psdWarnings = []; S.sourceFormat = null;
+  S.psdWarnings = []; S.sourceFormat = null; S.sourceLocation = null;
   S.undoStack.length = 0; S.redoStack.length = 0; S.sel = S.selMask = S.selFloat = S.cropMode = S.rotMode = S.fxDraft = null; }
 
 function activateNewWork(w, h, name, bg, colorMode) { blankWork(w, h, name, colorMode);
@@ -119,16 +119,17 @@ export function newWorkFromLayers(w, h, layers, name) { blankWork(w, h, name);
   dirtyAll(); bus.emit('palette'); bus.emit('layers'); bus.emit('fit'); saveCurrent(); }
 
 // заготовка нового документа под результат конвертера (applyImport заполнит S)
-export function beginConvertedWork() { nextWorkChange(); curId = uid('d'); curFolder = null; S.docName = t('gallery.untitled'); }
+export function beginConvertedWork() { nextWorkChange(); curId = uid('d'); curFolder = null;
+  S.docName = t('gallery.untitled'); S.sourceFormat = null; S.sourceLocation = null; }
 
 export const beginPsdImport = () => nextWorkChange();
-export async function completePsdImport(token, document, name) {
+export async function completePsdImport(token, document, name, sourceLocation = null) {
   if (token !== workChange) return { status: 'superseded', layerCount: 0, warningCount: 0 };
   if (!await saveCurrent() || token !== workChange) {
     return { status: token === workChange ? 'failed' : 'superseded',
       layerCount: 0, warningCount: 0 };
   }
-  const id = uid('d'), record = buildPsdGalleryRecord(id, name, document);
+  const id = uid('d'), record = buildPsdGalleryRecord(id, name, document, sourceLocation);
   try { await saveDoc(record); } catch (error) {
     return { status: 'failed', layerCount: 0, warningCount: 0 };
   }

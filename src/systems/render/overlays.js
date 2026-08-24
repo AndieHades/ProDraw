@@ -67,7 +67,7 @@ export function drawOverlays(ctx, ox, oy, z) {
   const W = S.W, H = S.H;
   drawSymmetryGuides(ctx, ox, oy, z);
   if (S.linePrev || S.qsShape) { ctx.globalAlpha = .6; ctx.fillStyle = rgb(S.active);
-    const s = S.brushes.pencil.size, off = s >> 1, sym = symmetryConfig();
+    const s = S.pencilSize, off = s >> 1, sym = symmetryConfig();
     const paint = (px2, py2) => { for (let dy2 = 0; dy2 < s; dy2++) for (let dx2 = 0; dx2 < s; dx2++) {
       const xx = px2 - off + dx2, yy = py2 - off + dy2;
       for (const [mx, my] of mirrorPoints(xx, yy, W, H, false, false, sym)) ctx.fillRect(ox + mx * z, oy + my * z, z, z); } };

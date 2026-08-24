@@ -12,14 +12,13 @@ export const DEFAULT_KEYMAP = {
   // холст и слой
   h: 'layer.flipH', v: 'layer.flipV', r: 'canvas.rotate', c: 'canvas.crop', n: 'doc.new',
   // вид
-  '=': 'zoom.in', '-': 'zoom.out', 0: 'view.fit', '[': 'brush.smaller', ']': 'brush.bigger',
+  '=': 'zoom.in', '-': 'zoom.out', 0: 'view.fit', '[': 'draw.smaller', ']': 'draw.bigger',
   // правка
   delete: 'edit.delete', backspace: 'edit.delete',
   'mod+z': 'edit.undo', 'mod+shift+z': 'edit.redo', 'mod+y': 'edit.redo',
   'mod+c': 'edit.copy', 'mod+x': 'edit.cut', 'mod+v': 'edit.paste', 'mod+d': 'select.none',
   // слои и трансформация
   'mod+e': 'layer.merge', 'mod+g': 'layer.group', 'mod+a': 'selection.layer', 'mod+n': 'layer.add', 'mod+t': 'transform.enter',
-  'mod+b': 'brush.fromSelection',
   // файл
-  'mod+o': 'file.import', 'mod+s': 'file.exportPng', 'mod+shift+s': 'file.exportPsd',
+  'mod+o': 'file.import', 'mod+s': 'file.save', 'mod+shift+s': 'file.exportPsd',
 };

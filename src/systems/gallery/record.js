@@ -31,5 +31,6 @@ export async function buildGalleryRecord(id, folder, isCurrent) {
     folders: cloneFolders(S.folders), palette: S.palette.map((color) => color.slice()),
     active: S.active.slice(), colorMode: S.colorMode || 'rgba', preview,
     psdWarnings: (S.psdWarnings || []).slice(), sourceFormat: S.sourceFormat || null,
+    sourceLocation: S.sourceLocation || null,
     order: now, updated: now };
 }
