@@ -7,6 +7,7 @@ import { $, showMenuAt, t } from '../../ui/dom/ShellDom.ts';
 import { effVis } from '../../core/layers.js';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { layList } from './list.js';
+import { switchLayerDuringTransform } from './transform-target.js';
 import { activeOpacityRef } from './helpers.js';
 import { mountActionBars } from './actions-bar.js';
 import { mountPinch } from './pinch.js';
@@ -66,7 +67,7 @@ function openLayerMenu(px, py) { const m = $('cctx'); m.innerHTML = '';
   const head = document.createElement('div'); head.className = 'cctx-head'; head.textContent = t('menu.pickLayer'); m.appendChild(head);
   for (let i = S.layers.length - 1; i >= 0; i--) { const b = document.createElement('button'); b.textContent = S.layers[i].name;
     if (i === S.cur) b.classList.add('cur'); if (!effVis(i)) b.classList.add('dim');
-    b.addEventListener('click', ((idx) => () => { S.cur = idx; layList(); m.classList.remove('on'); })(i)); m.appendChild(b); }
+    b.addEventListener('click', ((idx) => () => { switchLayerDuringTransform(() => { S.cur = idx; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null; S.fxSel.clear(); S.fxCur = null; S.bgSel = false; layList(); }); m.classList.remove('on'); })(i)); m.appendChild(b); }
   showMenuAt(m, px, py); }
 
 function expandLayersWindow() {

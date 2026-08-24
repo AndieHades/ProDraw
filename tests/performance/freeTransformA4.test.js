@@ -7,6 +7,7 @@ import { dirtyAll, layerContentBounds, markDirty } from '../../src/core/layer-ca
 import { blank, S } from '../../src/core/state.js';
 import { SelectionMask } from '../../src/logic/selection-mask.js';
 import { enterRotMode, exitRotMode } from '../../src/systems/transform/index.js';
+import { switchLayerDuringTransform } from '../../src/systems/layers/transform-target.js';
 
 const W = 2480, H = 3508;
 const CONTENT = { minx: 1200, miny: 1700, maxx: 1215, maxy: 1715 };
@@ -43,10 +44,10 @@ function reset() {
   dirtyAll({ preserveGridBounds: true });
 }
 
-function paintBlock(layer) {
+function paintBlock(layer, index = 0) {
   for (let y = CONTENT.miny; y <= CONTENT.maxy; y++)
     for (let x = CONTENT.minx; x <= CONTENT.maxx; x++) layer.grid[y][x] = [x & 255, y & 255, 9, 255];
-  markDirty(0, CONTENT);
+  markDirty(index, CONTENT);
 }
 
 function observeCells(grid) {
@@ -125,5 +126,18 @@ describe('A4 Free Transform stays content-bounded', () => {
     expect(layer.grid[1700][1]).toEqual([4, 5, 6, 255]);
     doUndo(); expect(layer.grid).toBe(beforeGrid); expect(layer.ext).toBe(beforeExt);
     doRedo(); expect(layer.grid).toBe(afterGrid); expect(layer.ext).toBe(afterExt);
+  });
+
+  it('applies the previous transform and frames the newly active layer', () => {
+    const base = S.layers[0], detail = sparseLayer(); S.layers.push(detail);
+    paintBlock(base); detail.grid[1700][1300] = [7, 8, 9, 255];
+    markDirty(1, { minx: 1300, miny: 1700, maxx: 1300, maxy: 1700 });
+    enterRotMode(base); S.rotMode.tx = 2; S.rotMode.changed = true;
+    switchLayerDuringTransform(() => { S.cur = 1; S.marked.clear(); S.markedFolders.clear();
+      S.selFolder = null; S.fxCur = null; S.bgSel = false; });
+    expect(base.grid[CONTENT.miny][CONTENT.minx + 2]).toEqual([CONTENT.minx & 255,
+      CONTENT.miny & 255, 9, 255]);
+    expect(S.rotMode.idx).toBe(1);
+    expect(S.rotMode.b).toEqual({ x0: 1300, y0: 1700, w: 1, h: 1 });
   });
 });

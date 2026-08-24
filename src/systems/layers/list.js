@@ -9,6 +9,7 @@ import { C } from '../../styles/canvas-colors.ts';
 import { folderChain } from '../../core/layers.js';
 import { dragRow } from './drag.js';
 import { selectRange } from './range-select.js';
+import { switchLayerDuringTransform } from './transform-target.js';
 import { openLctx } from './menu.js';
 import { attachLayerSwipe } from './swipe.js';
 import { toggleLock, toggleAlphaLock, toggleReference } from './ops.js';
@@ -108,8 +109,8 @@ function layerRow(L, i, depth) {
   row.addEventListener("click", (ev) => { if (layDragSquelch) return;
     if (ev.ctrlKey || ev.metaKey) { toggleLayerSelect(i); return; } // ctrl/cmd-клик — поштучный выбор
     if (ev.shiftKey && selectRange(row)) { layList(); return; } // shift-клик — диапазон от активной строки до кликнутой
-    S.cur = i; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null; S.fxSel.clear(); S.fxCur = null; S.bgSel = false; layList(); }); // тап — выбрать только этот слой активным
-  menuGesture(row, (x, y) => { if (S.cur !== i) { S.cur = i; S.markedFolders.clear(); S.selFolder = null; S.fxSel.clear(); S.fxCur = null; layList(); } openLctx(x, y, 'layer', L); }, '.lname');
+    switchLayerDuringTransform(() => { S.cur = i; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null; S.fxSel.clear(); S.fxCur = null; S.bgSel = false; layList(); }); }); // тап — выбрать только этот слой активным
+  menuGesture(row, (x, y) => { if (S.cur !== i) switchLayerDuringTransform(() => { S.cur = i; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null; S.fxSel.clear(); S.fxCur = null; S.bgSel = false; layList(); }); openLctx(x, y, 'layer', L); }, '.lname');
   attachLayerSwipe(row, L); dragRow(row, { kind: 'layer', idx: i }); return row;
 }
 
