@@ -10,7 +10,7 @@ import { clearLayerRefs, duplicateLayer, duplicateFolder,
   toggleLock, toggleAlphaLock, toggleClip, toggleReference, deleteLayerRef,
   deleteFolder, ungroupFolder } from './ops.js';
 import { renameMetadata } from './metadata.js';
-import { fillWholeLayerRefs } from './fill.js';
+import { fillLayerRefs } from './fill.js';
 
 let lctxRef = null, renRef = null;
 const targets = () => (!lctxRef ? [] : (lctxRef.kind === 'folder' ? folderLayers(lctxRef.ref) : [lctxRef.ref])).filter((L) => S.layers.includes(L));
@@ -60,7 +60,7 @@ export function mountMenu() {
   $('lctx-select').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'layer') { curTo(lctxRef.ref); actions.run('selection.layer'); } };
   $('lctx-invert').onclick = () => { close(); if (canInvert()) { curTo(lctxRef.ref); actions.run('selection.invert'); } };
   $('lctx-fill').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'background') { actions.run('bg.fill'); return; }
-    fillWholeLayerRefs(targets(), S.active); };
+    fillLayerRefs(targets(), S.active); };
   $('lctx-clear').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'background') { actions.run('bg.clear'); return; }
     clearLayerRefs(targets()); };
   $('lctx-flip-h').onclick = () => { close(); actions.run('layer.flipSelectedH', targets()); };

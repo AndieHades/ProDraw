@@ -3,6 +3,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { layerIndicesAt } from '../../src/core/layer-hit.js';
 import { newLayer, S } from '../../src/core/state.js';
+import { layerPickerButton } from '../../src/systems/layers/index.js';
 import { revealLayer } from '../../src/systems/layers/reveal.js';
 
 function reset() {
@@ -27,5 +28,13 @@ describe('layers under cursor', () => {
     expect(revealLayer(1, render)).toBe(true);
     expect(S.folders[0].open).toBe(true); expect(render).toHaveBeenCalledOnce();
     expect(row.scrollIntoView).toHaveBeenCalledWith({ block: 'center' });
+  });
+
+  it('puts the layer preview in each canvas picker entry', () => {
+    reset(); const preview = document.createElement('canvas'), select = vi.fn();
+    const button = layerPickerButton(1, select, preview); button.click();
+    expect(button.querySelector('canvas.cctx-thumb')).toBe(preview);
+    expect(button.textContent).toBe('hidden'); expect(button.classList.contains('dim')).toBe(true);
+    expect(select).toHaveBeenCalledWith(1);
   });
 });

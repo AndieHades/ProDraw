@@ -34,7 +34,7 @@ const SYM_IC = '<svg viewBox="0 0 24 24"><path d="M12 4v16" stroke-dasharray="2.
 const TEXT_IC = '<b>T</b>';
 export let layDragSquelch = false;
 export const setSquelch = (v) => { layDragSquelch = v; };
-function thumbFor(i) { const th = makeCanvas(40, 40); th.className = 'lth';
+export function layerThumbnail(i) { const th = makeCanvas(40, 40); th.className = 'lth';
   const tx = th.getContext('2d'); tx.imageSmoothingEnabled = false; tx.fillStyle = C.checkA; tx.fillRect(0, 0, 40, 40); tx.fillStyle = C.checkB;
   for (let yy = 0; yy < 5; yy++) for (let xx = 0; xx < 5; xx++) if ((xx + yy) & 1) tx.fillRect(xx * 8, yy * 8, 8, 8);
   const k = Math.min(40 / S.W, 40 / S.H), w2 = Math.max(1, Math.round(S.W * k)), h2 = Math.max(1, Math.round(S.H * k));
@@ -95,7 +95,7 @@ function layerRow(L, i, depth) {
   const nm = metadataNameSpan(L.name, () => i === S.cur && !S.selFolder && !S.fxCur && !S.bgSel, L, layList);
   const vis = document.createElement('button'); vis.className = 'eye' + (L.visible ? '' : ' off'); vis.innerHTML = EYE; wireMetadataVisibility(vis, L); // глаз = видимость
   if (L.clip) { const ar = document.createElement('i'); ar.className = 'clip-arrow'; ar.innerHTML = CLIP_IC; row.append(ar); } // обтравка: стрелка + сдвиг
-  row.append(thumbFor(i), nm); // миниатюра + имя
+  row.append(layerThumbnail(i), nm); // миниатюра + имя
   const mask = psdMaskButton(L, i, layList); if (mask) row.append(mask);
   if (L.kind === 'text') { const tx = document.createElement('button'); tx.className = 'eye ltext'; tx.innerHTML = TEXT_IC; tx.title = t('tool.text');
     tx.addEventListener('pointerdown', (e) => e.stopPropagation()); tx.addEventListener('click', (ev) => { ev.stopPropagation(); actions.run('text.editLayer', i); }); row.append(tx); }

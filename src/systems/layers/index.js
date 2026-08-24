@@ -8,7 +8,7 @@ import { effVis } from '../../core/layers.js';
 import { layerIndicesAt } from '../../core/layer-hit.js';
 import { gridAt } from '../../core/viewport.js';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
-import { layList } from './list.js';
+import { layList, layerThumbnail } from './list.js';
 import { switchLayerDuringTransform } from './transform-target.js';
 import { revealLayer } from './reveal.js';
 import { activeOpacityRef } from './helpers.js';
@@ -75,12 +75,18 @@ function selectCanvasLayer(index) { switchLayerDuringTransform(() => {
 function layersAtCursor(event) { let [x, y] = gridAt(event.clientX, event.clientY);
   if (S.tile?.on) { x = ((x % S.W) + S.W) % S.W; y = ((y % S.H) + S.H) % S.H; }
   return layerIndicesAt(x, y); }
+export function layerPickerButton(index, select, thumbnail = layerThumbnail(index)) {
+  const button = document.createElement('button'), name = document.createElement('span');
+  thumbnail.classList.add('cctx-thumb'); name.textContent = S.layers[index].name;
+  if (index === S.cur) button.classList.add('cur'); if (!effVis(index)) button.classList.add('dim');
+  button.append(thumbnail, name); button.addEventListener('click', () => select(index)); return button;
+}
 function openLayerMenu(event) { const indices = layersAtCursor(event); if (!indices.length) return;
   const m = $('cctx'); m.innerHTML = ''; m.scrollTop = 0;
   const head = document.createElement('div'); head.className = 'cctx-head'; head.textContent = t('menu.pickLayer'); m.appendChild(head);
-  for (const i of indices.reverse()) { const b = document.createElement('button'); b.textContent = S.layers[i].name;
-    if (i === S.cur) b.classList.add('cur'); if (!effVis(i)) b.classList.add('dim');
-    b.addEventListener('click', ((idx) => () => { selectCanvasLayer(idx); m.classList.remove('on'); })(i)); m.appendChild(b); }
+  for (const i of indices.reverse()) m.append(layerPickerButton(i, (index) => {
+    selectCanvasLayer(index); m.classList.remove('on');
+  }));
   showMenuAt(m, event.clientX, event.clientY); }
 
 function expandLayersWindow() {
