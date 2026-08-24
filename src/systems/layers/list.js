@@ -35,8 +35,7 @@ const TEXT_IC = '<b>T</b>';
 export let layDragSquelch = false;
 export const setSquelch = (v) => { layDragSquelch = v; };
 export function layerThumbnail(i) { const th = makeCanvas(40, 40); th.className = 'lth';
-  const tx = th.getContext('2d'); tx.imageSmoothingEnabled = false; tx.fillStyle = C.checkA; tx.fillRect(0, 0, 40, 40); tx.fillStyle = C.checkB;
-  for (let yy = 0; yy < 5; yy++) for (let xx = 0; xx < 5; xx++) if ((xx + yy) & 1) tx.fillRect(xx * 8, yy * 8, 8, 8);
+  const tx = th.getContext('2d'); tx.imageSmoothingEnabled = false; tx.fillStyle = C.checkA; tx.fillRect(0, 0, 40, 40);
   tx.drawImage(layerCanvas(i), 0, 0, 40, 40); return th; }
 function folderCountSpan(f) {
   const n = folderLayers(f).length;
