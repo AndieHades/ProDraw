@@ -26,7 +26,7 @@ export function wireMetadataVisibility(button, ref) {
   button.addEventListener('click', (event) => { event.stopPropagation();
     if (!toggleVisibility(ref)) return;
     button.classList.toggle('off', !ref.visible);
-    bus.emit('visibility'); bus.emit('render');
+    bus.emit('visibility'); bus.emit('render'); bus.emit('layers');
   });
 }
 

@@ -2,6 +2,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { snapshotDescriptors, snapshotEffects } from '../../core/history.js';
+import { folderChain } from '../../core/layers.js';
 
 function descriptorFor(ref, properties) {
   const index = S.layers.indexOf(ref);
@@ -32,9 +33,19 @@ export function renameMetadata(ref, name) {
   ref.name = name; return true;
 }
 
+function visibilityAncestors(ref) {
+  if (S.layers.includes(ref)) return folderChain(ref.fid);
+  if (S.folders.includes(ref)) return folderChain(ref.parent);
+  return [];
+}
+
 export function toggleVisibility(ref) {
-  if (!snapshotMetadata(ref, ['visible'])) return false;
-  ref.visible = !ref.visible; return true;
+  const ancestors = visibilityAncestors(ref);
+  const showing = ref.visible === false || ancestors.some((folder) => folder.visible === false);
+  const targets = showing ? [ref, ...ancestors] : [ref];
+  if (!snapshotMetadata(targets, ['visible'])) return false;
+  for (const target of targets) target.visible = showing;
+  return true;
 }
 
 export function toggleSymmetryLock(ref) {

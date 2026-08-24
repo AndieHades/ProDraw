@@ -53,6 +53,21 @@ describe('layer metadata commands', () => {
     doUndo(); expect(S.folders[0].opacity).toBe(1);
   });
 
+  it('shows a selected nested item together with hidden parent folders', () => {
+    S.folders = [{ id: 1, name: 'outer', visible: false, parent: null, effects: [] },
+      { id: 2, name: 'inner', visible: false, parent: 1, effects: [] }];
+    S.layers[0].fid = 2; S.layers[0].visible = false;
+    expect(toggleVisibility(S.layers[0])).toBe(true);
+    expect([S.layers[0], ...S.folders].map((item) => item.visible)).toEqual([true, true, true]);
+    doUndo(); expect([S.layers[0], ...S.folders].map((item) => item.visible)).toEqual([false, false, false]);
+    doRedo(); expect([S.layers[0], ...S.folders].map((item) => item.visible)).toEqual([true, true, true]);
+    S.folders[0].visible = false; expect(toggleVisibility(S.layers[0])).toBe(true);
+    expect(S.folders[0].visible).toBe(true);
+    S.folders.forEach((folder) => { folder.visible = false; });
+    expect(toggleVisibility(S.folders[1])).toBe(true);
+    expect(S.folders.map((folder) => folder.visible)).toEqual([true, true]);
+  });
+
   it('routes effect opacity through the effect metadata patch', () => {
     const effect = { id: 5, type: 'stroke', visible: true, opacity: 1,
       params: { size: 2 } };
