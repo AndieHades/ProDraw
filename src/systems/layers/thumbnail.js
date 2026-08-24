@@ -7,9 +7,9 @@ const SIZE = 40;
 export function thumbnailDrawBox(bounds, size = SIZE) {
   const sw = bounds.maxx - bounds.minx + 1;
   const sh = bounds.maxy - bounds.miny + 1;
-  const dw = size * sw / sh;
+  const scale = size / Math.max(sw, sh), dw = sw * scale, dh = sh * scale;
   return { sx: bounds.minx, sy: bounds.miny, sw, sh,
-    dx: (size - dw) / 2, dy: 0, dw, dh: size };
+    dx: (size - dw) / 2, dy: (size - dh) / 2, dw, dh };
 }
 
 export function layerThumbnail(index) {

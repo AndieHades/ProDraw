@@ -9,10 +9,10 @@ describe('layer thumbnail layout', () => {
     expect(tall.dw / tall.dh).toBe(tall.sw / tall.sh);
   });
 
-  it('centers wide content and lets the square clip its sides', () => {
+  it('fits wide content by width without cropping its sides', () => {
     const wide = thumbnailDrawBox({ minx: 2, miny: 3, maxx: 41, maxy: 12 });
-    expect(wide).toMatchObject({ sw: 40, sh: 10, dx: -60, dy: 0,
-      dw: 160, dh: 40 });
+    expect(wide).toMatchObject({ sw: 40, sh: 10, dx: 0, dy: 15,
+      dw: 40, dh: 10 });
     expect(wide.dw / wide.dh).toBe(wide.sw / wide.sh);
   });
 });
