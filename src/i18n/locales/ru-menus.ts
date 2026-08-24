@@ -39,7 +39,7 @@ export const ruMenus: LocaleDictionary = {
   "menu.clearSimple": "Очистить",
   "menu.clear": "Очистить слой",
   "menu.bgClear": "Очистить (прозрачный)",
-  "menu.symm": "Симметрировать слой",
+  "menu.flipLayerH": "Отразить слой по горизонтали",
   "menu.transform": "Трансформировать…",
   "menu.shadow": "Тень…",
   "menu.glow": "Свечение…",

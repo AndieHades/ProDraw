@@ -7,7 +7,7 @@ import { attachReorder } from '../../ui/shell/ReorderGesture.ts';
 import { folderLayers, selectedIdx } from './helpers.js';
 import {
   clearLayerRef, deleteLayer, doAddLayer, doGroup, doMerge, duplicateFolder, duplicateLayer,
-  symmetrizeLayerRefs, toggleAlphaLock, toggleClip, toggleLock, toggleReference,
+  toggleAlphaLock, toggleClip, toggleLock, toggleReference,
 } from './ops.js';
 
 const STORE = 'layerActionBars';
@@ -31,9 +31,7 @@ function duplicateActive() {
   const f = activeFolder(); if (f) duplicateFolder(f); else withLayer(duplicateLayer);
 }
 
-function symmetrizeActive() {
-  symmetrizeLayerRefs(targets());
-}
+const flipActiveH = () => actions.run('layer.flipSelectedH', targets());
 
 function saveOrder(movedButton) {
   rebalanceLayerActionBars(movedButton);
@@ -95,7 +93,7 @@ export function mountActionBars(onLayoutChange) {
   $('lay-ref').addEventListener('click', () => withLayer(toggleReference));
   $('lay-clean').addEventListener('click', () => { if (S.bgSel) { actions.run('bg.clear'); return; } withLayer(clearLayerRef); }); // фон выбран → очистить фон (прозрачный)
   $('lay-dup').addEventListener('click', duplicateActive);
-  $('lay-symm').addEventListener('click', symmetrizeActive);
+  $('lay-flip-h').addEventListener('click', flipActiveH);
   $('lay-merge').addEventListener('click', doMerge);
   $('lay-select').addEventListener('click', () => actions.run('selection.layer'));
   $('lay-lock').addEventListener('click', () => withLayer(toggleLock));

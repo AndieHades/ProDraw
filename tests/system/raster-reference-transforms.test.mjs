@@ -5,7 +5,7 @@ import { toolHandler } from '../../src/core/canvas-handlers.ts';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { markDirty } from '../../src/core/layer-cache.js';
 import { newLayer, S } from '../../src/core/state.js';
-import { flipLayer } from '../../src/systems/flip.js';
+import { flipLayer, flipLayerRefs } from '../../src/systems/flip.js';
 import '../../src/systems/layer-center.js';
 import { symmetrizeLayerRefs } from '../../src/systems/layers/ops.js';
 import '../../src/systems/move-tool.js';
@@ -77,6 +77,17 @@ describe('legacy raster transforms use reference history', () => {
     doRedo(); S.layers.forEach((layer, index) => {
       expect(layer.grid).toBe(after[index].grid); expect(layer.ext).toBe(after[index].ext);
     });
+  });
+
+  it('flips only the chosen layer horizontally with reference-backed history', () => {
+    const [one, two] = S.layers;
+    one.grid[1][0] = rgba(45); two.grid[2][1] = rgba(55); markDirty(0); markDirty(1);
+    const before = S.layers.map((layer) => ({ grid: layer.grid, ext: layer.ext }));
+    expect(flipLayerRefs([two])).toBe(true); const after = { grid: two.grid, ext: two.ext };
+    expectReferenceEntry(); expect(one.grid[1][0]).toEqual(rgba(45));
+    expect(two.grid[2][4]).toEqual(rgba(55));
+    doUndo(); expect(one.grid).toBe(before[0].grid); expect(two.grid).toBe(before[1].grid);
+    doRedo(); expect(two.grid).toBe(after.grid); expect(two.ext).toBe(after.ext);
   });
 
   it('symmetrizes selected pixel layers without mutating the saved grids', () => {

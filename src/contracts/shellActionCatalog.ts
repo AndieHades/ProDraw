@@ -17,7 +17,7 @@ export const SHELL_ACTION_NAMES = [
   "grid.open", "import.openFile", "lasso.cancel",
   "layer.add", "layer.center", "layer.delete",
   "layer.dropColorAt", "layer.fitShortSide", "layer.flipH",
-  "layer.flipV", "layer.group", "layer.merge",
+  "layer.flipSelectedH", "layer.flipV", "layer.group", "layer.merge",
   "palette.add", "palette.addRgb", "palette.clearSelection",
   "palette.sort", "recolor.all", "recolor.start",
   "select.none", "selection.applyOp", "selection.byColor",

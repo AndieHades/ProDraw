@@ -6,7 +6,7 @@ import * as actions from '../../core/actions.ts';
 import { $, showMenuBeside } from '../../ui/dom/ShellDom.ts';
 import { t } from '../../i18n/index.ts';
 import { folderLayers } from './helpers.js';
-import { clearLayerRefs, duplicateLayer, duplicateFolder, symmetrizeLayerRefs,
+import { clearLayerRefs, duplicateLayer, duplicateFolder,
   toggleLock, toggleAlphaLock, toggleClip, toggleReference, deleteLayerRef,
   deleteFolder, ungroupFolder } from './ops.js';
 import { renameMetadata } from './metadata.js';
@@ -16,7 +16,7 @@ let lctxRef = null, renRef = null;
 const targets = () => (!lctxRef ? [] : (lctxRef.kind === 'folder' ? folderLayers(lctxRef.ref) : [lctxRef.ref])).filter((L) => S.layers.includes(L));
 const close = () => $('lctx').classList.remove('on');
 const curTo = (L) => { const i = S.layers.indexOf(L); if (i >= 0) S.cur = i; };
-const LAYER_MENU_HIDDEN = ['lctx-ren', 'lctx-dup', 'lctx-select', 'lctx-fill', 'lctx-clear', 'lctx-symm', 'lctx-rotate', 'lctx-clip', 'lctx-lock', 'lctx-alpha', 'lctx-ref', 'lctx-del'];
+const LAYER_MENU_HIDDEN = ['lctx-ren', 'lctx-dup', 'lctx-select', 'lctx-fill', 'lctx-clear', 'lctx-flip-h', 'lctx-rotate', 'lctx-clip', 'lctx-lock', 'lctx-alpha', 'lctx-ref', 'lctx-del'];
 const FOLDER_MENU_HIDDEN = ['lctx-ren', 'lctx-fill', 'lctx-rotate'];
 
 const showItem = (id, on) => { const el = $(id); if (el) el.style.display = on ? '' : 'none'; };
@@ -29,7 +29,7 @@ const canCopyFx = () => !!(lctxRef && lctxRef.kind !== 'background' && hasFx(lct
 export function openLctx(x, y, kind, ref) { lctxRef = { kind, ref };
   const isFolder = kind === 'folder', isLayer = kind === 'layer', isBg = kind === 'background';
   // фон — то же меню #lctx (единый вид/поведение), но только Залить/Очистить
-  for (const id of ['lctx-ren', 'lctx-dup', 'lctx-symm', 'lctx-rotate', 'lctx-copy-fx', 'lctx-paste-fx']) showItem(id, !isBg);
+  for (const id of ['lctx-ren', 'lctx-dup', 'lctx-flip-h', 'lctx-rotate', 'lctx-copy-fx', 'lctx-paste-fx']) showItem(id, !isBg);
   showItem('lctx-mono', false); showItem('lctx-bc', false);
   showItem('lctx-ung', isFolder); showItem('lctx-clip', isLayer);
   for (const id of ['lctx-select', 'lctx-invert', 'lctx-lock', 'lctx-alpha', 'lctx-ref']) showItem(id, isLayer);
@@ -63,7 +63,7 @@ export function mountMenu() {
     fillWholeLayerRefs(targets(), S.active); };
   $('lctx-clear').onclick = () => { close(); if (lctxRef && lctxRef.kind === 'background') { actions.run('bg.clear'); return; }
     clearLayerRefs(targets()); };
-  $('lctx-symm').onclick = () => { close(); symmetrizeLayerRefs(targets()); };
+  $('lctx-flip-h').onclick = () => { close(); actions.run('layer.flipSelectedH', targets()); };
   $('lctx-rotate').onclick = () => { close(); const ts = targets(); if (ts.length) actions.run('transform.enterTargets', ts); };
   $('lctx-copy-fx').onclick = () => { close(); if (canCopyFx()) actions.run('fx.copyAll', lctxRef.ref); };
   $('lctx-paste-fx').onclick = () => { close(); if (hasFxClip()) actions.run('fx.paste'); };

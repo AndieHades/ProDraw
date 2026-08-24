@@ -39,7 +39,7 @@ export const enMenus: LocaleDictionary = {
   "menu.clearSimple": "Clear",
   "menu.clear": "Clear layer",
   "menu.bgClear": "Clear (transparent)",
-  "menu.symm": "Symmetrize layer",
+  "menu.flipLayerH": "Flip layer horizontally",
   "menu.transform": "Transform…",
   "menu.shadow": "Drop shadow…",
   "menu.glow": "Glow…",

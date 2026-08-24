@@ -23,5 +23,14 @@ export function flipLayer(horiz) {
   bus.emit('render'); bus.emit('layers'); toast(horiz ? t('toast.flippedH') : t('toast.flippedV'));
 }
 
+export function flipLayerRefs(layers, horiz = true) {
+  const ts = layers.filter((layer) => S.layers.includes(layer)); if (!ts.length) return false;
+  const indices = ts.map((layer) => S.layers.indexOf(layer));
+  if (!snapshotRasterReferences(indices)) snapshot();
+  for (const layer of ts) flipOne(layer, horiz);
+  bus.emitDoc(); toast(horiz ? t('toast.flippedH') : t('toast.flippedV')); return true;
+}
+
 actions.register('layer.flipH', () => flipLayer(true));
 actions.register('layer.flipV', () => flipLayer(false));
+actions.register('layer.flipSelectedH', (layers = []) => flipLayerRefs(layers, true));
