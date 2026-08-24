@@ -23,6 +23,7 @@
     #rowctx button.danger { color: var(--danger); }
     #cctx button.cur { background: var(--accent); }
     #cctx button.dim { opacity: .45; }
+    #cctx { max-height: min(70vh, 520px); overflow-y: auto; scrollbar-gutter: stable; }
     .cctx-head { color: var(--txt2); font-size: var(--type-system); padding: 6px 12px 2px; }
     /* Треугольник-указатель меню-бабла (единый для всех меню). */
     .menu-arrow { position: absolute; width: 12px; height: 12px; background: var(--panel-solid);

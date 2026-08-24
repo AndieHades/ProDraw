@@ -5,9 +5,12 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, showMenuAt, t } from '../../ui/dom/ShellDom.ts';
 import { effVis } from '../../core/layers.js';
+import { layerIndicesAt } from '../../core/layer-hit.js';
+import { gridAt } from '../../core/viewport.js';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { layList } from './list.js';
 import { switchLayerDuringTransform } from './transform-target.js';
+import { revealLayer } from './reveal.js';
 import { activeOpacityRef } from './helpers.js';
 import { mountActionBars } from './actions-bar.js';
 import { mountPinch } from './pinch.js';
@@ -63,12 +66,22 @@ export function syncLayerPanelHeight(allowShrink = false) {
   $('lay-list').style.maxHeight = 'none';
 }
 
-function openLayerMenu(px, py) { const m = $('cctx'); m.innerHTML = '';
+function showLayerPanel() { const pop = $('lay-pop'); pop.classList.add('on'); $('layers').classList.add('on');
+  layList(); syncLayerPanelWidth(); syncLayerPanelHeight(); }
+function selectCanvasLayer(index) { switchLayerDuringTransform(() => {
+  S.cur = index; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null;
+  S.fxSel.clear(); S.fxCur = null; S.bgSel = false; revealLayer(index, showLayerPanel);
+}); }
+function layersAtCursor(event) { let [x, y] = gridAt(event.clientX, event.clientY);
+  if (S.tile?.on) { x = ((x % S.W) + S.W) % S.W; y = ((y % S.H) + S.H) % S.H; }
+  return layerIndicesAt(x, y); }
+function openLayerMenu(event) { const indices = layersAtCursor(event); if (!indices.length) return;
+  const m = $('cctx'); m.innerHTML = ''; m.scrollTop = 0;
   const head = document.createElement('div'); head.className = 'cctx-head'; head.textContent = t('menu.pickLayer'); m.appendChild(head);
-  for (let i = S.layers.length - 1; i >= 0; i--) { const b = document.createElement('button'); b.textContent = S.layers[i].name;
+  for (const i of indices.reverse()) { const b = document.createElement('button'); b.textContent = S.layers[i].name;
     if (i === S.cur) b.classList.add('cur'); if (!effVis(i)) b.classList.add('dim');
-    b.addEventListener('click', ((idx) => () => { switchLayerDuringTransform(() => { S.cur = idx; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null; S.fxSel.clear(); S.fxCur = null; S.bgSel = false; layList(); }); m.classList.remove('on'); })(i)); m.appendChild(b); }
-  showMenuAt(m, px, py); }
+    b.addEventListener('click', ((idx) => () => { selectCanvasLayer(idx); m.classList.remove('on'); })(i)); m.appendChild(b); }
+  showMenuAt(m, event.clientX, event.clientY); }
 
 function expandLayersWindow() {
   layList();
@@ -80,7 +93,7 @@ function expandLayersWindow() {
 }
 
 export function mount() {
-  $('layers').addEventListener('click', () => { const p = $('lay-pop'); const on = p.classList.toggle('on'); $('layers').classList.toggle('on', on); if (on) { layList(); syncLayerPanelWidth(); syncLayerPanelHeight(); } });
+  $('layers').addEventListener('click', () => { const p = $('lay-pop'); const on = p.classList.toggle('on'); $('layers').classList.toggle('on', on); if (on) showLayerPanel(); });
   mountActionBars(syncLayerPanelWidth);
   const list = $('lay-list'); if (!list.__layerSizeObserver) { list.__layerSizeObserver = new window.MutationObserver(() => syncLayerPanelHeight());
     list.__layerSizeObserver.observe(list, { childList: true, subtree: true }); }
@@ -98,6 +111,6 @@ export function mount() {
   mountPinch();
   bus.on('layers', layList);
   bus.on('locale', layList);
-  bus.on('canvas-menu', (e) => openLayerMenu(e.clientX, e.clientY));
+  bus.on('canvas-menu', openLayerMenu);
   actions.register('ui.layers', () => $('layers').click());
 }
