@@ -34,9 +34,9 @@ npm run validate
 npm run package:desktop
 ```
 
-На локальном NTFS-compressed checkout desktop runner собирает во временный
-несжатый каталог и печатает путь к `ProDraw.exe`; в CI artifact остаётся в
-`artifacts/desktop/win-unpacked`.
+Локальная сборка всегда лежит в `%LOCALAPPDATA%\\ProDraw\\desktop-build\\win-unpacked`:
+ярлык на `ProDraw.exe` остаётся рабочим и после следующей сборки. В CI artifact
+остаётся в `artifacts/desktop/win-unpacked`.
 
 Перед изменениями прочитай [`AGENTS.md`](AGENTS.md) и
 [`docs/index.md`](docs/index.md).

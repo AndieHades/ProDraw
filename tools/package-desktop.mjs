@@ -1,5 +1,3 @@
-import { mkdtemp } from "node:fs/promises";
-import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
@@ -9,7 +7,7 @@ const require = createRequire(import.meta.url);
 const builderCli = require.resolve("electron-builder/out/cli/cli.js");
 const output = process.env.CI
   ? path.resolve("artifacts/desktop")
-  : await mkdtemp(path.join(tmpdir(), "prodraw-desktop-"));
+  : path.join(process.env.LOCALAPPDATA ?? process.cwd(), "ProDraw", "desktop-build");
 
 function run(command, args) {
   return new Promise((resolve, reject) => {
