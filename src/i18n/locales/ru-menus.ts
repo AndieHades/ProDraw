@@ -85,7 +85,6 @@ export const ruMenus: LocaleDictionary = {
   "ui.resizePanel": "Изменить размер панели",
   "ui.dragPalette": "Перетащить палитру",
   "ui.resizeWindow": "Изменить размер окна",
-  "menu.pickLayer": "Слой:",
   "btn.tsgAdd": "Добавить",
   "btn.tsgCreate": "Новая",
   "btn.tsgClear": "Сброс",

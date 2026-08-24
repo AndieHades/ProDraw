@@ -3,7 +3,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, showMenuAt, t } from '../../ui/dom/ShellDom.ts';
+import { $, showMenuAt } from '../../ui/dom/ShellDom.ts';
 import { effVis } from '../../core/layers.js';
 import { layerIndicesAt } from '../../core/layer-hit.js';
 import { gridAt } from '../../core/viewport.js';
@@ -84,7 +84,6 @@ export function layerPickerButton(index, select, thumbnail = layerThumbnail(inde
 }
 function openLayerMenu(event) { const indices = layersAtCursor(event); if (!indices.length) return;
   const m = $('cctx'); m.innerHTML = ''; m.scrollTop = 0;
-  const head = document.createElement('div'); head.className = 'cctx-head'; head.textContent = t('menu.pickLayer'); m.appendChild(head);
   for (const i of indices.reverse()) m.append(layerPickerButton(i, (index) => {
     selectCanvasLayer(index); m.classList.remove('on');
   }));

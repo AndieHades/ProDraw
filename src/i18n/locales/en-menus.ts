@@ -85,7 +85,6 @@ export const enMenus: LocaleDictionary = {
   "ui.resizePanel": "Resize panel",
   "ui.dragPalette": "Drag palette",
   "ui.resizeWindow": "Resize window",
-  "menu.pickLayer": "Layer:",
   "btn.tsgAdd": "Add",
   "btn.tsgCreate": "New",
   "btn.tsgClear": "Clear",
