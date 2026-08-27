@@ -11,6 +11,7 @@ import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { imageData, looksPixelArt } from '../../core/image.js';
 import { setImpData, impConvert, applyImport, rotateImp, setImportMode, getImportMode } from './convert.js';
 import { hasPsdIdentity, isPsdFile } from './psd-file.ts';
+import { droppedFileLocation } from './desktop-file.js';
 
 let impSrcImg = null;
 export { looksPixelArt };
@@ -56,12 +57,15 @@ function centerImpBox() { const b = $('imp-box'); if (!b) return;
 
 // drop в галерею → новый проект; drop в редактор → верхним слоем (не стирая холст).
 // Точный пиксель-арт вставляется как есть — конвертер не открывается ни в каком случае.
-export async function dropImage(file) { if (!file) return;
+const isPngFile = (file) => file.type.toLowerCase() === 'image/png' || /\.png$/i.test(file.name);
+export async function dropImage(file, locationFor = droppedFileLocation) { if (!file) return;
+  const sourceLocation = locationFor(file);
   if (hasPsdIdentity(file) || await isPsdFile(file)) {
-    await actions.run('import.psdFile', file); return;
+    await actions.run('import.psdFile', file, sourceLocation); return;
   }
   if (!file.type.startsWith('image/') && !/\.(?:png|jpe?g|gif|webp|bmp|avif)$/i.test(file.name)) {
     toast(t('toast.notImage')); return; }
+  if (isPngFile(file)) { await actions.run('gallery.importDrop', file, sourceLocation); return; }
   if ($('gallery').classList.contains('on')) { setImportMode('replace'); actions.run('gallery.importDrop', file); return; }
   const im = new Image(); im.onerror = () => toast(t('toast.imgOpenFail'));
   im.onload = () => { if (looksPixelArt(im)) insertImageTop(im); else { setImportMode('layer'); openImport(file); } };

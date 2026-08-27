@@ -59,6 +59,7 @@ export interface DesktopBridge {
   readonly platform: "windows";
   readonly brushStorage: DesktopBrushStorageBridge;
   readonly fileTree: DesktopFileTreeBridge;
+  fileLocation(file: unknown): string | null;
   openBinary(filters?: readonly FileFilter[]): Promise<{
     readonly name: string;
     readonly bytes: ArrayBuffer;

@@ -8,6 +8,7 @@ const required = [
   "desktop/desktop-smoke.mjs",
   "desktop/electron-preload.cjs",
   "desktop/electron-ipc.mjs",
+  "desktop/writable-document-location.mjs",
   "desktop/atomic-file.mjs",
   "desktop/export-tree-files.mjs",
   "desktop/export-tree-ipc.mjs",
@@ -26,7 +27,6 @@ const required = [
   "tools/smoke-packaged-desktop.mjs"
 ];
 for (const file of required) await access(file);
-
 const pkg = JSON.parse(await readFile("package.json", "utf8"));
 const main = await readFile("desktop/electron-main.mjs", "utf8");
 const preload = await readFile("desktop/electron-preload.cjs", "utf8");
@@ -42,7 +42,6 @@ const rendererEntry = await readFile("src/app.js", "utf8");
 const packageSmoke = await readFile("tools/smoke-packaged-desktop.mjs", "utf8");
 const html = await readFile("index.html", "utf8");
 const errors = [];
-
 if (pkg.main !== "desktop/electron-main.mjs") errors.push("package main must own Electron entry");
 if (pkg.scripts?.["package:desktop"] !== "node tools/package-desktop.mjs") {
   errors.push("desktop package must use the verified packaging runner");
@@ -64,6 +63,7 @@ if (!main.includes("setTimeout(resolve, 250)")) {
 if (!main.includes("attachCloseHandshake")) errors.push("desktop close must await renderer flush");
 if (!main.includes('query: { smoke: "1" }')) errors.push("packaged smoke must mark renderer URL");
 if (!preload.includes("contextBridge.exposeInMainWorld")) errors.push("preload must expose an allowlisted bridge");
+if (!preload.includes("webUtils.getPathForFile")) errors.push("preload must resolve dropped file paths safely");
 if (/remote\./.test(preload)) errors.push("preload must not use Electron remote");
 if (/require\(["']\.\//.test(preload)) {
   errors.push("sandboxed preload cannot require project-local modules");

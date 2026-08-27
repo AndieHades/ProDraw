@@ -4,7 +4,7 @@ import * as actions from '../core/actions.ts';
 import { S } from '../core/state.js';
 import { $, toast, t } from '../ui/dom/ShellDom.ts';
 import { saveCurrent } from './gallery/doc.js';
-import { saveActivePsd } from './psd-save.js';
+import { saveActivePng, saveActivePsd } from './psd-save.js';
 
 export function createDocumentSaver(save, notify) {
   let pending = false;
@@ -19,11 +19,11 @@ export function createDocumentSaver(save, notify) {
 }
 
 const saveDocument = createDocumentSaver(async () => {
-  const saved = await saveActivePsd();
+  const saved = await (S.sourceFormat === 'png' ? saveActivePng() : saveActivePsd());
   if (saved) void saveCurrent();
   return saved;
-}, (saved) => toast(t(saved ? 'toast.psdSaved' : 'toast.psdSaveUnavailable', {
-  name: (S.sourceLocation || 'PSD').split(/[\\/]/).pop()
+}, (saved) => toast(t(saved ? 'toast.sourceSaved' : 'toast.sourceSaveUnavailable', {
+  name: (S.sourceLocation || S.sourceFormat || 'PNG/PSD').split(/[\\/]/).pop()
 })));
 
 export function mount() {

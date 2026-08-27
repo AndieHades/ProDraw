@@ -18,3 +18,9 @@ export async function openDesktopFile(filters = PSD_FILTERS) {
   return { file: new File([opened.bytes], opened.name, { type: mime(opened.name) }),
     location: opened.location };
 }
+
+export function droppedFileLocation(file) {
+  if (typeof window === 'undefined') return null;
+  try { return window.prodrawDesktop?.fileLocation(file) || null; }
+  catch { return null; }
+}

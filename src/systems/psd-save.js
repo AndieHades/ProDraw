@@ -2,6 +2,8 @@
 import { S } from '../core/state.js';
 import { buildExportDoc, docName } from './export/tree.js';
 import { PSD } from './export/psd.js';
+import { PNG } from './export/png.js';
+import { flattenNodes } from './export/render.js';
 
 const writablePsd = (state) => state.sourceFormat === 'psd' &&
   /\.psd$/i.test(state.sourceLocation || '') ? state.sourceLocation : null;
@@ -15,6 +17,20 @@ export function createPsdSaver(encode, write, state = S) {
   };
 }
 
+export function createPngSaver(encode, write, state = S) {
+  return async () => {
+    const location = state.sourceFormat === 'png' && /\.png$/i.test(state.sourceLocation || '')
+      ? state.sourceLocation : null;
+    if (!location || !write) return false;
+    try { const output = await encode(); if (!output.blob) return false;
+      return Boolean(await write(location, new Uint8Array(await output.blob.arrayBuffer())));
+    } catch { return false; }
+  };
+}
+
 const desktopWrite = (location, bytes) => window.prodrawDesktop?.writeBinary(location,
   bytes.buffer);
 export const saveActivePsd = createPsdSaver(PSD.encodeLayered.bind(PSD), desktopWrite);
+const encodePng = () => { const doc = buildExportDoc('project', false);
+  return PNG.encode(flattenNodes(doc.root, false, true), docName()); };
+export const saveActivePng = createPngSaver(encodePng, desktopWrite);

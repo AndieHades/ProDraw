@@ -1,6 +1,6 @@
 # PNG/PSD quick edit plan
 
-- Status: `ready`
+- Status: `done`
 - Owner: production legacy shell (`index.html -> legacy-entry.js -> app.js`)
 - Baseline: `aset-editor@65a6b21`, 2026-08-26
 - Stage: `QED1`
@@ -63,14 +63,26 @@
 - Gallery reopen retains that path binding.
 - Focused/full gates and packaged desktop smoke pass; branch is committed/pushed.
 
+## Completion record
+
+- PNG/PSD drops share the separate-document route and receive the desktop source
+  path through `webUtils.getPathForFile`.
+- PNG source Save uses the effect-aware visible composite; PSD source Save keeps
+  the layered encoder. Existing-path writes are atomic and allowlisted by suffix.
+- Checks: 8 focused files/14 tests; changed-surface gate 90 files/253 tests;
+  TypeScript, ESLint, docs, lines, architecture, cycles, cutover, desktop,
+  raster-entry and shell-catalog passed; packaged Windows renderer smoke passed.
+- Manual real-file overwrite/visual comparison is intentionally left to the
+  user through the permanent desktop shortcut.
+
 ## Resume Here
 
 - Current stage: `QED1`
-- Status: `ready`
-- Last completed stage: plan/evidence baseline
-- Next action: implement dropped-file path bridge and PNG document transaction
+- Status: `done`
+- Last completed stage: PNG/PSD separate-document drop and source-bound Save
+- Next action: user acceptance with real PNG and PSD files
 - Blockers: none
 - Working paths: `desktop`, `src/contracts`, `src/systems/import`,
   `src/systems/gallery`, `src/systems/document-save.js`, `tests`
-- Last checks: evidence-only source inspection
+- Last checks: focused 14 tests; changed-surface 90 files/253 tests; packaged smoke
 - Last updated: 2026-08-26

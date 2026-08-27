@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require("electron");
+const { contextBridge, ipcRenderer, webUtils } = require("electron");
 // Sandboxed Electron preloads cannot require project-local modules.
 const channels = {
   fileOpen: "prodraw:file:open",
@@ -34,6 +34,9 @@ function arrayBuffer(bytes) {
 
 contextBridge.exposeInMainWorld("prodrawDesktop", {
   platform: "windows",
+  fileLocation(file) {
+    return webUtils.getPathForFile(file) || null;
+  },
   async openBinary(filters) {
     const result = await ipcRenderer.invoke(channels.fileOpen, filters ?? []);
     if (!result) return null;

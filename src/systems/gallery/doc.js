@@ -17,8 +17,8 @@ import { LegacyAutosaveController } from './LegacyAutosaveController.ts';
 import { buildGalleryRecord } from './record.js';
 import { uid } from './store.js';
 import { retireTilemapRecord } from '../../logic/retiredTilemap.ts';
+import { applyImportedImage } from '../../logic/importedImage.ts';
 import { buildPsdGalleryRecord } from './psd-record.js';
-
 let curId = null, curFolder = null, workChange = 0, mutation = 0, saved = null;
 let persistChain = Promise.resolve(false);
 export const curWorkId = () => curId;
@@ -100,17 +100,17 @@ async function restoreWork(id, expectedChange) { if (expectedChange !== workChan
     curId = id; curFolder = rec.folder ?? null; applyRec(rec);
     autosaveController.supersede(); if (rec.preview) markSaved(curId, mutation); else saved = null; } catch (error) {} }
 
-export async function createNewWork(w, h, name, bg = DEFAULT_CANVAS_BACKGROUND.color, colorMode = 'rgba') {
+export async function createNewWork(w, h, name, bg = DEFAULT_CANVAS_BACKGROUND.color, colorMode = 'rgba', setup = null) {
   const sourceId = curId, change = nextWorkChange();
   if (!await saveCurrent() || change !== workChange) return false;
-  activateNewWork(w, h, name, bg, colorMode); const created = workChange;
+  activateNewWork(w, h, name, bg, colorMode); setup?.(); const created = workChange;
   if (await saveCurrent() && created === workChange) return true;
   await restoreWork(sourceId, created); return false;
 }
-
-export function newWorkFromImage(w, h, data, name) { blankWork(w, h, name);
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const o = (y * w + x) * 4; if (data[o + 3] < 8) continue; S.layers[0].grid[y][x] = [data[o], data[o + 1], data[o + 2], data[o + 3]]; }
-  dirtyAll(); bus.emit('palette'); bus.emit('layers'); bus.emit('fit'); saveCurrent(); }
+export async function newWorkFromImage(w, h, data, name, format = null, location = null) {
+  return createNewWork(w, h, name, null, 'rgba', () => {
+    applyImportedImage(S, w, h, data, name, format, location); dirtyAll();
+    bus.emit('palette'); bus.emit('layers'); bus.emit('fit'); }); }
 
 export function newWorkFromLayers(w, h, layers, name) { blankWork(w, h, name);
   S.layers = layers.map((L, i) => ({ name: L.name || (t('layer.name') + ' ' + (i + 1)), grid: L.grid, opacity: 1, visible: true, fid: null, clip: false, lock: false, alphaLock: false, reference: false, ext: new Map(), effects: [] }));

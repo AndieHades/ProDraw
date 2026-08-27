@@ -35,7 +35,8 @@ if decoding or persistence fails.
 Window drag-and-drop has no intermediate full-screen release prompt. Dropping a
 file starts routing immediately; a `.psd`/`.psb` name or PSD MIME starts the PSD
 command synchronously, while signature detection remains the fallback for files
-with an unknown extension.
+with an unknown extension. The Windows drop route retains a `.psd` source path,
+so ordinary Save writes the updated layered PSD back without another dialog.
 
 The imported document preserves canvas size/DPI, Unicode names, layer order,
 nested groups, visibility, opacity, clipping, transparency locks, per-pixel

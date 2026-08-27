@@ -22,6 +22,7 @@ describe("selectPlatform", () => {
   it("adapts the allowlisted desktop bridge", async () => {
     const bridge: DesktopBridge = {
       platform: "windows",
+      fileLocation: vi.fn(() => null),
       brushStorage: {
         ensureSeeded: vi.fn(async () => undefined),
         listSets: vi.fn(async () => []),

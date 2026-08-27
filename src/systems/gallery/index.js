@@ -4,7 +4,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, t, toast } from '../../ui/dom/ShellDom.ts';
 import { imageData, looksPixelArt } from '../../core/image.js';
-import { newWorkFromImage, beginConvertedWork, saveCurrent,
+import { beginConvertedWork, newWorkFromImage, saveCurrent,
   autosave, autosaveInputStarted, beginPsdImport, completePsdImport } from './doc.js';
 import { configure, render, goBack, setSelecting, isSelecting, stackSelected, dupSelected, delSelected } from './screen.js';
 import { openDesktopFile, PSD_FILTERS } from '../import/desktop-file.js';
@@ -33,10 +33,17 @@ function pick(accept, fn) { const i = document.createElement('input'); i.type = 
   i.onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) fn(f); }; i.click(); }
 
 // картинка → новый проект: пиксель-арт сразу как есть, иначе через Pixelize (конвертер)
-function fromFile(f) { const im = new Image(), url = URL.createObjectURL(f);
+const isPngFile = (file) => file.type.toLowerCase() === 'image/png' || /\.png$/i.test(file.name);
+function fromFile(f, sourceLocation = null) { const im = new Image(), url = URL.createObjectURL(f);
   im.onerror = () => { URL.revokeObjectURL(url); toast(t('toast.imgOpenFail')); };
-  im.onload = () => { URL.revokeObjectURL(url);
-    if (looksPixelArt(im)) { const d = imageData(im, im.naturalWidth, im.naturalHeight, false); hide(); newWorkFromImage(d.width, d.height, d.data, f.name.replace(/\.\w+$/, '')); }
+  im.onload = async () => { URL.revokeObjectURL(url);
+    if (isPngFile(f)) { const d = imageData(im, im.naturalWidth, im.naturalHeight, false);
+      if (await newWorkFromImage(d.width, d.height, d.data,
+        f.name.replace(/\.png$/i, ''), 'png', sourceLocation)) hide();
+      else toast(t('toast.documentOpenFailed')); }
+    else if (looksPixelArt(im)) { const d = imageData(im, im.naturalWidth, im.naturalHeight, false);
+      if (await newWorkFromImage(d.width, d.height, d.data,
+        f.name.replace(/\.\w+$/, ''), null, null)) hide(); }
     else { beginConvertedWork(); actions.run('import.openFile', f); } }; im.src = url; } // конвертер поверх галереи; уйдём по «Применить»
 function photo() { pick('image/*', fromFile); } // не-пиксельная графика уходит в конвертер автоматически (fromFile)
 export const importPsdSelection = (file, location = null) => actions.run('import.psdFile', file, location);

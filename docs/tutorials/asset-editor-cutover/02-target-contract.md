@@ -16,6 +16,13 @@ transition contract applies to toolbar buttons, hotkeys and pen-button routing.
 While Free Transform remains active, its toolbar button is the only primary tool
 shown as active; the remembered Pencil, Eraser, or shape tool is not highlighted.
 
+Dropping a PNG or PSD over either the gallery or the open editor creates and
+opens a separate gallery document immediately. PNG keeps native RGBA pixels in
+one editable layer; PSD keeps its imported editable tree. In the Windows app the
+document remembers the dropped file path, and ordinary Save atomically writes
+the visible full-canvas PNG composite or layered PSD back to that same path.
+Gallery autosave remains a separate recovery copy and retains the source binding.
+
 The colour picker samples the render composite rather than a source layer, so
 it sees the visible colour under the pointer. A completed pick makes that
 colour active and copies its uppercase HEX value to the clipboard.

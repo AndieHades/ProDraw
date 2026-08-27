@@ -19,11 +19,13 @@ describe('PSD entry routing', () => {
     expect(completed).toMatchObject({ token: 17, name: 'routed',
       document: { width: 3, height: 2 } });
 
-    actions.registerOrReplace('import.psdFile', async (value) => {
-      expect(value).toBe(file); routed++; return true;
+    actions.registerOrReplace('import.psdFile', async (value, location) => {
+      expect(value).toBe(file);
+      if (routed === 1) expect(location).toBe('C:\\assets\\routed.psd');
+      routed++; return true;
     });
     await importPsdSelection(file);
-    const dropped = dropImage(file);
+    const dropped = dropImage(file, () => 'C:\\assets\\routed.psd');
     expect(routed).toBe(2);
     await dropped;
     expect(routed).toBe(2);

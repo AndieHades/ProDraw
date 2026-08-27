@@ -4,6 +4,7 @@ import { app, BrowserWindow, dialog } from "electron";
 import { atomicWriteFile } from "./atomic-file.mjs";
 import channels from "./ipc-channels.cjs";
 import { handleTrusted } from "./trusted-ipc.mjs";
+import { writableDocumentLocation } from "./writable-document-location.mjs";
 
 let lastDirectory = null;
 
@@ -20,14 +21,6 @@ function parentWindow(event) {
 function defaultPath(suggestedName) {
   const directory = lastDirectory ?? app.getPath("documents");
   return path.join(directory, path.basename(String(suggestedName)));
-}
-
-function writableDocumentLocation(value) {
-  const location = path.resolve(String(value));
-  if (!new Set([".prodraw", ".psd"]).has(path.extname(location).toLowerCase())) {
-    throw new Error("Existing writes require a .prodraw or .psd document path");
-  }
-  return location;
 }
 
 export function registerFileIpc() {
