@@ -38,8 +38,9 @@ success is reported, and reopen produces the same layer metadata and pixels.
   module integration checks; 102 files/278 non-performance tests through
   `validate:changed`; storage and module boot; TypeScript, ESLint, docs,
   architecture, cutover, cycles, lines, desktop shell and production bundle
-- Packaged Windows smoke: renderer ready with 12 brushes/17 sources and alpha
-  `255`; temporary `win-unpacked/ProDraw.exe` launched successfully
+- Packaged Windows smoke: production workspace, RGBA Canvas, IndexedDB and the
+  file-tree bridge passed with alpha `137`; `win-unpacked/ProDraw.exe` launched
+  successfully from the permanent shortcut target
 - Manual checks: physical Photoshop-authored fixture comparison was not run;
   it is the only skipped acceptance profile and requires Photoshop plus the
   packaged Windows app on a graphical machine

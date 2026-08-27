@@ -57,6 +57,8 @@ import './systems/recolor.js';
 import './systems/free-rotate.js';
 import { mount as mountKeyboard } from './systems/keyboard/index.js';
 import * as xMirror from './systems/x-mirror.js';
+import { rendererSmokeRequested, reportRendererSmokeFailure,
+  runRendererSmoke } from './app/runRendererSmoke.ts';
 
 const MOUNTS = [colorPreferences, palette, eraserBar, simpleBrushLibrary, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, documentSave, palManager, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, toolpops, xMirror, tile, textTool];
 
@@ -70,4 +72,5 @@ export function start() {
 }
 
 start();
+if (rendererSmokeRequested()) void runRendererSmoke().catch(reportRendererSmokeFailure);
 window.__app = { S, bus, start }; // для headless-boot теста

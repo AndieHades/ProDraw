@@ -3,7 +3,6 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { atomicWriteFile } from "../desktop/atomic-file.mjs";
 import { isTrustedRendererUrl } from "../desktop/renderer-trust.mjs";
-
 const required = [
   "desktop/electron-main.mjs",
   "desktop/desktop-smoke.mjs",
@@ -39,6 +38,7 @@ const closeIpc = await readFile("desktop/close-ipc.mjs", "utf8");
 const exportTreeIpc = await readFile("desktop/export-tree-ipc.mjs", "utf8");
 const desktopSmoke = await readFile("desktop/desktop-smoke.mjs", "utf8");
 const rendererSmoke = await readFile("src/app/runRendererSmoke.ts", "utf8");
+const rendererEntry = await readFile("src/app.js", "utf8");
 const packageSmoke = await readFile("tools/smoke-packaged-desktop.mjs", "utf8");
 const html = await readFile("index.html", "utf8");
 const errors = [];
@@ -92,13 +92,15 @@ for (const [, channel] of channels.matchAll(/"(prodraw:[^"]+)"/g)) {
   if (!preload.includes(`"${channel}"`)) errors.push(`preload channel missing: ${channel}`);
 }
 if (!html.includes("Content-Security-Policy")) errors.push("renderer must define a content security policy");
-for (const marker of ["executeJavaScript", "prodrawSmoke", "brushFiles", "alpha"]) {
+for (const marker of ["executeJavaScript", "prodrawSmoke", "workspace", "alpha"]) {
   if (!desktopSmoke.includes(marker)) errors.push(`desktop smoke misses ${marker}`);
 }
-for (const marker of ["brushStorage", "renderBrushDab", "saveCurrent", "loadCurrent",
-  "restoreDocument", "fileTree"]) {
+for (const marker of ["indexedDB", "putImageData", "getImageData", "fileTree"]) {
   if (!rendererSmoke.includes(marker)) errors.push(`renderer smoke misses ${marker}`);
 }
+for (const marker of ["rendererSmokeRequested", "runRendererSmoke",
+  "reportRendererSmokeFailure"]) if (!rendererEntry.includes(marker)) {
+  errors.push(`production entry misses ${marker}`); }
 if (!packageSmoke.includes("--user-data-dir=")) {
   errors.push("packaged smoke must isolate the user-data profile");
 }

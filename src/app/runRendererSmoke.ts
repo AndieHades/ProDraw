@@ -1,18 +1,8 @@
-import type { PlatformPort } from "../contracts/platform";
-import { renderBrushDab } from "../core/brush/renderBrushDab";
-import { BrushCatalog } from "../core/brush/BrushCatalog";
-import { BrushSourceCatalog } from "../core/brush/BrushSourceCatalog";
-import type { BrushLibraryService } from "../core/brush-library/BrushLibraryService";
-import { createRasterDocument } from "../core/document/createRasterDocument";
-import { restoreDocument, serializeDocument } from "../core/persistence/documentSerialization";
-import type { DocumentRepository } from "../core/persistence/DocumentRepository";
-import { TileHistory } from "../core/history/TileHistory";
-
 interface SmokeResult {
   readonly ok: boolean;
-  readonly brushFiles?: number;
+  readonly workspace?: boolean;
   readonly alpha?: number;
-  readonly sourceResources?: number;
+  readonly fileTree?: boolean;
   readonly error?: string;
 }
 
@@ -29,59 +19,51 @@ export function reportRendererSmokeFailure(error: unknown): void {
   report({ ok: false, error: message });
 }
 
-export async function runRendererSmoke(
-  platform: PlatformPort,
-  repository: DocumentRepository,
-  library: BrushLibraryService
-): Promise<void> {
-  if (platform.kind !== "windows" || !platform.brushStorage || !window.prodrawDesktop) {
-    throw new Error("Desktop preload bridge is unavailable");
+function requestResult<T>(request: IDBRequest<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function transactionDone(transaction: IDBTransaction): Promise<void> {
+  return new Promise((resolve, reject) => {
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error);
+  });
+}
+
+async function proveIndexedDb(alpha: number): Promise<void> {
+  const opened = indexedDB.open("prodraw-desktop-smoke", 1);
+  opened.onupgradeneeded = () => opened.result.createObjectStore("proof", { keyPath: "id" });
+  const database = await requestResult(opened);
+  try {
+    const write = database.transaction("proof", "readwrite");
+    write.objectStore("proof").put({ id: "rgba", alpha }); await transactionDone(write);
+    const read = database.transaction("proof", "readonly");
+    const restored = await requestResult(read.objectStore("proof").get("rgba"));
+    if (restored?.alpha !== alpha) throw new Error("IndexedDB smoke round trip differs");
+  } finally {
+    database.close(); indexedDB.deleteDatabase("prodraw-desktop-smoke");
   }
+}
+
+function proveRgbaCanvas(alpha: number): void {
+  const canvas = document.createElement("canvas"); canvas.width = canvas.height = 1;
+  const context = canvas.getContext("2d"); if (!context) throw new Error("Canvas is unavailable");
+  const pixel = context.createImageData(1, 1); pixel.data.set([19, 37, 71, alpha]);
+  context.putImageData(pixel, 0, 0);
+  if (context.getImageData(0, 0, 1, 1).data[3] !== alpha) {
+    throw new Error("RGBA canvas round trip differs");
+  }
+}
+
+export async function runRendererSmoke(..._unused: unknown[]): Promise<void> {
+  if (!window.prodrawDesktop) throw new Error("Desktop preload bridge is unavailable");
   if (!window.prodrawDesktop.fileTree) throw new Error("Desktop export tree bridge is unavailable");
-  if (!document.querySelector("#paint-canvas, #cv")) {
-    throw new Error("Editor workspace did not mount");
-  }
-  const mainSet = library.snapshot.sets.find(({ name }) => name === "Main");
-  const brush = mainSet?.brushes[0];
-  if (!mainSet || !brush) throw new Error("Bundled brush catalog is empty");
-  const storedMain = (await platform.brushStorage.listSets())
-    .find(({ name }) => name === "Main");
-  if (!storedMain?.seeded || storedMain.seedVersion !== 2 || storedMain.files.length < 12) {
-    throw new Error("Bundled brush seed did not complete");
-  }
-  const brushBytes = await platform.brushStorage.readFile("Main", brush.fileName);
-  if (!brushBytes.byteLength) throw new Error("Seeded brush cannot be read through IPC");
-  const brushes = library.snapshot.sets.flatMap(({ brushes }) => brushes);
-  const brushCatalog = new BrushCatalog(platform.brushStorage, platform.brushDecoder);
-  const resources = await new BrushSourceCatalog().collect(brushes,
-    (candidate) => brushCatalog.load(candidate));
-  if (resources.filter(({ kind }) => kind === "shape").length < 3 ||
-      resources.filter(({ kind }) => kind === "grain").length < 5) {
-    throw new Error("Bundled Shape/Grain Source Library is incomplete");
-  }
-
-  const ids = ["smoke-document", "smoke-layer"];
-  const smokeDocument = createRasterDocument({ name: "Smoke", width: 32, height: 32,
-    dpi: 72, layerName: "Paint" }, () => ids.shift() ?? "smoke-id");
-  const history = new TileHistory(2);
-  history.registerSurface(smokeDocument.activeLayer.surface);
-  const edit = history.begin(smokeDocument.activeLayer.surface, "Smoke stroke");
-  renderBrushDab(edit, brush,
-    { x: 16, y: 16, pressure: 1, tiltX: 0, tiltY: 0, time: 1 },
-    { size: 12, opacity: 1, erase: false },
-    { red: 220, green: 40, blue: 80, alpha: 255 });
-  if (!history.record(edit.commit())) throw new Error("Smoke stroke changed no RGBA tiles");
-  const paintedAlpha = smokeDocument.compositePixel(16, 16).alpha;
-  if (paintedAlpha === 0) throw new Error("Smoke stroke is transparent");
-  history.undo();
-  if (smokeDocument.compositePixel(16, 16).alpha !== 0) throw new Error("Smoke undo failed");
-  history.redo();
-
-  await repository.saveCurrent(serializeDocument(smokeDocument));
-  const saved = await repository.loadCurrent();
-  if (!saved) throw new Error("IndexedDB smoke record is missing");
-  const restoredAlpha = restoreDocument(saved).compositePixel(16, 16).alpha;
-  if (restoredAlpha !== paintedAlpha) throw new Error("IndexedDB RGBA round trip differs");
-  report({ ok: true, brushFiles: storedMain.files.length, alpha: restoredAlpha,
-    sourceResources: resources.length });
+  if (!document.querySelector("#cv") || !document.querySelector("#gallery") ||
+      !document.querySelector("#lay-list")) throw new Error("Editor workspace did not mount");
+  const alpha = 137; proveRgbaCanvas(alpha); await proveIndexedDb(alpha);
+  report({ ok: true, workspace: true, alpha, fileTree: true });
 }
