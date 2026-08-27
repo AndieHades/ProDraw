@@ -45,7 +45,7 @@ export async function cloneGridIdle(grid, bounds, isCurrent,
   // every empty A4 row through requestIdleCallback made a blank New document
   // look frozen for seconds and could leave the dialog busy. Clone it directly
   // in O(painted cells); dense compatibility grids keep the cancellable path.
-  if (sparseGridStats(grid)) return cloneGrid(grid);
+  if (sparseGridStats(grid)) return cloneGrid(grid, true);
   // IndexedDB preserves sparse Array holes but strips the bridge's prototype
   // metadata. Reuse those stored row/cell keys instead of yielding for every
   // empty canvas row, which made edited layered PSD files look impossible to open.

@@ -56,13 +56,13 @@ function visitContent(grid, bounds, visit) {
   if (!visitSparseGridCells(grid, visit)) visitDense(grid, bounds, visit);
 }
 
-export function cloneGrid(grid) {
+export function cloneGrid(grid, internCells = false) {
   const shape = dimensions(grid), out = blank(shape.width, shape.height);
-  const cells = createRasterCellInterner();
+  const cells = internCells ? createRasterCellInterner() : null;
   const known = boundsMetadata.get(grid);
   const state = { minx: shape.width, miny: shape.height, maxx: -1, maxy: -1 };
   visitContent(grid, known?.bounds, (x, y, cell) => {
-    out[y][x] = cells.copy(cell); include(state, x, y);
+    out[y][x] = cells ? cells.copy(cell) : cell.slice(); include(state, x, y);
   });
   boundsMetadata.set(out, { bounds: result(state), exact: true }); return out;
 }
