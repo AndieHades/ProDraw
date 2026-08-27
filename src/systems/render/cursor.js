@@ -2,7 +2,7 @@ import { S } from '../../core/state.js';
 import { C } from '../../styles/canvas-colors.ts';
 
 export function drawBrushCursor(ctx, ox, oy, z) {
-  if (!S.hoverPx || S.cropMode || S.selFloat) return;
+  if (!S.hoverPx || S.cropMode || S.rotMode || S.selFloat) return;
   const [x, y] = S.hoverPx, cx = ox + (x + .5) * z, cy = oy + (y + .5) * z;
   if (S.tool === 'pencil' || S.tool === 'eraser') return drawToolBoundary(ctx, cx, cy, z);
   if (!S.eyedrop.active) return;

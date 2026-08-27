@@ -17,7 +17,8 @@ active Free Transform before activation, while unrelated tool transitions keep
 their existing behavior.
 Toolbar coverage proves that closing Free Transform restores the remembered
 Eraser without selecting Pencil. Cursor coverage keeps Pencil and Eraser
-boundaries visible during active strokes.
+boundaries visible during active strokes, hides them while Transform owns the
+canvas, and restores them after Transform closes.
 Input coverage proves that left/right mouse drags outside the Transform frame
 pan the canvas without closing the mode, while left drag inside remains owned by
 Transform.

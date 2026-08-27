@@ -16,6 +16,8 @@ transform and closes its frame before the paint tool becomes active. The same
 transition contract applies to toolbar buttons, hotkeys and pen-button routing.
 While Free Transform remains active, its toolbar button is the only primary tool
 shown as active; the remembered Pencil, Eraser, or shape tool is not highlighted.
+The remembered paint-tool boundary is also hidden while Transform owns canvas
+input and returns only after Transform closes.
 Applying or cancelling Free Transform restores that remembered tool instead of
 forcing Pencil; its toolbar icon becomes active again immediately.
 While Free Transform remains active, dragging outside its frame with either the
