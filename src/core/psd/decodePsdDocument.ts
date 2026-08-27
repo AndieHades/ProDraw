@@ -1,4 +1,4 @@
-import { readPsd } from "ag-psd";
+import { getCompositeImageData, readPsd } from "ag-psd";
 import { PSD_IMPORT_LIMITS } from "../../config/psd-import.ts";
 import type { PsdImportedDocument } from "../../contracts/psdImport.ts";
 import { preflightPsd } from "../../logic/psd/preflightPsd.ts";
@@ -19,16 +19,23 @@ function documentDpi(value: ReturnType<typeof readPsd>): number {
 export function decodePsdDocument(buffer: ArrayBuffer): PsdImportedDocument {
   preflightPsd(buffer);
   try {
+    let decodedBytes = 0;
+    const reserve = (bytes: number): void => {
+      decodedBytes += bytes;
+      if (decodedBytes > PSD_IMPORT_LIMITS.maximumDecodedBytes) {
+        throw new PsdDecodeError("decode-failed", "PSD decoded bitmap exceeds the memory limit");
+      }
+    };
     const decoded = readPsd(buffer, { useImageData: true,
-      totalMemoryLimit: PSD_IMPORT_LIMITS.maximumDecodedBytes,
+      useRawData: true, totalMemoryLimit: PSD_IMPORT_LIMITS.maximumDecodedBytes,
       skipThumbnail: true, skipLinkedFilesData: true,
       logMissingFeatures: false, throwForMissingFeatures: false });
-    const warnings: string[] = [];
-    const children = normalizePsdNodes(decoded.children ?? [], warnings);
-    if (countPsdNodes(children) > PSD_IMPORT_LIMITS.maximumNodes) {
+    if (countPsdNodes(decoded.children ?? []) > PSD_IMPORT_LIMITS.maximumNodes) {
       throw new PsdDecodeError("too-many-nodes", "PSD layer count exceeds limits");
     }
-    const composite = normalizeBitmap(decoded.imageData);
+    const warnings: string[] = [];
+    const children = normalizePsdNodes(decoded.children ?? [], warnings, reserve);
+    const composite = normalizeBitmap(getCompositeImageData(decoded), 0, 0, false, reserve);
     return { width: decoded.width, height: decoded.height, dpi: documentDpi(decoded),
       stackOrder: inferPsdStackOrder(children, composite), children,
       ...(composite ? { composite } : {}),

@@ -3,6 +3,7 @@ import { defaultPalette, DEFAULT_ACTIVE } from '../../config/palette.js';
 import { defaultReferenceBoard } from '../../core/reference-board.js';
 import { runtimePsdEffectSpecs } from '../../logic/psd-effects.js';
 import { psdGalleryPreview } from './psd-preview.ts';
+import { createRasterCellInterner } from '../../logic/raster-cell-interner.js';
 
 const copyEffects = (effects) => effects.map((effect) => ({ ...effect,
   properties: structuredClone(effect.properties) }));
@@ -12,15 +13,15 @@ const runtimePsdEffects = (sources, warnings) => runtimePsdEffectSpecs(sources, 
   .map((spec) => ({ ...newEffect(spec.type, spec.params),
     visible: spec.visible, opacity: spec.opacity }));
 
-function rasterLayer(node, width, height, fid, warnings) {
+function rasterLayer(node, width, height, fid, warnings, cells) {
   const layer = newLayer(node.name, width, height), bitmap = node.bitmap;
   if (node.masks.some((mask) => mask.feather > 0)) warnings.add('mask.feather.approximate');
   if (bitmap) for (let y = 0; y < bitmap.height; y++) for (let x = 0; x < bitmap.width; x++) {
     const offset = (y * bitmap.width + x) * 4, alpha = bitmap.rgba[offset + 3];
     if (!alpha) continue;
     const px = bitmap.left + x, py = bitmap.top + y;
-    const color = [bitmap.rgba[offset], bitmap.rgba[offset + 1],
-      bitmap.rgba[offset + 2], alpha];
+    const color = cells.rgba(bitmap.rgba[offset], bitmap.rgba[offset + 1],
+      bitmap.rgba[offset + 2], alpha);
     if (px >= 0 && py >= 0 && px < width && py < height) layer.grid[py][px] = color;
     else layer.ext.set(`${px},${py}`, color);
   }
@@ -35,7 +36,7 @@ function rasterLayer(node, width, height, fid, warnings) {
 }
 
 function documentTree(document, warnings) {
-  const layers = [], folders = []; let folderSeq = 0;
+  const layers = [], folders = [], cells = createRasterCellInterner(); let folderSeq = 0;
   const walk = (nodes, parent) => {
     const bottomFirst = document.stackOrder === 'bottom-first' ? nodes : [...nodes].reverse();
     for (const node of bottomFirst) {
@@ -43,7 +44,8 @@ function documentTree(document, warnings) {
         warnings.add(`blend.${node.blendMode}.approximate`);
       }
       if (node.kind === 'layer') {
-        layers.push(rasterLayer(node, document.width, document.height, parent, warnings));
+        layers.push(rasterLayer(node, document.width, document.height,
+          parent, warnings, cells));
       } else {
         const folder = { id: ++folderSeq, parent, name: node.name,
           open: node.opened, visible: node.visible, opacity: node.opacity,

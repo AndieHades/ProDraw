@@ -23,7 +23,7 @@ Authority: PSD dropped or opened anywhere must create a new gallery document
   lines/desktop-shell, production and desktop builds passed; decoder remains a
   separate 288.13 kB lazy chunk; packaged Windows smoke and live `Assets.psd`
   gallery/reopen flow passed
-- Last updated: 2026-08-17
+- Last updated: 2026-08-26
 
 ## Outcome
 
@@ -75,6 +75,16 @@ row and tolerate empty rows inside content bounds. A new PSD record receives its
 gallery preview from the embedded composite; older records with a missing
 preview are regenerated on the next gallery save instead of being treated as
 already complete.
+
+## Large Sparse Layer Repair
+
+`export-rig.psd` exposed a producer that stores 233 raster layers at the full
+617×1983 canvas bounds even though only about 2% of their pixels are visible.
+The adapter now keeps compressed channel data raw, decodes one layer at a time,
+trims transparent padding into document-coordinate bounds and releases the full
+temporary bitmap. Gallery conversion interns identical immutable RGBA cells, and
+grid cloning keeps that sharing through persistence and autosave. This preserves
+the exact visible pixels and editable layer tree without a multi-gigabyte heap.
 
 ## Completion Definition
 

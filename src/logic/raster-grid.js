@@ -1,4 +1,5 @@
 import { createSparseGrid, sparseGridShape, visitSparseGridCells } from './sparse-grid.js';
+import { createRasterCellInterner } from './raster-cell-interner.js';
 
 let boundsMetadata = new WeakMap();
 const copyBounds = (bounds) => bounds ? { ...bounds } : null;
@@ -57,10 +58,11 @@ function visitContent(grid, bounds, visit) {
 
 export function cloneGrid(grid) {
   const shape = dimensions(grid), out = blank(shape.width, shape.height);
+  const cells = createRasterCellInterner();
   const known = boundsMetadata.get(grid);
   const state = { minx: shape.width, miny: shape.height, maxx: -1, maxy: -1 };
   visitContent(grid, known?.bounds, (x, y, cell) => {
-    out[y][x] = cell.slice(); include(state, x, y);
+    out[y][x] = cells.copy(cell); include(state, x, y);
   });
   boundsMetadata.set(out, { bounds: result(state), exact: true }); return out;
 }

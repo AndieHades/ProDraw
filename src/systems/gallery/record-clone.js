@@ -3,6 +3,7 @@ import { ANIMATION } from '../../config/animation.ts';
 import { AUTOSAVE_CLONE_YIELD_ROWS, AUTOSAVE_IDLE_TIMEOUT_MS } from '../../config/timings.ts';
 import { normalizeAnimator } from '../../logic/animation-data.js';
 import { cloneGrid, sparseGridStats } from '../../logic/raster.js';
+import { createRasterCellInterner } from '../../logic/raster-cell-interner.js';
 
 export function yieldToGalleryIdle() {
   return new Promise((resolve) => {
@@ -24,7 +25,7 @@ function persistedSparseRows(grid) {
 }
 
 function clonePersistedSparseGrid(grid, rows, bounds, isCurrent) {
-  const output = new Array(grid.length);
+  const output = new Array(grid.length), cells = createRasterCellInterner();
   for (const y of rows) {
     if (!isCurrent()) return null;
     const row = grid[y] || [], copy = new Array(row.length); output[y] = copy;
@@ -32,7 +33,7 @@ function clonePersistedSparseGrid(grid, rows, bounds, isCurrent) {
     const minx = bounds ? Math.max(0, bounds.minx) : 0;
     const maxx = bounds ? Math.min(row.length - 1, bounds.maxx) : row.length - 1;
     for (const key of Object.keys(row)) { const x = arrayIndex(key, row.length);
-      if (x >= minx && x <= maxx && row[x]) copy[x] = row[x].slice(); }
+      if (x >= minx && x <= maxx && row[x]) copy[x] = cells.copy(row[x]); }
   }
   return output;
 }
@@ -51,6 +52,7 @@ export async function cloneGridIdle(grid, bounds, isCurrent,
   const storedRows = persistedSparseRows(grid);
   if (storedRows) return clonePersistedSparseGrid(grid, storedRows, bounds, isCurrent);
   const output = new Array(grid.length);
+  const cells = createRasterCellInterner();
   for (let y = 0; y < grid.length; y++) {
     if (!isCurrent()) return null;
     const row = grid[y] || [], copy = new Array(row.length); output[y] = copy;
@@ -58,7 +60,7 @@ export async function cloneGridIdle(grid, bounds, isCurrent,
       (y >= bounds.miny && y <= bounds.maxy))) {
       const minx = bounds ? Math.max(0, bounds.minx) : 0;
       const maxx = bounds ? Math.min(row.length - 1, bounds.maxx) : row.length - 1;
-      for (let x = minx; x <= maxx; x++) if (row[x]) copy[x] = row[x].slice();
+      for (let x = minx; x <= maxx; x++) if (row[x]) copy[x] = cells.copy(row[x]);
     }
     if ((y + 1) % AUTOSAVE_CLONE_YIELD_ROWS === 0) await yieldWork();
   }

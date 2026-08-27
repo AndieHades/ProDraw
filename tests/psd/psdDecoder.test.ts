@@ -3,7 +3,7 @@ import { PSD_IMPORT_LIMITS } from "../../src/config/psd-import";
 import { decodePsdDocument } from "../../src/core/psd/decodePsdDocument";
 import { PsdDecodeError } from "../../src/core/psd/PsdDecodeError";
 import { preflightPsd } from "../../src/logic/psd/preflightPsd";
-import { psdHeader, structuredPsd } from "./psdFixture";
+import { paddedLayerPsd, psdHeader, structuredPsd } from "./psdFixture";
 
 describe("PSD preflight", () => {
   it("reads the allocation-relevant header", () => {
@@ -47,5 +47,19 @@ describe.each([false, true])("structured PSD decode (compress=%s)", (compress) =
     expect(layer.effects.map(({ kind }) => kind)).toEqual(["dropShadow", "solidFill"]);
     expect(layer.effects[0]).toMatchObject({ enabled: true });
     expect(layer.effects[0]!.opacity).toBeCloseTo(0.6, 2);
+  });
+});
+
+describe("bounded PSD bitmap decode", () => {
+  it("trims transparent full-canvas layer padding without moving content", () => {
+    const decoded = decodePsdDocument(paddedLayerPsd());
+    const layer = decoded.children[0];
+    expect(layer).toMatchObject({ kind: "layer", bitmap: {
+      left: 6, top: 5, width: 1, height: 1,
+    } });
+    if (!layer || layer.kind !== "layer" || !layer.bitmap) {
+      throw new Error("missing padded layer");
+    }
+    expect([...layer.bitmap.rgba]).toEqual([12, 34, 56, 128]);
   });
 });

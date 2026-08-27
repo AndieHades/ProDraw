@@ -58,3 +58,14 @@ success is reported, and reopen produces the same layer metadata and pixels.
   console errors.
 - Automated coverage: stack direction inference, bottom-first runtime mapping,
   persisted empty-leading/intermediate rows and composite-derived preview.
+
+## Large Sparse Layer Evidence
+
+- `export-rig.psd`: 28,402,173 bytes, 617×1983, 354 nodes, 233 pixel layers
+  and 121 folders; all pixel layers declare full-canvas bounds.
+- The prior eager decode stopped at the 768 MiB budget after requiring about
+  1.09 GiB of RGBA buffers. Incremental trim retains about 39 MiB of bitmap data.
+- Real-file decode and gallery materialization completed with 233 layers, 121
+  folders, zero compatibility warnings and no heap failure.
+- Focused coverage verifies transparent-padding trim, coordinate preservation,
+  colour-cell interning, PSD gallery import and preview behavior.

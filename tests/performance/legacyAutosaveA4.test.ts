@@ -7,14 +7,16 @@ describe("legacy A4 autosave work", () => {
   it("clones a blank or sparse A4 without yielding through empty rows", async () => {
     const grid = blank(2480, 3508);
     grid[1700]![1200] = [10, 20, 30, 255];
+    grid[1700]![1201] = [10, 20, 30, 255];
     let yields = 0;
     const output = await cloneGridIdle(grid, undefined, () => true,
       async () => { yields += 1; });
 
     expect(yields).toBe(0);
     expect(output?.[1700]?.[1200]).toEqual([10, 20, 30, 255]);
+    expect(output?.[1700]?.[1201]).toBe(output?.[1700]?.[1200]);
     expect(sparseGridStats(output)).toMatchObject({ width: 2480, height: 3508,
-      materializedRows: 1, storedCells: 1 });
+      materializedRows: 1, storedCells: 2 });
   });
 
   it("clones an A4 grid in cancellable row chunks", async () => {
@@ -40,7 +42,8 @@ describe("legacy A4 autosave work", () => {
     type Cell = number[] | null | undefined;
     const grid = new Array<Cell[]>(578);
     const lower = new Array<Cell>(265), upper = new Array<Cell>(265);
-    lower[12] = [10, 20, 30, 255]; upper[220] = [40, 50, 60, 128];
+    lower[12] = [10, 20, 30, 255]; upper[219] = [10, 20, 30, 255];
+    upper[220] = [40, 50, 60, 128];
     grid[20] = lower; grid[540] = upper;
     let yields = 0;
     const output = await cloneGridIdle(grid, undefined, () => true,
@@ -50,6 +53,7 @@ describe("legacy A4 autosave work", () => {
     expect(output).toHaveLength(578);
     expect(Object.keys(output ?? {})).toEqual(["20", "540"]);
     expect(output?.[20]?.[12]).toEqual([10, 20, 30, 255]);
+    expect(output?.[540]?.[219]).toBe(output?.[20]?.[12]);
     expect(output?.[540]?.[220]).toEqual([40, 50, 60, 128]);
   });
 

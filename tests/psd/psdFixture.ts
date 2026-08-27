@@ -57,6 +57,18 @@ export function nestedPsd(): ArrayBuffer {
   return writePsd(psd, { generateThumbnail: false });
 }
 
+export function paddedLayerPsd(): ArrayBuffer {
+  const width = 8, height = 7, data = new Array(width * height * 4).fill(0);
+  data[(5 * width + 6) * 4] = 12;
+  data[(5 * width + 6) * 4 + 1] = 34;
+  data[(5 * width + 6) * 4 + 2] = 56;
+  data[(5 * width + 6) * 4 + 3] = 128;
+  return writePsd({ width, height,
+    imageData: image(width, height, new Array(width * height * 4).fill(0)),
+    children: [{ name: "Padded", imageData: image(width, height, data) }] },
+  { generateThumbnail: false });
+}
+
 export function psdHeader(width: number, height: number, depth = 8): ArrayBuffer {
   const buffer = new ArrayBuffer(26), bytes = new Uint8Array(buffer);
   bytes.set([56, 66, 80, 83]);
