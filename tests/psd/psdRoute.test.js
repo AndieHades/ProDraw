@@ -23,7 +23,9 @@ describe('PSD entry routing', () => {
       expect(value).toBe(file); routed++; return true;
     });
     await importPsdSelection(file);
-    await dropImage(file);
+    const dropped = dropImage(file);
+    expect(routed).toBe(2);
+    await dropped;
     expect(routed).toBe(2);
   });
 });

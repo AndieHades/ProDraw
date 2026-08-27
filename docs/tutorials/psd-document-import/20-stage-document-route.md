@@ -8,6 +8,8 @@
 
 - Add one import transaction owned by the gallery/document workflow.
 - Route Gallery Import, editor File/Ctrl+O and window drop through it.
+- Start window-drop routing on the drop event without a preparatory overlay or
+  message; recognized PSD names/MIME enter the PSD command synchronously.
 - Detect PSD by extension, vendor MIME or `8BPS` header.
 - Build a new layer/folder state, assign a fresh id and preserve DPI/name.
 - Save the prior work, persist the imported work, then open the editor.

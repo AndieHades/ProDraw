@@ -65,8 +65,6 @@ export const enPreferences: LocaleDictionary = {
   "reference.flip": "Flip",
   "reference.saveImage": "Save image",
   "reference.emptyHint": "Open with the folder button or drop an image here",
-  "drop.releaseImage": "Release image",
-  "drop.imageHint": "pixel art inserts as is, photos open in the pixelizer",
   "palette.none": "No saved palettes yet",
   "tsg.title": "Tint & Shade",
   "tsg.base": "Base",

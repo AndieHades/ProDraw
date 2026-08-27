@@ -32,6 +32,11 @@ all use one operation: decode PSD, create a separate document, persist it in the
 gallery, then open it. The previous document is saved first and remains active
 if decoding or persistence fails.
 
+Window drag-and-drop has no intermediate full-screen release prompt. Dropping a
+file starts routing immediately; a `.psd`/`.psb` name or PSD MIME starts the PSD
+command synchronously, while signature detection remains the fallback for files
+with an unknown extension.
+
 The imported document preserves canvas size/DPI, Unicode names, layer order,
 nested groups, visibility, opacity, clipping, transparency locks, per-pixel
 alpha, rasterized bitmap/vector masks, supported blend modes and layer effects.
@@ -85,6 +90,10 @@ trims transparent padding into document-coordinate bounds and releases the full
 temporary bitmap. Gallery conversion interns identical immutable RGBA cells, and
 grid cloning keeps that sharing through persistence and autosave. This preserves
 the exact visible pixels and editable layer tree without a multi-gigabyte heap.
+Bulk PSD materialization defines imported sparse cells directly and records one
+exact bounds result per layer, instead of running a bounds hook for every pixel.
+On the physical `export-rig.psd`, the observed record-building stage fell from
+about 4.8 seconds to 2.6 seconds on the same machine.
 
 ## Completion Definition
 

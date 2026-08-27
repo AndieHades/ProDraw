@@ -4,6 +4,7 @@ import { defaultReferenceBoard } from '../../core/reference-board.js';
 import { runtimePsdEffectSpecs } from '../../logic/psd-effects.js';
 import { psdGalleryPreview } from './psd-preview.ts';
 import { createRasterCellInterner } from '../../logic/raster-cell-interner.js';
+import { setGridBounds } from '../../logic/raster.js';
 
 const copyEffects = (effects) => effects.map((effect) => ({ ...effect,
   properties: structuredClone(effect.properties) }));
@@ -15,16 +16,25 @@ const runtimePsdEffects = (sources, warnings) => runtimePsdEffectSpecs(sources, 
 
 function rasterLayer(node, width, height, fid, warnings, cells) {
   const layer = newLayer(node.name, width, height), bitmap = node.bitmap;
+  let minx = width, miny = height, maxx = -1, maxy = -1;
   if (node.masks.some((mask) => mask.feather > 0)) warnings.add('mask.feather.approximate');
-  if (bitmap) for (let y = 0; y < bitmap.height; y++) for (let x = 0; x < bitmap.width; x++) {
-    const offset = (y * bitmap.width + x) * 4, alpha = bitmap.rgba[offset + 3];
-    if (!alpha) continue;
-    const px = bitmap.left + x, py = bitmap.top + y;
-    const color = cells.rgba(bitmap.rgba[offset], bitmap.rgba[offset + 1],
-      bitmap.rgba[offset + 2], alpha);
-    if (px >= 0 && py >= 0 && px < width && py < height) layer.grid[py][px] = color;
-    else layer.ext.set(`${px},${py}`, color);
+  if (bitmap) for (let y = 0; y < bitmap.height; y++) {
+    const py = bitmap.top + y; let row = null;
+    for (let x = 0, offset = y * bitmap.width * 4;
+      x < bitmap.width; x++, offset += 4) {
+      const alpha = bitmap.rgba[offset + 3]; if (!alpha) continue;
+      const px = bitmap.left + x;
+      const color = cells.rgba(bitmap.rgba[offset], bitmap.rgba[offset + 1],
+        bitmap.rgba[offset + 2], alpha);
+      if (px >= 0 && py >= 0 && px < width && py < height) {
+        row ||= layer.grid[py]; Reflect.defineProperty(row, String(px), {
+          configurable: true, enumerable: true, writable: true, value: color });
+        minx = Math.min(minx, px); miny = Math.min(miny, py);
+        maxx = Math.max(maxx, px); maxy = Math.max(maxy, py);
+      } else layer.ext.set(`${px},${py}`, color);
+    }
   }
+  setGridBounds(layer.grid, maxx < 0 ? null : { minx, miny, maxx, maxy }, true);
   return { ...layer, fid, visible: node.visible, opacity: node.opacity,
     blendMode: node.blendMode, clip: node.clipping, lock: node.locked,
     alphaLock: node.alphaLocked, masks: copyMasks(node.masks),

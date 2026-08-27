@@ -14,8 +14,12 @@ export function psdDocumentName(fileName: string): string {
   return fileName.replace(PSD_EXTENSION, "") || "PSD";
 }
 
+export function hasPsdIdentity(file: File): boolean {
+  return PSD_EXTENSION.test(file.name) || PSD_MIME.has(file.type.toLowerCase());
+}
+
 export async function isPsdFile(file: File): Promise<boolean> {
-  if (PSD_EXTENSION.test(file.name) || PSD_MIME.has(file.type.toLowerCase())) return true;
+  if (hasPsdIdentity(file)) return true;
   if (file.size < 4) return false;
   const header = new Uint8Array(await file.slice(0, 4).arrayBuffer());
   return header[0] === 56 && header[1] === 66 && header[2] === 80 && header[3] === 83;

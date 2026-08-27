@@ -29,12 +29,3 @@
     #paldrag[data-stack="3"] { box-shadow: var(--win-shadow), 6px 7px 0 var(--panel-solid), 6px 7px 0 1px var(--line),
       12px 14px 0 var(--panel-solid), 12px 14px 0 1px var(--line); }
     #paldrag.on { display: block; }
-    #dropmask { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center;
-      background: rgba(13, 13, 16, .72); backdrop-filter: blur(2px); pointer-events: none; }
-    #dropmask.on { display: flex; }
-    #dropmask > div { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--txt);
-      font-size: var(--type-drop-title); font-weight: var(--fw-display); padding: 28px 40px; border-radius: var(--r-2xl);
-      border: 2px dashed var(--accent); background: rgba(26, 26, 31, .9); }
-    #dropmask small { color: var(--txt2); font-size: var(--type-label); font-weight: var(--fw-regular); }
-
-

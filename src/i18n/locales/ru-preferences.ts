@@ -65,8 +65,6 @@ export const ruPreferences: LocaleDictionary = {
   "reference.flip": "Отразить",
   "reference.saveImage": "Сохранить картинку",
   "reference.emptyHint": "Открой кнопкой папки или перетащи картинку сюда",
-  "drop.releaseImage": "Отпусти картинку",
-  "drop.imageHint": "пиксель-арт вставится как есть, фото — в пикселизатор",
   "palette.none": "Сохранённых палитр пока нет",
   "tsg.title": "Тинты и тени",
   "tsg.base": "База",

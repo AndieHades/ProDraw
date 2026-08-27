@@ -4,6 +4,7 @@
 
 1. Decoder contract: structure, alpha, masks, locks, groups, blend and effects.
 2. Entry matrix: Gallery Import, editor File/Ctrl+O, gallery drop, editor drop.
+   Recognized PSD drop routing begins synchronously and has no release overlay.
 3. Transaction failures: corrupt, oversized, unsupported, persistence rejection,
    superseded import and restart with a healthy prior document.
 4. Persistence: immediate gallery item, close/restart/reopen, thumbnail and name.
@@ -68,5 +69,8 @@ success is reported, and reopen produces the same layer metadata and pixels.
   1.09 GiB of RGBA buffers. Incremental trim retains about 39 MiB of bitmap data.
 - Real-file decode and gallery materialization completed with 233 layers, 121
   folders, zero compatibility warnings and no heap failure.
+- Local real-file timing after direct sparse bulk materialization: about 2.3 s
+  decode plus 2.6 s record construction, versus about 4.8 s record construction
+  before the repair. This timing is evidence, not a cross-machine hard gate.
 - Focused coverage verifies transparent-padding trim, coordinate preservation,
   colour-cell interning, PSD gallery import and preview behavior.
