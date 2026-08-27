@@ -27,14 +27,23 @@ function safeRequestedSegment(value) {
   return safe;
 }
 
-export function exportTreeTarget(session, requestedPath) {
+function exportTreePath(session, requestedPath) {
   if (!Array.isArray(requestedPath) || !requestedPath.length || requestedPath.length > 64) {
     throw new Error("Invalid export path");
   }
   const segments = requestedPath.map(safeRequestedSegment);
-  if (!/\.png$/i.test(segments.at(-1))) throw new Error("Export tree accepts PNG files only");
   const target = path.resolve(session.staging, ...segments);
-  assertInside(session.staging, target); return target;
+  assertInside(session.staging, target); return { segments, target };
+}
+
+export function exportTreeDirectoryTarget(session, requestedPath) {
+  return exportTreePath(session, requestedPath).target;
+}
+
+export function exportTreeTarget(session, requestedPath) {
+  const { segments, target } = exportTreePath(session, requestedPath);
+  if (!/\.png$/i.test(segments.at(-1))) throw new Error("Export tree accepts PNG files only");
+  return target;
 }
 
 export async function createExportTreeSession(parent, suggestedName) {
@@ -48,6 +57,10 @@ export async function createExportTreeSession(parent, suggestedName) {
 export async function writeExportTreeFile(session, requestedPath, bytes) {
   if (!bytes || typeof bytes.byteLength !== "number") throw new Error("Invalid PNG payload");
   await atomicWriteFile(exportTreeTarget(session, requestedPath), bytes);
+}
+
+export async function ensureExportTreeDirectory(session, requestedPath) {
+  await mkdir(exportTreeDirectoryTarget(session, requestedPath), { recursive: true });
 }
 
 async function exists(target) {

@@ -84,31 +84,35 @@ export async function exportTargetPng(target, tight) {
   await saveOne(output); return output;
 }
 
-export async function exportFolderLayersPng(target,
-  writerFactory = createFileTreeWriter) {
-  const node = exportTargetRoot(target, true);
-  if (!node || node.kind !== 'folder') return null;
-  const plan = planFolderPngTree(node);
-  if (!plan.items.length) { toast(t('toast.exportEmpty')); return null; }
+const encodePng = (canvas, name) => FORMATS.png.encode(canvas, name);
+async function writePngTree(plan, writerFactory, renderLayer, encode) {
   let writer = null;
   try {
     writer = await writerFactory(plan.rootName);
     if (!writer) return null;
+    for (const path of plan.directories) await writer.ensureDirectory(path);
     for (const item of plan.items) {
-      const output = await FORMATS.png.encode(standaloneLayerCanvas(item.node),
-        item.node.name);
+      const output = await encode(renderLayer(item.node), item.node.name);
       if (!output.blob) throw new Error('PNG encoder returned no data');
       await writer.write(item.path, output.blob);
     }
     const result = await writer.commit();
     toast(t('toast.exported', { n: plan.items.length }));
-    return { ...result, items: plan.items };
+    return { ...result, directories: plan.directories, items: plan.items };
   } catch (error) {
     await writer?.abort().catch(() => undefined);
     toast(t(error instanceof FileTreeUnsupportedError
       ? 'toast.folderExportUnavailable' : 'toast.folderExportFailed'));
     return null;
   }
+}
+
+export async function exportFolderLayersPng(target,
+  writerFactory = createFileTreeWriter, renderLayer = standaloneLayerCanvas,
+  encode = encodePng) {
+  const node = exportTargetRoot(target, true);
+  if (!node || node.kind !== 'folder') return null;
+  return writePngTree(planFolderPngTree(node), writerFactory, renderLayer, encode);
 }
 
 export const exportSingleLayer = exportTargetPng;

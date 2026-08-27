@@ -37,6 +37,7 @@ export interface ConfirmDiscardRequest {
 
 export interface DesktopFileTreeBridge {
   begin(suggestedName: string): Promise<{ readonly token: string } | null>;
+  ensureDirectory(token: string, relativePath: readonly string[]): Promise<boolean>;
   write(token: string, relativePath: readonly string[], bytes: ArrayBuffer): Promise<boolean>;
   commit(token: string): Promise<{ readonly name: string; readonly location: string }>;
   abort(token: string): Promise<boolean>;

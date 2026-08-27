@@ -18,3 +18,11 @@ colour active and copies its uppercase HEX value to the clipboard.
 The toolbar exposes `Отразить холст по горизонтали`. It changes every stored
 raster layer, not only the viewport, and therefore the same mirrored pixels
 are persisted and exported. Layer tree metadata is not changed.
+
+The layer-folder context menu exposes a PNG tree export. One directory choice
+creates one collision-safe folder named after the selected folder. Every raster
+layer in that subtree, including hidden and empty layers, is written as a PNG
+with the exact document width and height. Hidden layers render their stored
+pixels rather than an empty visibility-filtered canvas. Nested and empty layer
+folders become matching directories, with Windows-safe collision-resistant
+names. Rendering and writes are sequential; no per-file save dialog is opened.

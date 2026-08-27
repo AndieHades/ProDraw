@@ -39,6 +39,7 @@ describe("selectPlatform", () => {
       },
       fileTree: {
         begin: vi.fn(async () => null),
+        ensureDirectory: vi.fn(async () => true),
         write: vi.fn(async () => true),
         commit: vi.fn(async () => ({ name: "Layers", location: "C:\\Art\\Layers" })),
         abort: vi.fn(async () => true)

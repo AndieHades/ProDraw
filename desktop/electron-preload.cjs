@@ -6,6 +6,7 @@ const channels = {
   fileWrite: "prodraw:file:write",
   fileConfirmDiscard: "prodraw:file:confirm-discard",
   exportTreeBegin: "prodraw:export-tree:begin",
+  exportTreeEnsureDirectory: "prodraw:export-tree:ensure-directory",
   exportTreeWrite: "prodraw:export-tree:write",
   exportTreeCommit: "prodraw:export-tree:commit",
   exportTreeAbort: "prodraw:export-tree:abort",
@@ -54,6 +55,8 @@ contextBridge.exposeInMainWorld("prodrawDesktop", {
   fileTree: {
     begin: (suggestedName) =>
       ipcRenderer.invoke(channels.exportTreeBegin, suggestedName),
+    ensureDirectory: (token, relativePath) =>
+      ipcRenderer.invoke(channels.exportTreeEnsureDirectory, token, relativePath),
     write: (token, relativePath, bytes) =>
       ipcRenderer.invoke(channels.exportTreeWrite, token, relativePath, bytes),
     commit: (token) => ipcRenderer.invoke(channels.exportTreeCommit, token),

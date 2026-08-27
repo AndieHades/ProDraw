@@ -4,6 +4,7 @@ module.exports = Object.freeze({
   fileWrite: "prodraw:file:write",
   fileConfirmDiscard: "prodraw:file:confirm-discard",
   exportTreeBegin: "prodraw:export-tree:begin",
+  exportTreeEnsureDirectory: "prodraw:export-tree:ensure-directory",
   exportTreeWrite: "prodraw:export-tree:write",
   exportTreeCommit: "prodraw:export-tree:commit",
   exportTreeAbort: "prodraw:export-tree:abort",

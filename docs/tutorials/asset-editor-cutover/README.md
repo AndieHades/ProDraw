@@ -2,7 +2,7 @@
 
 Status: `done`
 
-Evidence baseline: `aset-editor@db8617c`, 2026-08-23.
+Evidence baseline: `aset-editor@fba9bea`, 2026-08-26.
 
 ## Scope
 
@@ -19,6 +19,10 @@ viewport navigation remain protected behavior.
 producer for active or multiple selected layers. `ASSET-05` reduces the crop
 panel to canvas-size and crop controls only. `ASSET-06` writes an opened PSD
 back to its original desktop path and acknowledges only a successful write.
+`ASSET-07` completes the layer-folder context-menu PNG-tree action: one
+directory choice creates a folder named after the selected folder, preserves
+nested layer folders and writes every visible or hidden layer at full canvas
+size with its stored pixels.
 
 ## Stages
 
@@ -30,6 +34,7 @@ back to its original desktop path and acknowledges only a successful write.
 | `AE3` | validation, cleanup and handoff | done |
 | `AE4` | unified PSD selected-layer export and crop-panel cleanup | done |
 | `AE5` | opened PSD save to original desktop file | done |
+| `AE6` | one-session folder-subtree PNG export | done |
 
 ## Completion definition
 
@@ -44,19 +49,23 @@ back to its original desktop path and acknowledges only a successful write.
   several selected layers.
 - Save overwrites the original opened `.psd` atomically and reports success
   only after the desktop write completes.
+- Folder-tree export asks for a directory once, creates one collision-safe
+  selected-folder root and preserves every layer and nested folder without
+  trimming or blanking hidden leaves.
 
 ## Resume Here
 
 - Current stage: `complete`
 - Status: `done`
-- Last completed stage: `AE5 — PSD save to original desktop file`
-- Next action: user-owned visual acceptance.
+- Last completed stage: `AE6 — one-session folder-subtree PNG export`
+- Next action: user-owned visual acceptance from the permanent desktop shortcut.
 - Blockers: none.
-- Working paths: `src/legacy-entry.js`, `src/app.js`, `src/systems/draw`,
-  `src/ui/shell`, `src/app`, `src/core`, `index.html`, `tests`.
-- Last checks: focused save/import/cursor tests passed; source, lint and wide
-  validation gates run; no visual QA requested.
-- Last updated: 2026-08-23
+- Working paths: `src/systems/export`, `src/logic/export`, `src/platform`,
+  `desktop`, `src/i18n`, `index.html`, `tests`.
+- Last checks: focused export tests `9/9`; changed-surface tests `243/243`;
+  TypeScript, lint, docs, lines, architecture, cycles, cutover, desktop,
+  raster-entry and shell-catalog gates; packaged desktop smoke passed.
+- Last updated: 2026-08-26
 
 ## Chapters
 

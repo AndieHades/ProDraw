@@ -14,6 +14,7 @@ export interface FolderPngLeafPlan {
 
 export interface FolderPngPlan {
   readonly rootName: string;
+  readonly directories: readonly (readonly string[])[];
   readonly items: readonly FolderPngLeafPlan[];
 }
 
@@ -32,23 +33,28 @@ export function safeExportSegment(value: string, fallback: string): string {
 }
 
 function uniqueSegment(base: string, used: Set<string>, extension = ""): string {
-  let attempt = `${base}${extension}`;
-  for (let index = 2; used.has(attempt.toLowerCase()); index += 1) {
-    attempt = `${base}_${index}${extension}`;
+  for (let index = 1; index < 10000; index += 1) {
+    const suffix = index === 1 ? "" : `_${index}`;
+    const stem = Array.from(base).slice(0,
+      MAX_SEGMENT_CHARS - suffix.length - extension.length).join("");
+    const attempt = `${stem}${suffix}${extension}`;
+    if (used.has(attempt.toLowerCase())) continue;
+    used.add(attempt.toLowerCase()); return attempt;
   }
-  used.add(attempt.toLowerCase());
-  return attempt;
+  throw new Error("Could not reserve a unique export path");
 }
 
 function visit(nodes: readonly FolderPngNode[], path: readonly string[],
-  items: FolderPngLeafPlan[]): void {
+  directories: (readonly string[])[], items: FolderPngLeafPlan[]): void {
   const used = new Set<string>();
   for (const node of nodes) {
     const fallback = node.kind === "folder" ? "Folder" : "Layer";
     const base = safeExportSegment(node.name, fallback);
     if (node.kind === "folder") {
       const folder = uniqueSegment(base, used);
-      visit(node.children ?? [], [...path, folder], items);
+      const directory = [...path, folder];
+      directories.push(directory);
+      visit(node.children ?? [], directory, directories, items);
     } else {
       const fileName = uniqueSegment(base, used, ".png");
       items.push({ path: [...path, fileName], node });
@@ -58,7 +64,8 @@ function visit(nodes: readonly FolderPngNode[], path: readonly string[],
 
 export function planFolderPngTree(root: FolderPngNode): FolderPngPlan {
   if (root.kind !== "folder") throw new Error("Folder PNG export requires a folder root");
+  const directories: (readonly string[])[] = [];
   const items: FolderPngLeafPlan[] = [];
-  visit(root.children ?? [], [], items);
-  return { rootName: safeExportSegment(root.name, "Folder"), items };
+  visit(root.children ?? [], [], directories, items);
+  return { rootName: safeExportSegment(root.name, "Folder"), directories, items };
 }

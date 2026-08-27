@@ -6,6 +6,7 @@ export interface FileTreeWriteResult {
 }
 
 export interface FileTreeWriter {
+  ensureDirectory(path: readonly string[]): Promise<void>;
   write(path: readonly string[], blob: Blob): Promise<void>;
   commit(): Promise<FileTreeWriteResult>;
   abort(): Promise<void>;
@@ -35,6 +36,10 @@ async function desktopWriter(rootName: string,
   if (!session) return null;
   let open = true;
   return {
+    async ensureDirectory(path) {
+      if (!open || !path.length) throw new Error("Invalid directory export path");
+      await bridge.fileTree.ensureDirectory(session.token, path);
+    },
     async write(path, blob) {
       if (!open) throw new Error("Directory export session is closed");
       await bridge.fileTree.write(session.token, path, await blob.arrayBuffer());
@@ -78,13 +83,20 @@ async function webWriter(rootName: string): Promise<FileTreeWriter | null> {
   try { parent = await pickerWindow.showDirectoryPicker({ mode: "readwrite" }); }
   catch (error) { if (errorName(error) === "AbortError") return null; throw error; }
   const root = await uniqueDirectory(parent, rootName); let open = true;
+  const ensureDirectory = async (path: readonly string[]) => {
+    if (!open || !path.length) throw new Error("Invalid directory export path");
+    let directory = root.handle;
+    for (const segment of path) {
+      directory = await directory.getDirectoryHandle(segment, { create: true });
+    }
+    return directory;
+  };
   return {
+    async ensureDirectory(path) { await ensureDirectory(path); },
     async write(path, blob) {
       if (!open || !path.length) throw new Error("Invalid directory export write");
-      let directory = root.handle;
-      for (const segment of path.slice(0, -1)) {
-        directory = await directory.getDirectoryHandle(segment, { create: true });
-      }
+      const directory = path.length === 1 ? root.handle
+        : await ensureDirectory(path.slice(0, -1));
       const fileName = path[path.length - 1]!;
       const file = await directory.getFileHandle(fileName, { create: true });
       const writable = await file.createWritable();

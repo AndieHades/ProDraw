@@ -2,7 +2,7 @@ import { app, BrowserWindow, dialog } from "electron";
 import channels from "./ipc-channels.cjs";
 import { handleTrusted } from "./trusted-ipc.mjs";
 import { abortExportTree, commitExportTree, createExportTreeSession,
-  writeExportTreeFile } from "./export-tree-files.mjs";
+  ensureExportTreeDirectory, writeExportTreeFile } from "./export-tree-files.mjs";
 
 const sessions = new Map();
 let lastDirectory = null;
@@ -25,6 +25,10 @@ export function registerExportTreeIpc() {
     const session = await createExportTreeSession(parent, suggestedName);
     sessions.set(session.token, session); return { token: session.token };
   });
+  handleTrusted(channels.exportTreeEnsureDirectory,
+    async (_event, token, relativePath) => {
+      await ensureExportTreeDirectory(sessionFor(token), relativePath); return true;
+    });
   handleTrusted(channels.exportTreeWrite, async (_event, token, relativePath, bytes) => {
     await writeExportTreeFile(sessionFor(token), relativePath, bytes); return true;
   });

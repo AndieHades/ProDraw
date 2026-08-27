@@ -71,8 +71,8 @@ if (/require\(["']\.\//.test(preload)) {
 for (const marker of ["fileWrite", "fileConfirmDiscard", "closeRequest", "closeDecision"]) {
   if (!preload.includes(marker)) errors.push(`preload lifecycle capability missing: ${marker}`);
 }
-for (const marker of ["exportTreeBegin", "exportTreeWrite", "exportTreeCommit",
-  "exportTreeAbort"]) {
+for (const marker of ["exportTreeBegin", "exportTreeEnsureDirectory", "exportTreeWrite",
+  "exportTreeCommit", "exportTreeAbort"]) {
   if (!preload.includes(marker)) errors.push(`preload export capability missing: ${marker}`);
 }
 if (preload.includes("Array.from(new Uint8Array(request.bytes))")) {

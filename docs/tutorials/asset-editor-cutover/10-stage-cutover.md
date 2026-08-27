@@ -14,6 +14,9 @@
    menu through one producer; selected siblings must be included in order.
 6. Retire crop-panel grid visibility and cell-size controls without changing
    crop or document resize behavior.
+7. Complete the layer-folder context-menu PNG-tree action; route it through a
+   single staged directory session, preserve empty/nested folders and render
+   every hidden or visible leaf at full canvas dimensions.
 
 ## Failure cases
 
@@ -22,6 +25,10 @@
 - Flip does not reorder layers or change visibility, opacity or names.
 - PSD decode failure remains transactional and does not replace active work.
 - Context-menu export does not silently drop selected sibling layers.
+- Folder-tree export never invokes one save dialog per PNG and leaves no
+  published partial root after cancellation or failure.
+- Hidden leaves retain their stored pixels even when a layer or ancestor folder
+  is currently invisible.
 
 ## Acceptance
 
