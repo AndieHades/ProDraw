@@ -8,13 +8,16 @@ configurable size and opacity and offers a hard round or square footprint.
 Pencil writes the active color; Eraser clears alpha. The default size is 5 px
 and the last selected built-in shape is restored. Neither has pressure, tilt,
 smoothing, spacing, external preset, grain, source image, preview or cursor
-behavior. They obey the existing editable-layer, selection, tile-wrap, history
-and cancellation boundaries.
+asset behavior. Their size/shape boundary remains visible under the pointer while
+a stroke is being drawn. They obey the existing editable-layer, selection,
+tile-wrap, history and cancellation boundaries.
 Choosing Pencil or Eraser while Free Transform is active applies the current
 transform and closes its frame before the paint tool becomes active. The same
 transition contract applies to toolbar buttons, hotkeys and pen-button routing.
 While Free Transform remains active, its toolbar button is the only primary tool
 shown as active; the remembered Pencil, Eraser, or shape tool is not highlighted.
+Applying or cancelling Free Transform restores that remembered tool instead of
+forcing Pencil; its toolbar icon becomes active again immediately.
 
 Dropping a PNG or PSD over either the gallery or the open editor creates and
 opens a separate gallery document immediately. PNG keeps native RGBA pixels in

@@ -24,22 +24,25 @@ describe("tool panel active state", () => {
   });
 
   it("hides the remembered paint tool while Free Transform is active", () => {
-    let state = { ...baseState(), rotationActive: true };
+    let state = { ...baseState(), rotationActive: true, tool: "eraser" };
     const listeners: Array<() => void> = [];
+    const setTool = vi.fn();
     const port: ToolPanelPort = {
       changed: vi.fn(), ensureSymmetryDefaults: vi.fn(), registerAction: vi.fn(),
-      replaceAction: vi.fn(), run: vi.fn(), setLineMode: vi.fn(), setShape: vi.fn(),
-      setSymEnabled: vi.fn(), setSymLineMode: vi.fn(), setTool: vi.fn(), state: () => state,
+      replaceAction: vi.fn(), run: vi.fn((name) => { if (name === "transform.apply") {
+        state = { ...state, rotationActive: false }; listeners[0]?.();
+      } }), setLineMode: vi.fn(), setShape: vi.fn(),
+      setSymEnabled: vi.fn(), setSymLineMode: vi.fn(), setTool, state: () => state,
       subscribe: (_event, listener) => listeners.push(listener), toggleSymmetry: vi.fn()
     };
     new ToolPanelPresenter(port).mount();
 
-    expect(document.getElementById("t-pencil")?.classList.contains("on")).toBe(false);
+    expect(document.getElementById("t-eraser")?.classList.contains("on")).toBe(false);
     expect(document.getElementById("t-move")?.classList.contains("on")).toBe(true);
 
-    state = { ...state, rotationActive: false };
-    expect(listeners).toHaveLength(2); listeners[0]!();
-    expect(document.getElementById("t-pencil")?.classList.contains("on")).toBe(true);
+    document.getElementById("t-move")?.click();
+    expect(setTool).not.toHaveBeenCalled();
+    expect(document.getElementById("t-eraser")?.classList.contains("on")).toBe(true);
     expect(document.getElementById("t-move")?.classList.contains("on")).toBe(false);
   });
 });

@@ -40,7 +40,7 @@ export class ToolPanelPresenter {
       shape: () => this.shapeToolActive() ? this.activateBrush() :
         this.activateShape(this.#modes.shape),
       move: () => { if (this.#port.state().rotationActive) {
-        this.#port.run("transform.apply"); this.activateBrush();
+        this.#port.run("transform.apply");
       } else this.#port.run("transform.enter"); },
       select: () => { const state = this.#port.state();
         if (state.tool === "select" || state.selectionActive) this.clearSelection();

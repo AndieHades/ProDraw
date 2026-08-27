@@ -15,5 +15,8 @@ and alpha readback success.
 Paint-tool transition coverage proves that Pencil and Eraser apply and close an
 active Free Transform before activation, while unrelated tool transitions keep
 their existing behavior.
+Toolbar coverage proves that closing Free Transform restores the remembered
+Eraser without selecting Pencil. Cursor coverage keeps Pencil and Eraser
+boundaries visible during active strokes.
 
 Do not run screenshot QA: visual acceptance is explicitly user-owned.
