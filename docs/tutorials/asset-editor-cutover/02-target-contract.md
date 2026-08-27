@@ -13,6 +13,8 @@ and cancellation boundaries.
 Choosing Pencil or Eraser while Free Transform is active applies the current
 transform and closes its frame before the paint tool becomes active. The same
 transition contract applies to toolbar buttons, hotkeys and pen-button routing.
+While Free Transform remains active, its toolbar button is the only primary tool
+shown as active; the remembered Pencil, Eraser, or shape tool is not highlighted.
 
 The colour picker samples the render composite rather than a source layer, so
 it sees the visible colour under the pointer. A completed pick makes that

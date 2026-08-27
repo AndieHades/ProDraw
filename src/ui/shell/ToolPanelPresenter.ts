@@ -119,8 +119,9 @@ export class ToolPanelPresenter {
   private syncModes(): void { this.#modes.sync(this.#port.state()); }
   private syncTools(): void {
     const state = this.#port.state(); this.#modes.updateShapeFrom(state);
-    for (const id of TOOL_IDS) element(`t-${id}`).classList.toggle("on", state.tool === id);
-    element("t-shape").classList.toggle("on", this.shapeToolActive());
+    for (const id of TOOL_IDS) element(`t-${id}`).classList.toggle("on",
+      !state.rotationActive && state.tool === id);
+    element("t-shape").classList.toggle("on", !state.rotationActive && this.shapeToolActive());
     element("t-select").classList.toggle("on", !state.rotationActive &&
       (state.tool === "select" || state.selectionActive));
     element("t-move").classList.toggle("on", state.rotationActive);
