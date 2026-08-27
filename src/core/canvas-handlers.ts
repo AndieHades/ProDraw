@@ -2,6 +2,7 @@
 // stays opaque here because each tool owns its more specific pointer contract.
 export interface CanvasHandler {
   readonly down?: (context: unknown) => unknown;
+  readonly hit?: (context: unknown) => unknown;
   readonly move?: (context: unknown) => unknown;
   readonly up?: (context: unknown) => unknown;
   readonly hover?: (context: unknown) => unknown;

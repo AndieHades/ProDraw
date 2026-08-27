@@ -18,6 +18,10 @@ While Free Transform remains active, its toolbar button is the only primary tool
 shown as active; the remembered Pencil, Eraser, or shape tool is not highlighted.
 Applying or cancelling Free Transform restores that remembered tool instead of
 forcing Pencil; its toolbar icon becomes active again immediately.
+While Free Transform remains active, dragging outside its frame with either the
+left or right mouse button pans the canvas without applying or cancelling the
+transform. Inside the frame, left drag controls Transform and right click opens
+its context menu.
 
 Dropping a PNG or PSD over either the gallery or the open editor creates and
 opens a separate gallery document immediately. PNG keeps native RGBA pixels in

@@ -131,6 +131,7 @@ export function mount() {
   $('trctx-rot-r').onclick = () => { $('trctx').classList.remove('on'); menuStep((m) => { m.ang += Math.PI / 2; }); };
   $('trctx-rot-l').onclick = () => { $('trctx').classList.remove('on'); menuStep((m) => { m.ang -= Math.PI / 2; }); };
   registerMode('transform', {
+    hit: ({ e }) => rotHit(e),
     down: ({ e }) => { if (e && e.pointerType !== 'touch' && !rotHit(e)) { if (S.rotMode) S.rotMode.exitOnUp = true; return; } // ЛКМ/перо вне рамки — применить (как клик вне выделения)
       if (S.rotMode) S.rotMode.exitOnUp = false; rotGrab({ e }); },
     move: ({ e }) => rotDrag(e, rotRebuildSoon),
@@ -143,7 +144,6 @@ export function mount() {
     if (e.key === 'Enter') { e.preventDefault(); exitRotMode(true); }
     else if (e.key === 'Escape') { e.preventDefault(); exitRotMode(false); } });
 }
-
 actions.register('transform.enter', () => { if (S.sel || S.selFloat) { if (S.tool === 'lasso') setTool('pencil'); enterSelectionRotMode(); return; } enterRotMode(activeTargets()); });
 actions.register('transform.enterTargets', (targets) => enterRotMode(targets));
 actions.register('transform.cancel', () => exitRotMode(false));

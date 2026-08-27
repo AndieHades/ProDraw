@@ -31,13 +31,15 @@ function releaseCapture(e) { const id = e?.pointerId ?? activePointerId;
   activePointerId = null; try { cv().releasePointerCapture(id); } catch (error) {} }
 export function down(e) {
   if (e.pointerId != null) { activePointerId = e.pointerId; capture(e.pointerId); }
-  if (e.pointerType === 'mouse' && e.button === 2 && S.rotMode) { bus.emit('transform-menu', e); return; }
   const [rx, ry] = toCanvas(e), gx = Math.floor(rx), gy = Math.floor(ry);
-  if (e.pointerType === 'mouse' && !S.cropMode && !S.rotMode
-      && (e.button === 1 || e.button === 2 || (e.button === 0 && !inWorkArea(gx, gy)))) {
+  const m = activeMode(), modeHit = m?.hit?.({ gx, gy, rx, ry, e });
+  if (e.pointerType === 'mouse' && e.button === 2 && S.rotMode && modeHit) {
+    bus.emit('transform-menu', e); return; }
+  if (e.pointerType === 'mouse' && !S.cropMode && (e.button === 1 || e.button === 2 ||
+      (e.button === 0 && (!inWorkArea(gx, gy) || (S.rotMode && !modeHit))))) {
     startPan(e); return; }
   if (e.pointerType === 'mouse' && e.button && !(S.cropMode && e.button === 2)) return;
-  const m = activeMode(); if (m) { m.down({ gx, gy, rx, ry, e }); drawing = true; return; }
+  if (m) { m.down({ gx, gy, rx, ry, e }); drawing = true; return; }
   for (const gh of globalHandlers()) if (gh.down && gh.down({ gx, gy, rx, ry, e })) { activeGlobal = gh; drawing = true; return; }
   if (S.sel && S.tool !== 'select' && S.tool !== 'lasso' && !selHit(gx, gy)) { actions.run('select.none'); return; } // лассо строит контур поверх существующего выделения (add/subtract/intersect)
   const h = toolHandler(S.tool); if (h && h.down) { h.down({ gx, gy, rx, ry, e }); drawing = true; }

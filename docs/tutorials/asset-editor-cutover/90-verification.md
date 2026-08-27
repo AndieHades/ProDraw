@@ -18,5 +18,8 @@ their existing behavior.
 Toolbar coverage proves that closing Free Transform restores the remembered
 Eraser without selecting Pencil. Cursor coverage keeps Pencil and Eraser
 boundaries visible during active strokes.
+Input coverage proves that left/right mouse drags outside the Transform frame
+pan the canvas without closing the mode, while left drag inside remains owned by
+Transform.
 
 Do not run screenshot QA: visual acceptance is explicitly user-owned.
