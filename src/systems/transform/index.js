@@ -30,6 +30,8 @@ function rotRebuild() { if (!S.rotMode) return;
   bus.emit('render'); }
 const rotRebuildSoon = () => { cancelAnimationFrame(rotRAF); rotRAF = requestAnimationFrame(rotRebuild); };
 bus.on('visibility', () => { if (S.rotMode) rotRebuild(); });
+bus.on('before-tool-change', (tool) => { if (S.rotMode &&
+  (tool === 'pencil' || tool === 'eraser')) actions.run('transform.apply'); });
 
 const cloneSel = (s) => (s ? { x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1 } : null);
 const cloneMask = (m, sel) => cloneSelectionMask(m, sel, S.W, S.H);

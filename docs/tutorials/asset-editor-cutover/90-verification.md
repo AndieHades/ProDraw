@@ -12,4 +12,8 @@ lines, architecture, cycles, cutover, desktop, raster-entry and shell-catalog
 gates passed. The packaged desktop smoke reported workspace, file-tree bridge
 and alpha readback success.
 
+Paint-tool transition coverage proves that Pencil and Eraser apply and close an
+active Free Transform before activation, while unrelated tool transitions keep
+their existing behavior.
+
 Do not run screenshot QA: visual acceptance is explicitly user-owned.

@@ -10,6 +10,9 @@ and the last selected built-in shape is restored. Neither has pressure, tilt,
 smoothing, spacing, external preset, grain, source image, preview or cursor
 behavior. They obey the existing editable-layer, selection, tile-wrap, history
 and cancellation boundaries.
+Choosing Pencil or Eraser while Free Transform is active applies the current
+transform and closes its frame before the paint tool becomes active. The same
+transition contract applies to toolbar buttons, hotkeys and pen-button routing.
 
 The colour picker samples the render composite rather than a source layer, so
 it sees the visible colour under the pointer. A completed pick makes that
