@@ -18,6 +18,8 @@
   индекс галереи и компактная обрезка больших документов.
 - [Global canvas pan](project/global-canvas-pan-plan.md) — средняя кнопка и
   Space+ЛКМ панорамируют во всех инструментах и режимах.
+- [Selected layer trim](project/selected-layer-trim-plan.md) — отдельная команда
+  обрезает холст по объединённому контуру выбранных слоёв и папок с точным Undo.
 - [PNG drop destination](project/png-drop-destination-plan.md) — выбор нового
   документа или верхнего слоя при PNG-drop над открытым холстом.
 - [Layer-selection PNG export](project/layer-png-selection-export-plan.md) —
