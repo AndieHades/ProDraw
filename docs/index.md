@@ -16,6 +16,8 @@
   полоса этапов для импорта, который длится дольше двух секунд.
 - [Gallery memory safety](tutorials/gallery-memory-safety/README.md) — лёгкий
   индекс галереи и компактная обрезка больших документов.
+- [Global canvas pan](project/global-canvas-pan-plan.md) — средняя кнопка и
+  Space+ЛКМ панорамируют во всех инструментах и режимах.
 - [PNG drop destination](project/png-drop-destination-plan.md) — выбор нового
   документа или верхнего слоя при PNG-drop над открытым холстом.
 - [Layer-selection PNG export](project/layer-png-selection-export-plan.md) —
