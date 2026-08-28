@@ -12,6 +12,8 @@
 
 ## Живые планы
 
+- [Layer-selection PNG export](project/layer-png-selection-export-plan.md) —
+  две контекстные PNG-команды сохраняют один слой либо выбранное дерево слоёв.
 - [Raster editor migration](tutorials/raster-editor-migration/README.md) — переход
   от pixel-grid редактора к TypeScript/RGBA-движку и профессиональным кистям.
 - [R2.11 TypeScript/RGBA owner cutover](tutorials/raster-editor-migration/r2-11-owner-cutover/README.md)
