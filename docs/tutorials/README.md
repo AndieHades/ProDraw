@@ -13,3 +13,5 @@
   вертикальный план открытия PSD новым документом с сохранением структуры.
 - [`asset-editor-cutover/`](asset-editor-cutover/README.md) — удаление brush
   subsystem, простой ластик и постоянное отражение документа.
+- [`gallery-memory-safety/`](gallery-memory-safety/README.md) — безопасная по
+  памяти галерея и компактные Crop/Trim для больших документов.
