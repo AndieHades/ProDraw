@@ -12,6 +12,8 @@
 
 ## Живые планы
 
+- [PNG drop destination](project/png-drop-destination-plan.md) — выбор нового
+  документа или верхнего слоя при PNG-drop над открытым холстом.
 - [Layer-selection PNG export](project/layer-png-selection-export-plan.md) —
   две контекстные PNG-команды сохраняют один слой либо выбранное дерево слоёв.
 - [Raster editor migration](tutorials/raster-editor-migration/README.md) — переход
