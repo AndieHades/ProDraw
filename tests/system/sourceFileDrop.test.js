@@ -23,11 +23,13 @@ describe("source file drop routing", () => {
 
   it("opens PNG dropped on the gallery as a source-bound document", async () => {
     mount(true); const file = png(), choose = vi.fn(), routed = [];
+    const progress = { stage: vi.fn(), finish: vi.fn() };
     actions.registerOrReplace("gallery.importDrop", async (...args) => routed.push(args));
     await dropImage(file, () => "C:\\Art\\overlay.png",
-      { choosePngDestination: choose });
-    expect(routed).toEqual([[file, "C:\\Art\\overlay.png"]]);
+      { choosePngDestination: choose, beginGalleryProgress: () => progress });
+    expect(routed).toEqual([[file, "C:\\Art\\overlay.png", progress]]);
     expect(choose).not.toHaveBeenCalled();
+    expect(progress.finish).toHaveBeenCalledWith(true);
   });
 
   it("offers the same source-bound document route over an open canvas", async () => {
@@ -69,6 +71,18 @@ describe("source file drop routing", () => {
       { choosePngDestination: choose });
     expect(routed).toHaveBeenCalledWith(file, "C:\\Art\\layers.psd");
     expect(choose).not.toHaveBeenCalled();
+  });
+
+  it("keeps gallery PSD progress open through the routed command", async () => {
+    mount(true); const file = new File(["8BPS"], "large.psd",
+      { type: "image/vnd.adobe.photoshop" });
+    const progress = { stage: vi.fn(), finish: vi.fn() };
+    const routed = vi.fn(async () => true);
+    actions.registerOrReplace("import.psdFile", routed);
+    await dropImage(file, () => "C:\\Art\\large.psd",
+      { beginGalleryProgress: () => progress });
+    expect(routed).toHaveBeenCalledWith(file, "C:\\Art\\large.psd", progress);
+    expect(progress.finish).toHaveBeenCalledWith(true);
   });
 
   it("resolves modal buttons and replaces an unresolved choice", async () => {

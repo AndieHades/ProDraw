@@ -37,6 +37,9 @@ file starts routing immediately; a `.psd`/`.psb` name or PSD MIME starts the PSD
 command synchronously, while signature detection remains the fallback for files
 with an unknown extension. The Windows drop route retains a `.psd` source path,
 so ordinary Save writes the updated layered PSD back without another dialog.
+When the drop begins over the gallery and remains active for more than two
+seconds, [`GDP1`](../../project/gallery-drop-import-progress-plan.md) shows one
+progress bar through decode, layer preparation, persistence and document open.
 
 The imported document preserves canvas size/DPI, Unicode names, layer order,
 nested groups, visibility, opacity, clipping, transparency locks, per-pixel

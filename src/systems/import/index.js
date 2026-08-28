@@ -13,6 +13,7 @@ import { setImpData, impConvert, applyImport, rotateImp, setImportMode, getImpor
 import { hasPsdIdentity, isPsdFile } from './psd-file.ts';
 import { droppedFileLocation } from './desktop-file.js';
 import { requestPngDropDestination } from '../../ui/import/PngDropDestinationPresenter.ts';
+import { beginGalleryImportProgress } from '../../ui/import/GalleryImportProgressPresenter.ts';
 
 let impSrcImg = null;
 export { looksPixelArt };
@@ -60,6 +61,12 @@ function centerImpBox() { const b = $('imp-box'); if (!b) return;
 // Точный пиксель-арт вставляется как есть — конвертер не открывается ни в каком случае.
 const isPngFile = (file) => file.type.toLowerCase() === 'image/png' || /\.png$/i.test(file.name);
 const baseName = (name) => name.replace(/\.png$/i, '');
+async function runGalleryImport(file, beginProgress, operation) {
+  const progress = beginProgress(file.name);
+  try { await progress.ready?.();
+    const result = await operation(progress); progress.finish(result !== false); return result; }
+  catch (error) { progress.finish(false); throw error; }
+}
 export function insertPngFileAsLayer(file) {
   return new Promise((resolve) => { const url = URL.createObjectURL(file), im = new Image();
     im.onerror = () => { URL.revokeObjectURL(url); toast(t('toast.imgOpenFail')); resolve(false); };
@@ -68,20 +75,27 @@ export function insertPngFileAsLayer(file) {
 }
 export async function dropImage(file, locationFor = droppedFileLocation, dependencies = {}) { if (!file) return;
   const sourceLocation = locationFor(file);
+  const galleryOpen = typeof document !== 'undefined' &&
+    Boolean($('gallery')?.classList.contains('on'));
+  const runForGallery = (operation) => runGalleryImport(file,
+    dependencies.beginGalleryProgress ?? beginGalleryImportProgress, operation);
   if (hasPsdIdentity(file) || await isPsdFile(file)) {
+    if (galleryOpen) return runForGallery((progress) =>
+      actions.run('import.psdFile', file, sourceLocation, progress));
     await actions.run('import.psdFile', file, sourceLocation); return;
   }
   if (!file.type.startsWith('image/') && !/\.(?:png|jpe?g|gif|webp|bmp|avif)$/i.test(file.name)) {
     toast(t('toast.notImage')); return; }
   if (isPngFile(file)) {
-    const galleryOpen = $('gallery').classList.contains('on');
-    const destination = galleryOpen ? 'document'
-      : await (dependencies.choosePngDestination ?? requestPngDropDestination)();
+    if (galleryOpen) return runForGallery((progress) =>
+      actions.run('gallery.importDrop', file, sourceLocation, progress));
+    const destination = await (dependencies.choosePngDestination ?? requestPngDropDestination)();
     if (destination === 'document') await actions.run('gallery.importDrop', file, sourceLocation);
     else if (destination === 'layer') await (dependencies.insertPngLayer ?? insertPngFileAsLayer)(file);
     return destination;
   }
-  if ($('gallery').classList.contains('on')) { setImportMode('replace'); actions.run('gallery.importDrop', file); return; }
+  if (galleryOpen) { setImportMode('replace');
+    return runForGallery((progress) => actions.run('gallery.importDrop', file, null, progress)); }
   const im = new Image(); im.onerror = () => toast(t('toast.imgOpenFail'));
   im.onload = () => { if (looksPixelArt(im)) insertImageTop(im); else { setImportMode('layer'); openImport(file); } };
   im.src = URL.createObjectURL(file); }

@@ -73,6 +73,10 @@
   ESLint, docs, hooks, lines, architecture, cycles, cutover, desktop boundary,
   raster entry and shell catalog passed; packaged Windows smoke passed.
 
+Current surface: [`GDP1`](gallery-drop-import-progress-plan.md) adds a delayed
+progress bar to the gallery new-document route without changing the editor
+destination choice or layer insertion behavior.
+
 ## Resume Here
 
 - Current stage: complete

@@ -34,18 +34,34 @@ function pick(accept, fn) { const i = document.createElement('input'); i.type = 
 
 // картинка → новый проект: пиксель-арт сразу как есть, иначе через Pixelize (конвертер)
 const isPngFile = (file) => file.type.toLowerCase() === 'image/png' || /\.png$/i.test(file.name);
-function fromFile(f, sourceLocation = null) { const im = new Image(), url = URL.createObjectURL(f);
-  im.onerror = () => { URL.revokeObjectURL(url); toast(t('toast.imgOpenFail')); };
-  im.onload = async () => { URL.revokeObjectURL(url);
-    if (isPngFile(f)) { const d = imageData(im, im.naturalWidth, im.naturalHeight, false);
-      if (await newWorkFromImage(d.width, d.height, d.data,
-        f.name.replace(/\.png$/i, ''), 'png', sourceLocation)) hide();
-      else toast(t('toast.documentOpenFailed')); }
-    else if (looksPixelArt(im)) { const d = imageData(im, im.naturalWidth, im.naturalHeight, false);
-      if (await newWorkFromImage(d.width, d.height, d.data,
-        f.name.replace(/\.\w+$/, ''), null, null)) hide(); }
-    else { beginConvertedWork(); actions.run('import.openFile', f); } }; im.src = url; } // конвертер поверх галереи; уйдём по «Применить»
-function photo() { pick('image/*', fromFile); } // не-пиксельная графика уходит в конвертер автоматически (fromFile)
+function decodeImage(f) { return new Promise((resolve, reject) => {
+  const im = new Image(), url = URL.createObjectURL(f);
+  im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image decode failed')); };
+  im.onload = () => { URL.revokeObjectURL(url); resolve(im); };
+  im.src = url;
+}); }
+const imageImportPorts = () => ({ decodeImage, imageData, looksPixelArt,
+  newWorkFromImage, beginConvertedWork, onOpened: hide,
+  openConverter: (file) => actions.run('import.openFile', file) });
+export async function importGalleryImage(f, sourceLocation = null, progress = null,
+  dependencies = imageImportPorts()) {
+  progress?.stage('decoding');
+  try {
+    const im = await dependencies.decodeImage(f);
+    progress?.stage('preparing');
+    if (isPngFile(f) || dependencies.looksPixelArt(im)) {
+      const d = dependencies.imageData(im, im.naturalWidth, im.naturalHeight, false);
+      progress?.stage('saving');
+      const opened = await dependencies.newWorkFromImage(d.width, d.height, d.data,
+        f.name.replace(/\.\w+$/, ''), isPngFile(f) ? 'png' : null,
+        isPngFile(f) ? sourceLocation : null);
+      if (!opened) { toast(t('toast.documentOpenFailed')); return false; }
+      progress?.stage('opening'); dependencies.onOpened(); return true;
+    }
+    dependencies.beginConvertedWork(); dependencies.openConverter(f); return true;
+  } catch (error) { toast(t('toast.imgOpenFail')); return false; }
+}
+function photo() { pick('image/*', (file) => void importGalleryImage(file)); }
 export const importPsdSelection = (file, location = null) => actions.run('import.psdFile', file, location);
 function importPsd() { void openDesktopFile(PSD_FILTERS).then((opened) => {
   if (opened !== undefined) return opened && importPsdSelection(opened.file, opened.location);
@@ -61,10 +77,10 @@ export async function mount() {
   $('gal-back').onclick = goBack;
   $('docsbtn').onclick = show;
   actions.register('gallery.hide', hide); // конвертер/импорт после «Применить» уводят с галереи в редактор
-  actions.register('gallery.importDrop', fromFile); // drop картинки в галерею → новый проект (через Pixelize)
+  actions.register('gallery.importDrop', importGalleryImage);
   actions.register('gallery.beginPsdImport', beginPsdImport);
-  actions.register('gallery.completePsdImport', async (token, document, name, sourceLocation) => {
-    const result = await completePsdImport(token, document, name, sourceLocation);
+  actions.register('gallery.completePsdImport', async (token, document, name, sourceLocation, progress) => {
+    const result = await completePsdImport(token, document, name, sourceLocation, progress);
     if (result.status === 'opened') { hide(); toast(result.warningCount
       ? t('toast.psdCompatibility') : t('toast.psdImported', { n: result.layerCount })); }
     return result.status;

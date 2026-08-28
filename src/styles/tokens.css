@@ -55,6 +55,10 @@
   --gal-tile-max: 156px;
   --gal-thumb-pad: clamp(10px, 1.4vw, 16px);
   --gal-preview-inset: clamp(10px, 1.2vw, 14px); /* внутренний отступ картинки в превью: чтобы спрайт не касался рамки */
+  --gal-import-progress-width: min(86vw, 420px);
+  --gal-import-progress-track-height: 8px;
+  --gal-import-progress-pulse: 1.4s;
+  --gal-import-progress-z: 210;
   --ico-lg: 22px; --ico: 20px; --ico-sm: 18px; /* шкала иконок-глифов внутри кнопок */
   --win-btn: 26px; --win-ico: 14px; --win-title: var(--type-system); /* единая шапка окна (как Tint): «призрачные» кнопки, мелкий заголовок */
   --win-radius: 16px;    /* скругление углов ВСЕХ окон — один источник */

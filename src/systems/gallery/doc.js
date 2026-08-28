@@ -121,27 +121,27 @@ export function newWorkFromLayers(w, h, layers, name) { blankWork(w, h, name);
 // заготовка нового документа под результат конвертера (applyImport заполнит S)
 export function beginConvertedWork() { nextWorkChange(); curId = uid('d'); curFolder = null;
   S.docName = t('gallery.untitled'); S.sourceFormat = null; S.sourceLocation = null; }
-
 export const beginPsdImport = () => nextWorkChange();
-export async function completePsdImport(token, document, name, sourceLocation = null) {
+export async function completePsdImport(token, document, name, sourceLocation = null, progress = null) {
   if (token !== workChange) return { status: 'superseded', layerCount: 0, warningCount: 0 };
   if (!await saveCurrent() || token !== workChange) {
     return { status: token === workChange ? 'failed' : 'superseded',
       layerCount: 0, warningCount: 0 };
   }
+  progress?.stage('preparing');
   const id = uid('d'), record = buildPsdGalleryRecord(id, name, document, sourceLocation);
+  progress?.stage('saving');
   try { await saveDoc(record); } catch (error) {
     return { status: 'failed', layerCount: 0, warningCount: 0 };
   }
   if (token !== workChange) { await removeDoc(id);
     return { status: 'superseded', layerCount: 0, warningCount: 0 }; }
-  const opened = await openWork(id);
+  progress?.stage('opening'); const opened = await openWork(id);
   if (!opened) { await removeDoc(id);
     return { status: 'failed', layerCount: 0, warningCount: 0 }; }
   return { status: 'opened', layerCount: record.layers.length,
     warningCount: record.psdWarnings.length };
 }
-
 export async function openWork(id) { const change = nextWorkChange();
   if (id === curId) return await saveCurrent() && change === workChange;
   if (!await saveCurrent() || change !== workChange) return false;

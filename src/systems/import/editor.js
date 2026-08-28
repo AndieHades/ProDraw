@@ -14,11 +14,11 @@ const baseName = (n) => n.replace(/\.[^.]+$/, '');
 
 const photo = () => pick('image/*', (f) => loadImg(f, (im) => insertImageTop(im, baseName(f.name))));
 const pixelize = () => pick('image/*', (f) => actions.run('import.openFile', f)); // конвертер как новый проект
-export async function importPsd(f, sourceLocation = null) { const token = actions.run('gallery.beginPsdImport');
+export async function importPsd(f, sourceLocation = null, progress = null) { const token = actions.run('gallery.beginPsdImport');
   if (!Number.isInteger(token)) { toast(t('toast.documentOpenFailed')); return false; }
-  try { const decoded = await decodePsdFile(f);
+  try { progress?.stage('decoding'); const decoded = await decodePsdFile(f);
     const status = await actions.run('gallery.completePsdImport', token,
-      decoded.document, decoded.name, sourceLocation);
+      decoded.document, decoded.name, sourceLocation, progress);
     if (status === 'failed') toast(t('toast.documentOpenFailed'));
     return status === 'opened';
   } catch (error) { toast(t('toast.documentOpenFailed')); return false; } }

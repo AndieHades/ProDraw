@@ -1,6 +1,6 @@
 # Gallery drop import progress plan
 
-- Status: `in_progress`
+- Status: `done`
 - Owner: production import routing (`src/systems/import`)
 - Baseline: `aset-editor@936a5bd`, 2026-08-27
 - Stage: `GDP1`
@@ -65,14 +65,27 @@
 - PNG/PSD document identity, pixels and persistence contracts remain green.
 - Implementation commit and verification evidence are recorded below.
 
+## Completion record
+
+- Commit: `feat: show delayed gallery import progress`.
+- Gallery drops now create one isolated progress session. CSS receives the
+  pending status before expensive synchronous decoding, reveals it only after
+  two seconds and keeps an activity highlight moving while JavaScript is busy.
+- Ordinary image import is awaitable through decoding, document creation and
+  persistence. PSD uses the same reporter through decode, materialization,
+  IndexedDB save and open without changing its transaction or source identity.
+- Checks: focused Vitest `15/15`; changed-surface Vitest `274/274`; TypeScript,
+  ESLint, docs, hooks, lines, architecture, cycles, cutover, desktop boundary,
+  raster entry and shell catalog passed; packaged Windows smoke passed.
+
 ## Resume Here
 
-- Current stage: `GDP1 — delayed gallery-drop progress`
-- Status: `in_progress`
-- Last completed stage: evidence and target contract
-- Next action: implement the progress presenter and awaitable gallery routes
+- Current stage: complete
+- Status: `done`
+- Last completed stage: `GDP1 — delayed gallery-drop progress`
+- Next action: user-owned visual acceptance with a gallery drop over two seconds
 - Blockers: none
 - Working paths: `src/systems/import`, `src/systems/gallery`, `src/ui/import`,
   `src/i18n`, `src/styles`, `src/config`, `index.html`, `tests`
-- Last checks: pending
+- Last checks: focused `15/15`; changed-surface `274/274`; packaged smoke passed
 - Last updated: 2026-08-27

@@ -1,0 +1,82 @@
+.gallery-import-progress {
+  position: fixed;
+  inset: 0;
+  z-index: var(--gal-import-progress-z);
+  display: none;
+  place-items: center;
+  background: color-mix(in srgb, var(--bg) 58%, transparent);
+}
+.gallery-import-progress.on { display: grid; }
+.gallery-import-progress.pending {
+  display: grid;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+  animation: gallery-import-reveal var(--anim-fast) var(--gallery-import-progress-delay) forwards;
+}
+.gallery-import-progress-card {
+  width: var(--gal-import-progress-width);
+  padding: var(--dialog-pad-x);
+  border: 1px solid var(--line);
+  border-radius: var(--win-radius);
+  background: var(--panel-solid);
+  box-shadow: var(--win-shadow);
+}
+.gallery-import-progress-title {
+  display: block;
+  color: var(--txt);
+  font-size: var(--type-dialog-title);
+  font-weight: var(--fw-heading);
+}
+.gallery-import-progress-name {
+  display: block;
+  margin-top: var(--gap);
+  overflow: hidden;
+  color: var(--txt2);
+  font-size: var(--type-label);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gallery-import-progress-state {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gap);
+  margin-top: var(--dialog-head-gap);
+  color: var(--txt);
+  font-size: var(--type-system);
+}
+.gallery-import-progress-meter {
+  position: relative;
+  height: var(--gal-import-progress-track-height);
+  margin-top: var(--gap);
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+}
+.gallery-import-progress-meter::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--gallery-import-progress, 0%);
+  border-radius: inherit;
+  background: var(--accent);
+  content: "";
+  transition: width var(--anim-pop) var(--ease-out);
+}
+.gallery-import-progress-meter::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 20%, var(--accent-soft) 50%, transparent 80%);
+  content: "";
+  animation: gallery-import-active var(--gal-import-progress-pulse) linear infinite;
+}
+@keyframes gallery-import-active {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+@keyframes gallery-import-reveal {
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gallery-import-progress.pending { animation-duration: 0s; }
+  .gallery-import-progress-meter::after { animation: none; }
+}

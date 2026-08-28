@@ -19,6 +19,7 @@
 @import './parts/responsive-phone.css';
 @import './parts/mode-shell.css';
 @import './parts/gallery.css';
+@import './parts/gallery-import-progress.css';
 @import './parts/new-canvas.css';
 @import './parts/swipe-rows.css';
 @import './parts/settings-effects.css';

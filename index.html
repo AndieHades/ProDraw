@@ -484,6 +484,14 @@
       </div>
     </header>
     <div id="gal-grid"></div>
+    <div id="gal-import-progress" class="gallery-import-progress" aria-hidden="true">
+      <div class="gallery-import-progress-card" role="status" aria-live="polite">
+        <strong class="gallery-import-progress-title" data-i18n="gallery.importProgressTitle"></strong>
+        <span id="gal-import-progress-name" class="gallery-import-progress-name"></span>
+        <div class="gallery-import-progress-state"><span id="gal-import-progress-stage"></span><span id="gal-import-progress-percent"></span></div>
+        <div id="gal-import-progress-meter" class="gallery-import-progress-meter" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+    </div>
   </div>
 
   <div id="toast"></div>

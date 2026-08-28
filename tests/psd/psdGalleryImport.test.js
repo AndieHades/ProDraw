@@ -12,8 +12,11 @@ describe('PSD gallery transaction', () => {
     globalThis.indexedDB = new IDBFactory();
     const decoded = decodePsdDocument(structuredPsd());
     const token = beginPsdImport();
-    const result = await completePsdImport(token, decoded, 'Imported', 'C:/assets/Imported.psd');
+    const stages = [];
+    const result = await completePsdImport(token, decoded, 'Imported',
+      'C:/assets/Imported.psd', { stage: (value) => stages.push(value) });
     expect(result).toEqual({ status: 'opened', layerCount: 1, warningCount: 1 });
+    expect(stages).toEqual(['preparing', 'saving', 'opening']);
     expect(S).toMatchObject({ W: 3, H: 2, dpi: 300, docName: 'Imported',
       sourceFormat: 'psd', sourceLocation: 'C:/assets/Imported.psd' });
     expect(S.layers[0]).toMatchObject({ name: 'Masked α', visible: false,
