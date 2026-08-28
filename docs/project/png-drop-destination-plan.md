@@ -1,6 +1,6 @@
 # PNG drop destination plan
 
-- Status: `in_progress`
+- Status: `done`
 - Owner: production import system (`src/systems/import`)
 - Baseline: `aset-editor@7f25fb7`, 2026-08-27
 - Stage: `PDD1`
@@ -61,14 +61,26 @@
   insertion, cancellation and failure.
 - Checks and implementation commit are recorded below.
 
+## Completion record
+
+- Commit: `feat: choose PNG drop destination`.
+- Gallery PNG drops remain immediate new-document imports. Editor PNG drops now
+  open a localized modal with new-document, add-as-layer and cancel outcomes.
+- Layer insertion keeps canvas dimensions and current source binding, uses the
+  filename for the layer, records Undo and retains oversized pixels through the
+  existing `addImageLayerTop` boundary.
+- Checks: focused Vitest `7/7`; changed-surface Vitest `268/268`; TypeScript,
+  ESLint, docs, hooks, lines, architecture, cycles, cutover, desktop boundary,
+  raster entry and shell catalog passed; packaged Windows smoke passed.
+
 ## Resume Here
 
-- Current stage: `PDD1`
-- Status: `in_progress`
-- Last completed stage: evidence and target contract
-- Next action: implement the PNG destination presenter and route
+- Current stage: complete
+- Status: `done`
+- Last completed stage: `PDD1 — PNG drop destination choice`
+- Next action: user-owned visual acceptance in the packaged desktop app
 - Blockers: none
 - Working paths: `src/systems/import`, `src/ui`, `src/i18n`, `index.html`,
   `tests/system/sourceFileDrop.test.js`, `docs/project/png-psd-quick-edit-plan.md`
-- Last checks: pending
+- Last checks: focused `7/7`; changed-surface `268/268`; packaged smoke passed
 - Last updated: 2026-08-27

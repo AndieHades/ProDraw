@@ -35,6 +35,11 @@
 - `QED-06`: unsupported files and decode/write failures leave the current work
   intact and report failure through localized feedback.
 
+Current surface: [`PDD1`](png-drop-destination-plan.md) supersedes only the PNG
+editor-drop part of `QED-01`. A PNG dropped over an open canvas now asks whether
+to create a new source-bound document or add it as a top layer; gallery PNG and
+all PSD drops retain the immediate separate-document route.
+
 ## QED1 change map
 
 1. Expose an allowlisted dropped-file location resolver from Electron preload
