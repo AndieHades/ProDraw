@@ -12,6 +12,8 @@
 
 ## Живые планы
 
+- [Gallery drop import progress](project/gallery-drop-import-progress-plan.md) —
+  полоса этапов для импорта, который длится дольше двух секунд.
 - [PNG drop destination](project/png-drop-destination-plan.md) — выбор нового
   документа или верхнего слоя при PNG-drop над открытым холстом.
 - [Layer-selection PNG export](project/layer-png-selection-export-plan.md) —
