@@ -1,7 +1,7 @@
 
 import 'fake-indexeddb/auto';
 import assert from 'node:assert/strict';
-import { saveDoc, getDoc, listDocs, removeDoc } from '../src/core/storage.js';
+import { saveDoc, getDoc, listDocs, listGalleryDocs, removeDoc } from '../src/core/storage.js';
 import { saveBrush, listBrushes, removeBrush, saveSet, listSets, removeSet } from '../src/core/brush-store.js';
 import { mergeFolderPalettes, paletteFileName } from '../src/core/palette-files.js';
 
@@ -15,8 +15,12 @@ assert.deepEqual(got.layers[0].grid[0][1], [1, 2, 3, 255]);
 assert.ok(got.layers[0].ext instanceof Map, 'ext restored as Map');
 assert.deepEqual(got.layers[0].ext.get('9,9'), [5, 5, 5, 255]);
 assert.equal((await listDocs()).length, 1);
+const summary = (await listGalleryDocs())[0];
+assert.equal(summary.name, 'Test');
+assert.equal('layers' in summary, false);
 await removeDoc('d1');
 assert.equal((await listDocs()).length, 0);
+assert.equal((await listGalleryDocs()).length, 0);
 
 await new Promise((resolve, reject) => { const request = indexedDB.deleteDatabase('pixelheart');
   request.onsuccess = resolve; request.onerror = () => reject(request.error); });

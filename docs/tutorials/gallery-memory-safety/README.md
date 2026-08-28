@@ -1,6 +1,6 @@
 # Gallery memory safety
 
-Status: `ready`
+Status: `in_progress`
 - Evidence baseline: `aset-editor@fd19d11`, 2026-08-28
 - Authority: repeated desktop crashes while deleting several large gallery
   documents and while cropping layers in recently imported files.
@@ -28,8 +28,8 @@ while gallery autosave continues to provide recovery.
 
 | Stage | Outcome | Depends on | Status | Commit boundary |
 | --- | --- | --- | --- | --- |
-| `GMS1` | lightweight gallery index and safe deletion | none | pending | `fix: keep gallery listing memory bounded` |
-| `GMS2` | compact crop/Trim raster remaps | `GMS1` | pending | `fix: preserve compact cells during raster remap` |
+| `GMS1` | lightweight gallery index and safe deletion | none | done | `fix: keep gallery listing memory bounded` |
+| `GMS2` | compact crop/Trim raster remaps | `GMS1` | in_progress | `fix: preserve compact cells during raster remap` |
 
 Only one stage may be `in_progress`.
 
@@ -53,12 +53,13 @@ Only one stage may be `in_progress`.
 
 ## Resume Here
 
-- Current stage: `GMS1 — lightweight gallery index and safe deletion`
-- Status: `ready`
-- Last completed stage: evidence and contract
-- Next action: add the indexed metadata store and route gallery queries to it
+- Current stage: `GMS2 — compact raster remap`
+- Status: `in_progress`
+- Last completed stage: `GMS1 — lightweight gallery index and safe deletion`
+- Next action: intern immutable destination cells during crop/Trim remaps
 - Blockers: none
 - Working paths: `src/core/storage.js`, `src/systems/gallery`, `src/logic`,
   `tests`, `test`, `docs/tutorials/gallery-memory-safety`
-- Last checks: baseline line-limit gate passed
+- Last checks: focused gallery/import/autosave 11/11; changed-surface 93 files,
+  275 tests; typecheck, lint, docs, lines, architecture, cycles and shell gates
 - Last updated: 2026-08-28

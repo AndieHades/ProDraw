@@ -4,9 +4,9 @@
 
 | Requirement | Evidence | Status |
 | --- | --- | --- |
-| `GMS-01..03` | v1 migration plus projection/update/delete tests | pending |
+| `GMS-01..03` | v1 migration plus projection/update/delete tests | passed |
 | `GMS-04` | remap identity, crop/Trim and Undo performance tests | pending |
-| `GMS-05` | incomplete-record projection and transaction tests | pending |
+| `GMS-05` | incomplete-record projection and transaction tests | passed |
 | `GMS-06` | changed-surface import/save tests and packaged smoke | pending |
 
 Final gates are `npm run validate:changed`, `git diff --check`, task-owned diff

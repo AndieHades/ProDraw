@@ -2,7 +2,7 @@
 
 - Stable id: `GMS1`
 - Depends on: none
-- Status: `pending`
+- Status: `done`
 - Scope: legacy gallery IndexedDB adapter, gallery queries and persistence tests.
 
 ## Change map
@@ -35,4 +35,12 @@
 
 ## Completion record
 
-Pending.
+- Added the v2 `gallery-index` store and a cursor-based v1 backfill.
+- Full-document save/delete and lightweight metadata stay transactionally paired.
+- Render, folder traversal, rename, move, reorder and recursive delete use only
+  summaries; open/duplicate load just the explicitly selected document.
+- Autosave preserves folder/order through the summary instead of loading the
+  previous full document.
+- Checks: focused gallery/import/autosave 5 files/11 tests; storage script;
+  changed-surface 93 files/275 tests plus all selected structural gates.
+- Commit: `a632db3`.

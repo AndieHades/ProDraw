@@ -1,12 +1,11 @@
-// Персистентность активной работы: снимок S → запись, восстановление, новая
-// работа (в т.ч. из картинки), автосохранение.
+// Персистентность активной работы: снимок S → запись, восстановление, новая работа и автосохранение.
 import { S, newLayer } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../../core/reference-board.js';
 import { dedupePal } from '../../logic/quantize.js';
 import { defaultPalette, grayscalePalette, DEFAULT_ACTIVE } from '../../config/palette.js';
-import { saveDoc, getDoc, removeDoc } from '../../core/storage.js';
+import { saveDoc, getGalleryDoc, removeDoc } from '../../core/storage.js';
 import { ensureGrid } from '../../core/grid.js';
 import { cloneAnimator, loadFrame } from '../../core/animation.js';
 import { t } from '../../i18n/index.ts';
@@ -15,7 +14,7 @@ import { AUTOSAVE_DELAY_MS, AUTOSAVE_IDLE_TIMEOUT_MS,
   AUTOSAVE_STROKE_RETRY_MS } from '../../config/timings.ts';
 import { LegacyAutosaveController } from './LegacyAutosaveController.ts';
 import { buildGalleryRecord } from './record.js';
-import { uid } from './store.js';
+import { loadStoredWork, uid } from './store.js';
 import { retireTilemapRecord } from '../../logic/retiredTilemap.ts';
 import { applyImportedImage } from '../../logic/importedImage.ts';
 import { buildPsdGalleryRecord } from './psd-record.js';
@@ -32,7 +31,7 @@ async function persist(id, folder, isCurrent) {
   const current = () => isCurrent() && id === curId;
   const rec = await buildGalleryRecord(id, folder, current);
   if (!rec || !current()) return false;
-  const old = await getDoc(id); if (!current()) return false;
+  const old = await getGalleryDoc(id); if (!current()) return false;
   if (old) { rec.folder = old.folder ?? null; rec.order = old.order ?? rec.order; }
   await saveDoc(rec); return true; }
 function queuePersist(isCurrent) { const id = curId, folder = curFolder;
@@ -96,7 +95,7 @@ export function newWork(w, h, name, bg = DEFAULT_CANVAS_BACKGROUND.color, colorM
 async function restoreWork(id, expectedChange) { if (expectedChange !== workChange) return;
   nextWorkChange();
   if (!id) { curId = null; curFolder = null; saved = null; return; }
-  try { const rec = await getDoc(id); if (!rec || rec.kind === 'folder') return;
+  try { const rec = await loadStoredWork(id); if (!rec || rec.kind === 'folder') return;
     curId = id; curFolder = rec.folder ?? null; applyRec(rec);
     autosaveController.supersede(); if (rec.preview) markSaved(curId, mutation); else saved = null; } catch (error) {} }
 
@@ -145,6 +144,6 @@ export async function completePsdImport(token, document, name, sourceLocation = 
 export async function openWork(id) { const change = nextWorkChange();
   if (id === curId) return await saveCurrent() && change === workChange;
   if (!await saveCurrent() || change !== workChange) return false;
-  const rec = await getDoc(id); if (change !== workChange || !rec || rec.kind === 'folder') return false;
+  const rec = await loadStoredWork(id); if (change !== workChange || !rec || rec.kind === 'folder') return false;
   curId = id; curFolder = rec.folder ?? null; applyRec(rec);
   autosaveController.supersede(); if (rec.preview) markSaved(curId, mutation); else saved = null; return true; }
