@@ -1,6 +1,6 @@
 # Layer-selection PNG export plan
 
-- Status: `in_progress`
+- Status: `done`
 - Owner: production shell (`index.html -> src/legacy-entry.js -> src/app.js`)
 - Baseline: `aset-editor@6e3a9b3`, 2026-08-27
 - Stage: `LPX1`
@@ -61,14 +61,28 @@
 - One batch export opens one destination session and preserves hierarchy.
 - Checks and implementation commit are recorded below.
 
+## Completion record
+
+- Commit: `feat: make PNG actions selection-aware`.
+- The two existing commands now save one selected layer directly or expand a
+  folder/multiple selection into one staged PNG tree; the third menu item and
+  obsolete action/i18n surface were removed.
+- Whole-canvas output retains document dimensions. Cropped output uses each
+  leaf's final alpha bounds, including a transparent `1 x 1` empty result.
+- Checks: focused Vitest `9/9`; changed-surface Vitest `262/262`; TypeScript,
+  ESLint, docs, hooks, lines, architecture, cycles, cutover, desktop boundary,
+  raster entry and shell catalog passed; packaged Windows smoke passed.
+- `node test/module-int.mjs` remains unavailable because that historical
+  pre-cutover harness imports removed `src/systems/brush-bar.js`.
+
 ## Resume Here
 
-- Current stage: `LPX1`
-- Status: `in_progress`
-- Last completed stage: plan baseline
-- Next action: implement selection-aware single/batch PNG export
+- Current stage: complete
+- Status: `done`
+- Last completed stage: `LPX1 — selection-aware layer PNG export`
+- Next action: user-owned visual acceptance in the packaged desktop app
 - Blockers: none
 - Working paths: `src/systems/export`, `src/systems/layers/menu.js`,
   `src/logic/export/folderPngPlan.ts`, `src/i18n`, `index.html`, `tests`
-- Last checks: documentation gates pending
+- Last checks: focused `9/9`; changed-surface `262/262`; packaged smoke passed
 - Last updated: 2026-08-27

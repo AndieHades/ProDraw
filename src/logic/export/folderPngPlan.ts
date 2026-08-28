@@ -64,8 +64,15 @@ function visit(nodes: readonly FolderPngNode[], path: readonly string[],
 
 export function planFolderPngTree(root: FolderPngNode): FolderPngPlan {
   if (root.kind !== "folder") throw new Error("Folder PNG export requires a folder root");
+  return planSelectedPngTree(root.name, [root]);
+}
+
+export function planSelectedPngTree(rootName: string,
+  roots: readonly FolderPngNode[]): FolderPngPlan {
   const directories: (readonly string[])[] = [];
   const items: FolderPngLeafPlan[] = [];
-  visit(root.children ?? [], [], directories, items);
-  return { rootName: safeExportSegment(root.name, "Folder"), directories, items };
+  const nodes = roots.length === 1 && roots[0]?.kind === "folder"
+    ? roots[0].children ?? [] : roots;
+  visit(nodes, [], directories, items);
+  return { rootName: safeExportSegment(rootName, "Layers"), directories, items };
 }

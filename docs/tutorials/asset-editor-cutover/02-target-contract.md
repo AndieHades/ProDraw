@@ -40,10 +40,12 @@ The toolbar exposes `Отразить холст по горизонтали`. I
 raster layer, not only the viewport, and therefore the same mirrored pixels
 are persisted and exported. Layer tree metadata is not changed.
 
-The layer-folder context menu exposes a PNG tree export. One directory choice
-creates one collision-safe folder named after the selected folder. Every raster
-layer in that subtree, including hidden and empty layers, is written as a PNG
-with the exact document width and height. Hidden layers render their stored
-pixels rather than an empty visibility-filtered canvas. Nested and empty layer
-folders become matching directories, with Windows-safe collision-resistant
-names. Rendering and writes are sequential; no per-file save dialog is opened.
+The staged PNG-tree writer established by AE6 is now reached through either
+whole-canvas or cropped PNG in the layer context menu, as specified by
+[`LPX1`](../../project/layer-png-selection-export-plan.md). A folder or multiple
+selection opens one directory session and writes every descendant layer while
+preserving nested and empty folders. Whole-canvas leaves keep document size;
+cropped leaves use individual final alpha bounds. Hidden layers render stored
+pixels rather than an empty visibility-filtered canvas. Paths remain Windows-
+safe and collision-resistant, writes stay sequential, and no per-file save
+dialog is opened.

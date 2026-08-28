@@ -48,7 +48,6 @@ export const enMenus: LocaleDictionary = {
   "menu.clip": "Clipping mask",
   "menu.pngFull": "Save PNG (whole canvas)",
   "menu.pngTight": "Save PNG (cropped)",
-  "menu.pngTree": "Save layers as PNG",
   "menu.psdSelected": "Save selection as PSD",
   "menu.edit": "Edit",
   "menu.lock": "Lock",

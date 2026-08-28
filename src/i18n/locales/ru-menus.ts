@@ -48,7 +48,6 @@ export const ruMenus: LocaleDictionary = {
   "menu.clip": "Обтравочная маска",
   "menu.pngFull": "Сохранить PNG (весь холст)",
   "menu.pngTight": "Сохранить PNG (по контуру)",
-  "menu.pngTree": "Сохранить слои в PNG",
   "menu.psdSelected": "Сохранить выбранное в PSD",
   "menu.edit": "Правка",
   "menu.lock": "Замок",

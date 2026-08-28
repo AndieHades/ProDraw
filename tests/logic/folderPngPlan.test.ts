@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planFolderPngTree, safeExportSegment } from
+import { planFolderPngTree, planSelectedPngTree, safeExportSegment } from
   "../../src/logic/export/folderPngPlan.ts";
 
 describe("folder PNG export plan", () => {
@@ -33,5 +33,19 @@ describe("folder PNG export plan", () => {
     ] });
     expect(plan.items.map(({ path }) => path[0]?.length)).toEqual([96, 96]);
     expect(plan.items[1]?.path[0]).toMatch(/_2\.png$/);
+  });
+
+  it("keeps multiple selected folders beneath one document root", () => {
+    const plan = planSelectedPngTree("Character", [
+      { kind: "layer", name: "Loose" },
+      { kind: "folder", name: "Head", children: [
+        { kind: "layer", name: "Hair" }, { kind: "folder", name: "Empty" },
+      ] },
+    ]);
+    expect(plan.rootName).toBe("Character");
+    expect(plan.directories).toEqual([["Head"], ["Head", "Empty"]]);
+    expect(plan.items.map(({ path }) => path)).toEqual([
+      ["Loose.png"], ["Head", "Hair.png"],
+    ]);
   });
 });

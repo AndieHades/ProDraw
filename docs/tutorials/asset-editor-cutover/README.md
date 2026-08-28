@@ -24,6 +24,10 @@ directory choice creates a folder named after the selected folder, preserves
 nested layer folders and writes every visible or hidden layer at full canvas
 size with its stored pixels.
 
+Current surface: [`LPX1`](../../project/layer-png-selection-export-plan.md)
+reuses that staged writer from both whole-canvas and cropped PNG commands for a
+folder or multiple selection, and removes the separate PNG-tree menu item.
+
 ## Stages
 
 | Stage | Outcome | Status |

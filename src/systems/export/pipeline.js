@@ -1,13 +1,14 @@
 // Единый пайплайн экспорта: Scope → ExportDocument → Mode → Format → Save.
 // Никаких отдельных веток «экспорт слоя/папки/проекта» — режим и формат
 // комбинируются над одним и тем же документом.
+import { S } from '../../core/state.js';
 import { saveFile } from '../../core/io.js';
 import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { buildExportDoc, docName, exportTargetRoot } from './tree.js';
 import { flattenNodes, standaloneLayerCanvas } from './render.js';
 import { applyBounds, visibleBounds, unionBounds, cropTo } from './bounds.js';
 import { FORMATS } from './formats.js';
-import { planFolderPngTree } from '../../logic/export/folderPngPlan.ts';
+import { planSelectedPngTree } from '../../logic/export/folderPngPlan.ts';
 import { createFileTreeWriter,
   FileTreeUnsupportedError } from '../../platform/fileTreeWriter.ts';
 
@@ -72,27 +73,41 @@ export async function runExport(opts, saveOutput = saveOne,
   return results;
 }
 
-// Быстрый PNG из RMB слоя/папки использует тот же effect-aware композит, что
-// общий Export. Обрезка считается только после финального рендера.
-export async function exportTargetPng(target, tight) {
-  const node = exportTargetRoot(target, false); if (!node) return null;
-  const rendered = flattenNodes([node], false);
-  const bounds = tight ? visibleBounds(rendered) : null;
-  if (tight && !bounds) { toast(t('toast.exportEmpty')); return null; }
-  const canvas = tight ? cropTo(rendered, bounds) : rendered;
-  const output = await FORMATS.png.encode(canvas, node.name);
-  await saveOne(output); return output;
+const defaultEncode = (canvas, name) => FORMATS.png.encode(canvas, name);
+const defaultSave = (output) => saveFile(output.blob, output.name,
+  output.mime, output.desc);
+
+function targetIsSelected(target) {
+  const index = S.layers.indexOf(target);
+  if (index >= 0) return S.marked.has(index) ||
+    (S.cur === index && S.selFolder == null && !S.fxCur && !S.bgSel);
+  const folder = S.folders.find((item) => item === target || item.id === target?.id);
+  return !!folder && (S.selFolder === folder.id || S.markedFolders.has(folder.id));
 }
 
-const encodePng = (canvas, name) => FORMATS.png.encode(canvas, name);
-async function writePngTree(plan, writerFactory, renderLayer, encode) {
+function rootsFor(target) {
+  if (targetIsSelected(target)) {
+    const roots = buildExportDoc('selected', true).root;
+    if (roots.length) return roots;
+  }
+  const root = exportTargetRoot(target, true);
+  return root ? [root] : [];
+}
+
+const boundedCanvas = (canvas, tight) => tight
+  ? cropTo(canvas, visibleBounds(canvas)) : canvas;
+
+async function writeTree(plan, tight, dependencies) {
+  const writerFactory = dependencies.writerFactory ?? createFileTreeWriter;
+  const renderLayer = dependencies.renderLayer ?? standaloneLayerCanvas;
+  const encode = dependencies.encode ?? defaultEncode;
   let writer = null;
   try {
-    writer = await writerFactory(plan.rootName);
-    if (!writer) return null;
+    writer = await writerFactory(plan.rootName); if (!writer) return null;
     for (const path of plan.directories) await writer.ensureDirectory(path);
     for (const item of plan.items) {
-      const output = await encode(renderLayer(item.node), item.node.name);
+      const canvas = boundedCanvas(renderLayer(item.node), tight);
+      const output = await encode(canvas, item.node.name);
       if (!output.blob) throw new Error('PNG encoder returned no data');
       await writer.write(item.path, output.blob);
     }
@@ -107,12 +122,14 @@ async function writePngTree(plan, writerFactory, renderLayer, encode) {
   }
 }
 
-export async function exportFolderLayersPng(target,
-  writerFactory = createFileTreeWriter, renderLayer = standaloneLayerCanvas,
-  encode = encodePng) {
-  const node = exportTargetRoot(target, true);
-  if (!node || node.kind !== 'folder') return null;
-  return writePngTree(planFolderPngTree(node), writerFactory, renderLayer, encode);
+export async function exportTargetPng(target, tight, dependencies = {}) {
+  const roots = rootsFor(target); if (!roots.length) return null;
+  if (roots.length === 1 && roots[0].kind === 'layer') {
+    const canvas = boundedCanvas(
+      (dependencies.renderLayer ?? standaloneLayerCanvas)(roots[0]), tight);
+    const output = await (dependencies.encode ?? defaultEncode)(canvas, roots[0].name);
+    await (dependencies.saveOutput ?? defaultSave)(output); return output;
+  }
+  const rootName = roots.length === 1 ? roots[0].name : docName();
+  return writeTree(planSelectedPngTree(rootName, roots), tight, dependencies);
 }
-
-export const exportSingleLayer = exportTargetPng;

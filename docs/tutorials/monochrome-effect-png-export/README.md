@@ -41,6 +41,11 @@ parity slice; the later typed RGBA owner cutover remains in the parent plan.
 - `PNG-04`: the suggested base filename comes from the exact layer/folder name;
   only filesystem-invalid characters may be replaced by the save boundary.
 
+Current surface: [`LPX1`](../../project/layer-png-selection-export-plan.md)
+supersedes the historical flattened-folder output from `PNG-03`. The same two
+menu commands now save one layer directly or export every leaf of a folder or
+multiple selection in one staged directory session.
+
 ## Delivery
 
 | Stage | Chapter | Status | Commit |
