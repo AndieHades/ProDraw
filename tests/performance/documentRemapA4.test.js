@@ -68,6 +68,21 @@ describe('sparse A4 document remaps', () => {
     expect(S.layers[0].grid[20][20]).toEqual(rgba(20)); expectSparse();
   });
 
+  it('crops repeated imported colors without expanding cell ownership', () => {
+    reset(); const layer = S.layers[0], source = blank(A4.width, A4.height);
+    const shared = Object.freeze([40, 50, 60, 255]);
+    for (let y = 1700; y < 1716; y++) for (let x = 1200; x < 1264; x++)
+      source[y][x] = shared;
+    source[1720][1220] = shared;
+    setGridBounds(source, { minx: 1200, miny: 1700, maxx: 1263, maxy: 1720 }, true);
+    layer.grid = source; dirtyAll({ preserveGridBounds: true });
+    applyCropRect(1200, 1700, 1263, 1715);
+    const refs = new Set();
+    for (let y = 0; y < 16; y++) for (let x = 0; x < 64; x++) refs.add(layer.grid[y][x]);
+    expect([...refs]).toEqual([shared]); expect(layer.ext.get('20,20')).toBe(shared);
+    doUndo(); expect(layer.grid).toBe(source);
+  });
+
   it('rotates sparse A4 content and all history stays reference-backed', () => {
     const observed = reset(), layer = S.layers[0], before = layer.grid;
     rotateCanvas(); const after = layer.grid;

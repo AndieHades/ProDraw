@@ -1,6 +1,6 @@
 # Gallery memory safety
 
-Status: `in_progress`
+Status: `done`
 - Evidence baseline: `aset-editor@fd19d11`, 2026-08-28
 - Authority: repeated desktop crashes while deleting several large gallery
   documents and while cropping layers in recently imported files.
@@ -29,7 +29,7 @@ while gallery autosave continues to provide recovery.
 | Stage | Outcome | Depends on | Status | Commit boundary |
 | --- | --- | --- | --- | --- |
 | `GMS1` | lightweight gallery index and safe deletion | none | done | `fix: keep gallery listing memory bounded` |
-| `GMS2` | compact crop/Trim raster remaps | `GMS1` | in_progress | `fix: preserve compact cells during raster remap` |
+| `GMS2` | compact crop/Trim raster remaps | `GMS1` | done | `fix: preserve compact cells during raster remap` |
 
 Only one stage may be `in_progress`.
 
@@ -53,13 +53,14 @@ Only one stage may be `in_progress`.
 
 ## Resume Here
 
-- Current stage: `GMS2 — compact raster remap`
-- Status: `in_progress`
-- Last completed stage: `GMS1 — lightweight gallery index and safe deletion`
-- Next action: intern immutable destination cells during crop/Trim remaps
+- Current stage: complete
+- Status: `done`
+- Last completed stage: `GMS2 — compact raster remap`
+- Next action: user acceptance with the actual large gallery and crop files
 - Blockers: none
 - Working paths: `src/core/storage.js`, `src/systems/gallery`, `src/logic`,
   `tests`, `test`, `docs/tutorials/gallery-memory-safety`
-- Last checks: focused gallery/import/autosave 11/11; changed-surface 93 files,
-  275 tests; typecheck, lint, docs, lines, architecture, cycles and shell gates
+- Last checks: focused remap/crop/Undo 10/10; changed-surface 94 files,
+  277 tests; typecheck, lint, docs, lines, architecture, cycles and shell gates;
+  packaged Windows desktop smoke passed
 - Last updated: 2026-08-28

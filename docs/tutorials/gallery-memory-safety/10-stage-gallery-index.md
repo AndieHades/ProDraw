@@ -43,4 +43,4 @@
   previous full document.
 - Checks: focused gallery/import/autosave 5 files/11 tests; storage script;
   changed-surface 93 files/275 tests plus all selected structural gates.
-- Commit: `a632db3`.
+- Commit: `c4cdd25`.

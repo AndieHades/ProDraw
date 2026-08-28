@@ -2,7 +2,7 @@
 
 - Stable id: `GMS2`
 - Depends on: `GMS1`
-- Status: `pending`
+- Status: `done`
 - Scope: pure raster remap and crop/Trim performance evidence.
 
 ## Change map
@@ -36,4 +36,10 @@
 
 ## Completion record
 
-Pending.
+- Remap reuses already frozen imported cells and sends mutable legacy values
+  through one operation-local immutable interner.
+- Grid and off-canvas `ext` preserve shared identity; Crop keeps its existing
+  reference-backed Undo/Redo contract.
+- Checks: focused remap/crop/Undo 3 files/10 tests; changed-surface 94 files/277
+  tests plus structural gates; packaged Windows desktop smoke passed.
+- Commit: `fix: preserve compact cells during raster remap`.

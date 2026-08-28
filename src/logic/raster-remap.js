@@ -1,4 +1,5 @@
 import { blank, parseKey, setGridBounds } from './raster.js';
+import { createRasterCellInterner } from './raster-cell-interner.js';
 
 const arrayIndex = (key, length) => {
   const value = Number(key);
@@ -27,11 +28,13 @@ function include(bounds, x, y) {
 export function remapRaster(grid, ext, width, height, mapPoint,
   { wrap = false, preserveGrid = false } = {}) {
   const output = blank(width, height), outside = new Map(); let bounds = null;
+  const cells = createRasterCellInterner();
+  const copyCell = (cell) => Object.isFrozen(cell) ? cell : cells.copy(cell);
   const put = (x, y, cell, fromExt) => {
     let [nx, ny] = mapPoint(x, y);
     if (wrap) { nx = ((nx % width) + width) % width;
       ny = ((ny % height) + height) % height; }
-    const copy = cell.slice();
+    const copy = copyCell(cell);
     if (nx >= 0 && ny >= 0 && nx < width && ny < height) {
       if (!(fromExt && preserveGrid && output[ny][nx])) output[ny][nx] = copy;
       bounds = include(bounds, nx, ny);
