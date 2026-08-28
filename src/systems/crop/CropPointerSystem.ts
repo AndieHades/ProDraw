@@ -31,18 +31,21 @@ export class CropPointerSystem {
 
   cancel(): void { this.#drag = null; }
   end(): void { this.#drag = null; }
+  hit(event: PointerEvent): boolean {
+    const crop = this.#port.crop(); if (!crop) return false;
+    const zone = this.hitZone(event, crop);
+    return zone.inside || zone.l || zone.r || zone.t || zone.b;
+  }
   hover(event: PointerEvent): void {
     const crop = this.#port.crop();
     if (!crop) return;
-    this.#port.canvas().style.cursor = cropCursor(cropHitTest(event.clientX, event.clientY,
-      this.#port.canvas().getBoundingClientRect(), this.#port.view(), crop));
+    this.#port.canvas().style.cursor = cropCursor(this.hitZone(event, crop));
   }
 
   down(event: PointerEvent): void {
     const crop = this.#port.crop();
     if (!crop) return;
-    const zone = cropHitTest(event.clientX, event.clientY,
-      this.#port.canvas().getBoundingClientRect(), this.#port.view(), crop);
+    const zone = this.hitZone(event, crop);
     if (zone.l || zone.r || zone.t || zone.b) {
       this.#drag = { ...zone, kind: "edge", x0: crop.x0, y0: crop.y0,
         x1: crop.x1, y1: crop.y1, cx: (crop.x0 + crop.x1) / 2,
@@ -70,6 +73,11 @@ export class CropPointerSystem {
     const rect = this.#port.canvas().getBoundingClientRect(), view = this.#port.view();
     return { gx: (event.clientX - rect.left - view.ox) / view.zoom,
       gy: (event.clientY - rect.top - view.oy) / view.zoom };
+  }
+
+  private hitZone(event: PointerEvent, crop: CropState): CropHitZone {
+    return cropHitTest(event.clientX, event.clientY,
+      this.#port.canvas().getBoundingClientRect(), this.#port.view(), crop);
   }
 
   private moveFrame(crop: CropState, drag: MoveDrag, point: { gx: number; gy: number }): void {

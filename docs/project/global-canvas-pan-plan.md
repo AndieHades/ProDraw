@@ -1,6 +1,6 @@
 # Global canvas pan plan
 
-Status: `ready`
+Status: `done`
 
 - Owner: production canvas input navigation
 - Baseline: `aset-editor@a6be244`, 2026-08-28
@@ -21,9 +21,10 @@ Status: `ready`
 
 ## Target contract
 
-- `GCP-01`: middle-mouse drag pans the view in every tool and active mode,
-  including Crop and Free Transform.
-- `GCP-02`: held Space plus left-mouse drag pans in every tool and active mode.
+- `GCP-01`: left, middle and right mouse drag can pan in every tool and active
+  mode when the pointer is outside that mode's interactive hit region.
+- `GCP-02`: middle drag and held Space plus left drag force pan even over an
+  interactive hit region.
 - `GCP-03`: global pan never calls the active tool/mode handler, changes document
   pixels, commits history or exits the active mode.
 - `GCP-04`: ordinary Crop left/right gestures and Transform right-click menu keep
@@ -35,7 +36,8 @@ Status: `ready`
 
 1. Add a small core navigation-modifier owner for held Space.
 2. Route keyboard Space lifecycle to that owner without changing key rebinding.
-3. Give middle mouse and Space+left pan priority before mode dispatch.
+3. Give middle mouse and Space+left pan priority before mode dispatch; expose
+   Crop hit testing so every mouse button pans outside its frame.
 4. Add routing tests for Crop, Transform, ordinary tools and preserved gestures.
 5. Run focused input tests, check/lint, changed-surface validation and desktop
    packaging.
@@ -44,27 +46,39 @@ Status: `ready`
 
 - Space can be typed in text fields: do not suppress or activate canvas
   navigation while the keyboard target is editable.
-- Crop right drag must not become pan; middle/Space are the unambiguous global
-  routes.
+- Crop left/right keep their authored behavior inside the frame; outside the
+  frame they pan like every other mouse button.
 - The modifier belongs in `core`, avoiding forbidden system-to-system imports.
 - Rollback removes the shared modifier and restores the prior pan predicate; no
   persisted document or preference schema changes.
 
 ## Completion definition
 
-- Automated tests prove view offsets change and mode handlers do not run for
-  middle/Space pan under Crop and Transform.
+- Automated tests prove view offsets change and mode handlers do not run for all
+  three mouse buttons outside Crop/Transform or middle/Space forced pan inside.
 - Tests prove ordinary Crop/Transform buttons still dispatch as before.
 - View-only pan produces no document/history mutation.
 - Changed-surface and packaged desktop smoke pass; visual acceptance is user-led.
 
+## Completion record
+
+- Crop exposes its real frame hit region to the shared input dispatcher.
+- All three mouse buttons pan outside Crop/Transform hit regions; middle mouse
+  and `Space+ЛКМ` override an active hit, including with a pen primary contact.
+- Crop left/right and Transform context behavior remain mode-owned inside.
+- Checks: focused input 4 files/14 tests; changed-surface 96 files/286 tests;
+  typecheck, lint, docs, lines, architecture, cycles and shell gates; packaged
+  Windows desktop smoke passed.
+- Commit: `feat: make canvas pan global across modes`.
+
 ## Resume Here
 
-- Current stage: `GCP1 — global navigation priority`
-- Status: `ready`
-- Last completed stage: evidence and contract
-- Next action: implement shared Space state and the global pan predicate
+- Current stage: complete
+- Status: `done`
+- Last completed stage: `GCP1 — global navigation priority`
+- Next action: user acceptance with preferred mouse/pen/touch navigation
 - Blockers: none
 - Working paths: `src/core`, `src/systems/input`, `src/systems/keyboard`, `tests/input`
-- Last checks: gallery memory safety package passed before this stage
+- Last checks: focused input 14/14; changed-surface 96 files/286 tests; packaged
+  Windows desktop smoke passed
 - Last updated: 2026-08-28

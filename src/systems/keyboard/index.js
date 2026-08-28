@@ -4,11 +4,12 @@
 import * as actions from '../../core/actions.ts';
 import { DEFAULT_KEYMAP } from './keymap.js';
 import { keyboardCombo } from '../../logic/key-code.ts';
+import { canvasPanModifierHeld,
+  setCanvasPanModifierHeld } from '../../core/navigationModifiers.ts';
 
 const STORE = 'keymap';
 
-let spaceHeld = false; // Space как зажатый модификатор: Space+X / Space+Y — флип тайла на кисти
-export function comboOf(e) { return keyboardCombo(e, spaceHeld); }
+export function comboOf(e) { return keyboardCombo(e, canvasPanModifierHeld()); }
 
 let overrides = {};
 try { overrides = JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) {}
@@ -36,7 +37,15 @@ export function handle(e) {
 }
 
 export function mount() {
-  window.addEventListener('keydown', (e) => { if (e.code === 'Space') spaceHeld = true; handle(e); });
-  window.addEventListener('keyup', (e) => { if (e.code === 'Space') spaceHeld = false; });
-  window.addEventListener('blur', () => { spaceHeld = false; });
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+      const blocked = typing(e.target) || !!document.querySelector('.ovl.on');
+      setCanvasPanModifierHeld(!blocked); if (!blocked) e.preventDefault();
+    }
+    handle(e);
+  });
+  window.addEventListener('keyup', (e) => {
+    if (e.code === 'Space') setCanvasPanModifierHeld(false);
+  });
+  window.addEventListener('blur', () => { setCanvasPanModifierHeld(false); });
 }

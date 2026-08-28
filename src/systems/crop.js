@@ -83,7 +83,8 @@ export function mount() {
   mounted = true;
   mountCropControls({ active: () => !!S.cropMode, toggle: toggleCrop,
     apply: applyCrop, cancel: cancelCrop, dimensionInput,
-    bindCanvasMode: () => registerMode('crop', { down: ({ e }) => cropPointer.down(e),
+    bindCanvasMode: () => registerMode('crop', { hit: ({ e }) => cropPointer.hit(e),
+      down: ({ e }) => cropPointer.down(e),
       move: ({ e }) => cropPointer.move(e), up: () => cropPointer.end(),
       hover: ({ e }) => cropPointer.hover(e) }) });
 }

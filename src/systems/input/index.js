@@ -10,6 +10,7 @@ import { toolHandler, modeHandler, globalHandlers } from '../../core/canvas-hand
 import { canvasAt, gridAt } from '../../core/viewport.js';
 import { DRAG_THRESHOLD } from '../../config/timings.ts';
 import { ZOOM_MIN, ZOOM_MAX } from '../../config/limits.ts';
+import { canvasPanModifierHeld } from '../../core/navigationModifiers.ts';
 import { mountGestures } from './gestures.js';
 
 const cv = () => $('cv');
@@ -23,6 +24,13 @@ const inWorkArea = (gx, gy) => (S.tile && S.tile.on)
 const startPan = (e) => {
   rdrag = { x: e.clientX, y: e.clientY, ox: S.view.ox, oy: S.view.oy, moved: false, btn: e.button };
 };
+const globalPanGesture = (e) => (e.pointerType === 'mouse' && e.button === 1) ||
+  (e.pointerType !== 'touch' && e.button === 0 && canvasPanModifierHeld());
+const fallbackPanGesture = (e, gx, gy, mode, modeHit) => {
+  if (e.pointerType !== 'mouse' || e.button < 0 || e.button > 2) return false;
+  if (mode) return !modeHit;
+  return e.button === 2 || (e.button === 0 && !inWorkArea(gx, gy));
+};
 
 let rdrag = null, drawing = false, activeGlobal = null;
 let activePointerId = null;
@@ -35,8 +43,7 @@ export function down(e) {
   const m = activeMode(), modeHit = m?.hit?.({ gx, gy, rx, ry, e });
   if (e.pointerType === 'mouse' && e.button === 2 && S.rotMode && modeHit) {
     bus.emit('transform-menu', e); return; }
-  if (e.pointerType === 'mouse' && !S.cropMode && (e.button === 1 || e.button === 2 ||
-      (e.button === 0 && (!inWorkArea(gx, gy) || (S.rotMode && !modeHit))))) {
+  if (globalPanGesture(e) || fallbackPanGesture(e, gx, gy, m, modeHit)) {
     startPan(e); return; }
   if (e.pointerType === 'mouse' && e.button && !(S.cropMode && e.button === 2)) return;
   if (m) { m.down({ gx, gy, rx, ry, e }); drawing = true; return; }
