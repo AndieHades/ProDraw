@@ -1,6 +1,6 @@
 export const SHELL_ACTION_NAMES = [
   "bg.clear", "bg.fill", "canvas.crop",
-  "canvas.rotate", "canvas.trim", "color.for",
+  "canvas.rotate", "canvas.trim", "canvas.trimSelected", "color.for",
   "color.pick", "color.replace", "color.setActive",
   "color.used", "doc.new", "draw.bigger", "draw.smaller",
   "edit.copy", "edit.cut", "edit.delete",

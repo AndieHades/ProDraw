@@ -11,7 +11,7 @@ const ALLOWED: Readonly<Record<PanelId, ReadonlySet<string>>> = {
   "tb-left": new Set(["docsbtn", "imp-btn", "export-btn", "prev", "refbtn"]),
   "tb-right": new Set(["layers", "activewrap"]),
   sidebar: new Set(["t-pencil", "t-eraser", "t-fill", "t-move",
-    "crop", "t-select", "t-lasso", "flip-h", "sym", "t-shape", "t-adjust",
+    "crop", "trim-selected", "t-select", "t-lasso", "flip-h", "sym", "t-shape", "t-adjust",
     "tile-btn", "center", "t-text", "zoom"])
 };
 const MOVED_OUT = new Set(["fx-btn", "img-settings", "bc"]);

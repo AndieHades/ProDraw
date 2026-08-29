@@ -1,18 +1,24 @@
-// Trim — подгоняет холст под реальные границы ВСЕХ слоёв: непустые пиксели,
-// пиксели за краем (ext) И охват видимых эффектов (обводка/свечение/тень). Есть
-// пустые поля → обрезает; контент/эффект выходят за холст → расширяет; впритык → ничего.
+// Legacy composition bridge. Trim decisions live in typed TrimSystem; this file
+// only injects the current state, bounds, history and feedback owners.
 import { S } from '../core/state.js';
 import * as actions from '../core/actions.ts';
+import { activeTimelineBounds } from '../core/animation-canvas.js';
 import { boundsFor, canvasContentBounds } from '../core/canvas-bounds.js';
 import { applyCropRect } from '../core/document.js';
+import { selectedFolderTargets, selectedLayerTargets } from '../core/targets.js';
 import { toast, t } from '../ui/dom/ShellDom.ts';
-import { activeTimelineBounds } from '../core/animation-canvas.js';
+import { TrimSystem } from './trim/TrimSystem.ts';
 
-export function trimCanvas() {
-  const g = activeTimelineBounds((layers, folders) => boundsFor(layers, folders), canvasContentBounds);
-  if (!g) { toast(t('toast.canvasEmpty')); return; }
-  if (g.minx === 0 && g.miny === 0 && g.maxx === S.W - 1 && g.maxy === S.H - 1) { toast(t('toast.nothingTrim')); return; } // холст уже впритык
-  applyCropRect(g.minx, g.miny, g.maxx, g.maxy); // меньше холста → обрезка; больше → расширение и показ
-}
+const system = new TrimSystem({
+  apply: (bounds) => applyCropRect(bounds.minx, bounds.miny, bounds.maxx, bounds.maxy),
+  canvasBounds: () => activeTimelineBounds((layers, folders) =>
+    boundsFor(layers, folders), canvasContentBounds),
+  dimensions: () => ({ width: S.W, height: S.H }),
+  feedback: (key) => toast(t(`toast.${key}`)),
+  selectedBounds: () => boundsFor(selectedLayerTargets(), selectedFolderTargets()),
+});
 
+export const trimCanvas = () => system.trimCanvas();
+export const trimSelectedLayers = () => system.trimSelectedLayers();
 actions.register('canvas.trim', trimCanvas);
+actions.register('canvas.trimSelected', trimSelectedLayers);

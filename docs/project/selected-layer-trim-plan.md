@@ -1,6 +1,6 @@
 # Selected layer trim plan
 
-Status: `in_progress`
+Status: `done`
 
 - Owner: selected-content canvas trim
 - Baseline: `aset-editor@305a069`, 2026-08-28
@@ -32,15 +32,16 @@ Status: `in_progress`
 - `SLT-05`: apply the new canvas bounds to the whole document in one history
   operation. Pixels from unselected layers outside those bounds remain stored,
   and one Undo restores exact dimensions, raster references and all pixels.
-- `SLT-06`: migrate the small trim system owner to TypeScript while adding the
-  command; the wider application migration remains governed by the existing
-  R2.11 owner-cutover plan.
+- `SLT-06`: move trim decisions behind an explicit TypeScript port while a thin
+  JS composition bridge injects legacy state/history dependencies. Crop, Pan
+  and Undo must be verified before any wider TypeScript migration continues.
 
 ## Change map
 
 1. Add a pure selected-folder effect-scope resolver beside the existing target
    selection contract.
-2. Migrate the trim owner to TypeScript and register `canvas.trimSelected`.
+2. Add the typed trim owner and register `canvas.trimSelected` through the thin
+   legacy composition bridge.
 3. Bind a localized sidebar button through the typed tool-panel port and allow
    it in persisted panel ordering.
 4. Test hidden nested folders, union bounds, empty selections and exact Undo of
@@ -68,13 +69,26 @@ Status: `in_progress`
 - Shell action typing, i18n, persisted toolbar ordering and the Windows package
   all accept the new command.
 
+## Completion record
+
+- The sidebar now has a distinct localized `Обрезать слои` command beside
+  interactive Canvas size Crop.
+- Active/marked layers and selected folder subtrees form one union bounds;
+  hidden layers, nested folders and their selected-scope effects participate.
+- The document remap keeps pixels from all other layers in `ext`; one Undo
+  restores original dimensions, raster references and pixel values.
+- Focused Crop/Pan/Undo gate: 7 files, 25 tests passed.
+- Changed-surface gate: 97 files, 290 tests plus check, lint, docs, architecture,
+  cycles, cutover, desktop, raster-entry and shell catalog passed.
+- Packaged Windows renderer smoke passed from `artifacts/desktop/win-unpacked`.
+
 ## Resume Here
 
-- Current stage: `SLT1 — selected-content trim`
-- Status: `in_progress`
-- Last completed stage: plan and evidence contract
-- Next action: implement the typed action, toolbar binding and behavioral tests
+- Current stage: complete
+- Status: `done`
+- Last completed stage: `SLT1 — selected-content trim`
+- Next action: user acceptance of the packaged Crop/Pan build
 - Blockers: none
-- Working paths: `src/core`, `src/systems/trim`, `src/ui/shell`, `tests/system`
-- Last checks: baseline worktree clean at `305a069`
+- Working paths: `src/core`, `src/systems/trim`, `src/ui/shell`, `tests`
+- Last checks: focused 25/25; changed-surface 290/290; packaged smoke passed
 - Last updated: 2026-08-28

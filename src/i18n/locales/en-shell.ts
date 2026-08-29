@@ -105,6 +105,7 @@ export const enShell: LocaleDictionary = {
   "side.imageSettings": "Settings",
   "side.crop": "Canvas size (C)",
   "side.trim": "Trim",
+  "side.trimSelected": "Trim selected layers",
   "side.center": "Center",
   "side.centerFit": "Fit",
   "tool.effects": "Layer effects",

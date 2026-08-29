@@ -13,6 +13,7 @@ export interface ToolPanelCallbacks {
   readonly shape: () => void;
   readonly showModes: () => void;
   readonly symmetry: () => void;
+  readonly trimSelected: () => void;
   readonly zoom: () => void;
 }
 
@@ -35,6 +36,7 @@ export function bindToolPanelButtons(callbacks: ToolPanelCallbacks): void {
   element<HTMLButtonElement>("t-shape").onclick = callbacks.shape;
   bindChoiceMenu("t-shape", "shape-choice", callbacks.showModes);
   element<HTMLButtonElement>("t-move").onclick = callbacks.move;
+  element<HTMLButtonElement>("trim-selected").onclick = callbacks.trimSelected;
   element<HTMLButtonElement>("t-select").onclick = callbacks.select;
   element<HTMLButtonElement>("t-lasso").onclick = callbacks.lasso;
   element<HTMLButtonElement>("t-fill").onclick = callbacks.fill;

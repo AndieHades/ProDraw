@@ -5,7 +5,8 @@ import type { ToolPanelPort, ToolPanelState } from
   "../../src/ui/shell/ToolPanelTypes";
 
 const BUTTON_IDS = ["t-pencil", "t-eraser", "t-fill", "t-select", "t-lasso",
-  "t-move", "t-adjust", "t-shape", "sym", "flip-h", "img-settings", "center", "zoom"];
+  "t-move", "t-adjust", "t-shape", "sym", "flip-h", "img-settings", "center", "zoom",
+  "trim-selected"];
 const MENU_IDS = ["shape-choice", "sym-choice", "flip-choice", "center-choice",
   "zoom-choice", "adjpop"];
 
@@ -36,6 +37,9 @@ describe("tool panel active state", () => {
       subscribe: (_event, listener) => listeners.push(listener), toggleSymmetry: vi.fn()
     };
     new ToolPanelPresenter(port).mount();
+
+    document.getElementById("trim-selected")?.click();
+    expect(port.run).toHaveBeenCalledWith("canvas.trimSelected");
 
     expect(document.getElementById("t-eraser")?.classList.contains("on")).toBe(false);
     expect(document.getElementById("t-move")?.classList.contains("on")).toBe(true);

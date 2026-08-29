@@ -14,6 +14,13 @@ export function selectedLayerTargets() {
   return [...out].filter((L) => S.layers.includes(L));
 }
 
+export function selectedFolderTargets() {
+  const roots = new Set(S.markedFolders);
+  if (S.selFolder != null) roots.add(S.selFolder);
+  return S.folders.filter((folder) => roots.has(folder.id) ||
+    folderChain(folder.parent).some((ancestor) => roots.has(ancestor.id)));
+}
+
 // цели одношаговых операций (флип/симметрия): выбран фон → весь документ (все
 // слои), иначе — выбранные слой/папка/набор (эффект/настройка → активный слой).
 export function opTargets() {
