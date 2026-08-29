@@ -1,9 +1,9 @@
 // Tint & Shade Generator: окно генерации оттенков/гармоний от выбранного цвета палитры.
-// Логика генерации — в logic/tint-shade.js; здесь оркестрация UI и операции над палитрой.
+// Логика генерации — в logic/tint-shade.ts; здесь оркестрация UI и операции над палитрой.
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { $, toast, t } from '../../ui/dom/ShellDom.ts';
-import { eqc } from '../../logic/color.js';
+import { eqc } from '../../logic/color.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { tsg, toggleSel, openWith } from './store.js';
 import { render, setHandlers } from './render.js';

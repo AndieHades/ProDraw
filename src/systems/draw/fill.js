@@ -4,22 +4,23 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch, recordPixelBefore,
   snapshot, snapshotDescriptors, snapshotRasterReferences } from '../../core/history.js';
-import { eqc } from '../../logic/color.js';
+import { eqc } from '../../logic/color.ts';
 import { visitFloodRegion } from '../../logic/flood.js';
 import { inSel } from '../../core/selection.js';
 import { referenceIndexFor, symmetryConfig } from '../../core/layers.js';
-import { mirrorPoints } from '../../logic/symmetry.js';
+import { mirrorPoints } from '../../logic/symmetry.ts';
 import { $ } from '../../ui/dom/ShellDom.ts';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { rasterizeActiveText } from '../../core/text-rasterize.js';
-import { isTextLayer } from '../../logic/text-model.js';
+import { isTextLayer } from '../../logic/text-model.ts';
 import { beginLegacyTileEdit,
   commitLegacyTileEdit } from '../../core/history/legacyTileHistory.js';
 import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
+import { wrapTilePoint } from '../../logic/TileGeometry.ts';
 
 function floodFrom(x, y, paint) {
   const wrap = !!(S.tile && S.tile.on);
-  if (wrap) { x = ((x % S.W) + S.W) % S.W; y = ((y % S.H) + S.H) % S.H; } // Tile Mode: точка по любому тайлу → исходный
+  if (wrap) [x, y] = wrapTilePoint(x, y, S.W, S.H);
   if (x < 0 || y < 0 || x >= S.W || y >= S.H) return;
   const g = G(), ri = referenceIndexFor(S.cur), src = ri >= 0 ? S.layers[ri].grid : g, target = src[y][x], to = S.active;
   if (src === g && eqc(target, to)) return;

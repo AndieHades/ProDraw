@@ -4,7 +4,7 @@ import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { snapshot, snapshotEffects } from '../../core/history.js';
-import { rgbToHex } from '../../logic/color.js';
+import { rgbToHex } from '../../logic/color.ts';
 import { dirtyAll, markDirty } from '../../core/layer-cache.js';
 import { rasterizeTextTargets } from '../../core/text-rasterize.js';
 import { folderLayers } from './helpers.js';

@@ -15,15 +15,15 @@ import { shouldStartCanvasPan } from '../../logic/view/CanvasPanPolicy.ts';
 import { CanvasPanSession } from '../viewport/CanvasPanSession.ts';
 import { zoomLegacyViewAt } from '../../logic/view/LegacyViewGeometry.ts';
 import { mountGestures } from './gestures.js';
+import { isInsideTileWorkArea } from '../../logic/TileGeometry.ts';
 
 const cv = () => $('cv');
 export const toGrid = (e) => gridAt(e.clientX, e.clientY);
 export const toCanvas = (e) => canvasAt(e.clientX, e.clientY);
 const activeMode = () => (S.cropMode ? modeHandler('crop') : S.rotMode ? modeHandler('transform') : null);
 const capture = (id) => { try { cv().setPointerCapture(id); } catch (e) {} };
-const inWorkArea = (gx, gy) => (S.tile && S.tile.on)
-  ? gx >= -S.W && gy >= -S.H && gx < 2 * S.W && gy < 2 * S.H
-  : gx >= 0 && gy >= 0 && gx < S.W && gy < S.H;
+const inWorkArea = (gx, gy) =>
+  isInsideTileWorkArea(gx, gy, S.W, S.H, !!(S.tile && S.tile.on));
 const pan = new CanvasPanSession(DRAG_THRESHOLD);
 let drawing = false, activeGlobal = null;
 let activePointerId = null;

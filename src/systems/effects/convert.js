@@ -5,7 +5,7 @@ import { snapshotCompound } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { folderChain } from '../../core/layers.js';
 import { S } from '../../core/state.js';
-import { hexToRgb } from '../../logic/color.js';
+import { hexToRgb } from '../../logic/color.ts';
 import { INNER_EFFECTS } from '../../logic/layer-effects.js';
 import { setGridBounds } from '../../logic/raster.js';
 

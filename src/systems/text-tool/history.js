@@ -1,5 +1,5 @@
 import { snapshotRasterReferences, snapshotStructure } from '../../core/history.js';
-import { cloneTextSource } from '../../logic/text-model.js';
+import { cloneTextSource } from '../../logic/text-model.ts';
 
 export function captureTextLayer(layer) {
   return { name: layer.name, kind: layer.kind,

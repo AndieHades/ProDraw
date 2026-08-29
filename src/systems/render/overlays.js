@@ -2,10 +2,11 @@
 // выделение, рамка/маска выделения, подсветка перекраски, рамка кропа, контур
 // кисти. Всё выражается из общего S.
 import { S } from '../../core/state.js';
-import { rgb, eqc, hexToRgb } from '../../logic/color.js';
-import { bres, rectEdges, rectFill, ellipseEdges, ellipseFill } from '../../logic/raster.js';
+import { rgb, eqc, hexToRgb } from '../../logic/color.ts';
+import { bres, rectEdges, rectFill, ellipseEdges,
+  ellipseFill } from '../../logic/ShapeGeometry.ts';
 import { symmetryConfig, effVis } from '../../core/layers.js';
-import { mirrorPoints } from '../../logic/symmetry.js';
+import { mirrorPoints } from '../../logic/symmetry.ts';
 import { clamp01 } from '../../logic/math.ts';
 import { C } from '../../styles/canvas-colors.ts';
 import { layerContentBounds } from '../../core/layer-cache.js';

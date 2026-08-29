@@ -9,7 +9,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, copyText } from '../../ui/dom/ShellDom.ts';
 import { setTool } from '../../core/tools.js';
-import { rgb, rgbToHex } from '../../logic/color.js';
+import { rgb, rgbToHex } from '../../logic/color.ts';
 import { eventKey } from '../../logic/key-code.ts';
 import { HOLD_PICK_MS, DRAG_THRESHOLD, TAP_MAX_MS } from '../../config/timings.ts';
 import { sampleColor } from './sources.js';

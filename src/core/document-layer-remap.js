@@ -1,5 +1,5 @@
 import { inheritStructureIdentity } from './history/structurePatch.js';
-import { cloneTextSource, isTextLayer } from '../logic/text-model.js';
+import { cloneTextSource, isTextLayer } from '../logic/text-model.ts';
 
 function cloneValue(value) {
   if (Array.isArray(value)) return value.map(cloneValue);

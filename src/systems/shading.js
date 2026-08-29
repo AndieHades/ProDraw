@@ -5,7 +5,7 @@ import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { t, toast } from '../ui/dom/ShellDom.ts';
 import { setTool } from '../core/tools.js';
-import { eqc } from '../logic/color.js';
+import { eqc } from '../logic/color.ts';
 import { ShadingRampPresenter } from '../ui/color/ShadingRampPresenter.ts';
 
 export const SHADING_MAX = 6;

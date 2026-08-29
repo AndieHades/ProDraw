@@ -2,7 +2,7 @@
 
 - Stable id: `C4`
 - Depends on: `C3`
-- Status: `in_progress`
+- Status: `done`
 
 ## Sub-stages
 
@@ -36,7 +36,11 @@ creative tool imports a retired JS owner.
   and Transform math/raster state performs one source-to-result resample.
   Middle/Space force Pan inside modes; every mouse button pans outside their hit
   regions, preserving Crop/Transform controls inside the frame.
-- Commit: C4A stage commit; C4B pending
-- Checks: 117 legacy, 329 TypeScript and 52 sequential performance tests; full
-  validate, focused Pan/Crop/Transform/remap and A4 gates
-- Residual risk: creative tools, text and colour remain in C4B
+- `C4B`: done in `feat: port creative tools to TypeScript`; typed owners now
+  define Shapes and contour fill, Dodge/Burn/Mono, palette ramps, symmetry,
+  bounded Tile geometry, colour transforms, text model/frame/raster bounds and
+  font registry decisions. Existing UI orchestration delegates to those owners.
+- Commit: C4B stage commit
+- Checks: 117 legacy, 335 TypeScript and 52 sequential performance tests;
+  creative owner focus tests, full validate, line and import-cycle gates
+- Residual risk: physical pen/touch acceptance remains a final manual check

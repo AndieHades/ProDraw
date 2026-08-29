@@ -3,7 +3,7 @@
 import { S } from './state.js';
 import { layerContentBounds, markDirty } from './layer-cache.js';
 import { recordPixelBefore } from './history.js';
-import { adjustColor } from '../logic/adjustment.js';
+import { adjustColor } from '../logic/adjustment.ts';
 
 export function captureAdjustmentLayers() {
   return S.layers.map((L, index) => {

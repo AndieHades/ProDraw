@@ -3,7 +3,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { rgb, eqc } from '../../logic/color.js';
+import { rgb, eqc } from '../../logic/color.ts';
 import { sampleGrid } from '../../logic/sample.js';
 import { medianCut, nearest, paletteFromGrid } from '../../logic/quantize.js';
 import { cloneGrid } from '../../logic/raster.js';

@@ -1,4 +1,4 @@
-import { lineAdvance } from '../../logic/text-layout.js';
+import { lineAdvance } from '../../logic/text-layout.ts';
 
 export const editorText = (editor) =>
   (editor.innerText ?? editor.textContent).replace(/\n$/, '');

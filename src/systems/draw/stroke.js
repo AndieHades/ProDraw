@@ -8,7 +8,7 @@ import { beginPixelBatch, beginPixelPatch, cancelPixelPatch, commitPixelPatch,
   restore } from '../../core/history.js';
 import { swapRasterReferenceEntry } from '../../core/history/rasterReferencePatch.js';
 import { markDirty } from '../../core/layer-cache.js';
-import { isTextLayer } from '../../logic/text-model.js';
+import { isTextLayer } from '../../logic/text-model.ts';
 import { resetScatter } from './brush.js';
 import { beginLegacyTileEdit, cancelLegacyTileEdit, commitLegacyTileEdit,
   legacyTileEditActive } from '../../core/history/legacyTileHistory.js';

@@ -13,7 +13,7 @@ import { selectedLayerTargets } from '../../core/targets.js';
 import { cloneSelectionMask } from '../../logic/mask-ops.js';
 import { setTool } from '../../core/tools.js';
 import { updateTextLayerGrid } from '../../core/text-layer.js';
-import { isTextLayer, transformTextSource } from '../../logic/text-model.js';
+import { isTextLayer, transformTextSource } from '../../logic/text-model.ts';
 import { rotBuildCellsSym, rotHasChanges, rotRestoreState } from './math.ts';
 import { rotGrab, rotDrag, rotHover, drawTransformFrame, rotHit } from './drag.js';
 import { buildTransformPreview } from './preview.js';

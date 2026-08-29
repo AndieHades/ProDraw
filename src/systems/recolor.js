@@ -5,11 +5,11 @@ import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch, recordPixelBefore,
   snapshot, snapshotRasterReferences } from '../core/history.js';
-import { eqc } from '../logic/color.js';
+import { eqc } from '../logic/color.ts';
 import { dirtyAll, layerContentBounds, markDirty } from '../core/layer-cache.js';
 import { toast, t } from '../ui/dom/ShellDom.ts';
 import { rasterizeMatchingText } from '../core/text-rasterize.js';
-import { isTextLayer } from '../logic/text-model.js';
+import { isTextLayer } from '../logic/text-model.ts';
 import { forkRasterRows } from '../logic/raster-row-fork.js';
 
 const fromList = (from) => (Array.isArray(from && from[0]) ? from : [from]).filter(Boolean).map((c) => c.slice(0, 3));

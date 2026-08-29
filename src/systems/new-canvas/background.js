@@ -1,7 +1,7 @@
 import { CANVAS_BACKGROUND_CHOICES, DEFAULT_CANVAS_BACKGROUND } from '../../config/canvas-background.ts';
 import { $ } from '../../ui/dom/ShellDom.ts';
 import { t } from '../../i18n/index.ts';
-import { rgb } from '../../logic/color.js';
+import { rgb } from '../../logic/color.ts';
 
 const defaultIndex = CANVAS_BACKGROUND_CHOICES.findIndex(
   ({ id }) => id === DEFAULT_CANVAS_BACKGROUND.id

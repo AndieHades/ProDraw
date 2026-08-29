@@ -9,18 +9,18 @@
 
 ## Resume Here
 
-- Current stage: `C4B — typed creative tools, text and colour`
+- Current stage: `C5A — typed gallery and document file workflows`
 - Status: `in_progress`
-- Last completed stage: `C4A`; Transform raster math, normal Crop, selected trim,
-  remap Undo, all-button Pan and live view geometry use TypeScript owners
-- Next action: port Shapes, Dodge, symmetry, Tile Mode, text/font and colour flows
-  without changing the exact two-column tool registry
+- Last completed stage: `C4B`; Shapes, adjustment brushes, symmetry, bounded Tile
+  Mode, text/font geometry and colour flows use TypeScript owners
+- Next action: port gallery enumeration and heavy document file workflows without
+  loading raster pixels into the gallery listing path
 - Blockers: physical Huion acceptance remains a final device-only check; it does
   not block code migration or automated trace evidence
 - Working paths: `src`, `tests`, `tools`,
   `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`
-- Last checks: 117 legacy, 329 TypeScript and 52 sequential performance tests
-  pass; full validate, Transform/Crop/Pan and A4 remap budgets stay green
+- Last checks: 117 legacy, 335 TypeScript and 52 sequential performance tests
+  pass; full suites, creative owner focus tests and import-cycle checks stay green
 - Last updated: 2026-08-28
 
 ## Outcome
@@ -63,8 +63,8 @@ all other rows remain required.
 | `C3A` | nested layer tree and structural history are typed | `C2D` | done | `refactor: port layer tree history` |
 | `C3B` | effects, selection and contextual export are typed | `C3A` | done | `feat: port effects and selection to RGBA` |
 | `C4A` | Transform, both Crop paths, Pan and view are typed | `C3B` | done | `feat: port transform crop and view` |
-| `C4B` | creative tools, text and colour are typed | `C4A` | in progress | `feat: port creative tools to TypeScript` |
-| `C5A` | gallery, import, export and Save as Canvas are typed | `C4B` | pending | `refactor: port document file workflows` |
+| `C4B` | creative tools, text and colour are typed | `C4A` | done | `feat: port creative tools to TypeScript` |
+| `C5A` | gallery, import, export and Save as Canvas are typed | `C4B` | in progress | `refactor: port document file workflows` |
 | `C5B` | animation and timeline are typed | `C5A` | pending | `refactor: port animation workflows` |
 | `C6A` | production starts at the TypeScript composition root | `C5B` | pending | `refactor: switch production to TypeScript entry` |
 | `C6B` | legacy graph is deleted and final gates are green | `C6A` | pending | `refactor: retire the legacy editor runtime` |

@@ -1,7 +1,7 @@
 // Запросы к слоям: видимость с учётом папок, обтравка, замок симметрии.
 // Чистые функции над состоянием S (без DOM).
 import { S } from './state.js';
-import { centerSymmetryAxes, symmetryAxes } from '../logic/symmetry.js';
+import { centerSymmetryAxes, symmetryAxes } from '../logic/symmetry.ts';
 import { findFolder, folderChain as treeFolderChain } from
   './layers/LayerTree.ts';
 

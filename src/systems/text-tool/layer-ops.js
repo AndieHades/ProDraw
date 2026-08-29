@@ -4,7 +4,7 @@ import { snapshotStructure } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { makeTextLayer } from '../../core/text-layer.js';
 import { TEXT_BOX } from '../../config/text.ts';
-import { normalizeTextSource } from '../../logic/text-model.js';
+import { normalizeTextSource } from '../../logic/text-model.ts';
 
 export const draftTextSource = (prefs, x, y) => normalizeTextSource({
   ...prefs, value: '', box: { ...TEXT_BOX, x, y },

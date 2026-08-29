@@ -1,5 +1,5 @@
-import { adjustColor } from '../logic/adjustment.js';
-import { hexToRgb } from '../logic/color.js';
+import { adjustColor } from '../logic/adjustment.ts';
+import { hexToRgb } from '../logic/color.ts';
 import { effectRegionFromGrid } from '../logic/effect-region.js';
 import { EFFECT_PIXELS, INNER_EFFECTS } from '../logic/layer-effects.js';
 import { monochromeColor } from '../logic/monochrome.js';

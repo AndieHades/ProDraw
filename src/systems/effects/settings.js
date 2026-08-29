@@ -7,7 +7,7 @@ import { snapshot, snapshotEffects, addUndoGuard } from '../../core/history.js';
 import { expandForEffects, needsEffectExpansion } from '../../core/document.js';
 import { $, t } from '../../ui/dom/ShellDom.ts';
 import { EFFECT_FIELDS } from '../../config/defaults.ts';
-import { rgbToHex } from '../../logic/color.js';
+import { rgbToHex } from '../../logic/color.ts';
 import { activeTarget } from './shared.js';
 
 let ses = null; // { target, eff, isNew, original }

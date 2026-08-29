@@ -8,7 +8,7 @@ import { beginPixelBatch, commitPixelPatch,
 import { captureAdjustmentLayers, writeAdjustmentLayers } from '../core/adjustment-preview.js';
 import { $, t } from '../ui/dom/ShellDom.ts';
 import { nextFloatingZ } from '../ui/windows/FloatingWindow.ts';
-import { adjustmentParams } from '../logic/adjustment.js';
+import { adjustmentParams } from '../logic/adjustment.ts';
 import { activeTarget } from './effects/shared.js';
 import { controlsToParams, setControls, syncLabels } from './brightness-contrast/form.js';
 import { beginCanvasReference } from './brightness-contrast/reference.js';

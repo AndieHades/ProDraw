@@ -1,4 +1,4 @@
-import { cloneTextSource, isTextLayer } from '../../logic/text-model.js';
+import { cloneTextSource, isTextLayer } from '../../logic/text-model.ts';
 import { gridBoundsMetadata, setGridBounds } from '../../logic/raster.js';
 
 const field = (target, property, cloneText = false) => ({

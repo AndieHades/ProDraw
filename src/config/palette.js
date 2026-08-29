@@ -1,5 +1,5 @@
 // Палитра по умолчанию для нового документа.
-import { hexToRgb } from '../logic/color.js';
+import { hexToRgb } from '../logic/color.ts';
 
 export const DEFAULT_PALETTE_HEX = [
   '#172038', '#253a5e', '#3c5e8b', '#4f8fba', '#73bed3', '#a4dddb',

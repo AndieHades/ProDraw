@@ -1,5 +1,5 @@
-import { adjustColor } from '../logic/adjustment.js';
-import { hexToRgb } from '../logic/color.js';
+import { adjustColor } from '../logic/adjustment.ts';
+import { hexToRgb } from '../logic/color.ts';
 import { INNER_EFFECTS } from '../logic/layer-effects.js';
 import { monochromeRgba } from '../logic/monochrome.js';
 import { applyPsdOverlays } from '../logic/psd/effectOverlay.ts';

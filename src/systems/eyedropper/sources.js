@@ -8,6 +8,7 @@ import * as bus from '../../core/bus.ts';
 import { $ } from '../../ui/dom/ShellDom.ts';
 import { gridAt } from '../../core/viewport.js';
 import { compositeAt } from '../../core/layer-cache.js';
+import { wrapTilePoint } from '../../logic/TileGeometry.ts';
 
 const inRect = (el, x, y) => { const r = el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; };
 let composite = null;
@@ -23,7 +24,7 @@ function compositeColor(x, y) {
 // холст: итоговый видимый цвет (слои+порядок+прозрачность+эффекты+zoom/pan)
 function fromCanvas(x, y) { const cv = $('cv'); if (!inRect(cv, x, y)) return undefined;
   let [gx, gy] = gridAt(x, y);
-  if (S.tile && S.tile.on) { gx = ((gx % S.W) + S.W) % S.W; gy = ((gy % S.H) + S.H) % S.H; } // Tile Mode: пипетка по любому тайлу
+  if (S.tile && S.tile.on) [gx, gy] = wrapTilePoint(gx, gy, S.W, S.H);
   if (gx < 0 || gy < 0 || gx >= S.W || gy >= S.H) return undefined;
   return compositeColor(gx, gy) || compositeAt(gx, gy) || null; }
 

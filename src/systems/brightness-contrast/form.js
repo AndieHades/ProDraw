@@ -1,7 +1,7 @@
 // DOM adapter for Brightness/Contrast fields. The owning system keeps session
 // state and transactions; this module only reads/writes the compact form.
 import { $ } from '../../ui/dom/ShellDom.ts';
-import { adjustmentParams } from '../../logic/adjustment.js';
+import { adjustmentParams } from '../../logic/adjustment.ts';
 
 export function controlsToParams() {
   return adjustmentParams({

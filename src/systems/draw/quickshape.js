@@ -7,7 +7,7 @@ import { S, G } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { cloneGrid } from '../../core/history.js';
 import { markDirty } from '../../core/layer-cache.js';
-import { bres, rectEdges, ellipseEdges } from '../../logic/raster.js';
+import { bres, rectEdges, ellipseEdges } from '../../logic/ShapeGeometry.ts';
 import { recognizeShape } from '../../logic/quickshape.js';
 import { QUICKSHAPE } from '../../config/quickshape.ts';
 import { stamp } from './stamp.js';

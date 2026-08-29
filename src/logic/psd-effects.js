@@ -1,7 +1,7 @@
 // Разбор PSD-эффектов слоя (lfx2 Object Descriptor) → эффекты PixelHeart.
 // Best-effort и чистый: при любой неожиданности парс прерывается и эффекты
 // просто не импортируются (импорт слоя не падает). Маппинг приблизительный.
-import { rgbToHex } from './color.js';
+import { rgbToHex } from './color.ts';
 import { clamp } from './math.ts';
 
 // читалка дескриптора Photoshop из DataView (мутирует локальный p)

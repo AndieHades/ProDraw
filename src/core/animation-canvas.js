@@ -1,6 +1,6 @@
 import { S } from './state.js';
 import { activeTimeline, liveFrameId, saveActiveFrame } from './animation.js';
-import { moveTextSource } from '../logic/text-model.js';
+import { moveTextSource } from '../logic/text-model.ts';
 import { translateRaster } from '../logic/raster-remap.js';
 import { remappedLayer } from './document-layer-remap.js';
 

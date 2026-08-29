@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { combineSelectionState, resizeSelectionMask, selectionMaskFromState,
   selectionStateFromMask, shiftSelectionMask, symmetrizeSelectionMask,
   symmetrizeSimpleSelectionMask } from '../../src/logic/mask-ops.js';
-import { symmetryAxes } from '../../src/logic/symmetry.js';
+import { symmetryAxes } from '../../src/logic/symmetry.ts';
 
 describe('compact selection mask', () => {
   it('preserves Set-like membership and boolean operations', () => {

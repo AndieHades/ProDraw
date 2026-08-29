@@ -3,7 +3,7 @@ import * as bus from './bus.ts';
 import { snapshotRasterReferences } from './history.js';
 import { markDirty } from './layer-cache.js';
 import { rasterizeTextLayer, textLayerBounds } from './text-layer.js';
-import { isTextLayer } from '../logic/text-model.js';
+import { isTextLayer } from '../logic/text-model.ts';
 import { gridBoundsMetadata, setGridBounds } from '../logic/raster.js';
 
 export function rasterizeTextAt(index, opts = {}) {

@@ -7,8 +7,8 @@ import { compositeAt, contentRevision } from '../core/layer-cache.js';
 import { PaletteCompositeCache } from '../core/palette-composite-cache.js';
 import { paletteFromCanvasSource, paletteFromImageData,
   paletteFromImageSource, paletteFromPointSource } from '../core/palette-sampling.js';
-import { rgb, eqc } from '../logic/color.js';
-import { sortPalette } from '../logic/palette-sort.js';
+import { rgb, eqc } from '../logic/color.ts';
+import { sortPalette } from '../logic/palette-sort.ts';
 import { defaultPalette } from '../config/palette.js';
 import { CANVAS_PALETTE_LIMIT, FILE_PALETTE_LIMIT,
   PALETTE_EXACT_LIMIT } from '../config/palette-sampling.ts';

@@ -5,7 +5,7 @@
 import { S } from '../core/state.js';
 import * as actions from '../core/actions.ts';
 import { $, toast, t, showMenuAt } from '../ui/dom/ShellDom.ts';
-import { eqc } from '../logic/color.js';
+import { eqc } from '../logic/color.ts';
 import { LONG_PRESS_MS } from '../config/timings.ts';
 import { dropZone, makeDropGap } from '../ui/dragdrop/DropGap.ts';
 import { reorderPalette } from '../logic/paletteReorder.ts';

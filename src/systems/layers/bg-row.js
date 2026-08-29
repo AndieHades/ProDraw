@@ -5,7 +5,7 @@ import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { t } from '../../ui/dom/ShellDom.ts';
 import { menuGesture } from '../../ui/gestures/ContextGesture.ts';
-import { rgb } from '../../logic/color.js';
+import { rgb } from '../../logic/color.ts';
 import { EYE } from './list.js';
 import { openLctx } from './menu.js';
 import { toggleBackgroundVisibility } from './metadata.js';

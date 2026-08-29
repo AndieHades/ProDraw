@@ -1,5 +1,5 @@
 import { TEXT_DEFAULT } from '../config/text.ts';
-import { normalizeTextPrefs } from '../logic/text-model.js';
+import { normalizeTextPrefs } from '../logic/text-model.ts';
 
 const KEY = 'pxh.textPrefs';
 

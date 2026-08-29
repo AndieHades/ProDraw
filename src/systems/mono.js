@@ -7,7 +7,7 @@ import { beginPixelBatch, commitPixelPatch, recordPixelBefore,
 import { dirtyAll, layerContentBounds, markDirty } from '../core/layer-cache.js';
 import { toast, t } from '../ui/dom/ShellDom.ts';
 import { rasterizeTextTargets } from '../core/text-rasterize.js';
-import { isTextLayer } from '../logic/text-model.js';
+import { isTextLayer } from '../logic/text-model.ts';
 import { forkRasterRows } from '../logic/raster-row-fork.js';
 import { monochromeColor } from '../logic/monochrome.js';
 

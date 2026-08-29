@@ -1,5 +1,5 @@
 // Состояние окна генератора: базовый цвет, режим гармонии, выбранные цвета (rgb[]).
-import { rgbToHex } from '../../logic/color.js';
+import { rgbToHex } from '../../logic/color.ts';
 
 export const tsg = { base: null, harmony: null, sel: [] };
 

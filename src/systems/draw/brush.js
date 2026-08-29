@@ -1,7 +1,7 @@
 // Лёгкий твёрдый отпечаток Pencil/Eraser без preset, pressure или preview.
 import { S } from '../../core/state.js';
 import { symmetryConfig } from '../../core/layers.js';
-import { mirrorPoints } from '../../logic/symmetry.js';
+import { mirrorPoints } from '../../logic/symmetry.ts';
 import { paintCell } from './cells.js';
 
 export function resetScatter() {}

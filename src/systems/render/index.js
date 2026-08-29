@@ -8,7 +8,8 @@ import { $ } from '../../ui/dom/ShellDom.ts';
 import { paintStack } from '../../core/composite.js';
 import { ZOOM_MIN, ZOOM_MAX, VIEW_FIT_MARGIN_MIN, VIEW_FIT_MARGIN_RATIO } from '../../config/limits.ts';
 import { C } from '../../styles/canvas-colors.ts';
-import { hexToRgb } from '../../logic/color.js';
+import { hexToRgb } from '../../logic/color.ts';
+import { tileRenderBlock, tileRepeatOffsets } from '../../logic/TileGeometry.ts';
 import { clamp01 } from '../../logic/math.ts';
 import { shouldSmoothViewportScale } from '../../logic/view/viewportSampling.ts';
 import { makeCanvas, syncCanvasSize } from '../../core/canvas.js';
@@ -57,8 +58,9 @@ export function render() {
   ctx.fillStyle = C.bg; ctx.fillRect(0, 0, cw, chh);
   const z = S.view.zoom, ox = S.view.ox, oy = S.view.oy;
   // Tile Mode: холст рисуется 3×3 со смещениями ±W·z/±H·z (бесшовный повтор)
-  const tile = !!(S.tile && S.tile.on), tw = W * z, th = H * z, rng = tile ? [-1, 0, 1] : [0];
-  const bx0 = ox - (tile ? tw : 0), by0 = oy - (tile ? th : 0), bw = tw * (tile ? 3 : 1), bh = th * (tile ? 3 : 1);
+  const tile = !!(S.tile && S.tile.on), tw = W * z, th = H * z;
+  const rng = tileRepeatOffsets(tile), block = tileRenderBlock(ox, oy, tw, th, tile);
+  const bx0 = block.x, by0 = block.y, bw = block.width, bh = block.height;
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 5; ctx.shadowOffsetY = 2; // = --win-shadow: одинаковая тень во всём приложении
   ctx.fillStyle = C.doc; ctx.fillRect(bx0, by0, bw, bh); ctx.restore(); // холст — ровный серый без шахматки (как в Procreate)
   ctx.save(); ctx.strokeStyle = C.edge; ctx.lineWidth = 1;

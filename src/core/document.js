@@ -3,7 +3,7 @@
 import { S, blank, newLayer } from './state.js';
 import * as bus from './bus.ts';
 import { translateRaster } from '../logic/raster-remap.js';
-import { isTextLayer, moveTextSource } from '../logic/text-model.js';
+import { isTextLayer, moveTextSource } from '../logic/text-model.ts';
 import { dirtyAll, markDirty } from './layer-cache.js';
 import { applyLayerRemap } from './document-layer-remap.js';
 import { effectExpansion, needsEffectExpansion } from './effect-expansion.js';

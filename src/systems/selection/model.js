@@ -5,8 +5,8 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { combineSelectionState, selectionMaskFromState, selectionStateFromMask,
   SelectionMask, symmetrizeSelectionMask } from '../../logic/mask-ops.js';
-import { expandMask } from '../../logic/symmetry.js';
-import { eqc } from '../../logic/color.js';
+import { expandMask } from '../../logic/symmetry.ts';
+import { eqc } from '../../logic/color.ts';
 import { anySym, symmetryConfig } from '../../core/layers.js';
 import { selectedLayerTargets } from '../../core/targets.js';
 import { layerContentBounds } from '../../core/layer-cache.js';

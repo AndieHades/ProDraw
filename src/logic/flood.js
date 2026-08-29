@@ -1,5 +1,5 @@
 // Flood fill over an arbitrary grid; traversal can be clipped by a predicate.
-import { eqc } from './color.js';
+import { eqc } from './color.ts';
 
 const sameCell = (a, b) => (a && b ? eqc(a, b) : !a && !b);
 

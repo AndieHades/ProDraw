@@ -10,11 +10,11 @@
   "maxCanvasSide": 8192,
   "maxCanvasPixels": 50000000,
   "cutover": {
-    "stage": "C2",
+    "stage": "C4",
     "runtimeMode": "shell",
     "productionEntry": "src/legacy-entry.js",
     "targetEntry": "src/raster-main.ts",
-    "maximumSourceJavaScriptFiles": 271,
+    "maximumSourceJavaScriptFiles": 261,
     "maximumLegacyStateJavaScriptFiles": 170
   },
   "legacyCodeOverLimit": [

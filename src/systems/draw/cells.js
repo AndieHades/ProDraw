@@ -2,17 +2,16 @@
 import { S } from '../../core/state.js';
 import { blendOver } from '../../logic/raster.js';
 import { symmetryConfig } from '../../core/layers.js';
-import { mirrorPoints } from '../../logic/symmetry.js';
+import { mirrorPoints } from '../../logic/symmetry.ts';
 import { inSel } from '../../core/selection.js';
 import { markDirty } from '../../core/layer-cache.js';
 import { rasterizeActiveText } from '../../core/text-rasterize.js';
 import { recordPixelBefore } from '../../core/history.js';
 import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
-
-const wrapC = (v, n) => ((v % n) + n) % n;
+import { wrapTilePoint } from '../../logic/TileGeometry.ts';
 
 export function setCell(x, y, c) {
-  if (S.tile && S.tile.on) { x = wrapC(x, S.W); y = wrapC(y, S.H); }
+  if (S.tile && S.tile.on) [x, y] = wrapTilePoint(x, y, S.W, S.H);
   if (x < 0 || y < 0 || x >= S.W || y >= S.H || !inSel(x, y)) return;
   rasterizeActiveText();
   const L = S.layers[S.cur], owner = rasterOwnerForLayer(L);
@@ -54,7 +53,7 @@ export function createCellPainter(erase) {
   };
   const paint = (x, y, opacity) => {
     if (layer.lock) return;
-    if (S.tile && S.tile.on) { x = wrapC(x, S.W); y = wrapC(y, S.H); }
+    if (S.tile && S.tile.on) [x, y] = wrapTilePoint(x, y, S.W, S.H);
     if (x < 0 || y < 0 || x >= S.W || y >= S.H || !inSel(x, y)) return;
     const amount = Math.max(0, Math.min(1, opacity)); if (amount <= 0) return;
     if (!symmetric) { apply(x, y, amount); return; }

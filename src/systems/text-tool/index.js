@@ -10,7 +10,7 @@ import { clearTextLayerGrid, textDamageBounds, textLayerBounds,
 import { rasterizeMatchingText } from '../../core/text-rasterize.js';
 import { loadTextPrefs } from '../../core/text-prefs.js';
 import { loadFonts, fontById } from '../../core/font-store.js';
-import { textLayerName } from '../../logic/text-model.js';
+import { textLayerName } from '../../logic/text-model.ts';
 import { fitBoxToEditor } from './box-fit.js';
 import { focusEditor, focusEditorAt } from './editor-focus.js';
 import { configureFrame, drawFrame, frameHandler } from './frame.js';

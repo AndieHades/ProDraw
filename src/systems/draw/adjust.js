@@ -8,22 +8,10 @@ import * as bus from '../../core/bus.ts';
 import { ADJUST_MODES, ICONS } from '../../config/toolbar.ts';
 import { strokeSeen } from './seen.ts';
 import { recordPixelBefore } from '../../core/history.js';
+import { adjustBrushColor } from '../../logic/AdjustBrushColor.ts';
 
-const mix = (a, b, t) => Math.max(0, Math.min(255, Math.round(a + (b - a) * t)));
 const byMode = (mode) => ADJUST_MODES.find((m) => m.mode === mode) || ADJUST_MODES[0];
 let mounted = false;
-
-function grayTarget(c) {
-  const v = Math.round(c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114);
-  return [v, v, v];
-}
-
-function targetColor(c) {
-  if (S.adjMode === 'dodge') return [255, 255, 255];
-  if (S.adjMode === 'burn') return [0, 0, 0];
-  if (S.adjMode === 'mono') return grayTarget(c);
-  return S.active;
-}
 
 function syncStrength() {
   const amt = $('adj-amt'), out = $('adj-amtv'); if (!amt || !out) return;
@@ -67,10 +55,8 @@ function writeCell(x, y) {
   if (S.layers[S.cur].lock) return;
   const key = y * S.W + x; if (strokeSeen.has(key)) return; strokeSeen.add(key);
   const g = G(), c = g[y][x]; if (!c) return;
-  const a = c.length > 3 ? c[3] : 255, t = S.adjAmt / 100;
-  const target = targetColor(c);
   recordPixelBefore(S.cur, x, y, c);
-  g[y][x] = [mix(c[0], target[0], t), mix(c[1], target[1], t), mix(c[2], target[2], t), a];
+  g[y][x] = adjustBrushColor(c, S.adjMode, S.active, S.adjAmt);
   return true;
 }
 

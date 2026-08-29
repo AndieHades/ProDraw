@@ -2,7 +2,7 @@ import { S, blank } from '../../core/state.js';
 import { snapshotRasterReferences } from '../../core/history.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { rasterizeTextTargets } from '../../core/text-rasterize.js';
-import { isTextLayer } from '../../logic/text-model.js';
+import { isTextLayer } from '../../logic/text-model.ts';
 import { forkRasterRows } from '../../logic/raster-row-fork.js';
 import { setGridBounds } from '../../logic/raster.js';
 
