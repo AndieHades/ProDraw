@@ -1,7 +1,7 @@
 
 import 'fake-indexeddb/auto';
 import assert from 'node:assert/strict';
-import { saveDoc, getDoc, listDocs, listGalleryDocs, removeDoc } from '../src/core/storage.js';
+import { saveDoc, getDoc, listDocs, listGalleryDocs, removeDoc } from '../src/core/storage.ts';
 import { saveBrush, listBrushes, removeBrush, saveSet, listSets, removeSet } from '../src/core/brush-store.js';
 import { mergeFolderPalettes, paletteFileName } from '../src/core/palette-files.js';
 

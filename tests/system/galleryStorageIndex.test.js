@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 /* global indexedDB */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { getDoc, listGalleryDocs, saveDoc,
-  updateGalleryDoc } from '../../src/core/storage.js';
+  updateGalleryDoc } from '../../src/core/storage.ts';
 import { loadStoredWork, removeItem } from '../../src/systems/gallery/store.js';
 
 const DATABASE = 'pixelheart';

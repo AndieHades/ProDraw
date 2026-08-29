@@ -9,18 +9,18 @@
 
 ## Resume Here
 
-- Current stage: `C2D — typed document sessions and persistence`
+- Current stage: `C3A — typed layer tree and structural history`
 - Status: `in_progress`
-- Last completed stage: `C2C`; the full-feature compositor reads the live tiled
-  owner and typed commands own base layer mutations
-- Next action: connect the shell document lifecycle, autosave, New/Open
-  cancellation and persistence to one typed session boundary
+- Last completed stage: `C2D`; one typed session owns dirty/saved state and
+  cancellation tokens, and IndexedDB persistence is strict TypeScript
+- Next action: port nested layer traversal and structural history without
+  duplicating the typed base-layer command boundary
 - Blockers: physical Huion acceptance remains a final device-only check; it does
   not block code migration or automated trace evidence
 - Working paths: `src`, `tests`, `tools`,
   `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`
-- Last checks: 117 legacy, 306 TypeScript and 52 sequential performance tests
-  pass; surface-only composite reads, typed layer commands and A4 budgets stay green
+- Last checks: 117 legacy, 310 TypeScript and 52 sequential performance tests
+  pass; full validate, production build and IndexedDB reconnect stay green
 - Last updated: 2026-08-28
 
 ## Outcome
@@ -59,8 +59,8 @@ all other rows remain required.
 | `C2A` | every live layer has one stable typed raster owner | `C1F` | done | `refactor: normalize live raster ownership` |
 | `C2B` | paint tools and raster history use tiled surface bytes | `C2A` | done | `refactor: cut drawing over to tiled RGBA` |
 | `C2C` | compositor and base layer commands use that owner | `C2B` | done | `refactor: cut render and base layers to RGBA` |
-| `C2D` | session, autosave, New/Open and persistence are typed | `C2C` | in progress | `refactor: cut document sessions to TypeScript` |
-| `C3A` | nested layer tree and structural history are typed | `C2D` | pending | `refactor: port layer tree history` |
+| `C2D` | session, autosave, New/Open and persistence are typed | `C2C` | done | `refactor: cut document sessions to TypeScript` |
+| `C3A` | nested layer tree and structural history are typed | `C2D` | in progress | `refactor: port layer tree history` |
 | `C3B` | effects, selection and contextual export are typed | `C3A` | pending | `feat: port effects and selection to RGBA` |
 | `C4A` | Transform, both Crop paths, Pan and view are typed | `C3B` | pending | `feat: port transform crop and view` |
 | `C4B` | creative tools, text and colour are typed | `C4A` | pending | `feat: port creative tools to TypeScript` |

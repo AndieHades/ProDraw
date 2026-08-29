@@ -5,7 +5,7 @@ import { dirtyAll } from '../../core/layer-cache.js';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../../core/reference-board.js';
 import { dedupePal } from '../../logic/quantize.js';
 import { defaultPalette, grayscalePalette, DEFAULT_ACTIVE } from '../../config/palette.js';
-import { saveDoc, getGalleryDoc, removeDoc } from '../../core/storage.js';
+import { saveDoc, getGalleryDoc, removeDoc } from '../../core/storage.ts';
 import { ensureGrid } from '../../core/grid.js';
 import { cloneAnimator, loadFrame } from '../../core/animation.js';
 import { t } from '../../i18n/index.ts';
@@ -18,39 +18,38 @@ import { loadStoredWork, uid } from './store.js';
 import { retireTilemapRecord } from '../../logic/retiredTilemap.ts';
 import { applyImportedImage } from '../../logic/importedImage.ts';
 import { buildPsdGalleryRecord } from './psd-record.js';
-let curId = null, curFolder = null, workChange = 0, mutation = 0, saved = null;
+import { DocumentSession } from '../../core/session/DocumentSession.ts';
+const session = new DocumentSession();
 let persistChain = Promise.resolve(false);
-export const curWorkId = () => curId;
-const nextWorkChange = () => ++workChange;
-const invalidateSaved = () => { mutation++; saved = null; };
-const markSaved = (id, version) => { if (id === curId && version === mutation) saved = { id, version }; };
-const isSaved = () => saved?.id === curId && saved.version === mutation;
+export const curWorkId = () => session.id;
 
-async function persist(id, folder, isCurrent) {
-  if (!id || !isCurrent()) return false;
-  const current = () => isCurrent() && id === curId;
-  const rec = await buildGalleryRecord(id, folder, current);
+async function persist(capture, isCurrent) {
+  if (!capture || !isCurrent()) return false;
+  const current = () => isCurrent() && session.isSaveCurrent(capture);
+  const rec = await buildGalleryRecord(capture.id, capture.folder, current);
   if (!rec || !current()) return false;
-  const old = await getGalleryDoc(id); if (!current()) return false;
+  const old = await getGalleryDoc(capture.id); if (!current()) return false;
   if (old) { rec.folder = old.folder ?? null; rec.order = old.order ?? rec.order; }
   await saveDoc(rec); return true; }
-function queuePersist(isCurrent) { const id = curId, folder = curFolder;
-  const run = () => persist(id, folder, isCurrent);
+function queuePersist(capture, isCurrent) {
+  const run = () => persist(capture, isCurrent);
   persistChain = persistChain.catch(() => false).then(run); return persistChain; }
 const autosaveController = new LegacyAutosaveController({
   delayMs: AUTOSAVE_DELAY_MS, retryMs: AUTOSAVE_STROKE_RETRY_MS,
   idleTimeoutMs: AUTOSAVE_IDLE_TIMEOUT_MS, isInputActive: () => S.stroke,
-  save: async (isCurrent) => { const id = curId, version = mutation;
-    if (await queuePersist(() => isCurrent() && id === curId && version === mutation)) markSaved(id, version); },
+  save: async (isCurrent) => { const capture = session.captureSave();
+    if (capture && await queuePersist(capture, () => isCurrent() &&
+      session.isSaveCurrent(capture))) session.markSaved(capture); },
 });
-export async function saveCurrent() { if (!curId || isSaved()) return true;
+export async function saveCurrent() { if (!session.dirty) return true;
   if (S.stroke) { autosaveController.request(); return false; }
-  autosaveController.supersede(); const id = curId, version = mutation;
-  try { const ok = await queuePersist(() => !S.stroke && id === curId && version === mutation);
-    if (ok) markSaved(id, version); return ok; } catch (error) { return false; } }
-export const autosave = () => { invalidateSaved(); autosaveController.request(); };
+  autosaveController.supersede(); const capture = session.captureSave();
+  if (!capture) return true;
+  try { const ok = await queuePersist(capture, () => !S.stroke &&
+      session.isSaveCurrent(capture));
+    if (ok) session.markSaved(capture); return ok; } catch (error) { return false; } }
+export const autosave = () => { session.markDirty(); autosaveController.request(); };
 export const autosaveInputStarted = () => autosaveController.inputStarted();
-
 function applyRec(rec) { retireTilemapRecord(rec);
   S.W = rec.W; S.H = rec.H; S.dpi = rec.dpi || 72; S.layerSeq = rec.layerSeq || 1;
   S.layers = rec.layers; S.folders = rec.folders || [];
@@ -73,7 +72,7 @@ function applyRec(rec) { retireTilemapRecord(rec);
   if (S.animator) loadFrame(S.animator.liveFrameId || S.animator.timelines[0].selectedFrameId, { emit: false });
   dirtyAll(); bus.emit('palette'); bus.emit('layers'); bus.emit('selection'); bus.emit('grid'); bus.emit('fit'); bus.emit('reference'); }
 
-function blankWork(w, h, name, colorMode = 'rgba') { nextWorkChange(); curId = uid('d'); curFolder = null;
+function blankWork(w, h, name, colorMode = 'rgba') { session.activateNew(uid('d'));
   S.W = w; S.H = h; S.dpi = 72; S.layerSeq = 1; S.folderSeq = 0; S.layers = [newLayer(t('layer.name') + ' 1', w, h)]; S.folders = []; S.cur = 0; S.marked.clear();
   S.colorMode = colorMode; S.palette = colorMode === 'grayscale' ? grayscalePalette() : defaultPalette();
   S.active = colorMode === 'grayscale' ? S.palette[S.palette.length - 1].slice() : S.palette[DEFAULT_ACTIVE].slice(); S.docName = name || t('gallery.untitled');
@@ -92,18 +91,19 @@ function activateNewWork(w, h, name, bg, colorMode) { blankWork(w, h, name, colo
 export function newWork(w, h, name, bg = DEFAULT_CANVAS_BACKGROUND.color, colorMode = 'rgba') {
   activateNewWork(w, h, name, bg, colorMode); saveCurrent(); }
 
-async function restoreWork(id, expectedChange) { if (expectedChange !== workChange) return;
-  nextWorkChange();
-  if (!id) { curId = null; curFolder = null; saved = null; return; }
+async function restoreWork(id, expectedChange) { if (!session.isCurrent(expectedChange)) return;
+  const restore = session.supersede();
+  if (!id) { session.clear(restore); return; }
   try { const rec = await loadStoredWork(id); if (!rec || rec.kind === 'folder') return;
-    curId = id; curFolder = rec.folder ?? null; applyRec(rec);
-    autosaveController.supersede(); if (rec.preview) markSaved(curId, mutation); else saved = null; } catch (error) {} }
+    if (!session.isCurrent(restore)) return; applyRec(rec);
+    session.activate(restore, id, rec.folder ?? null, !!rec.preview);
+    autosaveController.supersede(); } catch (error) {} }
 
 export async function createNewWork(w, h, name, bg = DEFAULT_CANVAS_BACKGROUND.color, colorMode = 'rgba', setup = null) {
-  const sourceId = curId, change = nextWorkChange();
-  if (!await saveCurrent() || change !== workChange) return false;
-  activateNewWork(w, h, name, bg, colorMode); setup?.(); const created = workChange;
-  if (await saveCurrent() && created === workChange) return true;
+  const sourceId = session.id, change = session.supersede();
+  if (!await saveCurrent() || !session.isCurrent(change)) return false;
+  activateNewWork(w, h, name, bg, colorMode); setup?.(); const created = session.checkpoint();
+  if (await saveCurrent() && session.isCurrent(created)) return true;
   await restoreWork(sourceId, created); return false;
 }
 export async function newWorkFromImage(w, h, data, name, format = null, location = null) {
@@ -118,13 +118,13 @@ export function newWorkFromLayers(w, h, layers, name) { blankWork(w, h, name);
   dirtyAll(); bus.emit('palette'); bus.emit('layers'); bus.emit('fit'); saveCurrent(); }
 
 // заготовка нового документа под результат конвертера (applyImport заполнит S)
-export function beginConvertedWork() { nextWorkChange(); curId = uid('d'); curFolder = null;
+export function beginConvertedWork() { session.activateNew(uid('d'));
   S.docName = t('gallery.untitled'); S.sourceFormat = null; S.sourceLocation = null; }
-export const beginPsdImport = () => nextWorkChange();
+export const beginPsdImport = () => session.supersede();
 export async function completePsdImport(token, document, name, sourceLocation = null, progress = null) {
-  if (token !== workChange) return { status: 'superseded', layerCount: 0, warningCount: 0 };
-  if (!await saveCurrent() || token !== workChange) {
-    return { status: token === workChange ? 'failed' : 'superseded',
+  if (!session.isCurrent(token)) return { status: 'superseded', layerCount: 0, warningCount: 0 };
+  if (!await saveCurrent() || !session.isCurrent(token)) {
+    return { status: session.isCurrent(token) ? 'failed' : 'superseded',
       layerCount: 0, warningCount: 0 };
   }
   progress?.stage('preparing');
@@ -133,7 +133,7 @@ export async function completePsdImport(token, document, name, sourceLocation = 
   try { await saveDoc(record); } catch (error) {
     return { status: 'failed', layerCount: 0, warningCount: 0 };
   }
-  if (token !== workChange) { await removeDoc(id);
+  if (!session.isCurrent(token)) { await removeDoc(id);
     return { status: 'superseded', layerCount: 0, warningCount: 0 }; }
   progress?.stage('opening'); const opened = await openWork(id);
   if (!opened) { await removeDoc(id);
@@ -141,9 +141,10 @@ export async function completePsdImport(token, document, name, sourceLocation = 
   return { status: 'opened', layerCount: record.layers.length,
     warningCount: record.psdWarnings.length };
 }
-export async function openWork(id) { const change = nextWorkChange();
-  if (id === curId) return await saveCurrent() && change === workChange;
-  if (!await saveCurrent() || change !== workChange) return false;
-  const rec = await loadStoredWork(id); if (change !== workChange || !rec || rec.kind === 'folder') return false;
-  curId = id; curFolder = rec.folder ?? null; applyRec(rec);
-  autosaveController.supersede(); if (rec.preview) markSaved(curId, mutation); else saved = null; return true; }
+export async function openWork(id) { const change = session.supersede();
+  if (id === session.id) return await saveCurrent() && session.isCurrent(change);
+  if (!await saveCurrent() || !session.isCurrent(change)) return false;
+  const rec = await loadStoredWork(id);
+  if (!session.isCurrent(change) || !rec || rec.kind === 'folder') return false;
+  applyRec(rec); session.activate(change, id, rec.folder ?? null, !!rec.preview);
+  autosaveController.supersede(); return true; }

@@ -1722,7 +1722,7 @@ await ta("new canvas: editor New waits for gallery preparation and then opens", 
   assert.ok(!document.getElementById('gallery').classList.contains('on'));
 });
 await ta("gallery startup never opens the newest file behind the gallery", async () => {
-  const storage = await import('../src/core/storage.js');
+  const storage = await import('../src/core/storage.ts');
   const activeId = galDoc.curWorkId(), activeName = S.docName;
   const active = await storage.getDoc(activeId), hiddenId = 'startup-hidden-' + Date.now();
   await storage.saveDoc({ ...active, id: hiddenId, name: 'must-not-open', updated: Date.now() + 100000 });
@@ -1802,7 +1802,7 @@ await ta("module-int case 167", async () => {
 await ta("module-int case 168", async () => {
   const galScreen = await import('../src/systems/gallery/screen.js');
   const store = await import('../src/systems/gallery/store.js');
-  const { saveDoc, removeDoc } = await import('../src/core/storage.js');
+  const { saveDoc, removeDoc } = await import('../src/core/storage.ts');
   const { sortGalleryItems } = await import('../src/logic/gallery-grid.js');
   for (const d of await store.listAll()) await removeDoc(d.id);
   await saveDoc({ id: 'e1', kind: 'doc', name: 'E1', folder: null, W: 8, H: 8, order: 300, updated: 999, preview: '' });

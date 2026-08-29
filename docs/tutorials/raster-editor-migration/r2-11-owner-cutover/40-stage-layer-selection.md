@@ -2,7 +2,7 @@
 
 - Stable id: `C3`
 - Depends on: `C2`
-- Status: `pending`
+- Status: `in_progress`
 
 ## Sub-stages
 

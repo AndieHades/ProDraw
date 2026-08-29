@@ -1,7 +1,7 @@
 // Хранилище галереи поверх IndexedDB: элементы (kind 'doc'/'folder'), папки,
 // перемещение, переименование, дублирование, рекурсивное удаление.
 import { saveDoc, getDoc, getGalleryDoc, listGalleryDocs,
-  removeDoc, updateGalleryDoc } from '../../core/storage.js';
+  removeDoc, updateGalleryDoc } from '../../core/storage.ts';
 import { t } from '../../i18n/index.ts';
 
 export const uid = (p = 'd') => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);

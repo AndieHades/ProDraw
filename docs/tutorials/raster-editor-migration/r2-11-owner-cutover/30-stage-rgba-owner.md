@@ -43,7 +43,11 @@ registered JS/legacy-state ceiling only by the owners it actually removes.
   lock, reference and layer/folder reorder mutations; JS only coordinates current
   UI/history callbacks. A focused test makes the compatibility cell throw and
   proves a committed stroke still renders from its surface.
-- `C2D`: in progress.
+- `C2D`: done in `refactor: cut document sessions to TypeScript`; active
+  document identity, dirty/saved revisions and late-operation cancellation are
+  one strict typed session. Autosave, New/Open and PSD import use its tokens,
+  while IndexedDB document/gallery persistence moved from JavaScript to
+  `storage.ts`. Late saves cannot mark a replacement document clean.
 
 ## Edge and failure cases
 
@@ -66,9 +70,10 @@ those actions, while the exact UI remains.
 
 ## Completion record
 
-- Commits: `refactor: cut drawing over to tiled RGBA` (`008f910`) and
-  `refactor: cut render and base layers to RGBA` (hash recorded after commit)
-- Checks: 117 legacy, 306 TypeScript, 52 sequential performance; changed,
+- Commits: `refactor: cut drawing over to tiled RGBA` (`008f910`),
+  `refactor: cut render and base layers to RGBA` (`cc85d40`) and
+  `refactor: cut document sessions to TypeScript` (stage commit)
+- Checks: 117 legacy, 310 TypeScript, 52 sequential performance; changed,
   architecture, cycles, interface and cutover gates
 - Residual risk: typed Smudge has golden coverage but remains outside the visible
   legacy shell until the creative-tool/UI owner stage; compatibility grids remain
