@@ -9,11 +9,11 @@
 
 ## Resume Here
 
-- Current stage: `C5B — typed animation workflows`
+- Current stage: `C6A — TypeScript production composition root`
 - Status: `in_progress`
-- Last completed stage: `C5A`; gallery index operations, image/PSD file entry,
-  source Save, PSD encoding and atomic selected PNG trees use TypeScript owners
-- Next action: port timeline/frame edits, playback, onion skin and animation export
+- Last completed stage: `C5B`; timeline/frame mutation, playback position, onion
+  neighbours and sprite-sheet metadata use TypeScript owners
+- Next action: make the preserved production shell start from one TypeScript root
 - Blockers: physical Huion acceptance remains a final device-only check; it does
   not block code migration or automated trace evidence
 - Working paths: `src`, `tests`, `tools`,
@@ -64,8 +64,8 @@ all other rows remain required.
 | `C4A` | Transform, both Crop paths, Pan and view are typed | `C3B` | done | `feat: port transform crop and view` |
 | `C4B` | creative tools, text and colour are typed | `C4A` | done | `feat: port creative tools to TypeScript` |
 | `C5A` | gallery, import, export and Save as Canvas are typed | `C4B` | done | `refactor: port document file workflows` |
-| `C5B` | animation and timeline are typed | `C5A` | in progress | `refactor: port animation workflows` |
-| `C6A` | production starts at the TypeScript composition root | `C5B` | pending | `refactor: switch production to TypeScript entry` |
+| `C5B` | animation and timeline are typed | `C5A` | done | `refactor: port animation workflows` |
+| `C6A` | production starts at the TypeScript composition root | `C5B` | in progress | `refactor: switch production to TypeScript entry` |
 | `C6B` | legacy graph is deleted and final gates are green | `C6A` | pending | `refactor: retire the legacy editor runtime` |
 
 Only one row may be `in_progress`. Every stage chapter owns its exact file

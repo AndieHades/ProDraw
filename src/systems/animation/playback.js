@@ -1,23 +1,21 @@
 import { activeFrameId, activeTimeline, loadFrame, saveActiveFrame } from '../../core/animation.js';
 import * as bus from '../../core/bus.ts';
 import { S } from '../../core/state.js';
+import { framePlaybackDuration, nextPlaybackPosition } from '../../logic/AnimationPlayback.ts';
 
 let playing = false, timer = null, idx = 0, dir = 1;
 
 export const isPlaying = () => playing;
 const ids = () => activeTimeline()?.frameIds || [];
-const duration = (id, tl) => Math.max(16, SFrame(id)?.duration || Math.round(1000 / (tl.fps || 12)));
+const duration = (id, tl) => framePlaybackDuration(SFrame(id)?.duration, tl.fps);
 const SFrame = (id) => S.animator?.frames?.[id] || null;
 
 function advance() {
   if (!playing) return;
   const tl = activeTimeline(), list = ids(); if (!tl || !list.length) return stopPlayback();
-  idx += dir;
-  if (idx >= list.length || idx < 0) {
-    if (tl.mode === 'once') return stopPlayback();
-    if (tl.mode === 'pingpong') { dir *= -1; idx = Math.max(0, Math.min(list.length - 1, idx + dir * 2)); }
-    else idx = 0;
-  }
+  const next = nextPlaybackPosition(idx, dir, list.length, tl.mode);
+  if (next.stopped) return stopPlayback();
+  idx = next.index; dir = next.direction;
   loadFrame(list[idx], { select: false });
   timer = setTimeout(advance, duration(list[idx], tl));
 }

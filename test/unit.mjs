@@ -30,7 +30,7 @@ import { keyName, eventKey } from '../src/logic/key-code.ts';
 import { normalizeTextPrefs, normalizeTextSource, moveTextSource, transformTextSource, textLayerName } from '../src/logic/text-model.ts';
 import { displayText, lineAdvance, maxLineWidth } from '../src/logic/text-layout.ts';
 import { sortGalleryItems, reorderedIds } from '../src/logic/gallery-grid.ts';
-import { makeAnimator, makeFrameMeta, makeTimeline, removeFrameId, reorderFrameIds } from '../src/logic/animation-data.js';
+import { makeAnimator, makeFrameMeta, makeTimeline, removeFrameId, reorderFrameIds } from '../src/logic/animation-data.ts';
 import { packSet, unpackSet } from '../src/core/brush-pack.js';
 import { brushMode, stampSize, planDab, brushHasShape } from '../src/logic/brush-stamp.js';
 import { recognizeShape } from '../src/logic/quickshape.js';

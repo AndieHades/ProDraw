@@ -2,7 +2,7 @@
 
 - Stable id: `C5`
 - Depends on: `C4`
-- Status: `in_progress`
+- Status: `done`
 
 ## Sub-stages
 
@@ -34,7 +34,13 @@ row in the parent parity inventory is now typed and marked with evidence.
   operations read only the lightweight index until an explicit Open, image
   import is awaitable through persistence, source-bound PNG/PSD Save owns its
   binary boundary, and multi-output Canvas PNG uses one atomic writer session.
-- Commit: C5A stage commit; C5B pending
 - Checks: gallery index/delete, delayed image import, PNG/PSD source Save,
   selected PSD and atomic selected-PNG tree focused suites; full validate
-- Residual risk: animation and timeline remain in C5B
+- `C5B`: done in `refactor: port animation workflows`; typed model repair owns
+  invalid references, frame reorder/delete and timeline selection. Typed playback
+  keeps selected frame separate from playhead, onion planning is bounded, and
+  sprite-sheet geometry/metadata share one export plan.
+- Commit: C5A and C5B stage commits
+- Checks: focused animation model plus live create/select/reorder/delete/playback;
+  full validate and legacy animation cases
+- Residual risk: physical playback/onion visual acceptance remains manual

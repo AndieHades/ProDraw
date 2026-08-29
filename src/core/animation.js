@@ -9,7 +9,7 @@ import {
   activeFrameId as modelActiveFrameId, activeTimeline as modelActiveTimeline,
   collectUnusedFrames, insertFrameId, makeAnimator, makeFrameMeta, makeTimeline,
   normalizeAnimator, removeFrameId, reorderFrameIds,
-} from '../logic/animation-data.js';
+} from '../logic/animation-data.ts';
 
 const cloneBg = (bg) => ({ color: bg?.color ? bg.color.slice(0, 3) : null, visible: bg?.visible !== false });
 const cloneFolders = (fs = []) => fs.map((f) => ({ ...f, effects: cloneFx(f.effects) }));

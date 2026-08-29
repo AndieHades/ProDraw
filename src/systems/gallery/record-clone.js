@@ -1,7 +1,7 @@
 import { cloneFx, cloneLayerRecord } from '../../core/state.js';
 import { ANIMATION } from '../../config/animation.ts';
 import { AUTOSAVE_CLONE_YIELD_ROWS, AUTOSAVE_IDLE_TIMEOUT_MS } from '../../config/timings.ts';
-import { normalizeAnimator } from '../../logic/animation-data.js';
+import { normalizeAnimator } from '../../logic/animation-data.ts';
 import { cloneGrid, sparseGridStats } from '../../logic/raster.js';
 import { createRasterCellInterner } from '../../logic/raster-cell-interner.js';
 

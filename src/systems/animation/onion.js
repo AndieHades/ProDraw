@@ -3,6 +3,7 @@ import * as bus from '../../core/bus.ts';
 import { makeCanvas } from '../../core/canvas.js';
 import { activeFrameId, activeTimeline, renderFrameToCanvas, saveActiveFrame } from '../../core/animation.js';
 import { C } from '../../styles/canvas-colors.ts';
+import { onionFrameIds } from '../../logic/AnimationPresentation.ts';
 
 function tinted(c) {
   const out = makeCanvas(c.width, c.height), x = out.getContext('2d');
@@ -14,10 +15,12 @@ function drawOnion({ ctx, ox, oy, z }) {
   const anim = S.animator, onion = anim?.onion; if (!onion?.on) return;
   const tl = activeTimeline(), id = activeFrameId(); if (!tl || !id) return;
   saveActiveFrame();
-  const at = tl.frameIds.indexOf(id), prev = tl.frameIds[at - 1], next = tl.frameIds[at + 1];
+  const neighbours = onionFrameIds(tl.frameIds, id, onion.prev, onion.next);
   ctx.save(); ctx.globalAlpha = onion.opacity;
-  if (prev && onion.prev) { const c = renderFrameToCanvas(prev); if (c) ctx.drawImage(tinted(c), ox, oy, S.W * z, S.H * z); }
-  if (next && onion.next) { const c = renderFrameToCanvas(next); if (c) ctx.drawImage(c, ox, oy, S.W * z, S.H * z); }
+  for (const previous of neighbours.previous) { const c = renderFrameToCanvas(previous);
+    if (c) ctx.drawImage(tinted(c), ox, oy, S.W * z, S.H * z); }
+  for (const next of neighbours.next) { const c = renderFrameToCanvas(next);
+    if (c) ctx.drawImage(c, ox, oy, S.W * z, S.H * z); }
   ctx.restore();
 }
 
