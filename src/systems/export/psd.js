@@ -5,7 +5,7 @@ import { S } from '../../core/state.js';
 import { folderFx } from '../../core/effects-render.js';
 import { materializeEffectSurface } from '../../core/effect-surface.js';
 import { flattenNodes, leafCanvas, splitChannels } from './render.js';
-import { writePsd } from './psd-write.js';
+import { writePsd } from './psd-write.ts';
 
 const leafDesc = (n) => ({ name: n.name, opacity: Math.round((n.opacity ?? 1) * 255), hidden: !n.visible, clip: false, lsct: 0, data: splitChannels(leafCanvas(n), S.W, S.H) });
 const rasterDesc = (name, surface) => ({ name, opacity: 255, hidden: false,

@@ -2,11 +2,11 @@
 // режим выбора, складывание (drag/наложение) и переупорядочивание.
 import { $, showMenuAt, toast } from '../../ui/dom/ShellDom.ts';
 import { t, getLocale } from '../../i18n/index.ts';
-import { childrenOf, renameItem, removeItem, createFolder, moveToFolder, duplicateItem, setOrder, getItem, nextFolderName, folderStats } from './store.js';
+import { childrenOf, renameItem, removeItem, createFolder, moveToFolder, duplicateItem, setOrder, getItem, nextFolderName, folderStats } from './store.ts';
 import { openWork } from './doc.js';
 import { attachDrag } from './drag.js';
-import { renderGalleryGrid } from './grid.js';
-import { reorderedIds } from '../../logic/gallery-grid.js';
+import { renderGalleryGrid } from './grid.ts';
+import { reorderedIds } from '../../logic/gallery-grid.ts';
 
 const FOLDER_IC = '<svg viewBox="0 0 24 24"><path d="M3.5 7.5A2 2 0 0 1 5.5 5.5h4l2 2.5h7A2 2 0 0 1 20.5 10v7a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V7.5z"/></svg>';
 

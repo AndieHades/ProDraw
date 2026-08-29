@@ -14,7 +14,7 @@ import { AUTOSAVE_DELAY_MS, AUTOSAVE_IDLE_TIMEOUT_MS,
   AUTOSAVE_STROKE_RETRY_MS } from '../../config/timings.ts';
 import { LegacyAutosaveController } from './LegacyAutosaveController.ts';
 import { buildGalleryRecord } from './record.js';
-import { loadStoredWork, uid } from './store.js';
+import { loadStoredWork, uid } from './store.ts';
 import { retireTilemapRecord } from '../../logic/retiredTilemap.ts';
 import { applyImportedImage } from '../../logic/importedImage.ts';
 import { buildPsdGalleryRecord } from './psd-record.js';

@@ -30,6 +30,11 @@ row in the parent parity inventory is now typed and marked with evidence.
 
 ## Completion record
 
-- Commit: pending
-- Checks: pending
-- Residual risk: pending
+- `C5A`: done in `refactor: port document file workflows`; typed gallery store
+  operations read only the lightweight index until an explicit Open, image
+  import is awaitable through persistence, source-bound PNG/PSD Save owns its
+  binary boundary, and multi-output Canvas PNG uses one atomic writer session.
+- Commit: C5A stage commit; C5B pending
+- Checks: gallery index/delete, delayed image import, PNG/PSD source Save,
+  selected PSD and atomic selected-PNG tree focused suites; full validate
+- Residual risk: animation and timeline remain in C5B

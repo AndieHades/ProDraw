@@ -3,7 +3,7 @@ import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { getDoc, listGalleryDocs, saveDoc,
   updateGalleryDoc } from '../../src/core/storage.ts';
-import { loadStoredWork, removeItem } from '../../src/systems/gallery/store.js';
+import { loadStoredWork, removeItem } from '../../src/systems/gallery/store.ts';
 
 const DATABASE = 'pixelheart';
 

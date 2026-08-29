@@ -11,7 +11,7 @@ import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { imageData, looksPixelArt } from '../../core/image.js';
 import { setImpData, impConvert, applyImport, rotateImp, setImportMode, getImportMode } from './convert.js';
 import { hasPsdIdentity, isPsdFile } from './psd-file.ts';
-import { droppedFileLocation } from './desktop-file.js';
+import { droppedFileLocation } from './desktop-file.ts';
 import { requestPngDropDestination } from '../../ui/import/PngDropDestinationPresenter.ts';
 import { beginGalleryImportProgress } from '../../ui/import/GalleryImportProgressPresenter.ts';
 

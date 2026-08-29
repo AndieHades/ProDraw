@@ -5,7 +5,7 @@ import * as actions from '../../core/actions.ts';
 import { $, showMenuAt, toast, t } from '../../ui/dom/ShellDom.ts';
 import { insertImageTop } from './index.js';
 import { decodePsdFile, isPsdFile } from './psd-file.ts';
-import { IMPORT_FILTERS, openDesktopFile } from './desktop-file.js';
+import { IMPORT_FILTERS, openDesktopFile } from './desktop-file.ts';
 
 function pick(accept, fn) { const i = document.createElement('input'); i.type = 'file'; i.accept = accept;
   i.onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) fn(f); }; i.click(); }

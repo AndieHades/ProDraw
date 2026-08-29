@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { newLayer, S } from '../../src/core/state.js';
 import { runExport } from '../../src/systems/export/pipeline.js';
 import { SELECTED_PSD_EXPORT_OPTIONS, exportSelectedPsd } from
-  '../../src/systems/export/selected-psd.js';
+  '../../src/systems/export/selected-psd.ts';
 
 function selectedDocument() {
   S.W = 4; S.H = 3; S.docName = 'characters'; S.cur = 2;

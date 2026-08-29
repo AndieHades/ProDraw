@@ -9,8 +9,8 @@ import { flattenNodes, standaloneLayerCanvas } from './render.js';
 import { applyBounds, visibleBounds, unionBounds, cropTo } from './bounds.js';
 import { FORMATS } from './formats.js';
 import { planSelectedPngTree } from '../../logic/export/folderPngPlan.ts';
-import { createFileTreeWriter,
-  FileTreeUnsupportedError } from '../../platform/fileTreeWriter.ts';
+import { createFileTreeWriter } from '../../platform/fileTreeWriter.ts';
+import { writeSelectedPngTree } from './SelectedPngTreeExport.ts';
 
 // уникализировать имена файлов (Слой, Слой_2, …)
 function uniqueNames(items) { const seen = new Map();
@@ -98,28 +98,18 @@ const boundedCanvas = (canvas, tight) => tight
   ? cropTo(canvas, visibleBounds(canvas)) : canvas;
 
 async function writeTree(plan, tight, dependencies) {
-  const writerFactory = dependencies.writerFactory ?? createFileTreeWriter;
-  const renderLayer = dependencies.renderLayer ?? standaloneLayerCanvas;
-  const encode = dependencies.encode ?? defaultEncode;
-  let writer = null;
-  try {
-    writer = await writerFactory(plan.rootName); if (!writer) return null;
-    for (const path of plan.directories) await writer.ensureDirectory(path);
-    for (const item of plan.items) {
-      const canvas = boundedCanvas(renderLayer(item.node), tight);
-      const output = await encode(canvas, item.node.name);
-      if (!output.blob) throw new Error('PNG encoder returned no data');
-      await writer.write(item.path, output.blob);
-    }
-    const result = await writer.commit();
+  const result = await writeSelectedPngTree(plan, tight, {
+    writerFactory: dependencies.writerFactory ?? createFileTreeWriter,
+    renderLayer: dependencies.renderLayer ?? standaloneLayerCanvas,
+    boundCanvas: boundedCanvas, encode: dependencies.encode ?? defaultEncode,
+  });
+  if (result.status === 'saved') {
     toast(t('toast.exported', { n: plan.items.length }));
-    return { ...result, directories: plan.directories, items: plan.items };
-  } catch (error) {
-    await writer?.abort().catch(() => undefined);
-    toast(t(error instanceof FileTreeUnsupportedError
-      ? 'toast.folderExportUnavailable' : 'toast.folderExportFailed'));
-    return null;
+    return { ...result.output, directories: result.directories, items: result.items };
   }
+  if (result.status !== 'cancelled') toast(t(result.status === 'unsupported'
+    ? 'toast.folderExportUnavailable' : 'toast.folderExportFailed'));
+  return null;
 }
 
 export async function exportTargetPng(target, tight, dependencies = {}) {

@@ -7,7 +7,8 @@ import { imageData, looksPixelArt } from '../../core/image.js';
 import { beginConvertedWork, newWorkFromImage, saveCurrent,
   autosave, autosaveInputStarted, beginPsdImport, completePsdImport } from './doc.js';
 import { configure, render, goBack, setSelecting, isSelecting, stackSelected, dupSelected, delSelected } from './screen.js';
-import { openDesktopFile, PSD_FILTERS } from '../import/desktop-file.js';
+import { openDesktopFile, PSD_FILTERS } from '../import/desktop-file.ts';
+import { decodeImageFile, runGalleryImageImport } from '../import/GalleryImageImport.ts';
 
 let galleryChange = 0, readyTask = Promise.resolve(true), mounted = false;
 function setGalleryOpen(on) {
@@ -33,33 +34,15 @@ function pick(accept, fn) { const i = document.createElement('input'); i.type = 
   i.onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) fn(f); }; i.click(); }
 
 // картинка → новый проект: пиксель-арт сразу как есть, иначе через Pixelize (конвертер)
-const isPngFile = (file) => file.type.toLowerCase() === 'image/png' || /\.png$/i.test(file.name);
-function decodeImage(f) { return new Promise((resolve, reject) => {
-  const im = new Image(), url = URL.createObjectURL(f);
-  im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image decode failed')); };
-  im.onload = () => { URL.revokeObjectURL(url); resolve(im); };
-  im.src = url;
-}); }
-const imageImportPorts = () => ({ decodeImage, imageData, looksPixelArt,
+const imageImportPorts = () => ({ decodeImage: decodeImageFile, imageData, looksPixelArt,
   newWorkFromImage, beginConvertedWork, onOpened: hide,
   openConverter: (file) => actions.run('import.openFile', file) });
 export async function importGalleryImage(f, sourceLocation = null, progress = null,
   dependencies = imageImportPorts()) {
-  progress?.stage('decoding');
-  try {
-    const im = await dependencies.decodeImage(f);
-    progress?.stage('preparing');
-    if (isPngFile(f) || dependencies.looksPixelArt(im)) {
-      const d = dependencies.imageData(im, im.naturalWidth, im.naturalHeight, false);
-      progress?.stage('saving');
-      const opened = await dependencies.newWorkFromImage(d.width, d.height, d.data,
-        f.name.replace(/\.\w+$/, ''), isPngFile(f) ? 'png' : null,
-        isPngFile(f) ? sourceLocation : null);
-      if (!opened) { toast(t('toast.documentOpenFailed')); return false; }
-      progress?.stage('opening'); dependencies.onOpened(); return true;
-    }
-    dependencies.beginConvertedWork(); dependencies.openConverter(f); return true;
-  } catch (error) { toast(t('toast.imgOpenFail')); return false; }
+  const result = await runGalleryImageImport(f, sourceLocation, progress, dependencies);
+  if (result === 'save-failed') toast(t('toast.documentOpenFailed'));
+  else if (result === 'decode-failed') toast(t('toast.imgOpenFail'));
+  return result === 'opened' || result === 'converted';
 }
 function photo() { pick('image/*', (file) => void importGalleryImage(file)); }
 export const importPsdSelection = (file, location = null) => actions.run('import.psdFile', file, location);

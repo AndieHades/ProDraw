@@ -49,7 +49,7 @@ const xrender = await import('../src/systems/export/render.js');
 const xpipe = await import('../src/systems/export/pipeline.js');
 const xbounds = await import('../src/systems/export/bounds.js');
 const xui = await import('../src/systems/export/ui.js');
-const { writePsd } = await import('../src/systems/export/psd-write.js');
+const { writePsd } = await import('../src/systems/export/psd-write.ts');
 const { FORMATS } = await import('../src/systems/export/formats.js');
 const imp = await import('../src/systems/import/convert.js');
 const { insertPsd } = await import('../src/systems/import/psd-insert.js');
@@ -1698,7 +1698,7 @@ await ta("empty new canvas is stored before gallery render and New remains reusa
   overlay.classList.remove('on'); gallery.hide();
 });
 await ta("new canvas: rapid Create clicks commit exactly one gallery file", async () => {
-  const store = await import('../src/systems/gallery/store.js');
+  const store = await import('../src/systems/gallery/store.ts');
   await gallery.show(); const before = (await store.listAll()).filter((d) => d.kind !== 'folder').length;
   const overlay = document.getElementById('new-ovl'); overlay.classList.remove('on');
   document.getElementById('gal-new').click();
@@ -1801,9 +1801,9 @@ await ta("module-int case 167", async () => {
 });
 await ta("module-int case 168", async () => {
   const galScreen = await import('../src/systems/gallery/screen.js');
-  const store = await import('../src/systems/gallery/store.js');
+  const store = await import('../src/systems/gallery/store.ts');
   const { saveDoc, removeDoc } = await import('../src/core/storage.ts');
-  const { sortGalleryItems } = await import('../src/logic/gallery-grid.js');
+  const { sortGalleryItems } = await import('../src/logic/gallery-grid.ts');
   for (const d of await store.listAll()) await removeDoc(d.id);
   await saveDoc({ id: 'e1', kind: 'doc', name: 'E1', folder: null, W: 8, H: 8, order: 300, updated: 999, preview: '' });
   await saveDoc({ id: 'e2', kind: 'doc', name: 'E2', folder: null, W: 8, H: 8, order: 200, updated: 200, preview: '' });

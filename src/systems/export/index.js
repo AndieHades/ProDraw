@@ -5,7 +5,7 @@ import * as actions from '../../core/actions.ts';
 import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { runExport, exportTargetPng } from './pipeline.js';
-import { exportSelectedPsd } from './selected-psd.js';
+import { exportSelectedPsd } from './selected-psd.ts';
 import { mountExportUI, openExport } from './ui.js';
 
 export function mount() {

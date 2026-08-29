@@ -2,7 +2,7 @@
 // (supportsFlattened/Layered/SeparateFiles/Folders/LayerEffects/HiddenLayers),
 // поэтому UI и пайплайн ничего о форматах не «хардкодят». Новый формат — добавить
 // модуль и одну строку здесь; логика экспорта не меняется.
-import { PNG } from './png.js';
+import { PNG } from './png.ts';
 import { PSD } from './psd.js';
 
 export const FORMAT_LIST = [PNG, PSD];
