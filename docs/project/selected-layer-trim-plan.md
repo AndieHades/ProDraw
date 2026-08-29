@@ -78,17 +78,20 @@ Status: `done`
 - The document remap keeps pixels from all other layers in `ext`; one Undo
   restores original dimensions, raster references and pixel values.
 - Focused Crop/Pan/Undo gate: 7 files, 25 tests passed.
-- Changed-surface gate: 97 files, 290 tests plus check, lint, docs, architecture,
+- Changed-surface gate: 98 files, 291 tests plus check, lint, docs, architecture,
   cycles, cutover, desktop, raster-entry and shell catalog passed.
-- Packaged Windows renderer smoke passed from `artifacts/desktop/win-unpacked`.
+- Packaged Windows renderer smoke passed from the permanent desktop-shortcut
+  target under `%LOCALAPPDATA%\ProDraw\desktop-build\win-unpacked`.
+- Follow-up: saved V2 panel layouts are migrated once so the new command is
+  inserted directly after Crop; local delivery targets the permanent shortcut.
 
 ## Resume Here
 
 - Current stage: complete
 - Status: `done`
 - Last completed stage: `SLT1 — selected-content trim`
-- Next action: user acceptance of the packaged Crop/Pan build
+- Next action: user acceptance through the permanent desktop shortcut
 - Blockers: none
 - Working paths: `src/core`, `src/systems/trim`, `src/ui/shell`, `tests`
-- Last checks: focused 25/25; changed-surface 290/290; packaged smoke passed
+- Last checks: focused 25/25; changed-surface 291/291; shortcut-target smoke passed
 - Last updated: 2026-08-28
