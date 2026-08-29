@@ -8,12 +8,13 @@ Canonical owner: this package.
 
 ## Resume Here
 
-- Current stage: `R2 / R2.11 / C2 — single tiled RGBA owner`
+- Current stage: `R2 / R2.11 / C1F — stabilized product freeze`
 - Status: `in_progress`
 - Last completed stage: `R2.11/C1`; F3-R1..F3-R5 and the bounded
   P1 merge/document-remap recovery also remain complete
-- Next action: cut drawing, render, history, base layers and persistence over to
-  one `RasterDocument`/`RasterSurface` owner under the registered
+- Next action: freeze the repaired gallery/Crop/Pan/selected-trim workflows and
+  current interface registry, then normalize live documents to one
+  `RasterSurface` owner under the registered
   [`R2.11 owner cutover`](r2-11-owner-cutover/README.md)
 - Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace;
   R2 engine acceptance remains revoked until the restored UI uses typed RGBA owners
@@ -24,7 +25,7 @@ Canonical owner: this package.
   sequential 18 performance files/56 checks; architecture, docs, cutover,
   desktop and production build gates passed. A fresh packaged Windows smoke
   passed (`12` brushes, `12` sources, alpha `255`).
-- Last updated: `2026-08-18, C1 closed and C2 active`
+- Last updated: `2026-08-28, repaired product baseline recorded and C1F active`
 
 ## Product Outcome
 

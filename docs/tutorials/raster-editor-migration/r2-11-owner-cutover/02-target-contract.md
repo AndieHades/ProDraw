@@ -59,3 +59,16 @@ Existing ProDraw and historical Pixel Heart IndexedDB records, palette/font
 stores and native files remain readable through explicit migrations. New writes
 use ProDraw schemas. A failed migration preserves the source record and exposes
 a localized recovery action.
+
+## Stabilized behaviour compatibility
+
+- gallery enumeration never materializes heavy document pixels;
+- imports expose delayed progress through their actual terminal result;
+- Pan remains available from every mode and all mouse buttons under the recorded
+  hit-region precedence;
+- normal Crop and selected-layer/folder trim remain distinct adjacent commands;
+- selected trim includes hidden descendants, keeps the largest union and stores
+  off-canvas pixels so one Undo restores the exact prior document;
+- Windows acceptance always resolves and updates the permanent desktop shortcut.
+
+These are observable product contracts, not temporary implementation details.

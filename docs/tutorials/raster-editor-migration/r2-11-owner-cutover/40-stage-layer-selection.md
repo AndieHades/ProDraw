@@ -4,17 +4,16 @@
 - Depends on: `C2`
 - Status: `pending`
 
-## Steps
+## Sub-stages
 
-1. Add nested groups, multi-selection, opacity/blend, lock, alpha lock, clipping,
-   reference flag and generic effect stack to typed document contracts.
-2. Use one structural/raster history budget for add, duplicate, group, reorder,
-   merge, clear, delete, metadata and effect commands.
-3. Port layer/folder monochrome and remaining effects to bounded RGBA surfaces;
-   share traversal/composite contracts instead of parallel export/UI algorithms.
-4. Port rectangle/lasso, invert, copy/cut/paste/delete/deselect and floating
-   selection state with sparse masks and explicit bounds.
-5. Prove contextual whole-canvas/by-contour output for one/many/group scopes.
+1. `C3A`: add nested groups, multi-selection, opacity/blend, lock, alpha lock,
+   clipping, reference flag and one structural/raster history budget for tree
+   and metadata commands.
+2. `C3B`: port effects, rectangle/lasso and floating selection with sparse masks;
+   prove contextual whole-canvas/by-contour export for one, many and group scopes.
+
+Traversal and composition are shared core contracts, never parallel algorithms
+owned by UI, effects and export separately.
 
 ## Edge and failure cases
 

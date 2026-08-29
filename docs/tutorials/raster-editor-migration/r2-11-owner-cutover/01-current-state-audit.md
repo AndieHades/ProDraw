@@ -122,3 +122,20 @@ split: the complete UI and the safe RGBA engine are different applications.
 Local cleanup before owner cutover would polish code scheduled for deletion.
 The safe order is gates -> TypeScript shell -> RGBA owner -> feature families ->
 entrypoint/legacy retirement, with unchanged UI verified at every boundary.
+
+## Live rebaseline: 2026-08-28
+
+The stabilized `aset-editor@c37c01f` branch contains 282 tracked production JS
+modules and 293 tracked TypeScript modules. The cutover gate sees 375 production
+modules and classifies 173 JS modules as legacy-state owners. Production still
+boots `src/legacy-entry.js -> src/app.js`; the detached typed entry gate passes.
+
+`npm audit --omit=dev --audit-level=high`, `validate:cutover` and
+`validate:raster-entry` pass. `validate:interface` fails only because its static
+tool-order expectation predates the accepted `trim-selected` control next to
+Crop. C1F closes that stale contract before any ownership cutover.
+
+Since the old audit, gallery metadata loading, delayed import progress, compact
+raster remap, global Pan, selected-layer trim and permanent-shortcut delivery
+have become acceptance fixtures. A TypeScript stage that regresses any of them
+is incomplete even if its type and architecture gates pass.

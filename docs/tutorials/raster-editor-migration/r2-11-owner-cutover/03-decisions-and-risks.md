@@ -13,6 +13,12 @@
    local when abstraction would merge different alpha, bounds or Undo rules.
 6. Old storage identifiers are read compatibility, not visible product identity.
 7. Each stage is independently revertible and ends in a usable editor.
+8. Do not bulk-rename JS modules. A file becomes TypeScript only while its
+   behavioural owner, contracts and tests move to the target graph.
+9. The gallery/Crop/Pan/trim repairs through `c37c01f` are mandatory acceptance
+   fixtures for every following stage.
+10. A CI artifact is staging, not delivery. Only the EXE resolved through
+    `%USERPROFILE%\Desktop\ProDraw.lnk` can be called a handed-off build.
 
 ## Main risks and controls
 
@@ -28,6 +34,8 @@
 | mass TS conversion hides types with `any` | strict check and `no-explicit-any`; no `ts-nocheck` |
 | optional codec inflates startup | bundle manifest and lazy-window smoke |
 | hardware behaviour drifts | recorded traces every stage, physical Huion matrix at closure |
+| repaired Crop/Pan/gallery behaviour disappears | keep C1F focused tests green at every stage |
+| staging package is mistaken for user build | resolve shortcut target and smoke that exact EXE |
 
 ## Rollback
 

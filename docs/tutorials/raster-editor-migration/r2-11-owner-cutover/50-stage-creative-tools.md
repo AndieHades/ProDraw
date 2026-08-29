@@ -4,18 +4,18 @@
 - Depends on: `C3`
 - Status: `pending`
 
-## Steps
+## Sub-stages
 
-1. Port Move/Crop/Flip/Centre and free transform through immutable source
-   snapshots and one final resample; add Liquify through the same rule.
-2. Port Shapes, Dodge, symmetry and bounded raster Tile Mode; keep exact
+1. `C4A`: port Move, normal Crop, selected-layer/folder trim, Flip, Centre,
+   Transform and Liquify through immutable source snapshots and one final
+   resample. Preserve exact Undo of off-canvas pixels and selected hidden scope.
+2. `C4A`: port Pan/zoom/rotate, actual-size cycle, Preview and Reference without
+   source mutation. Keep all-button Pan and forced middle/Space precedence active
+   inside Crop and every other mode.
+3. `C4B`: port Shapes, Dodge, symmetry and bounded raster Tile Mode; keep exact
    two-column registry and shortcut/pen/touch alternatives.
-3. Port editable text layers, font library/import, canvas frame editing,
-   alignment, colour and stretch with explicit rasterization commands.
-4. Port colour wheel/SV/HEX/history/palettes/used colours/shading/T-S-G to typed
-   colour and document commands.
-5. Port pan/zoom/rotate, actual-size cycle, Preview and Reference without source
-   mutation; complete the pending 20% zoom-step contract.
+4. `C4B`: port text/font/canvas-frame editing and colour/palette/shading commands
+   with explicit rasterization and persistence boundaries.
 
 ## Edge and failure cases
 

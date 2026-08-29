@@ -1,32 +1,31 @@
-# C5: Gallery, files, tile suite and animation
+# C5: Gallery, files and animation
 
 - Stable id: `C5`
 - Depends on: `C4`
 - Status: `pending`
 
-## Steps
+## Sub-stages
 
-1. Port gallery documents/folders, selection, stack, rename, duplicate, delete,
-   thumbnails and gallery-first New/Open lifecycle to `DocumentRepository`.
-2. Port photo/file insert, PSD/native import and PNG/PSD/native export with
-   progress, cancel, atomic writes and localized compatibility reports.
-3. Complete Save as Canvas for layer selections and groups, remembered native
-   directory and collision-safe multi-file output.
-4. Port tile palette, variants, selection, map create/edit/export and layer
-   conversion as typed raster/document extensions, not a second image model.
-5. Port timeline/frame operations, onion skin, playback and export; frames share
-   the document layer-tree contract and bounded history/persistence.
+1. `C5A`: port gallery documents/folders, selection, stack, rename, duplicate,
+   delete, thumbnails and gallery-first New/Open lifecycle to
+   `DocumentRepository` without loading heavy pixels during enumeration.
+2. `C5A`: port photo/file insert, PSD/native import and PNG/PSD/native export with
+   delayed progress, cancel, atomic writes and localized compatibility reports.
+3. `C5A`: complete Save as Canvas for selected layers/groups, one remembered
+   destination and collision-safe multi-file output.
+4. `C5B`: port timeline/frame operations, onion skin, playback and export;
+   frames share document layers and bounded history/persistence.
 
 ## Edge and failure cases
 
 Late open/import cannot replace newer work. Cancel writes nothing. Corrupt files
-preserve last-good recovery. Tile/frame deletion repairs selection references.
+preserve last-good recovery. Frame deletion repairs selection references.
 Playback/view caches do not mutate or retain abandoned surfaces.
 
 ## Checks and acceptance
 
 Gallery lifecycle, native/PSD/PNG failure matrix, Save as Canvas scope/bounds,
-tile map round trip, animation edit/play/export and packaged restart pass. Every
+animation edit/play/export and packaged restart pass. Every
 row in the parent parity inventory is now typed and marked with evidence.
 
 ## Completion record

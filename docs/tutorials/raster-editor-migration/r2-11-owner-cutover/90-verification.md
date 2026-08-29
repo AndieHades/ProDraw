@@ -6,11 +6,12 @@
 | --- | --- | --- |
 | `C0` | validator rejections, IPC sender rejection, audit/brand/error UI | changed + browser |
 | `C1` | DOM/order/ARIA, windows, RU/EN/theme, lazy failures | validate + browser |
-| `C2` | input/RGBA/history/render/autosave plus A4 budgets | validate + performance |
-| `C3` | tree/effects/selection/Undo/export/reopen matrix | validate + package |
-| `C4` | source hashes, tools/text/colour/view multi-input matrix | validate + package |
-| `C5` | gallery/files/tile/animation round trips and failures | validate + package |
-| `C6` | graph/absence, fresh profile and final scenario | full/package/browser |
+| `C1F` | gallery/Pan/Crop/trim/remap/interface regression suite | changed |
+| `C2A..D` | input/RGBA/history/render/autosave plus A4 budgets | validate + performance |
+| `C3A..B` | tree/effects/selection/Undo/export/reopen matrix | validate + package |
+| `C4A..B` | source hashes, Crop/Pan/tools/text/colour/view matrix | validate + package |
+| `C5A..B` | gallery/files/animation round trips and failures | validate + package |
+| `C6A..B` | graph/absence, fresh profile and final scenario | full/shortcut/browser |
 
 ## Per-workflow evidence
 
@@ -38,10 +39,11 @@ Every parity workflow records:
 ## Final scenario
 
 From a fresh Windows profile: gallery New 800x600 and A4, draw with every brush,
-Smudge/Fill/Shapes, create folders/effects/selections/text/tile/animation content,
-transform through repeated previews, save/restart/reopen, then export PNG/PSD and
-Save as Canvas scopes. UI placement and shortcuts survive restart; source hashes,
-RGBA output, history and recovery match focused evidence.
+Smudge/Fill/Shapes, create folders/effects/selections/text/animation content,
+use seamless raster Tile Mode, both Crop commands and Pan inside Crop, transform
+through repeated previews, save/restart/reopen, then export PNG/PSD and Save as
+Canvas scopes. UI placement and shortcuts survive restart; source hashes, RGBA
+output, history and recovery match focused evidence.
 
 ## Manual evidence
 

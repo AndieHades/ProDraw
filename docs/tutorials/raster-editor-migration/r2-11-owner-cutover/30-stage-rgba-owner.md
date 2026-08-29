@@ -1,22 +1,24 @@
 # C2: Single tiled RGBA owner
 
 - Stable id: `C2`
-- Depends on: `C1`
-- Status: `in_progress`
+- Depends on: `C1F`
+- Status: `pending`
 - Scope: document/session, drawing, render, history and base layers
 
-## Steps
+## Sub-stages
 
-1. Extend typed document descriptors for the base layer/tree identity required
-   by preserved presenters; keep copied serializable view models.
-2. Make every Brush/Eraser/Smudge/Fill input produce one `RasterEdit` against
-   the selected surface and one byte-bounded history transaction.
-3. Replace bridge composite/render/cache with `DocumentCompositor` and reusable
-   presentation tiles behind the existing `#cv` element.
-4. Route add/select/visibility/opacity/lock/reorder base-layer actions through
-   one document command owner.
-5. Connect autosave, New/Open transition cancellation and dirty status to that
-   same session. Delete the corresponding old image/history owners.
+1. `C2A`: normalize New/Open/imported live raster records to one stable
+   `RasterSurface`; compatibility views may translate access but never own or
+   mirror pixels.
+2. `C2B`: make Brush/Eraser/Smudge/Fill produce one `RasterEdit` and one
+   byte-bounded `TileHistory` transaction against that surface.
+3. `C2C`: replace legacy composite/cache with `DocumentCompositor` and route
+   base add/select/visibility/opacity/lock/reorder through one command owner.
+4. `C2D`: connect typed session, autosave, New/Open cancellation, dirty state
+   and persistence, then delete the superseded image/history owners.
+
+Each sub-stage is a focused commit, leaves the editor usable and lowers the
+registered JS/legacy-state ceiling only by the owners it actually removes.
 
 ## Edge and failure cases
 
