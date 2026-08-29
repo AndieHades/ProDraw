@@ -31,6 +31,12 @@ creative tool imports a retired JS owner.
 
 ## Completion record
 
-- Commit: pending
-- Checks: pending
-- Residual risk: pending
+- `C4A`: done in `feat: port transform crop and view`; typed sessions own normal
+  Crop and Pan policy, typed remap history restores off-canvas raster references,
+  and Transform math/raster state performs one source-to-result resample.
+  Middle/Space force Pan inside modes; every mouse button pans outside their hit
+  regions, preserving Crop/Transform controls inside the frame.
+- Commit: C4A stage commit; C4B pending
+- Checks: 117 legacy, 329 TypeScript and 52 sequential performance tests; full
+  validate, focused Pan/Crop/Transform/remap and A4 gates
+- Residual risk: creative tools, text and colour remain in C4B

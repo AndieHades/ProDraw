@@ -14,12 +14,12 @@ import { cloneSelectionMask } from '../../logic/mask-ops.js';
 import { setTool } from '../../core/tools.js';
 import { updateTextLayerGrid } from '../../core/text-layer.js';
 import { isTextLayer, transformTextSource } from '../../logic/text-model.js';
-import { rotBuildCellsSym, rotHasChanges, rotRestoreState } from './math.js';
+import { rotBuildCellsSym, rotHasChanges, rotRestoreState } from './math.ts';
 import { rotGrab, rotDrag, rotHover, drawTransformFrame, rotHit } from './drag.js';
 import { buildTransformPreview } from './preview.js';
 import { applySelectionResults, boundsWithExtReferences, canvasBounds, intersectBounds, liftSelectionSources,
   rasterizeTransformResult, restoreRasterReferences, sourceFromRect,
-  unionBounds } from './raster-state.js';
+  unionBounds } from './raster-state.ts';
 
 let rotRAF = 0;
 

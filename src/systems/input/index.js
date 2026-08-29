@@ -11,6 +11,9 @@ import { canvasAt, gridAt } from '../../core/viewport.js';
 import { DRAG_THRESHOLD } from '../../config/timings.ts';
 import { ZOOM_MIN, ZOOM_MAX } from '../../config/limits.ts';
 import { canvasPanModifierHeld } from '../../core/navigationModifiers.ts';
+import { shouldStartCanvasPan } from '../../logic/view/CanvasPanPolicy.ts';
+import { CanvasPanSession } from '../viewport/CanvasPanSession.ts';
+import { zoomLegacyViewAt } from '../../logic/view/LegacyViewGeometry.ts';
 import { mountGestures } from './gestures.js';
 
 const cv = () => $('cv');
@@ -21,18 +24,8 @@ const capture = (id) => { try { cv().setPointerCapture(id); } catch (e) {} };
 const inWorkArea = (gx, gy) => (S.tile && S.tile.on)
   ? gx >= -S.W && gy >= -S.H && gx < 2 * S.W && gy < 2 * S.H
   : gx >= 0 && gy >= 0 && gx < S.W && gy < S.H;
-const startPan = (e) => {
-  rdrag = { x: e.clientX, y: e.clientY, ox: S.view.ox, oy: S.view.oy, moved: false, btn: e.button };
-};
-const globalPanGesture = (e) => (e.pointerType === 'mouse' && e.button === 1) ||
-  (e.pointerType !== 'touch' && e.button === 0 && canvasPanModifierHeld());
-const fallbackPanGesture = (e, gx, gy, mode, modeHit) => {
-  if (e.pointerType !== 'mouse' || e.button < 0 || e.button > 2) return false;
-  if (mode) return !modeHit;
-  return e.button === 2 || (e.button === 0 && !inWorkArea(gx, gy));
-};
-
-let rdrag = null, drawing = false, activeGlobal = null;
+const pan = new CanvasPanSession(DRAG_THRESHOLD);
+let drawing = false, activeGlobal = null;
 let activePointerId = null;
 function releaseCapture(e) { const id = e?.pointerId ?? activePointerId;
   if (id == null || (activePointerId != null && id !== activePointerId)) return;
@@ -43,8 +36,9 @@ export function down(e) {
   const m = activeMode(), modeHit = m?.hit?.({ gx, gy, rx, ry, e });
   if (e.pointerType === 'mouse' && e.button === 2 && S.rotMode && modeHit) {
     bus.emit('transform-menu', e); return; }
-  if (globalPanGesture(e) || fallbackPanGesture(e, gx, gy, m, modeHit)) {
-    startPan(e); return; }
+  if (shouldStartCanvasPan(e, { modifierHeld: canvasPanModifierHeld(),
+    modeActive: !!m, modeHit: !!modeHit, insideWorkArea: inWorkArea(gx, gy) })) {
+    pan.begin(e, S.view); return; }
   if (e.pointerType === 'mouse' && e.button && !(S.cropMode && e.button === 2)) return;
   if (m) { m.down({ gx, gy, rx, ry, e }); drawing = true; return; }
   for (const gh of globalHandlers()) if (gh.down && gh.down({ gx, gy, rx, ry, e })) { activeGlobal = gh; drawing = true; return; }
@@ -58,10 +52,11 @@ export function move(e) {
     S.hoverPx = over ? [hx, hy] : null;
     let cur = over && S.eyedrop.active ? 'none' : over ? 'crosshair' : 'default';
     const ht = toolHandler(S.tool), gh = globalHandlers().map((h) => h.hover && h.hover({ gx: hx, gy: hy, e })).find(Boolean);
-    if (!S.eyedrop.active && !drawing && !rdrag && !activeMode()) { if (gh) cur = gh; else if (ht && ht.hover) { const c2 = ht.hover({ gx: hx, gy: hy, e }); if (c2) cur = c2; } }
+    if (!S.eyedrop.active && !drawing && !pan.active && !activeMode()) { if (gh) cur = gh; else if (ht && ht.hover) { const c2 = ht.hover({ gx: hx, gy: hy, e }); if (c2) cur = c2; } }
     cv().style.cursor = cur; }
-  if (rdrag) { const dx = e.clientX - rdrag.x, dy = e.clientY - rdrag.y; if (Math.hypot(dx, dy) > DRAG_THRESHOLD) rdrag.moved = true;
-    if (rdrag.moved) { S.view.ox = rdrag.ox + dx; S.view.oy = rdrag.oy + dy; bus.emit('render'); } return; }
+  if (pan.active) { const next = pan.move(e);
+    if (next?.moved) { S.view.ox = next.ox; S.view.oy = next.oy; bus.emit('render'); }
+    return; }
   if (activeGlobal) { const [gx, gy] = toGrid(e); if (activeGlobal.move) activeGlobal.move({ gx, gy, e }); return; }
   const m = activeMode();
   if (m) { const [gx, gy] = toGrid(e); if (drawing) m.move({ gx, gy, e }); else if (m.hover) m.hover({ gx, gy, e }); return; }
@@ -74,9 +69,9 @@ export function move(e) {
 }
 
 export function up(e) { try {
-  if (rdrag) { if (e && !rdrag.moved && rdrag.btn === 2)
+  if (pan.active) { const result = pan.finish(); if (e && !result?.moved && result?.button === 2)
     bus.emit(S.sel && !S.selFloat ? 'selection-menu' : 'canvas-menu', e);
-    rdrag = null; return; }
+    return; }
   if (activeGlobal) { if (activeGlobal.up) activeGlobal.up({ e }); activeGlobal = null; drawing = false; return; }
   const m = activeMode(); if (m) { if (drawing && m.up) m.up({ e }); drawing = false; return; }
   const h = toolHandler(S.tool); if (drawing && h && h.up) h.up({ e }); drawing = false;
@@ -85,7 +80,7 @@ export function up(e) { try {
 
 export function cancel(e) {
   const wasDrawing = drawing, owner = activeGlobal || activeMode() || toolHandler(S.tool);
-  drawing = false; activeGlobal = null; rdrag = null;
+  drawing = false; activeGlobal = null; pan.cancel();
   try { if (wasDrawing && owner?.cancel) owner.cancel({ e }); }
   finally { releaseCapture(e); bus.emit('render'); }
 }
@@ -93,7 +88,7 @@ export function cancel(e) {
 export function mount() {
   const c = cv();
   bus.on('document-transition', () => {
-    if (drawing || rdrag || activePointerId != null) cancel();
+    if (drawing || pan.active || activePointerId != null) cancel();
   });
   c.addEventListener('contextmenu', (e) => e.preventDefault());
   c.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'touch') down(e); });
@@ -101,14 +96,14 @@ export function mount() {
   c.addEventListener('pointerup', (e) => { if (e.pointerType !== 'touch') up(e); });
   c.addEventListener('pointercancel', (e) => { if (e.pointerType !== 'touch') cancel(e); });
   c.addEventListener('lostpointercapture', (e) => { if (e.pointerType !== 'touch') cancel(e); });
-  window.addEventListener('blur', () => { if (drawing || rdrag || activePointerId != null) cancel(); });
+  window.addEventListener('blur', () => { if (drawing || pan.active || activePointerId != null) cancel(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden &&
-    (drawing || rdrag || activePointerId != null)) cancel(); });
+    (drawing || pan.active || activePointerId != null)) cancel(); });
   c.addEventListener('pointerleave', () => { if (S.hoverPx) { S.hoverPx = null; bus.emit('render'); } });
   window.addEventListener('pointermove', (e) => { if (S.hoverPx && e.target !== c) { S.hoverPx = null; bus.emit('render'); } }); // курсор кисти виден только над холстом
-  c.addEventListener('wheel', (e) => { e.preventDefault(); const r = c.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
-    const wx = (mx - S.view.ox) / S.view.zoom, wy = (my - S.view.oy) / S.view.zoom;
-    S.view.zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, S.view.zoom * (e.deltaY < 0 ? 1.1 : 0.9)));
-    S.view.ox = mx - wx * S.view.zoom; S.view.oy = my - wy * S.view.zoom; bus.emit('render'); }, { passive: false });
+  c.addEventListener('wheel', (e) => { e.preventDefault(); const r = c.getBoundingClientRect();
+    Object.assign(S.view, zoomLegacyViewAt(S.view,
+      { x: e.clientX - r.left, y: e.clientY - r.top }, e.deltaY < 0 ? 1.1 : 0.9,
+      ZOOM_MIN, ZOOM_MAX)); bus.emit('render'); }, { passive: false });
   mountGestures(c, { toGrid, down, move, up });
 }

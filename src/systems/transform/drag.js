@@ -3,7 +3,7 @@ import { S } from '../../core/state.js';
 import { $ } from '../../ui/dom/ShellDom.ts';
 import { C } from '../../styles/canvas-colors.ts';
 import { ROT_MIN_SCALE } from '../../config/limits.ts';
-import { rotFrame, rotCenter, rotWorldToLocal, rotState, rotHasChanges } from './math.js';
+import { rotFrame, rotCenter, rotWorldToLocal, rotState, rotHasChanges } from './math.ts';
 
 const cv = () => $('cv');
 const rotScreen = (p) => ({ x: S.view.ox + p.x * S.view.zoom, y: S.view.oy + p.y * S.view.zoom });

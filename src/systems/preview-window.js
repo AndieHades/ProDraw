@@ -3,7 +3,7 @@ import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import { $ } from '../ui/dom/ShellDom.ts';
 import { floatingWindow } from '../ui/windows/FloatingWindow.ts';
-import { attachPanZoom } from '../core/pan-zoom.js';
+import { attachPanZoom } from '../core/pan-zoom.ts';
 import { syncCanvasSize } from '../core/canvas.js';
 
 let prevOn = false; const pv = { z: 0, x: 0, y: 0 }; let source = null;

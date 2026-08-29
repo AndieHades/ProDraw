@@ -11,15 +11,11 @@ import { snapshot, snapshotDocumentRemap } from './history.js';
 import { t } from '../i18n/index.ts';
 import { ZOOM_MIN, ZOOM_MAX } from '../config/limits.ts';
 import { expandStoredFrames, cropStoredFrames } from './animation-canvas.js';
+import { resizeLegacyView } from '../logic/view/LegacyViewGeometry.ts';
 
 function keepCanvasScreenSize(oldW, oldH, newW, newH) {
-  const z0 = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Number.isFinite(S.view.zoom) ? S.view.zoom : ZOOM_MIN));
-  const sw = oldW * z0, sh = oldH * z0;
-  const cx = S.view.ox + sw / 2, cy = S.view.oy + sh / 2;
-  const z = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.min(sw / newW, sh / newH)));
-  S.view.zoom = Number.isFinite(z) ? z : z0;
-  S.view.ox = Math.round(cx - (newW * S.view.zoom) / 2);
-  S.view.oy = Math.round(cy - (newH * S.view.zoom) / 2);
+  Object.assign(S.view, resizeLegacyView(S.view, oldW, oldH, newW, newH,
+    ZOOM_MIN, ZOOM_MAX));
 }
 
 function translateLayer(layer, dx, dy, width, height, preserveGrid = false) {

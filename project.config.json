@@ -14,8 +14,8 @@
     "runtimeMode": "shell",
     "productionEntry": "src/legacy-entry.js",
     "targetEntry": "src/raster-main.ts",
-    "maximumSourceJavaScriptFiles": 275,
-    "maximumLegacyStateJavaScriptFiles": 172
+    "maximumSourceJavaScriptFiles": 271,
+    "maximumLegacyStateJavaScriptFiles": 170
   },
   "legacyCodeOverLimit": [
     "test/module-int.mjs",

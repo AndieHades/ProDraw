@@ -52,4 +52,5 @@ acceptance-блокером F5, но не блокирует code cutover.
 перенёс в строгий TypeScript. `C3A` свёл nested layer tree к одному cycle-safe
 обходу и перенёс структурный Undo с сохранением raster-owner identity. `C3B`
 перенёс effects history, compact sparse selection и contextual export scopes в
-TypeScript. Активен `C4A`: Transform, оба Crop, Pan и view.
+TypeScript. `C4A` перенёс Transform raster math, оба Crop, remap Undo, Pan-policy
+и live view geometry. Активен `C4B`: creative tools, text и colour.

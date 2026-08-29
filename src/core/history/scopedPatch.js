@@ -6,7 +6,7 @@ import { isRasterReferenceEntry,
   swapRasterReferenceEntry } from './rasterReferencePatch.js';
 import { isCompoundEntry, swapCompoundEntry } from './compoundPatch.js';
 import { isDocumentRemapEntry,
-  swapDocumentRemapEntry } from './documentRemapPatch.js';
+  swapDocumentRemapEntry } from './documentRemapPatch.ts';
 import { isLegacyTileEntry, swapLegacyTileEntry } from './legacyTilePatch.ts';
 
 const handlers = [

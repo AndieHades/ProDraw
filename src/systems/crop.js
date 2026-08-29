@@ -12,10 +12,12 @@ import { MAX_SIZE } from '../config/limits.ts';
 import { clampRound } from '../logic/math.ts';
 import { mountCropControls } from '../ui/crop/CropControlsPresenter.ts';
 import { CropPointerSystem } from './crop/CropPointerSystem.ts';
+import { appliedCropRect, createCropMode, cropChangesDocument,
+  cropSize as measureCrop, placeCropSize } from './crop/CropSession.ts';
 
 let mounted = false;
-const cropSize = (crop = S.cropMode) => ({ w: crop.x1 - crop.x0 + 1,
-  h: crop.y1 - crop.y0 + 1 });
+const cropSize = (crop = S.cropMode) => { const size = measureCrop(crop);
+  return { w: size.width, h: size.height }; };
 const clampDim = (value) => clampRound(value, 1, MAX_SIZE);
 
 function syncInputs() {
@@ -26,12 +28,8 @@ function syncInputs() {
 }
 
 function placeCrop(width, height) {
-  const crop = S.cropMode, old = cropSize();
-  const cx = (crop.x0 + crop.x1) / 2, cy = (crop.y0 + crop.y1) / 2;
   const w = clampDim(width), h = clampDim(height);
-  crop.x0 = Math.round(cx - (w - 1) / 2); crop.y0 = Math.round(cy - (h - 1) / 2);
-  crop.x1 = crop.x0 + w - 1; crop.y1 = crop.y0 + h - 1;
-  if (old.w !== w || old.h !== h) bus.emit('render');
+  if (placeCropSize(S.cropMode, w, h)) bus.emit('render');
   syncInputs();
 }
 
@@ -49,9 +47,7 @@ function dimensionInput(dimension, commit = false) {
 
 export function toggleCrop() {
   if (S.cropMode) { cancelCrop(); return; }
-  const bounds = S.sel ? { x0: S.sel.x0, y0: S.sel.y0, x1: S.sel.x1, y1: S.sel.y1 }
-    : { x0: 0, y0: 0, x1: S.W - 1, y1: S.H - 1 };
-  S.cropMode = { ...bounds, idx: 0, idy: 0, b: bounds };
+  S.cropMode = createCropMode(S.W, S.H, S.sel);
   S.sel = null; S.selMask = null; bus.emit('selection');
   $('crop').classList.add('on'); $('cropbar').classList.add('on');
   syncInputs(); bus.emit('render'); toast(t('toast.cropHint'));
@@ -66,10 +62,10 @@ export function cancelCrop() {
 export function applyCrop() {
   if (!S.cropMode) return;
   const crop = S.cropMode; cancelCrop();
-  if (crop.x0 === 0 && crop.y0 === 0 && crop.x1 === S.W - 1 && crop.y1 === S.H - 1
-    && !crop.idx && !crop.idy) { toast(t('toast.sizeUnchanged')); return; }
-  applyCropRect(crop.x0 - crop.idx, crop.y0 - crop.idy,
-    crop.x1 - crop.idx, crop.y1 - crop.idy);
+  if (!cropChangesDocument(crop, S.W, S.H)) {
+    toast(t('toast.sizeUnchanged')); return; }
+  const bounds = appliedCropRect(crop);
+  applyCropRect(bounds.x0, bounds.y0, bounds.x1, bounds.y1);
 }
 
 const cropPointer = new CropPointerSystem({ canvas: () => $('cv'),
