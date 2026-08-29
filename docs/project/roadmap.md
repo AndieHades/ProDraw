@@ -50,5 +50,6 @@ acceptance-блокером F5, но не блокирует code cutover.
 базовые команды слоёв на того же владельца. `C2D` добавил единую типизированную
 сессию для dirty/saved и отмены поздних New/Open/import, а IndexedDB persistence
 перенёс в строгий TypeScript. `C3A` свёл nested layer tree к одному cycle-safe
-обходу и перенёс структурный Undo с сохранением raster-owner identity. Активен
-`C3B`: effects, selection и contextual export переходят на RGBA-контракты.
+обходу и перенёс структурный Undo с сохранением raster-owner identity. `C3B`
+перенёс effects history, compact sparse selection и contextual export scopes в
+TypeScript. Активен `C4A`: Transform, оба Crop, Pan и view.

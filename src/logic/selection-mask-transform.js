@@ -1,4 +1,4 @@
-import { cellsSelectionMask, isSelectionMask, SelectionMask } from './selection-mask.js';
+import { cellsSelectionMask, isSelectionMask, SelectionMask } from './selection-mask.ts';
 
 const clipRect = (r, W, H) => { const out = { x0: Math.max(0, r.x0), y0: Math.max(0, r.y0),
   x1: Math.min(W - 1, r.x1), y1: Math.min(H - 1, r.y1) };

@@ -5,7 +5,7 @@ import * as actions from '../../src/core/actions.ts';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { dirtyAll, layerContentBounds, markDirty } from '../../src/core/layer-cache.js';
 import { blank, S } from '../../src/core/state.js';
-import { SelectionMask } from '../../src/logic/selection-mask.js';
+import { SelectionMask } from '../../src/logic/selection-mask.ts';
 import { enterRotMode, exitRotMode } from '../../src/systems/transform/index.js';
 import { switchLayerDuringTransform } from '../../src/systems/layers/transform-target.js';
 

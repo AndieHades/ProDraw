@@ -8,11 +8,11 @@ Canonical owner: this package.
 
 ## Resume Here
 
-- Current stage: `R2 / R2.11 / C3B — effects, selection and contextual export`
+- Current stage: `R2 / R2.11 / C4A — transform, Crop, Pan and view`
 - Status: `in_progress`
 - Last completed stage: `R2.11/C1`; F3-R1..F3-R5 and the bounded
   P1 merge/document-remap recovery also remain complete
-- Next action: port effects, selection and contextual layer/folder export under
+- Next action: port Transform, both Crop workflows, all-button Pan and view under
   the registered
   [`R2.11 owner cutover`](r2-11-owner-cutover/README.md)
 - Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace;
@@ -20,9 +20,9 @@ Canonical owner: this package.
 - Working paths: `src/app.js`, `src/raster-main.ts`, `src/core`, `src/systems`,
   `src/ui`, `tests/system`, `tests/performance`, `test/module-int.mjs`
 - Last checks: `npm run validate` passed 117 legacy unit, storage/reconnect,
-  105 TypeScript files/315 checks and the sequential 14 performance files/52
+  108 TypeScript files/320 checks and the sequential 14 performance files/52
   checks; architecture, docs, cutover, desktop and production build gates passed.
-- Last updated: `2026-08-28, C3A closed and C3B active`
+- Last updated: `2026-08-28, C3B closed and C4A active`
 
 ## Product Outcome
 

@@ -1,8 +1,8 @@
-import { cellsSelectionMask, isSelectionMask, SelectionMask } from './selection-mask.js';
+import { cellsSelectionMask, isSelectionMask, SelectionMask } from './selection-mask.ts';
 import {
   clipSelectionRect,
   outsideSelectionStrips,
-} from './selection-rects.js';
+} from './selection-rects.ts';
 
 function mappedRect(rect, mapPoint, width, height) {
   const points = [

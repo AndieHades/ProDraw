@@ -1,4 +1,4 @@
-import { isSelectionMask } from './selection-mask.js';
+import { isSelectionMask } from './selection-mask.ts';
 import { parseKey } from './raster.js';
 
 const compactCache = new WeakMap();

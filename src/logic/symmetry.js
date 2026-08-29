@@ -2,7 +2,7 @@
 // Чистая логика без DOM/state. Старые sx/sy сохраняют поведение по центру,
 // дополнительный opts включает произвольные оси и диагонали.
 import { parseKey } from './raster.js';
-import { isSelectionMask } from './selection-mask.js';
+import { isSelectionMask } from './selection-mask.ts';
 import { symmetrizeSelectionMask } from './selection-symmetry.js';
 
 const finite = (v) => Number.isFinite(v);

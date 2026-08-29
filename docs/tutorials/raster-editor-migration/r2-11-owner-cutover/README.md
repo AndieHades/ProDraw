@@ -9,18 +9,18 @@
 
 ## Resume Here
 
-- Current stage: `C3B — typed effects, selection and contextual export`
+- Current stage: `C4A — typed transform, Crop, Pan and view`
 - Status: `in_progress`
-- Last completed stage: `C3A`; one cycle-safe typed traversal owns nested folder
-  scopes and typed structural history preserves raster-owner identities
-- Next action: port effects, rectangle/lasso and floating selection, then prove
-  full-canvas/by-contour export for layer, multi-layer and folder scopes
+- Last completed stage: `C3B`; effects history, compact sparse selection and
+  contextual layer/folder export scopes use strict TypeScript owners
+- Next action: port Transform, both Crop workflows, all-button Pan and view while
+  preserving immutable previews and exact off-canvas Undo
 - Blockers: physical Huion acceptance remains a final device-only check; it does
   not block code migration or automated trace evidence
 - Working paths: `src`, `tests`, `tools`,
   `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`
-- Last checks: 117 legacy, 315 TypeScript and 52 sequential performance tests
-  pass; full validate, production build and A4 layer history stay green
+- Last checks: 117 legacy, 320 TypeScript and 52 sequential performance tests
+  pass; full validate, production build and selection A4 budgets stay green
 - Last updated: 2026-08-28
 
 ## Outcome
@@ -61,8 +61,8 @@ all other rows remain required.
 | `C2C` | compositor and base layer commands use that owner | `C2B` | done | `refactor: cut render and base layers to RGBA` |
 | `C2D` | session, autosave, New/Open and persistence are typed | `C2C` | done | `refactor: cut document sessions to TypeScript` |
 | `C3A` | nested layer tree and structural history are typed | `C2D` | done | `refactor: port layer tree history` |
-| `C3B` | effects, selection and contextual export are typed | `C3A` | in progress | `feat: port effects and selection to RGBA` |
-| `C4A` | Transform, both Crop paths, Pan and view are typed | `C3B` | pending | `feat: port transform crop and view` |
+| `C3B` | effects, selection and contextual export are typed | `C3A` | done | `feat: port effects and selection to RGBA` |
+| `C4A` | Transform, both Crop paths, Pan and view are typed | `C3B` | in progress | `feat: port transform crop and view` |
 | `C4B` | creative tools, text and colour are typed | `C4A` | pending | `feat: port creative tools to TypeScript` |
 | `C5A` | gallery, import, export and Save as Canvas are typed | `C4B` | pending | `refactor: port document file workflows` |
 | `C5B` | animation and timeline are typed | `C5A` | pending | `refactor: port animation workflows` |

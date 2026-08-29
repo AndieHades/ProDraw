@@ -10,7 +10,7 @@ import { cloneGrid } from '../logic/raster.js';
 import { historyRef, syncHistoryFrame } from './animation.js';
 import { compactPixelEntry, createPixelBatch, createPixelPatch,
   recordPixel, swapPixelEntry } from './history/pixelPatch.ts';
-import { cloneEffects, createEffectsEntry } from './history/effectsPatch.js';
+import { cloneEffects, createEffectsEntry } from './history/effectsPatch.ts';
 import { createDescriptorEntry } from './history/descriptorPatch.js';
 import { createStructureEntry,
   inheritStructureIdentity } from './history/structurePatch.ts';

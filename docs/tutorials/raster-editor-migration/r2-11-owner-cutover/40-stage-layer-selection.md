@@ -2,7 +2,7 @@
 
 - Stable id: `C3`
 - Depends on: `C2`
-- Status: `in_progress`
+- Status: `done`
 
 ## Sub-stages
 
@@ -33,7 +33,10 @@ legacy state or duplicates tree traversal rules.
   empty-folder anchors delegate to one cycle-safe `LayerTree` contract. Typed
   structural patches restore nesting, multi-selection and stable raster-owner
   identities without cloning pixel payloads.
-- Commit: C3A stage commit; C3B pending
-- Checks: 117 legacy, 315 TypeScript and 52 sequential performance tests; full
-  validate, production bundle, focused duplicate/merge/Undo and A4 history gates
-- Residual risk: effects and floating-selection history remain in C3B
+- `C3B`: done in `feat: port effects and selection to RGBA`; effect patches,
+  sparse selection tiles/masks, selection set operations and export tree scopes
+  are typed. Selected folders include hidden nested layers exactly once.
+- Commits: C3A stage commit and C3B stage commit
+- Checks: 117 legacy, 320 TypeScript and 52 sequential performance tests; full
+  validate, production bundle, focused effect/selection/export and A4 gates
+- Residual risk: Transform/Crop integration remains in C4A
