@@ -13,7 +13,7 @@ import { compactPixelEntry, createPixelBatch, createPixelPatch,
 import { cloneEffects, createEffectsEntry } from './history/effectsPatch.js';
 import { createDescriptorEntry } from './history/descriptorPatch.js';
 import { createStructureEntry,
-  inheritStructureIdentity } from './history/structurePatch.js';
+  inheritStructureIdentity } from './history/structurePatch.ts';
 import { createRasterReferenceEntry } from './history/rasterReferencePatch.js';
 import { createCompoundEntry } from './history/compoundPatch.js';
 import { createDocumentRemapEntry } from './history/documentRemapPatch.js';

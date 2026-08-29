@@ -29,6 +29,11 @@ legacy state or duplicates tree traversal rules.
 
 ## Completion record
 
-- Commit: pending
-- Checks: pending
-- Residual risk: pending
+- `C3A`: done in `refactor: port layer tree history`; live folder queries and
+  empty-folder anchors delegate to one cycle-safe `LayerTree` contract. Typed
+  structural patches restore nesting, multi-selection and stable raster-owner
+  identities without cloning pixel payloads.
+- Commit: C3A stage commit; C3B pending
+- Checks: 117 legacy, 315 TypeScript and 52 sequential performance tests; full
+  validate, production bundle, focused duplicate/merge/Undo and A4 history gates
+- Residual risk: effects and floating-selection history remain in C3B

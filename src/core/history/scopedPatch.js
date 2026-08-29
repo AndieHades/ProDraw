@@ -1,7 +1,7 @@
 import { isPixelEntry, swapPixelEntry } from './pixelPatch.ts';
 import { isEffectsEntry, swapEffectsEntry } from './effectsPatch.js';
 import { isDescriptorEntry, swapDescriptorEntry } from './descriptorPatch.js';
-import { isStructureEntry, swapStructureEntry } from './structurePatch.js';
+import { isStructureEntry, swapStructureEntry } from './structurePatch.ts';
 import { isRasterReferenceEntry,
   swapRasterReferenceEntry } from './rasterReferencePatch.js';
 import { isCompoundEntry, swapCompoundEntry } from './compoundPatch.js';

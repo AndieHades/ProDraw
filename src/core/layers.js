@@ -2,12 +2,14 @@
 // Чистые функции над состоянием S (без DOM).
 import { S } from './state.js';
 import { centerSymmetryAxes, symmetryAxes } from '../logic/symmetry.js';
+import { findFolder, folderChain as treeFolderChain } from
+  './layers/LayerTree.ts';
 
-export const folderById = (id) => S.folders.find((x) => x.id === id);
+export const folderById = (id) => findFolder(S.folders, id);
 export const layerFolder = (L) => (L && L.fid != null ? folderById(L.fid) : null);
 
 // цепочка папок-предков (от ближайшей к корню) — основа вложенных групп
-export function folderChain(fid) { const a = []; let id = fid; while (id != null) { const f = folderById(id); if (!f) break; a.push(f); id = f.parent ?? null; } return a; }
+export const folderChain = (fid) => treeFolderChain(S.folders, fid);
 
 export const effVis = (i) => { const L = S.layers[i]; if (!L.visible) return false;
   for (const f of folderChain(L.fid)) if (!f.visible) return false; return true; };

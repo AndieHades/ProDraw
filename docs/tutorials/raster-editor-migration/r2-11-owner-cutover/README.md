@@ -9,18 +9,18 @@
 
 ## Resume Here
 
-- Current stage: `C3A — typed layer tree and structural history`
+- Current stage: `C3B — typed effects, selection and contextual export`
 - Status: `in_progress`
-- Last completed stage: `C2D`; one typed session owns dirty/saved state and
-  cancellation tokens, and IndexedDB persistence is strict TypeScript
-- Next action: port nested layer traversal and structural history without
-  duplicating the typed base-layer command boundary
+- Last completed stage: `C3A`; one cycle-safe typed traversal owns nested folder
+  scopes and typed structural history preserves raster-owner identities
+- Next action: port effects, rectangle/lasso and floating selection, then prove
+  full-canvas/by-contour export for layer, multi-layer and folder scopes
 - Blockers: physical Huion acceptance remains a final device-only check; it does
   not block code migration or automated trace evidence
 - Working paths: `src`, `tests`, `tools`,
   `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`
-- Last checks: 117 legacy, 310 TypeScript and 52 sequential performance tests
-  pass; full validate, production build and IndexedDB reconnect stay green
+- Last checks: 117 legacy, 315 TypeScript and 52 sequential performance tests
+  pass; full validate, production build and A4 layer history stay green
 - Last updated: 2026-08-28
 
 ## Outcome
@@ -60,8 +60,8 @@ all other rows remain required.
 | `C2B` | paint tools and raster history use tiled surface bytes | `C2A` | done | `refactor: cut drawing over to tiled RGBA` |
 | `C2C` | compositor and base layer commands use that owner | `C2B` | done | `refactor: cut render and base layers to RGBA` |
 | `C2D` | session, autosave, New/Open and persistence are typed | `C2C` | done | `refactor: cut document sessions to TypeScript` |
-| `C3A` | nested layer tree and structural history are typed | `C2D` | in progress | `refactor: port layer tree history` |
-| `C3B` | effects, selection and contextual export are typed | `C3A` | pending | `feat: port effects and selection to RGBA` |
+| `C3A` | nested layer tree and structural history are typed | `C2D` | done | `refactor: port layer tree history` |
+| `C3B` | effects, selection and contextual export are typed | `C3A` | in progress | `feat: port effects and selection to RGBA` |
 | `C4A` | Transform, both Crop paths, Pan and view are typed | `C3B` | pending | `feat: port transform crop and view` |
 | `C4B` | creative tools, text and colour are typed | `C4A` | pending | `feat: port creative tools to TypeScript` |
 | `C5A` | gallery, import, export and Save as Canvas are typed | `C4B` | pending | `refactor: port document file workflows` |
