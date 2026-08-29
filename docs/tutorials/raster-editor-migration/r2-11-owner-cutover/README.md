@@ -1,26 +1,27 @@
 # R2.11: TypeScript RGBA Owner Cutover
 
 - Status: `in_progress`
-- Evidence baseline: `main@d3fc81a`, 2026-08-17
+- Evidence baseline: `aset-editor@c37c01f`, 2026-08-28
 - Parent plan: [`Raster Editor Migration`](../README.md)
 - Authority: user requested full audit, implementation and one commit per stage;
-  user then confirmed exact UI/function parity with one TypeScript architecture.
+  after stabilizing gallery memory, Crop, selected-layer trim and global Pan,
+  the user authorized the full TypeScript transition.
 
 ## Resume Here
 
-- Current stage: `C2 — single tiled RGBA owner`
+- Current stage: `C2A — live RasterSurface normalization`
 - Status: `in_progress`
-- Last completed stage: `C1` in this stage commit
-- Next action: cut Brush/Eraser/Smudge/Fill, base layer actions, render, history
-  and document persistence over to one `RasterDocument`/`RasterSurface` owner
+- Last completed stage: `C1F`; product repairs through `c37c01f` are frozen as
+  the live acceptance baseline
+- Next action: attach one stable `RasterSurface` owner to every live document
+  load/create path without duplicating pixel ownership
 - Blockers: physical Huion acceptance remains a final device-only check; it does
   not block code migration or automated trace evidence
 - Working paths: `src`, `tests`, `tools`,
   `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`
-- Last checks: C1 typecheck/lint, 46-case boot and 393 integration checks pass;
-  221 TypeScript checks pass together and the only aggregate timeout passes in
-  isolation; cutover/cycles/interface/line gates and browser shell smoke pass
-- Last updated: 2026-08-17
+- Last checks: 30 focused stabilized-workflow tests plus interface, cutover,
+  raster-entry, typecheck and lint pass
+- Last updated: 2026-08-28
 
 ## Outcome
 
@@ -44,6 +45,9 @@ all other rows remain required.
 - `SAFE-01`: save/recovery/Undo guarantees survive every cutover stage.
 - `PERF-01`: current F3 budgets stay green on realistic fixtures.
 - `OPS-01`: gates reject a reintroduced JS/grid entry or unproved parity claim.
+- `PAR-STAB-01`: lightweight gallery listing and delayed import progress remain.
+- `PAR-STAB-02`: global mouse Pan and both Crop workflows remain exact and undoable.
+- `DELIVERY-01`: every accepted desktop stage reaches `%USERPROFILE%\Desktop\ProDraw.lnk`.
 
 ## Delivery order
 
@@ -51,11 +55,19 @@ all other rows remain required.
 | --- | --- | --- | --- | --- |
 | `C0` | truthful gates, security and baseline health | none | done | `0f12c2d` |
 | `C1` | preserved shell and pure/shared modules in TypeScript | `C0` | done | `refactor: migrate the preserved shell to TypeScript` |
-| `C2` | drawing, render, history and layers use one RGBA owner | `C1` | in progress | `refactor: cut editor state over to tiled RGBA` |
-| `C3` | layer tree, effects and selection parity | `C2` | pending | `feat: port layer effects and selection to RGBA` |
-| `C4` | transform, tools, text, colour and view parity | `C3` | pending | `feat: port creative tools to the typed editor` |
-| `C5` | gallery, files and animation parity | `C4` | pending | `feat: port document and timeline workflows` |
-| `C6` | one entry, no legacy graph, final product gates | `C5` | pending | `refactor: retire the legacy editor runtime` |
+| `C1F` | repaired interface and stability baseline frozen | `C1` | done | `test: freeze stabilized editor parity` |
+| `C2A` | every live raster record has one `RasterSurface` owner | `C1F` | in progress | `refactor: normalize documents to raster surfaces` |
+| `C2B` | paint tools and raster history use that owner | `C2A` | pending | `refactor: cut drawing over to tiled RGBA` |
+| `C2C` | compositor and base layer commands use that owner | `C2B` | pending | `refactor: cut render and base layers to RGBA` |
+| `C2D` | session, autosave, New/Open and persistence are typed | `C2C` | pending | `refactor: cut document sessions to TypeScript` |
+| `C3A` | nested layer tree and structural history are typed | `C2D` | pending | `refactor: port layer tree history` |
+| `C3B` | effects, selection and contextual export are typed | `C3A` | pending | `feat: port effects and selection to RGBA` |
+| `C4A` | Transform, both Crop paths, Pan and view are typed | `C3B` | pending | `feat: port transform crop and view` |
+| `C4B` | creative tools, text and colour are typed | `C4A` | pending | `feat: port creative tools to TypeScript` |
+| `C5A` | gallery, import, export and Save as Canvas are typed | `C4B` | pending | `refactor: port document file workflows` |
+| `C5B` | animation and timeline are typed | `C5A` | pending | `refactor: port animation workflows` |
+| `C6A` | production starts at the TypeScript composition root | `C5B` | pending | `refactor: switch production to TypeScript entry` |
+| `C6B` | legacy graph is deleted and final gates are green | `C6A` | pending | `refactor: retire the legacy editor runtime` |
 
 Only one row may be `in_progress`. Every stage chapter owns its exact file
 allowlist, focused checks, completion record and commit hash.
@@ -68,12 +80,13 @@ allowlist, focused checks, completion record and commit hash.
 4. [`10-stage-cutover-gates.md`](10-stage-cutover-gates.md)
 5. [`15-stage-tilemap-retirement.md`](15-stage-tilemap-retirement.md)
 6. [`20-stage-typescript-shell.md`](20-stage-typescript-shell.md)
-7. [`30-stage-rgba-owner.md`](30-stage-rgba-owner.md)
-8. [`40-stage-layer-selection.md`](40-stage-layer-selection.md)
-9. [`50-stage-creative-tools.md`](50-stage-creative-tools.md)
-10. [`60-stage-document-timeline.md`](60-stage-document-timeline.md)
-11. [`70-stage-legacy-retirement.md`](70-stage-legacy-retirement.md)
-12. [`90-verification.md`](90-verification.md)
+7. [`22-stage-stabilization-freeze.md`](22-stage-stabilization-freeze.md)
+8. [`30-stage-rgba-owner.md`](30-stage-rgba-owner.md)
+9. [`40-stage-layer-selection.md`](40-stage-layer-selection.md)
+10. [`50-stage-creative-tools.md`](50-stage-creative-tools.md)
+11. [`60-stage-document-timeline.md`](60-stage-document-timeline.md)
+12. [`70-stage-legacy-retirement.md`](70-stage-legacy-retirement.md)
+13. [`90-verification.md`](90-verification.md)
 
 The behavioural inventory remains
 [`08-interface-feature-parity.md`](../08-interface-feature-parity.md). This

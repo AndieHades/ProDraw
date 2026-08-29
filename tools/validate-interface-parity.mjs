@@ -23,8 +23,8 @@ const requiredStyleParts = [
   "brushbar-eyedropper.css", "gallery.css", "shading-reference.css"
 ];
 const expectedSidebarOrder = ["t-pencil", "t-eraser", "t-fill",
-  "t-move", "crop", "t-select", "t-lasso", "flip-h", "sym", "t-shape",
-  "t-adjust", "tile-btn", "center", "t-text", "zoom"];
+  "t-move", "crop", "trim-selected", "t-select", "t-lasso", "flip-h", "sym",
+  "t-shape", "t-adjust", "tile-btn", "center", "t-text", "zoom"];
 
 for (const id of requiredIds) {
   if (!html.includes(`id="${id}"`)) errors.push(`original interface is missing #${id}`);

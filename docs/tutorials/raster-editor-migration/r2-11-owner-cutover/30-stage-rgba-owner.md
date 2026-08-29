@@ -2,7 +2,7 @@
 
 - Stable id: `C2`
 - Depends on: `C1F`
-- Status: `pending`
+- Status: `in_progress`
 - Scope: document/session, drawing, render, history and base layers
 
 ## Sub-stages

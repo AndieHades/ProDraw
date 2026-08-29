@@ -43,7 +43,7 @@ acceptance-блокером F5, но не блокирует code cutover.
 счётчики не могут расти, Electron IPC проверяет sender, dependency audit чист,
 а desktop smoke использует каноническую упаковку. `C1` завершён. После ремонта
 памяти галереи, Crop, отдельного `Обрезать слои`, глобального Pan и постоянного
-ярлыка активен `C1F`: эти функции фиксируются как обязательная acceptance-база.
-Затем `C2A..C2D` последовательно переводят документ, drawing, render, history,
+ярлыка `C1F` зафиксировал эти функции как обязательную acceptance-базу. Активен
+`C2A`; этапы `C2A..C2D` последовательно переводят документ, drawing, render, history,
 base layers и persistence на `RasterDocument`/`RasterSurface` без массового
 переименования JS-файлов.

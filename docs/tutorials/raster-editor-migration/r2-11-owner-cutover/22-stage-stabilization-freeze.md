@@ -2,7 +2,7 @@
 
 - Stable id: `C1F`
 - Depends on: `C1`
-- Status: `in_progress`
+- Status: `done`
 - Commit: `test: freeze stabilized editor parity`
 
 ## Scope
@@ -37,6 +37,8 @@ next stage can replace owners only while this evidence remains green.
 
 ## Completion record
 
-- Commit: pending
-- Checks: pending
-- Residual risk: pending
+- Commit: this stage commit, `test: freeze stabilized editor parity`
+- Checks: 30 focused gallery/Pan/Crop/trim/remap/panel tests; interface,
+  cutover, raster-entry, typecheck and lint pass
+- Residual risk: physical input and visual acceptance stay in the final matrix;
+  this stage intentionally changes no raster behaviour
