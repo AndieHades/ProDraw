@@ -1,5 +1,7 @@
 import type { TileChangeSet } from "../history/tilePatch.ts";
 import { LegacyRasterSurfaceBacking } from "./LegacyRasterSurfaceBacking.ts";
+import type { LegacyRasterBounds,
+  LegacyRasterRegion } from "./LegacyRasterRegion.ts";
 
 type LegacyGrid = unknown[][] | { readonly length: number };
 export type LegacyRasterCell = number[] | null;
@@ -38,10 +40,7 @@ export class LegacyRasterOwner {
   }
   beginRasterEdit(label: string, width: number, height: number): boolean {
     if (this.#active) return false;
-    const key = `${width}x${height}`;
-    let backing = this.#backings.get(key);
-    if (!backing) { backing = new LegacyRasterSurfaceBacking(
-      `${this.id}/${key}`, width, height); this.#backings.set(key, backing); }
+    const backing = this.backing(width, height);
     if (!backing.begin(label)) return false;
     this.#active = backing; return true;
   }
@@ -61,6 +60,17 @@ export class LegacyRasterOwner {
   }
   invalidateSurface(): void {
     for (const backing of this.#backings.values()) backing.invalidate();
+  }
+  readRegion(bounds: LegacyRasterBounds, width: number, height: number,
+    sourceBounds: LegacyRasterBounds = bounds): LegacyRasterRegion {
+    return this.backing(width, height).readRegion(
+      this.grid as unknown[][], bounds, sourceBounds);
+  }
+  private backing(width: number, height: number): LegacyRasterSurfaceBacking {
+    const key = `${width}x${height}`; let backing = this.#backings.get(key);
+    if (!backing) { backing = new LegacyRasterSurfaceBacking(
+      `${this.id}/${key}`, width, height); this.#backings.set(key, backing); }
+    return backing;
   }
 }
 

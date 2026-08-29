@@ -9,6 +9,7 @@ import { folderChain } from '../../core/layers.js';
 import { localeValues } from '../../i18n/index.ts';
 import { clearFolderEmptyPos, folderLayers, nextFolderId, nextFolderName,
   topOfFolder, uniqueFolderName } from './helpers.js';
+import { insertLayer } from '../../core/layers/LayerStructureCommands.ts';
 
 const structuralDirty = () => dirtyAll({ preserveGridBounds: true });
 const escRe = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -39,9 +40,7 @@ export function doAddLayer() {
   const layer = newLayer(nextLayerName(), S.W, S.H);
   layer.fid = inOpenFolder ? current.fid : null;
   const at = inOpenFolder ? S.cur + 1 : S.layers.length;
-  S.layers.splice(at, 0, layer); clearFolderEmptyPos(layer.fid);
-  S.cur = at; S.selFolder = null; S.bgSel = false; S.marked.clear();
-  S.markedFolders.clear(); S.fxSel.clear(); S.fxCur = null;
+  insertLayer(S, layer, at); clearFolderEmptyPos(layer.fid);
   structuralDirty(); bus.emitDoc();
 }
 

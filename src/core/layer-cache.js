@@ -33,8 +33,8 @@ export const markDirty = (i, bounds = null) => {
   revs[i] = (revs[i] || 0) + 1; contentRev++;
 };
 export function dirtyAll({ preserveGridBounds = false } = {}) { if (!preserveGridBounds) {
-    for (const layer of S.layers) forgetGridBounds(layer.grid); }
-  for (const layer of S.layers) rasterOwnerForLayer(layer)?.invalidateSurface();
+    for (const layer of S.layers) { forgetGridBounds(layer.grid);
+      rasterOwnerForLayer(layer)?.invalidateSurface(); } }
   lcs = []; extCache.length = 0; dirtySet.clear();
   fullDirty.clear(); dirtyBounds.clear(); revs.length = 0;
   compositeDamage.invalidate(); generation++; contentRev++; }
@@ -54,32 +54,28 @@ export const layerSrcSurface = (i) => layerRenderEffects(i).length
 export const layerSrcCanvas = (i) => materializeEffectSurface(
   layerSrcSurface(i), S.W, S.H);
 
-function rasterRegion(context, grid, bounds) {
+function rasterRegion(context, owner, bounds, sourceBounds) {
   const minx = Math.max(0, bounds.minx), miny = Math.max(0, bounds.miny);
   const maxx = Math.min(S.W - 1, bounds.maxx), maxy = Math.min(S.H - 1, bounds.maxy);
   if (maxx < minx || maxy < miny) return;
-  const width = maxx - minx + 1, height = maxy - miny + 1;
-  const image = context.createImageData(width, height);
-  for (let y = miny; y <= maxy; y++) for (let x = minx; x <= maxx; x++) {
-    const color = grid[y]?.[x]; if (!color) continue;
-    const offset = ((y - miny) * width + x - minx) * 4;
-    image.data[offset] = color[0]; image.data[offset + 1] = color[1];
-    image.data[offset + 2] = color[2]; image.data[offset + 3] = color.length > 3 ? color[3] : 255;
-  }
-  context.putImageData(image, minx, miny);
+  const region = owner.readRegion({ minx, miny, maxx, maxy }, S.W, S.H,
+    sourceBounds || { minx, miny, maxx, maxy });
+  const image = context.createImageData(region.width, region.height);
+  image.data.set(region.data); context.putImageData(image, region.minx, region.miny);
 }
 
 export function layerCanvas(i) { let c = lcs[i], rebuild = !c;
   if (!c) { c = makeCanvas(S.W, S.H); lcs[i] = c; dirtySet.add(i); }
   if (c.width !== S.W || c.height !== S.H) { c.width = S.W; c.height = S.H;
     dirtySet.add(i); rebuild = true; }
-  if (dirtySet.has(i)) { const context = c.getContext('2d'), grid = S.layers[i].grid;
-    const partial = !rebuild && !fullDirty.has(i), bounds = partial
-      ? dirtyBounds.get(i) : layerContentBounds(i);
+  if (dirtySet.has(i)) { const context = c.getContext('2d'), layer = S.layers[i];
+    const partial = !rebuild && !fullDirty.has(i), contentBounds = layerContentBounds(i);
+    const bounds = partial ? dirtyBounds.get(i) : contentBounds;
     if (!partial && !rebuild) context.clearRect(0, 0, S.W, S.H);
     if (partial && bounds) context.clearRect(bounds.minx, bounds.miny,
       bounds.maxx - bounds.minx + 1, bounds.maxy - bounds.miny + 1);
-    if (bounds) rasterRegion(context, grid, bounds);
+    const owner = rasterOwnerForLayer(layer); if (bounds && owner)
+      rasterRegion(context, owner, bounds, contentBounds);
     dirtySet.delete(i); fullDirty.delete(i); dirtyBounds.delete(i); }
   return c; }
 
@@ -124,9 +120,11 @@ export function clippedShift(i, base, dix, diy, dbx, dby) {
 
 // итоговый цвет точки (x,y) по всем видимым слоям, либо null
 export function compositeAt(x, y) { let r = 0, g = 0, b = 0, a = 0;
-  for (let i = 0; i < S.layers.length; i++) { const L = S.layers[i]; if (!effVis(i) || L.opacity <= 0) continue; const c = L.grid[y] && L.grid[y][x]; if (!c) continue;
+  for (let i = 0; i < S.layers.length; i++) { const L = S.layers[i]; if (!effVis(i) || L.opacity <= 0) continue;
+    const c = rasterOwnerForLayer(L)?.getCell(x, y); if (!c) continue;
     let la = L.opacity * (c.length > 3 ? c[3] / 255 : 1);
-    const cb = clipBase(i); if (L.clip) { const bc = cb >= 0 && effVis(cb) ? S.layers[cb].grid[y][x] : null;
+    const cb = clipBase(i); if (L.clip) { const bc = cb >= 0 && effVis(cb)
+      ? rasterOwnerForLayer(S.layers[cb])?.getCell(x, y) : null;
       if (!bc) continue; la *= (bc.length > 3 ? bc[3] / 255 : 1); }
     r = c[0] * la + r * (1 - la); g = c[1] * la + g * (1 - la); b = c[2] * la + b * (1 - la); a = la + a * (1 - la); }
   return a > 0.02 ? [Math.round(r), Math.round(g), Math.round(b)] : null; }

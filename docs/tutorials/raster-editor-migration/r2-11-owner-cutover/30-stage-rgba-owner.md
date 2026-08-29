@@ -14,8 +14,10 @@
    `RasterEdit` and one byte-bounded mixed-history transaction against a lazy
    `RasterSurface`. Keep the already typed Smudge core golden for its visible
    tool wiring in `C4B`.
-3. `C2C`: replace legacy composite/cache with `DocumentCompositor` and route
-   base add/select/visibility/opacity/lock/reorder through one command owner.
+3. `C2C`: remove compatibility-grid reads from the preserved full-feature
+   compositor and route base add/select/visibility/opacity/lock/reorder through
+   typed command owners. The reduced detached `DocumentCompositor` cannot replace
+   folder/effect/clip behaviour before the complete composition-root switch.
 4. `C2D`: connect typed session, autosave, New/Open cancellation, dirty state
    and persistence, then delete the superseded image/history owners.
 
@@ -34,8 +36,14 @@ registered JS/legacy-state ceiling only by the owners it actually removes.
   history is byte-bounded. The sparse grid is an owner-maintained compatibility
   cache until its compositor reader moves in `C2C`. The legacy pixel-patch owner
   remains only for adjustment and bulk compatibility actions scheduled later.
-- `C2C`: in progress.
-- `C2D`: pending.
+- `C2C`: done in `refactor: cut render and base layers to RGBA`; bounded canvas
+  uploads, effect masks, composite sampling and layer hit-testing read the same
+  lazy surface used by paint. Structural-only invalidation retains surface bytes.
+  Typed command owners now perform base selection, add, visibility, opacity,
+  lock, reference and layer/folder reorder mutations; JS only coordinates current
+  UI/history callbacks. A focused test makes the compatibility cell throw and
+  proves a committed stroke still renders from its surface.
+- `C2D`: in progress.
 
 ## Edge and failure cases
 
@@ -58,8 +66,10 @@ those actions, while the exact UI remains.
 
 ## Completion record
 
-- Commit: `refactor: cut drawing over to tiled RGBA` (hash recorded after commit)
-- Checks: 117 legacy, 301 TypeScript, 52 sequential performance; changed,
+- Commits: `refactor: cut drawing over to tiled RGBA` (`008f910`) and
+  `refactor: cut render and base layers to RGBA` (hash recorded after commit)
+- Checks: 117 legacy, 306 TypeScript, 52 sequential performance; changed,
   architecture, cycles, interface and cutover gates
 - Residual risk: typed Smudge has golden coverage but remains outside the visible
-  legacy shell until the creative-tool/UI owner stage
+  legacy shell until the creative-tool/UI owner stage; compatibility grids remain
+  for unported bulk tools and persisted legacy records

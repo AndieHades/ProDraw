@@ -18,6 +18,8 @@ import { mountPinch } from './pinch.js';
 import { mountMenu } from './menu.js';
 import './fill.js'; // регистрирует action 'layer.dropColorAt'
 import { snapshotOpacity } from './metadata.js';
+import { selectLayer } from '../../core/layers/LayerCommandState.ts';
+import { setOpacity } from '../../core/layers/LayerMetadataCommands.ts';
 
 const vw = () => window.innerWidth || document.documentElement.clientWidth || 1024;
 const vh = () => window.innerHeight || document.documentElement.clientHeight || 768;
@@ -70,8 +72,7 @@ export function syncLayerPanelHeight(allowShrink = false) {
 function showLayerPanel() { const pop = $('lay-pop'); pop.classList.add('on'); $('layers').classList.add('on');
   layList(); syncLayerPanelWidth(); syncLayerPanelHeight(); }
 function selectCanvasLayer(index) { switchLayerDuringTransform(() => {
-  S.cur = index; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null;
-  S.fxSel.clear(); S.fxCur = null; S.bgSel = false; revealLayer(index, showLayerPanel);
+  selectLayer(S, index); revealLayer(index, showLayerPanel);
 }); }
 function layersAtCursor(event) { let [x, y] = gridAt(event.clientX, event.clientY);
   if (S.tile?.on) { x = ((x % S.W) + S.W) % S.W; y = ((y % S.H) + S.H) % S.H; }
@@ -105,7 +106,8 @@ export function mount() {
     list.__layerSizeObserver.observe(list, { childList: true, subtree: true }); }
   $('lay-op').addEventListener('pointerdown', () => snapshotOpacity(activeOpacityRef()));
   $('lay-op').addEventListener('input', () => { const ref = activeOpacityRef(); if (!ref) return; // прозрачность активной строки: слой/папка/эффект/настройка
-    ref.opacity = +$('lay-op').value / 100; $('lay-opv').textContent = Math.round(ref.opacity * 100) + '%';
+    setOpacity(ref, +$('lay-op').value / 100);
+    $('lay-opv').textContent = Math.round(ref.opacity * 100) + '%';
     bus.emit('render'); bus.emit('layers'); });
   floatingWindow($('lay-pop'), { grip: $('lay-head'), handle: $('lay-rsz'), storeKey: 'laywin', minW: layerPanelMinWidth, minH: layerPanelMinHeight, resizeEdges: true,
     onClose: () => { $('lay-pop').classList.remove('on'); $('layers').classList.remove('on'); },

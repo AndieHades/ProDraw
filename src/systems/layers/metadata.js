@@ -3,6 +3,8 @@ import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { snapshotDescriptors, snapshotEffects } from '../../core/history.js';
 import { folderChain } from '../../core/layers.js';
+import { toggleExclusiveReference, toggleLayerFlag,
+  toggleVisibleChain } from '../../core/layers/LayerMetadataCommands.ts';
 
 function descriptorFor(ref, properties) {
   const index = S.layers.indexOf(ref);
@@ -44,7 +46,7 @@ export function toggleVisibility(ref) {
   const showing = ref.visible === false || ancestors.some((folder) => folder.visible === false);
   const targets = showing ? [ref, ...ancestors] : [ref];
   if (!snapshotMetadata(targets, ['visible'])) return false;
-  for (const target of targets) target.visible = showing;
+  toggleVisibleChain(ref, ancestors);
   return true;
 }
 
@@ -54,14 +56,14 @@ export function toggleSymmetryLock(ref) {
 }
 
 export function toggleLock(layer) { if (!snapshotMetadata(layer, ['lock'])) return;
-  layer.lock = !layer.lock; bus.emit('layers'); }
+  toggleLayerFlag(layer, 'lock'); bus.emit('layers'); }
 export function toggleAlphaLock(layer) { if (!snapshotMetadata(layer, ['alphaLock'])) return;
-  layer.alphaLock = !layer.alphaLock; bus.emit('layers'); }
+  toggleLayerFlag(layer, 'alphaLock'); bus.emit('layers'); }
 export function toggleClip(layer) { if (!snapshotMetadata(layer, ['clip'])) return;
-  layer.clip = !layer.clip; bus.emitDoc(); }
+  toggleLayerFlag(layer, 'clip'); bus.emitDoc(); }
 export function toggleReference(layer) { if (!S.layers.includes(layer)) return;
-  if (!snapshotMetadata(S.layers, ['reference'])) return; const on = !layer.reference;
-  for (const item of S.layers) item.reference = item === layer && on;
+  if (!snapshotMetadata(S.layers, ['reference'])) return;
+  toggleExclusiveReference(S, layer);
   bus.emit('layers'); }
 
 export const snapshotBackground = (properties) =>

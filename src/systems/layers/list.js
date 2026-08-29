@@ -17,6 +17,7 @@ import { syncLayerActionButtons } from './actions-bar.js';
 import { layerThumbnail } from './thumbnail.js';
 import { metadataNameSpan, startInlineRename as startMetadataRename,
   psdMaskButton, wireMetadataSymmetry, wireMetadataVisibility } from './row-metadata.js';
+import { selectLayer } from '../../core/layers/LayerCommandState.ts';
 
 export function startInlineRename(span, ref) {
   startMetadataRename(span, ref, layList);
@@ -102,8 +103,8 @@ function layerRow(L, i, depth) {
   row.addEventListener("click", (ev) => { if (layDragSquelch) return;
     if (ev.ctrlKey || ev.metaKey) { toggleLayerSelect(i); return; } // ctrl/cmd-клик — поштучный выбор
     if (ev.shiftKey && selectRange(row)) { layList(); return; } // shift-клик — диапазон от активной строки до кликнутой
-    switchLayerDuringTransform(() => { S.cur = i; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null; S.fxSel.clear(); S.fxCur = null; S.bgSel = false; layList(); }); }); // тап — выбрать только этот слой активным
-  menuGesture(row, (x, y) => { if (S.cur !== i && !S.marked.has(i)) switchLayerDuringTransform(() => { S.cur = i; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null; S.fxSel.clear(); S.fxCur = null; S.bgSel = false; layList(); }); openLctx(x, y, 'layer', L); }, '.lname');
+    switchLayerDuringTransform(() => { selectLayer(S, i); layList(); }); }); // тап — выбрать только этот слой активным
+  menuGesture(row, (x, y) => { if (S.cur !== i && !S.marked.has(i)) switchLayerDuringTransform(() => { selectLayer(S, i); layList(); }); openLctx(x, y, 'layer', L); }, '.lname');
   attachLayerSwipe(row, L); dragRow(row, { kind: 'layer', idx: i }); return row;
 }
 

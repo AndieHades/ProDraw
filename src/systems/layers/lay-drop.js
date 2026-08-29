@@ -6,6 +6,8 @@ import { snapshotStructure } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { folderChain } from '../../core/layers.js';
 import { topOfFolder, folderLayers, folderInsertIndex, clearFolderEmptyPos, rememberEmptyFolderPositions } from './helpers.js';
+import { moveFolderBlock, moveLayerBlock } from
+  '../../core/layers/LayerStructureCommands.ts';
 
 // выделение для перетаскивания: слои S.marked+S.cur + слои из выделенных папок
 export function dragBlock(srcIdx) { const sel = new Set(S.marked); sel.add(S.cur);
@@ -31,27 +33,26 @@ export function layDrop(src, row, into, below) { const tIsFolder = row.classList
     const movedIdx = block.map((L) => S.layers.indexOf(L)).filter((i) => i >= 0);
     const restoreEmptyFolders = rememberEmptyFolderPositions(movedIdx);
     snapshotStructure();
-    for (const L of block) { const i = S.layers.indexOf(L); if (i >= 0) S.layers.splice(i, 1); }
     const dstFid = tIsFolder ? (into ? tFid : null) : (tL ? tL.fid : null);
-    for (const L of block) L.fid = dstFid;
     // список рисуется сверху вниз от большего индекса к меньшему: «над целью» = индекс цели+1, «под целью» = индекс цели
-    let dstIdx = tIsFolder ? folderInsertIndex(tFid) : S.layers.indexOf(tL) + (below ? 0 : 1); if (dstIdx < 0) dstIdx = S.layers.length;
-    S.layers.splice(dstIdx, 0, ...block); restoreEmptyFolders(); clearFolderEmptyPos(dstFid);
-    const ni = block.map((L) => S.layers.indexOf(L)).filter((i) => i >= 0); // сохранить выделение на новом месте
-    S.cur = ni[ni.length - 1]; S.marked = ni.length > 1 ? new Set(ni) : new Set(); S.markedFolders.clear(); S.selFolder = null;
+    moveLayerBlock(S, block, dstFid, () => { const index = tIsFolder
+      ? folderInsertIndex(tFid) : S.layers.indexOf(tL) + (below ? 0 : 1);
+      return index < 0 ? S.layers.length : index; });
+    restoreEmptyFolders(); clearFolderEmptyPos(dstFid);
   } else { const foldersToMove = dragFolderBlock(src.fid);
     const tL = tIsFolder ? null : S.layers[+row.dataset.li], tFid = tIsFolder ? +row.dataset.fid : null;
     if (tIsFolder && foldersToMove.some((f) => f.id === +row.dataset.fid)) return;
     if (foldersToMove.some((f) => (tL && folderChain(tL.fid).some((x) => x.id === f.id)) || (tFid != null && folderChain(tFid).some((x) => x.id === f.id)))) return;
-    snapshotStructure(); const block = [];
-    for (let i = S.layers.length - 1; i >= 0; i--) if (foldersToMove.some((f) => folderChain(S.layers[i].fid).some((x) => x.id === f.id))) block.unshift(S.layers.splice(i, 1)[0]);
+    snapshotStructure();
     const newParent = tIsFolder ? (into ? tFid : (S.folders.find((f) => f.id === tFid)?.parent ?? null)) : (tL ? (tL.fid ?? null) : null);
-    for (const f of foldersToMove) f.parent = newParent;
-    let dstIdx; if (tIsFolder) dstIdx = folderInsertIndex(tFid); else if (tL && tL.fid != null) dstIdx = topOfFolder(tL.fid) + 1; else dstIdx = (tL ? S.layers.indexOf(tL) : S.layers.length - 1) + 1;
-    dstIdx = Math.min(Math.max(dstIdx, 0), S.layers.length);
-    if (block.length) S.layers.splice(dstIdx, 0, ...block);
-    else for (const f of foldersToMove) f.emptyPos = dstIdx;
+    let dstIdx = 0; const block = moveFolderBlock(S, foldersToMove, (layer) => foldersToMove
+      .some((folder) => folderChain(layer.fid).some((item) => item.id === folder.id)),
+    newParent, () => { if (tIsFolder) dstIdx = folderInsertIndex(tFid);
+      else if (tL && tL.fid != null) dstIdx = topOfFolder(tL.fid) + 1;
+      else dstIdx = (tL ? S.layers.indexOf(tL) : S.layers.length - 1) + 1;
+      return dstIdx; });
+    if (!block.length) for (const f of foldersToMove) f.emptyPos = dstIdx;
     for (const f of foldersToMove) if (block.length) delete f.emptyPos;
     clearFolderEmptyPos(newParent);
-    S.cur = Math.min(S.cur, S.layers.length - 1); S.markedFolders = new Set(foldersToMove.map((f) => f.id)); S.selFolder = foldersToMove[0] ? foldersToMove[0].id : null; S.marked.clear(); }
+  }
   dirtyAll({ preserveGridBounds: true }); bus.emitDoc(); }

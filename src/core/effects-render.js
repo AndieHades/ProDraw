@@ -1,13 +1,11 @@
-import { alphaMask, effectRegionFromMask,
-  gridMask } from '../logic/effect-surface-region.js';
-import { buildCanvasEffectSurface, buildCanvasEffects, buildGridEffectSurface,
+import { alphaMask, effectRegionFromMask } from '../logic/effect-surface-region.js';
+import { buildCanvasEffectSurface, buildCanvasEffects,
   folderEffectSurface, visibleAdjustments, visibleColorEffects,
   visibleMonochromes, visiblePixelEffects } from './effect-canvas.js';
 import { layerEffectSource } from './effect-layer-source.js';
-import { activePsdMasks } from './psd-mask.ts';
 import { createEffectSurface, drawEffectSurface, materializeEffectSurface,
   unionEffectBounds } from './effect-surface.js';
-import { layerContentBounds, layerRev } from './layer-cache.js';
+import { layerRev } from './layer-cache.js';
 import { effVis, folderChain } from './layers.js';
 import { S } from './state.js';
 
@@ -55,15 +53,12 @@ export function layerPlainSurface(index) {
 
 const layerCache = new Map();
 export function layerFxSurface(index) {
-  const layer = S.layers[index], effects = layerRenderEffects(index);
-  const floating = S.selFloat && (S.selFloat.li ?? S.cur) === index;
+  const effects = layerRenderEffects(index);
   const signature = `${S.W}x${S.H}|${layerRev(index)}|${JSON.stringify(effects)}` +
     floatingSignature(index);
   const hit = layerCache.get(index); if (hit?.signature === signature) return hit.surface;
-  const surface = floating || activePsdMasks(layer).length
-    ? buildCanvasEffectSurface(layerEffectSource(index), effects, documentBounds())
-    : buildGridEffectSurface(layerEffectSource(index), layer.grid,
-      layerContentBounds(index), effects, S.W, S.H);
+  const surface = buildCanvasEffectSurface(layerEffectSource(index), effects,
+    documentBounds());
   layerCache.set(index, { signature, surface }); return surface;
 }
 
@@ -135,11 +130,13 @@ export function folderFx(folder, which) {
 
 export function targetEffectRegion(target, effect) {
   if (target.grid) {
-    const bounds = layerContentBounds(S.layers.indexOf(target));
-    if (!bounds) return null;
-    return effectRegionFromMask(gridMask(target.grid, bounds),
-      bounds.maxx - bounds.minx + 1, bounds.maxy - bounds.miny + 1,
-      bounds, effect);
+    const source = layerEffectSource(S.layers.indexOf(target));
+    if (!source.bounds) return null;
+    const image = source.canvas.getContext('2d').getImageData(
+      0, 0, source.canvas.width, source.canvas.height);
+    return effectRegionFromMask(alphaMask(image.data, source.canvas.width,
+      source.canvas.height), source.canvas.width, source.canvas.height,
+    source.bounds, effect);
   }
   const source = groupSurface(target.id); if (!source.bounds) return null;
   const image = source.canvas.getContext('2d').getImageData(

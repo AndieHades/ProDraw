@@ -11,6 +11,7 @@ import { fxDrop, fxBlock } from './fx-drag.js';
 import { dragBlock, canIntoFolder, layDrop } from './lay-drop.js';
 import { rmbSweep } from './rmb-sweep.js';
 import { FOLDER_HOLD_MS, LIFT_MS } from '../../config/timings.ts';
+import { selectLayer } from '../../core/layers/LayerCommandState.ts';
 
 // взят ли элемент уже в выделение — тогда тащим весь набор, не сбрасывая выбор
 function inSelection(info) {
@@ -23,7 +24,7 @@ function inSelection(info) {
 // ре-рендера (полный ре-рендер уничтожил бы строку и сорвал drag)
 function selectGrabbed(el, info, box) {
   S.bgSel = false;
-  if (info.kind === 'layer') { S.cur = info.idx; S.marked = new Set(); S.markedFolders.clear(); S.selFolder = null; S.fxSel.clear(); S.fxCur = null; }
+  if (info.kind === 'layer') selectLayer(S, info.idx);
   else if (info.kind === 'folder') { S.selFolder = info.fid; S.markedFolders = new Set([info.fid]); S.marked.clear(); S.fxSel.clear(); S.fxCur = null; }
   else { S.fxSel = new Set([info.eff]); S.fxCur = info.eff; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null; }
   box.querySelectorAll('.lrow.on, .lrow.marked, .fxrow.on, .fxrow.marked').forEach((r) => r.classList.remove('on', 'marked'));

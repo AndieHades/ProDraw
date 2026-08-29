@@ -39,4 +39,16 @@ describe("live legacy raster ownership", () => {
     copy.grid[1][1][0] = 99;
     expect(source.grid[1][1][0]).toBe(1);
   });
+
+  it("serves bounded compositor bytes from the same typed owner", () => {
+    const layer = newLayer("Render", 8, 6), owner = rasterOwnerForLayer(layer);
+    layer.grid[2][3] = [10, 20, 30, 128];
+    layer.grid[4][6] = [40, 50, 60, 255]; owner.invalidateSurface();
+    const region = owner.readRegion({ minx: 2, miny: 1, maxx: 6, maxy: 4 }, 8, 6);
+    expect(region).toMatchObject({ minx: 2, miny: 1, width: 5, height: 4 });
+    const first = ((2 - 1) * region.width + 3 - 2) * 4;
+    const second = ((4 - 1) * region.width + 6 - 2) * 4;
+    expect([...region.data.slice(first, first + 4)]).toEqual([10, 20, 30, 128]);
+    expect([...region.data.slice(second, second + 4)]).toEqual([40, 50, 60, 255]);
+  });
 });

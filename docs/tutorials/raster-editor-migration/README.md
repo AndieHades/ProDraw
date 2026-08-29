@@ -8,12 +8,12 @@ Canonical owner: this package.
 
 ## Resume Here
 
-- Current stage: `R2 / R2.11 / C2C — compositor and base layer commands`
+- Current stage: `R2 / R2.11 / C2D — typed document sessions and persistence`
 - Status: `in_progress`
 - Last completed stage: `R2.11/C1`; F3-R1..F3-R5 and the bounded
   P1 merge/document-remap recovery also remain complete
-- Next action: move composite reads and base layer commands onto the stable typed
-  raster owner under the registered
+- Next action: connect shell New/Open/autosave/persistence to one typed session
+  boundary under the registered
   [`R2.11 owner cutover`](r2-11-owner-cutover/README.md)
 - Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace;
   R2 engine acceptance remains revoked until the restored UI uses typed RGBA owners
@@ -24,7 +24,7 @@ Canonical owner: this package.
   sequential 18 performance files/56 checks; architecture, docs, cutover,
   desktop and production build gates passed. A fresh packaged Windows smoke
   passed (`12` brushes, `12` sources, alpha `255`).
-- Last updated: `2026-08-28, C2B closed and C2C active`
+- Last updated: `2026-08-28, C2C closed and C2D active`
 
 ## Product Outcome
 

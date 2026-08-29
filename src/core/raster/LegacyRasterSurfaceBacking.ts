@@ -3,6 +3,8 @@ import { RasterEdit } from "../history/RasterEdit.ts";
 import type { TileChangeSet, TilePatch } from "../history/tilePatch.ts";
 import { RasterSurface } from "./RasterSurface.ts";
 import { pixelTileCoordinate, tileKey } from "./tileAddress.ts";
+import { copySurfaceRegion, type LegacyRasterBounds,
+  type LegacyRasterRegion } from "./LegacyRasterRegion.ts";
 
 type Cell = number[] | null;
 type Grid = { readonly length: number; [index: number]: unknown[] };
@@ -73,6 +75,18 @@ export class LegacyRasterSurfaceBacking {
     return { label: changeSet.label, patches: inverses };
   }
 
+  readRegion(grid: Grid, bounds: LegacyRasterBounds,
+    sourceBounds: LegacyRasterBounds = bounds): LegacyRasterRegion {
+    const size = this.#surface.tileSize;
+    const minTileX = Math.max(0, Math.floor(bounds.minx / size));
+    const minTileY = Math.max(0, Math.floor(bounds.miny / size));
+    const maxTileX = Math.floor(Math.min(this.#width - 1, bounds.maxx) / size);
+    const maxTileY = Math.floor(Math.min(this.#height - 1, bounds.maxy) / size);
+    for (let y = minTileY; y <= maxTileY; y++)
+      for (let x = minTileX; x <= maxTileX; x++) this.loadTile(grid, x, y, sourceBounds);
+    return copySurfaceRegion(this.#surface, bounds);
+  }
+
   private newSurface(): RasterSurface {
     return new RasterSurface(this.#id, this.#width, this.#height);
   }
@@ -82,17 +96,21 @@ export class LegacyRasterSurfaceBacking {
       pixelTileCoordinate(y, this.#surface.tileSize));
   }
 
-  private loadTile(grid: Grid, tileX: number, tileY: number): void {
+  private loadTile(grid: Grid, tileX: number, tileY: number,
+    bounds?: LegacyRasterBounds): void {
     const key = tileKey(tileX, tileY); if (this.#loadedTiles.has(key)) return;
     const size = this.#surface.tileSize, bytes = new Uint8ClampedArray(size * size * 4);
-    const startX = tileX * size, startY = tileY * size;
-    const endX = Math.min(this.#width, startX + size);
-    const endY = Math.min(this.#height, startY + size); let occupied = false;
+    const startX = Math.max(tileX * size, bounds?.minx ?? 0);
+    const startY = Math.max(tileY * size, bounds?.miny ?? 0);
+    const endX = Math.min(this.#width, (tileX + 1) * size,
+      (bounds?.maxx ?? this.#width - 1) + 1);
+    const endY = Math.min(this.#height, (tileY + 1) * size,
+      (bounds?.maxy ?? this.#height - 1) + 1); let occupied = false;
     for (const y of numericKeys(grid)) { if (y < startY || y >= endY) continue;
       const row = grid[y]; if (!row) continue;
       for (const x of numericKeys(row)) { if (x < startX || x >= endX) continue;
         const value = row[x]; if (!Array.isArray(value) || (value[3] ?? 255) <= 0) continue;
-        const offset = ((y - startY) * size + x - startX) * 4;
+        const offset = ((y - tileY * size) * size + x - tileX * size) * 4;
         bytes[offset] = value[0] ?? 0; bytes[offset + 1] = value[1] ?? 0;
         bytes[offset + 2] = value[2] ?? 0; bytes[offset + 3] = value[3] ?? 255;
         occupied = true;
