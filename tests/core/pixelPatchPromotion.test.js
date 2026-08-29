@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { blank } from '../../src/logic/raster.js';
 import { compactPixelEntry, createPixelBatch, recordPixel,
-  swapPixelEntry } from '../../src/core/history/pixelPatch.js';
+  swapPixelEntry } from '../../src/core/history/pixelPatch.ts';
 
 const color = (value) => [value, value, value, 255];
 

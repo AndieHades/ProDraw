@@ -1,4 +1,4 @@
-import type { RgbaColor } from "../../contracts/raster";
+import type { RgbaColor } from "../../contracts/raster.ts";
 
 function byte(value: number): number {
   return Math.max(0, Math.min(255, Math.round(value)));

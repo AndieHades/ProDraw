@@ -1,10 +1,10 @@
-import type { RgbaColor, TileCoordinate } from "../../contracts/raster";
-import { RASTER_LIMITS } from "../../config/raster";
-import { eraseAlpha, sourceOver } from "../../logic/raster/colorComposite";
-import { isEmptyTile, sameTileBytes } from "../../logic/raster/tileBytes";
+import type { RgbaColor, TileCoordinate } from "../../contracts/raster.ts";
+import { RASTER_LIMITS } from "../../config/raster.ts";
+import { eraseAlpha, sourceOver } from "../../logic/raster/colorComposite.ts";
+import { isEmptyTile, sameTileBytes } from "../../logic/raster/tileBytes.ts";
 import {
   localPixelCoordinate, pixelByteOffset, pixelTileCoordinate, tileKey
-} from "./tileAddress";
+} from "./tileAddress.ts";
 export type TileVisitor = (
   coordinate: TileCoordinate,
   bytes: Uint8ClampedArray

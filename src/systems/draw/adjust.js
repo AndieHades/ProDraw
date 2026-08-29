@@ -6,7 +6,7 @@ import { $, showMenuForAnchor, t } from '../../ui/dom/ShellDom.ts';
 import { setTool } from '../../core/tools.js';
 import * as bus from '../../core/bus.ts';
 import { ADJUST_MODES, ICONS } from '../../config/toolbar.ts';
-import { strokeSeen } from './seen.js';
+import { strokeSeen } from './seen.ts';
 import { recordPixelBefore } from '../../core/history.js';
 
 const mix = (a, b, t) => Math.max(0, Math.min(255, Math.round(a + (b - a) * t)));

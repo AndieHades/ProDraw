@@ -10,6 +10,7 @@ import { makeCanvas, paintCanvas } from './canvas.js';
 import { materializeEffectSurface } from './effect-surface.js';
 import { clipEffectSurface } from './effect-clip-surface.js';
 import { LegacyCompositeDamageTracker } from './render/LegacyCompositeDamage.ts';
+import { rasterOwnerForLayer } from './raster/legacyRasterOwner.ts';
 
 let lcs = []; const dirtySet = new Set(), fullDirty = new Set(), dirtyBounds = new Map();
 const revs = [], extCache = [];
@@ -19,6 +20,7 @@ export const markDirty = (i, bounds = null) => {
   dirtySet.add(i);
   compositeDamage.noteLayer(i, bounds);
   const layer = S.layers[i];
+  rasterOwnerForLayer(layer)?.invalidateSurface();
   if (!bounds) { fullDirty.add(i); dirtyBounds.delete(i);
     if (layer) forgetGridBounds(layer.grid); }
   else if (!fullDirty.has(i)) {
@@ -32,6 +34,7 @@ export const markDirty = (i, bounds = null) => {
 };
 export function dirtyAll({ preserveGridBounds = false } = {}) { if (!preserveGridBounds) {
     for (const layer of S.layers) forgetGridBounds(layer.grid); }
+  for (const layer of S.layers) rasterOwnerForLayer(layer)?.invalidateSurface();
   lcs = []; extCache.length = 0; dirtySet.clear();
   fullDirty.clear(); dirtyBounds.clear(); revs.length = 0;
   compositeDamage.invalidate(); generation++; contentRev++; }

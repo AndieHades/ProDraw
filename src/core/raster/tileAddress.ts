@@ -1,4 +1,4 @@
-import type { TileCoordinate } from "../../contracts/raster";
+import type { TileCoordinate } from "../../contracts/raster.ts";
 
 export function tileKey(x: number, y: number): string {
   return `${x}:${y}`;

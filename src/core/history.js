@@ -9,7 +9,7 @@ import { historyCap } from '../config/limits.ts';
 import { cloneGrid } from '../logic/raster.js';
 import { historyRef, syncHistoryFrame } from './animation.js';
 import { compactPixelEntry, createPixelBatch, createPixelPatch,
-  recordPixel, swapPixelEntry } from './history/pixelPatch.js';
+  recordPixel, swapPixelEntry } from './history/pixelPatch.ts';
 import { cloneEffects, createEffectsEntry } from './history/effectsPatch.js';
 import { createDescriptorEntry } from './history/descriptorPatch.js';
 import { createStructureEntry,
@@ -18,6 +18,9 @@ import { createRasterReferenceEntry } from './history/rasterReferencePatch.js';
 import { createCompoundEntry } from './history/compoundPatch.js';
 import { createDocumentRemapEntry } from './history/documentRemapPatch.js';
 import { isScopedEntry, swapScopedEntry } from './history/scopedPatch.js';
+import { abandonLegacyTileEdit,
+  commitLegacyTileEdit } from './history/legacyTileHistory.js';
+import { trimLegacyTileStack } from './history/legacyTilePatch.ts';
 
 export { cloneGrid }; // канон — в logic/raster.js; реэкспорт для прежних импортов из истории
 
@@ -35,14 +38,17 @@ let pixelEdit = null;
 const isPixelLayer = (layer) => !!layer && (!layer.kind || layer.kind === 'pixel');
 function trimUndo() { const cap = historyCap(S.W * S.H);
   if (S.undoStack.length > cap) S.undoStack.splice(0, S.undoStack.length - cap); }
+const commitEdits = () => { if (pixelEdit) commitPixelPatch(); commitLegacyTileEdit(); };
 
 export function beginPixelPatch(layerIndex = S.cur) {
   if (pixelEdit) commitPixelPatch();
+  commitLegacyTileEdit();
   if (!isPixelLayer(S.layers[layerIndex])) return false;
   pixelEdit = createPixelPatch(layerIndex, S.W, S.H); return true;
 }
 export function beginPixelBatch(indices) {
   if (pixelEdit) commitPixelPatch();
+  commitLegacyTileEdit();
   const unique = [...new Set(indices || [])];
   if (!unique.length || unique.some((index) => !isPixelLayer(S.layers[index]))) return false;
   pixelEdit = createPixelBatch(unique, S.W, S.H); return true;
@@ -60,43 +66,43 @@ export function cancelPixelPatch() { const edit = pixelEdit; pixelEdit = null;
   if (!edit) return false;
   return !!swapPixelEntry(edit, S.layers, S.W, S.H, markDirty); }
 
-export function snapshotEffects(targets) { if (pixelEdit) commitPixelPatch();
+export function snapshotEffects(targets) { commitEdits();
   const entry = createEffectsEntry(targets, S); if (!entry) return false;
   S.undoStack.push(entry); trimUndo(); S.redoStack.length = 0;
   bus.emit('snapshot'); return true; }
 
-export function snapshotDescriptors(descriptors) { if (pixelEdit) commitPixelPatch();
+export function snapshotDescriptors(descriptors) { commitEdits();
   const entry = createDescriptorEntry(descriptors, S); if (!entry) return false;
   S.undoStack.push(entry); trimUndo(); S.redoStack.length = 0;
   bus.emit('snapshot'); return true; }
 
-export function snapshotStructure() { if (pixelEdit) commitPixelPatch();
+export function snapshotStructure() { commitEdits();
   S.undoStack.push(createStructureEntry(S)); trimUndo(); S.redoStack.length = 0;
   bus.emit('snapshot'); return true; }
 
-export function snapshotRasterReferences(indices) { if (pixelEdit) commitPixelPatch();
+export function snapshotRasterReferences(indices) { commitEdits();
   const entry = createRasterReferenceEntry(indices, S); if (!entry) return false;
   S.undoStack.push(entry); trimUndo(); S.redoStack.length = 0;
   bus.emit('snapshot'); return true; }
 
 export function snapshotCompound({ structure = false, effects = [], raster = [] }) {
-  if (pixelEdit) commitPixelPatch(); const entries = [];
+  commitEdits(); const entries = [];
   if (structure) entries.push(createStructureEntry(S));
   if (effects.length) entries.push(createEffectsEntry(effects, S));
   if (raster.length) entries.push(createRasterReferenceEntry(raster, S));
   const entry = createCompoundEntry(entries); if (!entry || entries.some((item) => !item)) return false;
   S.undoStack.push(entry); trimUndo(); S.redoStack.length = 0; bus.emit('snapshot'); return true; }
 
-export function snapshotDocumentRemap() { if (pixelEdit) commitPixelPatch();
+export function snapshotDocumentRemap() { commitEdits();
   const entry = createDocumentRemapEntry(S); if (!entry) return false;
   S.undoStack.push(entry); trimUndo(); S.redoStack.length = 0;
   bus.emit('snapshot'); return true; }
 
-export function snapshot() { if (pixelEdit) commitPixelPatch(); S.undoStack.push(snapState());
+export function snapshot() { commitEdits(); S.undoStack.push(snapState());
   trimUndo(); // глубина истории по площади холста (config)
   S.redoStack.length = 0; bus.emit('snapshot'); }
 
-export function restore(s) { pixelEdit = null;
+export function restore(s) { pixelEdit = null; abandonLegacyTileEdit();
   S.W = s.W; S.H = s.H; S.layers = s.layers; S.folders = s.folders; S.folderSeq = s.folderSeq;
   S.bg = s.bg ? { color: s.bg.color ? s.bg.color.slice() : null, visible: s.bg.visible !== false } : { color: null, visible: true }; S.bgSel = false;
   S.cur = Math.min(s.cur, S.layers.length - 1); S.marked.clear(); S.fxSel.clear(); S.fxCur = null;
@@ -122,7 +128,8 @@ export function doUndo() { if (S.rotMode && actions.run('transform.cancel')) ret
   if (!S.undoStack.length) { bus.emit('feedback', t('toast.nothingUndo')); return; }
   const entry = S.undoStack.pop();
   if (isScopedEntry(entry)) { const inverse = swapScoped(entry);
-    if (!inverse) { S.undoStack.push(entry); return; } S.redoStack.push(inverse); bus.emitDoc(); }
+    if (!inverse) { S.undoStack.push(entry); return; } S.redoStack.push(inverse);
+    trimLegacyTileStack(S.redoStack); bus.emitDoc(); }
   else { S.redoStack.push(snapState()); restore(entry); }
   bus.emit('feedback', t('toast.undone')); }
 
@@ -130,6 +137,7 @@ export function doRedo() { if (!S.redoStack.length) return;
   bus.emit('before-undo');
   const entry = S.redoStack.pop();
   if (isScopedEntry(entry)) { const inverse = swapScoped(entry);
-    if (!inverse) { S.redoStack.push(entry); return; } S.undoStack.push(inverse); bus.emitDoc(); }
+    if (!inverse) { S.redoStack.push(entry); return; } S.undoStack.push(inverse);
+    trimLegacyTileStack(S.undoStack); bus.emitDoc(); }
   else { S.undoStack.push(snapState()); restore(entry); }
   bus.emit('feedback', t('toast.redone')); }

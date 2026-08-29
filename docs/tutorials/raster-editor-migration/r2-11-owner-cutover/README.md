@@ -9,18 +9,18 @@
 
 ## Resume Here
 
-- Current stage: `C2B — tiled drawing and raster history`
+- Current stage: `C2C — compositor and base layer commands`
 - Status: `in_progress`
-- Last completed stage: `C1F`; product repairs through `c37c01f` are frozen as
-  the live acceptance baseline
-- Next action: move Brush/Eraser/Smudge/Fill writers and raster history from the
-  owner's legacy backing to `RasterSurface`/`RasterEdit`/`TileHistory`
+- Last completed stage: `C2B`; the live Brush, Eraser, Shapes and Fill paths now
+  commit lazy tiled RGBA patches while the stabilized product baseline stays frozen
+- Next action: make the compositor and base layer commands read and mutate the
+  same typed raster owner
 - Blockers: physical Huion acceptance remains a final device-only check; it does
   not block code migration or automated trace evidence
 - Working paths: `src`, `tests`, `tools`,
   `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`
-- Last checks: 117 legacy, 294 TypeScript and 51 sequential performance tests
-  pass; owner identity, reference Undo and A4 hot-path checks stay green
+- Last checks: 117 legacy, 301 TypeScript and 52 sequential performance tests
+  pass; tiled cancel/Undo/Redo, owner identity and A4 hot-path checks stay green
 - Last updated: 2026-08-28
 
 ## Outcome
@@ -57,8 +57,8 @@ all other rows remain required.
 | `C1` | preserved shell and pure/shared modules in TypeScript | `C0` | done | `refactor: migrate the preserved shell to TypeScript` |
 | `C1F` | repaired interface and stability baseline frozen | `C1` | done | `test: freeze stabilized editor parity` |
 | `C2A` | every live layer has one stable typed raster owner | `C1F` | done | `refactor: normalize live raster ownership` |
-| `C2B` | paint tools and raster history use tiled surface bytes | `C2A` | in progress | `refactor: cut drawing over to tiled RGBA` |
-| `C2C` | compositor and base layer commands use that owner | `C2B` | pending | `refactor: cut render and base layers to RGBA` |
+| `C2B` | paint tools and raster history use tiled surface bytes | `C2A` | done | `refactor: cut drawing over to tiled RGBA` |
+| `C2C` | compositor and base layer commands use that owner | `C2B` | in progress | `refactor: cut render and base layers to RGBA` |
 | `C2D` | session, autosave, New/Open and persistence are typed | `C2C` | pending | `refactor: cut document sessions to TypeScript` |
 | `C3A` | nested layer tree and structural history are typed | `C2D` | pending | `refactor: port layer tree history` |
 | `C3B` | effects, selection and contextual export are typed | `C3A` | pending | `feat: port effects and selection to RGBA` |

@@ -1,8 +1,8 @@
-import type { RgbaColor } from "../../contracts/raster";
-import { pixelTileCoordinate, tileKey } from "../raster/tileAddress";
-import type { RasterSurface } from "../raster/RasterSurface";
-import type { TileChangeSet, TilePatch } from "./tilePatch";
-import { tileBytesEqual } from "./tilePatch";
+import type { RgbaColor } from "../../contracts/raster.ts";
+import { pixelTileCoordinate, tileKey } from "../raster/tileAddress.ts";
+import type { RasterSurface } from "../raster/RasterSurface.ts";
+import type { TileChangeSet, TilePatch } from "./tilePatch.ts";
+import { tileBytesEqual } from "./tilePatch.ts";
 
 interface TouchedTile {
   readonly x: number;

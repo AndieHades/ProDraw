@@ -1,4 +1,8 @@
+import type { TileChangeSet } from "../history/tilePatch.ts";
+import { LegacyRasterSurfaceBacking } from "./LegacyRasterSurfaceBacking.ts";
+
 type LegacyGrid = unknown[][] | { readonly length: number };
+export type LegacyRasterCell = number[] | null;
 type LayerRecord = Record<string, unknown>;
 interface Dimensions { readonly width: number; readonly height: number }
 
@@ -7,6 +11,8 @@ export class LegacyRasterOwner {
   #grid: LegacyGrid | null;
   #load: (() => unknown) | null;
   readonly #size: Dimensions;
+  readonly #backings = new Map<string, LegacyRasterSurfaceBacking>();
+  #active: LegacyRasterSurfaceBacking | null = null;
 
   constructor(id: string, grid: LegacyGrid | null,
     load: (() => unknown) | null, size: Dimensions) {
@@ -18,7 +24,44 @@ export class LegacyRasterOwner {
       this.#load = null; }
     return this.#grid;
   }
-  replace(grid: LegacyGrid): void { this.#grid = grid; this.#load = null; }
+  replace(grid: LegacyGrid): void { this.#grid = grid; this.#load = null;
+    this.invalidateSurface(); }
+  getCell(x: number, y: number): LegacyRasterCell {
+    const row = (this.grid as unknown[][])[y], value = row?.[x];
+    return Array.isArray(value) ? value as number[] : null;
+  }
+  setCell(x: number, y: number, value: LegacyRasterCell): void {
+    const row = (this.grid as unknown[][])[y];
+    if (!row) return;
+    if (this.#active) this.#active.write(this.grid as unknown[][], x, y, value);
+    else row[x] = value;
+  }
+  beginRasterEdit(label: string, width: number, height: number): boolean {
+    if (this.#active) return false;
+    const key = `${width}x${height}`;
+    let backing = this.#backings.get(key);
+    if (!backing) { backing = new LegacyRasterSurfaceBacking(
+      `${this.id}/${key}`, width, height); this.#backings.set(key, backing); }
+    if (!backing.begin(label)) return false;
+    this.#active = backing; return true;
+  }
+  commitRasterEdit(): TileChangeSet | null {
+    const backing = this.#active; this.#active = null;
+    return backing?.commit() ?? null;
+  }
+  cancelRasterEdit(): boolean {
+    const backing = this.#active; this.#active = null;
+    return backing?.cancel(this.grid as unknown[][]) ?? false;
+  }
+  swapRasterEdit(changeSet: TileChangeSet, width: number, height: number): TileChangeSet | null {
+    const backing = this.#backings.get(`${width}x${height}`);
+    if (!backing || changeSet.patches.some((patch) =>
+      patch.surfaceId !== `${this.id}/${width}x${height}`)) return null;
+    return backing.swap(this.grid as unknown[][], changeSet);
+  }
+  invalidateSurface(): void {
+    for (const backing of this.#backings.values()) backing.invalidate();
+  }
 }
 
 const owners = new WeakMap<object, LegacyRasterOwner>();

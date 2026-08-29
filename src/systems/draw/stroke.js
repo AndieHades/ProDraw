@@ -10,6 +10,8 @@ import { swapRasterReferenceEntry } from '../../core/history/rasterReferencePatc
 import { markDirty } from '../../core/layer-cache.js';
 import { isTextLayer } from '../../logic/text-model.js';
 import { resetScatter } from './brush.js';
+import { beginLegacyTileEdit, cancelLegacyTileEdit, commitLegacyTileEdit,
+  legacyTileEditActive } from '../../core/history/legacyTileHistory.js';
 
 let referenceStroke = null;
 
@@ -27,14 +29,18 @@ function cancelTextReference() {
 
 export function beginStroke(lightweight = false, bulk = false) { bus.emit('stroke-begin');
   referenceStroke = null;
-  const started = lightweight && (bulk ? beginPixelBatch([S.cur]) : beginPixelPatch());
-  if (!started && !beginTextReference()) snapshot();
+  const tiled = S.tool !== 'adjust' && beginLegacyTileEdit('Raster stroke');
+  const started = !tiled && lightweight &&
+    (bulk ? beginPixelBatch([S.cur]) : beginPixelPatch());
+  if (!tiled && !started && !beginTextReference()) snapshot();
   S.stroke = true; resetScatter(); }
 export function cancelStroke() { if (!S.stroke) return;
+  if (legacyTileEditActive()) { const changed = cancelLegacyTileEdit(); S.stroke = false;
+    if (changed) bus.emitDoc(); return; }
   const patched = pixelPatchActive();
   if (patched) { const changed = cancelPixelPatch(); S.stroke = false;
     if (changed) bus.emitDoc(); return; }
   S.stroke = false; if (cancelTextReference()) { bus.emitDoc(); return; }
   if (S.undoStack.length) restore(S.undoStack.pop()); }
-export function afterStroke() { commitPixelPatch(); referenceStroke = null;
+export function afterStroke() { commitLegacyTileEdit(); commitPixelPatch(); referenceStroke = null;
   const p = $('lay-pop'); if (p && p.classList.contains('on')) bus.emit('layers'); }

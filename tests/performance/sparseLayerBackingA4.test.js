@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { PERFORMANCE_BUDGETS } from '../../src/config/performance.ts';
 import { cloneLayer, newLayer } from '../../src/core/state.js';
 import { gridBounds, sparseGridStats } from '../../src/logic/raster.js';
+import { rasterOwnerForLayer } from '../../src/core/raster/legacyRasterOwner.ts';
 
 const W = 2480, H = 3508;
 
@@ -38,5 +39,17 @@ describe('A4 sparse layer backing', () => {
     expect(checksum).toBeGreaterThan(0);
     expect(globalThis.performance.now() - started)
       .toBeLessThan(PERFORMANCE_BUDGETS.pointerKernelP95Milliseconds);
+  });
+
+  it('opens the first tiled stroke without scanning or filling blank A4 rows', () => {
+    const layer = newLayer('A4', W, H), owner = rasterOwnerForLayer(layer);
+    const started = globalThis.performance.now();
+    expect(owner.beginRasterEdit('A4 stroke', W, H)).toBe(true);
+    for (let x = 1200; x < 1232; x++) owner.setCell(x, 1700, [1, 2, 3, 255]);
+    expect(owner.commitRasterEdit()?.patches).toHaveLength(1);
+    expect(globalThis.performance.now() - started)
+      .toBeLessThan(PERFORMANCE_BUDGETS.pointerKernelP95Milliseconds);
+    expect(sparseGridStats(layer.grid)).toMatchObject({ materializedRows: 1,
+      contentRows: 1, storedCells: 32 });
   });
 });

@@ -13,6 +13,9 @@ import { $ } from '../../ui/dom/ShellDom.ts';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { rasterizeActiveText } from '../../core/text-rasterize.js';
 import { isTextLayer } from '../../logic/text-model.js';
+import { beginLegacyTileEdit,
+  commitLegacyTileEdit } from '../../core/history/legacyTileHistory.js';
+import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
 
 function floodFrom(x, y, paint) {
   const wrap = !!(S.tile && S.tile.on);
@@ -24,11 +27,12 @@ function floodFrom(x, y, paint) {
 }
 
 function floodPainter() {
-  rasterizeActiveText(); const layer = S.layers[S.cur], grid = G(), index = S.cur;
+  rasterizeActiveText(); const layer = S.layers[S.cur], owner = rasterOwnerForLayer(layer),
+    index = S.cur;
   const color = S.active.slice(0, 3); let bounds = null;
-  const paint = (x, y) => { const before = grid[y][x];
-    if (layer.lock || (layer.alphaLock && !before)) return;
-    recordPixelBefore(index, x, y, before); grid[y][x] = color;
+  const paint = (x, y) => { const before = owner?.getCell(x, y) ?? null;
+    if (!owner || layer.lock || (layer.alphaLock && !before)) return;
+    recordPixelBefore(index, x, y, before); owner.setCell(x, y, color);
     bounds = bounds ? { minx: Math.min(bounds.minx, x), miny: Math.min(bounds.miny, y),
       maxx: Math.max(bounds.maxx, x), maxy: Math.max(bounds.maxy, y) }
       : { minx: x, miny: y, maxx: x, maxy: y };
@@ -63,8 +67,8 @@ export function floodAt(x, y) {
   else if (isTextLayer(S.layers[S.cur])) {
     if (!snapshotRasterReferences([S.cur])) snapshot();
   }
-  else if (!beginPixelBatch([S.cur])) snapshot();
-  flood(x, y); commitPixelPatch(); actions.run('color.used', S.active);
+  else if (!beginLegacyTileEdit('Fill') && !beginPixelBatch([S.cur])) snapshot();
+  flood(x, y); commitLegacyTileEdit(); commitPixelPatch(); actions.run('color.used', S.active);
   bus.emit('render'); bus.emit('layers'); }
 actions.register('edit.floodAt', floodAt);
 

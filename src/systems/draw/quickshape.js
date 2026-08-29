@@ -11,6 +11,8 @@ import { bres, rectEdges, ellipseEdges } from '../../logic/raster.js';
 import { recognizeShape } from '../../logic/quickshape.js';
 import { QUICKSHAPE } from '../../config/quickshape.ts';
 import { stamp } from './stamp.js';
+import { beginLegacyTileEdit, cancelLegacyTileEdit,
+  legacyTileEditActive } from '../../core/history/legacyTileHistory.js';
 
 let base = null, pts = null, engaged = false, timer = null, lastCell = null;
 const enabled = () => S.tool === 'pencil' || S.tool === 'eraser'; // QuickShape — для freehand-кисти/ластика
@@ -19,7 +21,9 @@ const drawShape = (sh) => (sh.type === 'rect' ? rectEdges : sh.type === 'ellipse
 const arm = () => { clearTimer(); timer = setTimeout(engage, QUICKSHAPE.holdMs); };
 
 function engage() { if (!base || engaged) return; const sh = recognizeShape(pts); if (!sh) return; // не распознали — оставляем raw, ждём дальше
+  const tiled = legacyTileEditActive(); if (tiled) cancelLegacyTileEdit();
   engaged = true; S.layers[S.cur].grid = cloneGrid(base); markDirty(S.cur); // убираем raw-штрих с холста
+  if (tiled) beginLegacyTileEdit('QuickShape');
   S.qsShape = sh; bus.emit('render'); } // ровная форма показывается превью-оверлеем
 
 export function qsBegin(gx, gy) { if (!enabled()) { base = null; return; }

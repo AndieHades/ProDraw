@@ -1,4 +1,4 @@
-import { isPixelEntry, swapPixelEntry } from './pixelPatch.js';
+import { isPixelEntry, swapPixelEntry } from './pixelPatch.ts';
 import { isEffectsEntry, swapEffectsEntry } from './effectsPatch.js';
 import { isDescriptorEntry, swapDescriptorEntry } from './descriptorPatch.js';
 import { isStructureEntry, swapStructureEntry } from './structurePatch.js';
@@ -7,8 +7,11 @@ import { isRasterReferenceEntry,
 import { isCompoundEntry, swapCompoundEntry } from './compoundPatch.js';
 import { isDocumentRemapEntry,
   swapDocumentRemapEntry } from './documentRemapPatch.js';
+import { isLegacyTileEntry, swapLegacyTileEntry } from './legacyTilePatch.ts';
 
 const handlers = [
+  [isLegacyTileEntry, (entry, env) => swapLegacyTileEntry(
+    entry, env.state, env.markDirty)],
   [isPixelEntry, (entry, env) => swapPixelEntry(entry, env.state.layers,
     env.state.W, env.state.H, env.markDirty)],
   [isEffectsEntry, (entry, env) => swapEffectsEntry(entry, env.state)],

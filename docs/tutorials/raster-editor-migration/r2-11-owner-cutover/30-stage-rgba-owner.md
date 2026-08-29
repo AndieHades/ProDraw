@@ -10,9 +10,10 @@
 1. `C2A`: normalize New/Open/imported and inserted live layers to one stable
    typed raster owner. It owns the existing sparse backing by reference, so the
    preparation stage neither copies pixels nor changes hot indexed access.
-2. `C2B`: make Brush/Eraser/Smudge/Fill produce one `RasterEdit` and one
-   byte-bounded `TileHistory` transaction against `RasterSurface`; replace the
-   owner's backing only when those writers and their readers move together.
+2. `C2B`: make the retained shell Brush/Eraser/Shapes/Fill writers produce one
+   `RasterEdit` and one byte-bounded mixed-history transaction against a lazy
+   `RasterSurface`. Keep the already typed Smudge core golden for its visible
+   tool wiring in `C4B`.
 3. `C2C`: replace legacy composite/cache with `DocumentCompositor` and route
    base add/select/visibility/opacity/lock/reorder through one command owner.
 4. `C2D`: connect typed session, autosave, New/Open cancellation, dirty state
@@ -27,8 +28,13 @@ registered JS/legacy-state ceiling only by the owners it actually removes.
   117 legacy, 294 TypeScript and 51 performance tests pass. Live assignments,
   inserts, clones and reference Undo keep one stable non-serialized owner. An
   all-byte Proxy was rejected because it missed the A4 input budget.
-- `C2B`: in progress.
-- `C2C`: pending.
+- `C2B`: done in `refactor: cut drawing over to tiled RGBA`; the active paint
+  writers now lazily materialize only touched 256px tiles. Pointer cancellation
+  restores the open edit, Undo/Redo swaps exact RGBA bytes, and retained tile
+  history is byte-bounded. The sparse grid is an owner-maintained compatibility
+  cache until its compositor reader moves in `C2C`. The legacy pixel-patch owner
+  remains only for adjustment and bulk compatibility actions scheduled later.
+- `C2C`: in progress.
 - `C2D`: pending.
 
 ## Edge and failure cases
@@ -52,6 +58,8 @@ those actions, while the exact UI remains.
 
 ## Completion record
 
-- Commit: pending
-- Checks: pending
-- Residual risk: pending
+- Commit: `refactor: cut drawing over to tiled RGBA` (hash recorded after commit)
+- Checks: 117 legacy, 301 TypeScript, 52 sequential performance; changed,
+  architecture, cycles, interface and cutover gates
+- Residual risk: typed Smudge has golden coverage but remains outside the visible
+  legacy shell until the creative-tool/UI owner stage

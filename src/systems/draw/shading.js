@@ -6,7 +6,7 @@ import { inSel } from '../../core/selection.js';
 import { markDirty } from '../../core/layer-cache.js';
 import { eqc } from '../../logic/color.js';
 import { brushStampWith } from './brush.js';
-import { strokeSeen } from './seen.js';
+import { strokeSeen } from './seen.ts';
 
 const colors = () => (S.shading && S.shading.colors) || [];
 export const shadingActive = () => !!(S.shading && S.shading.on && colors().length > 1);
