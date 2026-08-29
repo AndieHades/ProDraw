@@ -8,12 +8,12 @@ Canonical owner: this package.
 
 ## Resume Here
 
-- Current stage: `R2 / R2.11 / C2A — live RasterSurface normalization`
+- Current stage: `R2 / R2.11 / C2B — tiled drawing and raster history`
 - Status: `in_progress`
 - Last completed stage: `R2.11/C1`; F3-R1..F3-R5 and the bounded
   P1 merge/document-remap recovery also remain complete
-- Next action: normalize live create/open/import paths to one stable
-  `RasterSurface` owner under the registered
+- Next action: move paint writers and raster history from the stable live owner
+  to `RasterSurface`/`RasterEdit`/`TileHistory` under the registered
   [`R2.11 owner cutover`](r2-11-owner-cutover/README.md)
 - Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace;
   R2 engine acceptance remains revoked until the restored UI uses typed RGBA owners
@@ -24,7 +24,7 @@ Canonical owner: this package.
   sequential 18 performance files/56 checks; architecture, docs, cutover,
   desktop and production build gates passed. A fresh packaged Windows smoke
   passed (`12` brushes, `12` sources, alpha `255`).
-- Last updated: `2026-08-28, C1F closed and C2A active`
+- Last updated: `2026-08-28, C2A closed and C2B active`
 
 ## Product Outcome
 

@@ -10,7 +10,9 @@ import { LASSO_DEFAULT } from '../config/lasso.ts';
 import { EYEDROPPER } from '../config/eyedropper.ts';
 import { DEFAULT_CANVAS_BACKGROUND } from '../config/canvas-background.ts';
 import { loadActiveColor } from './color-prefs.ts';
-import { cloneGrid, blank } from '../logic/raster.js';
+import { cloneGrid, blank, sparseGridStats } from '../logic/raster.js';
+import { createLegacyLayerCollection, normalizeLegacyRasterLayer } from
+  './raster/legacyRasterOwner.ts';
 import { cloneTextSource } from '../logic/text-model.js';
 import { defaultReferenceBoard } from './reference-board.js';
 import { t } from '../i18n/index.ts';
@@ -22,13 +24,15 @@ const clonePsdEffects = (effects = []) => effects.map((effect) => ({ ...effect,
   properties: structuredClone(effect.properties) }));
 const cloneMasks = (masks = []) => masks.map((mask) => ({ ...mask,
   alpha: mask.alpha.slice() }));
-export const newLayer = (name, w, h) => ({ name, grid: blank(w, h), opacity: 1,
+export const newLayerRecord = (name, w, h) => ({ name, grid: blank(w, h), opacity: 1,
   visible: true, fid: null, clip: false, lock: false, alphaLock: false,
   reference: false, ext: new Map(), effects: [], kind: 'pixel', blendMode: 'normal',
   masks: [], psdEffects: [] });
+export const newLayer = (name, w, h) =>
+  normalizeLegacyRasterLayer(newLayerRecord(name, w, h), w, h);
 // глубокая копия слоя (история/галерея/дубликат); overrides перекрывают поля
 // (напр. дубликат: reference:false и новое имя). Все поля слоя — в одном месте.
-export const cloneLayer = (L, overrides = {}) => ({
+export const cloneLayerRecord = (L, overrides = {}) => ({
   name: L.name, opacity: L.opacity, visible: L.visible, fid: L.fid,
   clip: !!L.clip, lock: !!L.lock, alphaLock: !!L.alphaLock, reference: !!L.reference, symLock: !!L.symLock,
   ext: new Map([...(L.ext || [])].map(([key, cell]) =>
@@ -41,6 +45,11 @@ export const cloneLayer = (L, overrides = {}) => ({
   psdAdjustment: L.psdAdjustment ? structuredClone(L.psdAdjustment) : undefined,
   ...overrides,
 });
+export const cloneLayer = (L, overrides = {}) => {
+  const layer = cloneLayerRecord(L, overrides), height = layer.grid.length || 1;
+  const sparse = sparseGridStats(layer.grid);
+  return normalizeLegacyRasterLayer(layer, sparse?.width || layer.grid[0]?.length || 1, height);
+};
 
 // фабрика эффекта слоя/папки: уникальный id, видимость, копия дефолтных параметров
 let fxSeq = 0;
@@ -88,6 +97,13 @@ export const S = {
   lineStart: null, linePrev: null, linePath: null,
   replaceMode: null,
 };
+
+let liveLayers = createLegacyLayerCollection(S.layers,
+  () => ({ width: S.W, height: S.H }));
+Object.defineProperty(S, 'layers', { enumerable: true, configurable: false,
+  get: () => liveLayers,
+  set: (value) => { liveLayers = createLegacyLayerCollection(value || [],
+    () => ({ width: S.W, height: S.H })); } });
 
 export const activeColorSnapshot = () => S.active.slice(0, 3);
 

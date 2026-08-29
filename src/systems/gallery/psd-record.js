@@ -1,4 +1,4 @@
-import { newEffect, newLayer } from '../../core/state.js';
+import { newEffect, newLayerRecord } from '../../core/state.js';
 import { defaultPalette, DEFAULT_ACTIVE } from '../../config/palette.js';
 import { defaultReferenceBoard } from '../../core/reference-board.js';
 import { runtimePsdEffectSpecs } from '../../logic/psd-effects.js';
@@ -15,7 +15,7 @@ const runtimePsdEffects = (sources, warnings) => runtimePsdEffectSpecs(sources, 
     visible: spec.visible, opacity: spec.opacity }));
 
 function rasterLayer(node, width, height, fid, warnings, cells) {
-  const layer = newLayer(node.name, width, height), bitmap = node.bitmap;
+  const layer = newLayerRecord(node.name, width, height), bitmap = node.bitmap;
   let minx = width, miny = height, maxx = -1, maxy = -1;
   if (node.masks.some((mask) => mask.feather > 0)) warnings.add('mask.feather.approximate');
   if (bitmap) for (let y = 0; y < bitmap.height; y++) {
@@ -67,7 +67,7 @@ function documentTree(document, warnings) {
     }
   };
   walk(document.children, null);
-  if (!layers.length) layers.push(newLayer('Layer 1', document.width, document.height));
+  if (!layers.length) layers.push(newLayerRecord('Layer 1', document.width, document.height));
   return { layers, folders, folderSeq };
 }
 

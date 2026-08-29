@@ -1,4 +1,4 @@
-import { cloneFx, cloneLayer } from '../../core/state.js';
+import { cloneFx, cloneLayerRecord } from '../../core/state.js';
 import { ANIMATION } from '../../config/animation.ts';
 import { AUTOSAVE_CLONE_YIELD_ROWS, AUTOSAVE_IDLE_TIMEOUT_MS } from '../../config/timings.ts';
 import { normalizeAnimator } from '../../logic/animation-data.js';
@@ -74,7 +74,7 @@ export async function cloneLayersIdle(layers, boundsFor, isCurrent,
     const grid = await cloneGridIdle(layers[index].grid, boundsFor(index),
       isCurrent, yieldWork);
     if (!grid) return null;
-    output.push(cloneLayer(layers[index], { grid }));
+    output.push(cloneLayerRecord(layers[index], { grid }));
   }
   return output;
 }
