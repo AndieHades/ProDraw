@@ -11,14 +11,14 @@ describe('PSD entry routing', () => {
     const file = new File([structuredPsd()], 'routed.psd');
     const progress = { stage: vi.fn(), finish: vi.fn() };
     let completed = null, routed = 0;
-    actions.registerOrReplace('gallery.beginPsdImport', () => 17);
+    actions.registerOrReplace('gallery.beginPsdImport', () => ({ generation: 17 }));
     actions.registerOrReplace('gallery.completePsdImport',
       async (token, document, name, sourceLocation, receivedProgress) => {
         completed = { token, document, name, sourceLocation, receivedProgress };
         return 'opened';
       });
     expect(await importPsd(file, null, progress)).toBe(true);
-    expect(completed).toMatchObject({ token: 17, name: 'routed', receivedProgress: progress,
+    expect(completed).toMatchObject({ token: { generation: 17 }, name: 'routed', receivedProgress: progress,
       document: { width: 3, height: 2 } });
     expect(progress.stage).toHaveBeenCalledWith('decoding');
 

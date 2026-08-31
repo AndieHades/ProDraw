@@ -8,6 +8,13 @@ export interface DocumentSaveToken extends DocumentGenerationToken {
   readonly revision: number;
 }
 
+export function isDocumentGenerationToken(
+  value: unknown,
+): value is DocumentGenerationToken {
+  if (!value || typeof value !== "object") return false;
+  return Number.isInteger((value as Partial<DocumentGenerationToken>).generation);
+}
+
 export class DocumentSession {
   #id: string | null = null;
   #folder: string | null = null;

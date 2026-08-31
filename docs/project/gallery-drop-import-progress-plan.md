@@ -82,6 +82,9 @@
 - Follow-up `GDP-01A`: the PSD picker now enters the same progress runner as a
   gallery drop. A delayed-session regression verifies visibility after two
   seconds and terminal cleanup; focused repair coverage passed `32/32`.
+- The packaged `Items (1).psd` route reached `Decoding 20%` before persistence
+  and opened the 50-layer document. Its gallery generation token is an object;
+  route validation now enforces that current contract instead of an old integer.
 
 ## Resume Here
 
@@ -92,6 +95,6 @@
 - Blockers: none
 - Working paths: `src/systems/import`, `src/systems/gallery`, `src/ui/import`,
   `src/i18n`, `src/styles`, `src/config`, `index.html`, `tests`
-- Last checks: focused repair `32/32`; full validation 118 files/350 tests plus
-  15 performance files/53 tests; packaged smoke passed
+- Last checks: exact packaged PSD import/reopen passed; focused route/session
+  checks and packaged smoke passed
 - Last updated: 2026-08-30

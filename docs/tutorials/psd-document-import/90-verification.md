@@ -88,3 +88,6 @@ success is reported, and reopen produces the same layer metadata and pixels.
 - Fake-IndexedDB save/open preserved all 50 layers, source identity and a sampled
   pixel. The gallery picker and drop route share one tested delayed-progress
   session; oversized/unsupported inputs report a localized bounded cause.
+- Packaged renderer verification now exercises the real gallery session token:
+  `Items (1).psd` reached `Decoding 20%`, persisted, reopened at 4539x2553 and
+  reported `PSD imported: 50 layers` without a console or page error.

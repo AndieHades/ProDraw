@@ -7,6 +7,7 @@ import { insertImageTop } from './index.js';
 import { decodePsdFile, isPsdFile } from './psd-file.ts';
 import { IMPORT_FILTERS, openDesktopFile } from './desktop-file.ts';
 import { psdImportFailure } from './psd-error.ts';
+import { isDocumentGenerationToken } from '../../core/session/DocumentSession.ts';
 
 function pick(accept, fn) { const i = document.createElement('input'); i.type = 'file'; i.accept = accept;
   i.onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) fn(f); }; i.click(); }
@@ -16,7 +17,7 @@ const baseName = (n) => n.replace(/\.[^.]+$/, '');
 const photo = () => pick('image/*', (f) => loadImg(f, (im) => insertImageTop(im, baseName(f.name))));
 const pixelize = () => pick('image/*', (f) => actions.run('import.openFile', f)); // конвертер как новый проект
 export async function importPsd(f, sourceLocation = null, progress = null) { const token = actions.run('gallery.beginPsdImport');
-  if (!Number.isInteger(token)) { toast(t('toast.documentOpenFailed')); return false; }
+  if (!isDocumentGenerationToken(token)) { toast(t('toast.documentOpenFailed')); return false; }
   try { progress?.stage('decoding'); const decoded = await decodePsdFile(f);
     const status = await actions.run('gallery.completePsdImport', token,
       decoded.document, decoded.name, sourceLocation, progress);

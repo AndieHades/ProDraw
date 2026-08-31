@@ -18,10 +18,9 @@ Authority: PSD dropped or opened anywhere must create a new gallery document
 - Blockers: none; Photoshop comparison is the named manual skip
 - Working paths: `src/core/psd`, `src/contracts`, `src/systems/import`,
   `src/systems/gallery`, `src/core/composite.js`, `tests/psd`
-- Last checks: exact `Items (1).psd` decode and gallery save/reopen passed;
-  focused repair tests 32/32; full validation passed 118 files/350 tests plus
-  15 performance files/53 tests; TypeScript/ESLint/docs/architecture/cutover/
-  cycles/lines/desktop-shell, production build and packaged smoke passed
+- Last checks: exact `Items (1).psd` packaged gallery drop reached decoding,
+  saved, reopened a 4539x2553 document and reported 50 imported layers;
+  focused route/session tests and packaged smoke passed
 - Last updated: 2026-08-30
 
 ## Outcome
@@ -108,6 +107,9 @@ still supports indexed editing, while render/history consume the same bytes
 without allocating one JS property per opaque pixel. Gallery picker and gallery
 drop now share the delayed progress lifecycle, and bounded preflight failures
 report their specific localized limit instead of only a generic open failure.
+The desktop route validates the gallery's object generation token rather than
+the retired numeric token shape; a mismatch here previously rejected every real
+PSD before decode while the mocked route test continued to pass.
 
 ## Completion Definition
 

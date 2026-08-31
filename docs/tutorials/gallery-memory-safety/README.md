@@ -66,7 +66,7 @@ Only one stage may be `in_progress`.
 - Blockers: none
 - Working paths: `src/core/storage.ts`, `src/systems/gallery`, `src/logic/raster`,
   `tests`, `test`, `docs/tutorials/gallery-memory-safety`
-- Last checks: `Items (1).psd` decode, packed record and fake-IndexedDB reopen
-  passed; focused packed/import/progress tests 32/32; full validation passed
-  118 files/350 tests plus 15 performance files/53 tests; packaged smoke passed
+- Last checks: `Items (1).psd` packaged import, packed record and IndexedDB
+  reopen passed with 50 layers at 4539x2553; focused route/session checks and
+  packaged smoke passed
 - Last updated: 2026-08-30

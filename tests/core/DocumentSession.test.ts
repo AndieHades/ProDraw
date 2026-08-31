@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { DocumentSession } from "../../src/core/session/DocumentSession";
+import { DocumentSession,
+  isDocumentGenerationToken } from "../../src/core/session/DocumentSession";
 
 describe("document session", () => {
+  it("identifies the persisted generation-token contract", () => {
+    const token = new DocumentSession().supersede();
+    expect(isDocumentGenerationToken(token)).toBe(true);
+    expect(isDocumentGenerationToken(17)).toBe(false);
+    expect(isDocumentGenerationToken({ generation: 1.5 })).toBe(false);
+  });
+
   it("owns dirty and saved state for the active document", () => {
     const session = new DocumentSession();
     session.activateNew("one");
