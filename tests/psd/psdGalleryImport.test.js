@@ -35,6 +35,8 @@ describe('PSD gallery transaction', () => {
     const stored = await getDoc(curWorkId());
     expect(stored).toMatchObject({ kind: 'doc', name: 'Imported', dpi: 300,
       sourceFormat: 'psd', sourceLocation: 'C:/assets/Imported.psd' });
+    expect(stored.layers[0]).toMatchObject({ grid: [],
+      rasterRows: { format: 'rgba-rows-v1', width: 3, height: 2 } });
     expect(stored.layers[0].masks[0].alpha).toEqual(new Uint8Array([0, 64, 128, 255]));
     expect(stored.layers[0].psdBounds).toEqual({ left: 1, top: 0, width: 2, height: 2 });
     expect(stored.layers[0].effects.map(({ type }) => type))

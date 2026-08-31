@@ -22,12 +22,19 @@ describe('PSD entry routing', () => {
       document: { width: 3, height: 2 } });
     expect(progress.stage).toHaveBeenCalledWith('decoding');
 
-    actions.registerOrReplace('import.psdFile', async (value, location) => {
+    const selectionProgress = { ready: vi.fn(async () => undefined),
+      stage: vi.fn(), finish: vi.fn() };
+    const beginProgress = vi.fn(() => selectionProgress);
+    actions.registerOrReplace('import.psdFile', async (value, location, receivedProgress) => {
       expect(value).toBe(file);
+      if (routed === 0) expect(receivedProgress).toBe(selectionProgress);
       if (routed === 1) expect(location).toBe('C:\\assets\\routed.psd');
       routed++; return true;
     });
-    await importPsdSelection(file);
+    await importPsdSelection(file, null, beginProgress);
+    expect(beginProgress).toHaveBeenCalledWith('routed.psd');
+    expect(selectionProgress.ready).toHaveBeenCalledOnce();
+    expect(selectionProgress.finish).toHaveBeenCalledWith(true);
     const dropped = dropImage(file, () => 'C:\\assets\\routed.psd');
     expect(routed).toBe(2);
     await dropped;

@@ -74,3 +74,17 @@ success is reported, and reopen produces the same layer metadata and pixels.
   before the repair. This timing is evidence, not a cross-machine hard gate.
 - Focused coverage verifies transparent-padding trim, coordinate preservation,
   colour-cell interning, PSD gallery import and preview behavior.
+
+## Large Dense Canvas Evidence
+
+- `Items (1).psd`: 69,483,464 bytes, 4539x2553, 8-bit RGB, 74 nodes, 50
+  pixel layers and 24 folders; exact decode completed without warnings.
+- The former 4096-side preflight rejected this valid 11.6-megapixel document
+  before delayed progress could appear. PSD now permits an 8192-pixel side while
+  retaining the 16,777,216-pixel allocation budget.
+- The former gallery conversion exhausted a 2 GiB JavaScript heap while
+  materializing about 27 million indexed properties. `rgba-rows-v1` retained
+  113,529,904 packed bytes and completed record construction in about 0.25 s.
+- Fake-IndexedDB save/open preserved all 50 layers, source identity and a sampled
+  pixel. The gallery picker and drop route share one tested delayed-progress
+  session; oversized/unsupported inputs report a localized bounded cause.

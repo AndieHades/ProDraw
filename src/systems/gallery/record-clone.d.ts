@@ -1,3 +1,5 @@
+import type { PackedRgbaGridRecord } from "../../contracts/packedRgbaGrid.ts";
+
 export interface LegacyGridBounds {
   readonly minx: number;
   readonly miny: number;
@@ -14,6 +16,10 @@ export function cloneGridIdle(grid: LegacyGrid,
   bounds: LegacyGridBounds | null | undefined,
   isCurrent: () => boolean,
   yieldWork?: () => Promise<void>): Promise<Array<Array<number[] | undefined>> | null>;
+export function cloneGridIdle(grid: PackedRgbaGridRecord,
+  bounds: LegacyGridBounds | null | undefined,
+  isCurrent: () => boolean,
+  yieldWork?: () => Promise<void>): Promise<PackedRgbaGridRecord | null>;
 export function cloneLayersIdle(layers: readonly unknown[],
   boundsFor: (index: number) => LegacyGridBounds | null | undefined,
   isCurrent: () => boolean,

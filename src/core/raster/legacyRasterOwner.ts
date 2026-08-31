@@ -2,6 +2,7 @@ import type { TileChangeSet } from "../history/tilePatch.ts";
 import { LegacyRasterSurfaceBacking } from "./LegacyRasterSurfaceBacking.ts";
 import type { LegacyRasterBounds,
   LegacyRasterRegion } from "./LegacyRasterRegion.ts";
+import { createPackedRgbaGrid } from "../../logic/raster/PackedRgbaGrid.ts";
 
 type LegacyGrid = unknown[][] | { readonly length: number };
 export type LegacyRasterCell = number[] | null;
@@ -89,6 +90,9 @@ export function normalizeLegacyRasterLayer<T extends LayerRecord>(
   layer: T, width: number, height: number
 ): T {
   if (owners.has(layer)) return layer;
+  const mutable = layer as LayerRecord;
+  const packed = createPackedRgbaGrid(mutable.rasterRows);
+  if (packed) { delete mutable.rasterRows; mutable.grid = packed; }
   const size = { width, height }, descriptor = Object.getOwnPropertyDescriptor(layer, "grid");
   const stored = descriptor && "value" in descriptor ?
     normalizedGrid(descriptor.value, size) : null;

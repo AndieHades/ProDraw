@@ -21,6 +21,8 @@
 
 - `GDP-01`: every supported file dropped while the gallery is open starts one
   import-progress session immediately, without changing editor-side imports.
+- `GDP-01A`: the gallery PSD picker starts the same progress session as a drop;
+  choosing the entrypoint cannot change visibility, stages or terminal cleanup.
 - `GDP-02`: imports completed in at most two seconds never flash a progress UI.
   If the same session is still active after two seconds, a modal gallery status
   appears and remains visible until that session succeeds or fails.
@@ -77,15 +79,19 @@
 - Checks: focused Vitest `15/15`; changed-surface Vitest `274/274`; TypeScript,
   ESLint, docs, hooks, lines, architecture, cycles, cutover, desktop boundary,
   raster entry and shell catalog passed; packaged Windows smoke passed.
+- Follow-up `GDP-01A`: the PSD picker now enters the same progress runner as a
+  gallery drop. A delayed-session regression verifies visibility after two
+  seconds and terminal cleanup; focused repair coverage passed `32/32`.
 
 ## Resume Here
 
 - Current stage: complete
 - Status: `done`
-- Last completed stage: `GDP1 — delayed gallery-drop progress`
-- Next action: user-owned visual acceptance with a gallery drop over two seconds
+- Last completed stage: `GDP1 — delayed gallery import progress`
+- Next action: user-owned visual acceptance with picker or drop over two seconds
 - Blockers: none
 - Working paths: `src/systems/import`, `src/systems/gallery`, `src/ui/import`,
   `src/i18n`, `src/styles`, `src/config`, `index.html`, `tests`
-- Last checks: focused `15/15`; changed-surface `274/274`; packaged smoke passed
-- Last updated: 2026-08-27
+- Last checks: focused repair `32/32`; full validation 118 files/350 tests plus
+  15 performance files/53 tests; packaged smoke passed
+- Last updated: 2026-08-30

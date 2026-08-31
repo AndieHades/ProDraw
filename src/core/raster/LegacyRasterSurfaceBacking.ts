@@ -5,6 +5,8 @@ import { RasterSurface } from "./RasterSurface.ts";
 import { pixelTileCoordinate, tileKey } from "./tileAddress.ts";
 import { copySurfaceRegion, type LegacyRasterBounds,
   type LegacyRasterRegion } from "./LegacyRasterRegion.ts";
+import { copyPackedRgbaTile,
+  replacePackedRgbaTile } from "../../logic/raster/PackedRgbaGridTiles.ts";
 
 type Cell = number[] | null;
 type Grid = { readonly length: number; [index: number]: unknown[] };
@@ -99,6 +101,9 @@ export class LegacyRasterSurfaceBacking {
   private loadTile(grid: Grid, tileX: number, tileY: number,
     bounds?: LegacyRasterBounds): void {
     const key = tileKey(tileX, tileY); if (this.#loadedTiles.has(key)) return;
+    const packed = copyPackedRgbaTile(grid, tileX, tileY, this.#surface.tileSize);
+    if (packed !== undefined) { if (packed) this.#surface.replaceTile(tileX, tileY, packed);
+      this.#loadedTiles.add(key); return; }
     const size = this.#surface.tileSize, bytes = new Uint8ClampedArray(size * size * 4);
     const startX = Math.max(tileX * size, bounds?.minx ?? 0);
     const startY = Math.max(tileY * size, bounds?.miny ?? 0);
@@ -121,6 +126,8 @@ export class LegacyRasterSurfaceBacking {
   }
 
   private syncTile(grid: Grid, tileX: number, tileY: number): void {
+    const packed = this.#surface.copyTile(tileX, tileY);
+    if (replacePackedRgbaTile(grid, tileX, tileY, this.#surface.tileSize, packed)) return;
     const size = this.#surface.tileSize, startX = tileX * size, startY = tileY * size;
     const endX = Math.min(this.#width, startX + size);
     const endY = Math.min(this.#height, startY + size);
@@ -128,7 +135,7 @@ export class LegacyRasterSurfaceBacking {
       const row = grid[y]; if (!row) continue;
       for (const x of numericKeys(row)) if (x >= startX && x < endX) delete row[x];
     }
-    const bytes = this.#surface.copyTile(tileX, tileY); if (!bytes) return;
+    const bytes = packed; if (!bytes) return;
     for (let y = startY; y < endY; y++) for (let x = startX; x < endX; x++) {
       const offset = ((y - startY) * size + x - startX) * 4;
       if (!bytes[offset + 3]) continue;

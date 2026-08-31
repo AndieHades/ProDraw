@@ -11,19 +11,18 @@ Authority: PSD dropped or opened anywhere must create a new gallery document
 
 ## Resume Here
 
-- Current stage: `PSD5 — persistence and producer-order repair`
+- Current stage: complete
 - Status: `done`
 - Last completed stage: `PSD5 — gallery reopen, preview and stack repair`
-- Next action: optional physical comparison with a Photoshop-authored fixture
+- Next action: user-owned visual acceptance of the repaired dense PSD import
 - Blockers: none; Photoshop comparison is the named manual skip
 - Working paths: `src/core/psd`, `src/contracts`, `src/systems/import`,
   `src/systems/gallery`, `src/core/composite.js`, `tests/psd`
-- Last checks: PSD 11 files/53 tests, 393 module integration checks, 102 files/278
-  non-performance tests, TypeScript/ESLint/docs/architecture/cutover/cycles/
-  lines/desktop-shell, production and desktop builds passed; decoder remains a
-  separate 288.13 kB lazy chunk; packaged Windows smoke and live `Assets.psd`
-  gallery/reopen flow passed
-- Last updated: 2026-08-26
+- Last checks: exact `Items (1).psd` decode and gallery save/reopen passed;
+  focused repair tests 32/32; full validation passed 118 files/350 tests plus
+  15 performance files/53 tests; TypeScript/ESLint/docs/architecture/cutover/
+  cycles/lines/desktop-shell, production build and packaged smoke passed
+- Last updated: 2026-08-30
 
 ## Outcome
 
@@ -98,6 +97,17 @@ Bulk PSD materialization defines imported sparse cells directly and records one
 exact bounds result per layer, instead of running a bounds hook for every pixel.
 On the physical `export-rig.psd`, the observed record-building stage fell from
 about 4.8 seconds to 2.6 seconds on the same machine.
+
+## Large Dense Canvas Repair
+
+PSD import has a separate `8192`-pixel side limit while retaining the existing
+`4096×4096` total pixel budget. This admits wide production assets without
+changing the New Canvas limit or allowing unbounded allocations. Dense decoded
+layers persist as `rgba-rows-v1` typed row spans; the live compatibility view
+still supports indexed editing, while render/history consume the same bytes
+without allocating one JS property per opaque pixel. Gallery picker and gallery
+drop now share the delayed progress lifecycle, and bounded preflight failures
+report their specific localized limit instead of only a generic open failure.
 
 ## Completion Definition
 

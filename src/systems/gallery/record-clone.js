@@ -4,6 +4,7 @@ import { AUTOSAVE_CLONE_YIELD_ROWS, AUTOSAVE_IDLE_TIMEOUT_MS } from '../../confi
 import { normalizeAnimator } from '../../logic/animation-data.ts';
 import { cloneGrid, sparseGridStats } from '../../logic/raster.js';
 import { createRasterCellInterner } from '../../logic/raster-cell-interner.js';
+import { serializePackedRgbaGrid } from '../../logic/raster/PackedRgbaGrid.ts';
 
 export function yieldToGalleryIdle() {
   return new Promise((resolve) => {
@@ -41,6 +42,7 @@ function clonePersistedSparseGrid(grid, rows, bounds, isCurrent) {
 export async function cloneGridIdle(grid, bounds, isCurrent,
   yieldWork = yieldToGalleryIdle) {
   if (!isCurrent()) return null;
+  const packed = serializePackedRgbaGrid(grid); if (packed) return packed;
   // The canonical raster backing already knows its stored rows/cells. Walking
   // every empty A4 row through requestIdleCallback made a blank New document
   // look frozen for seconds and could leave the dialog busy. Clone it directly
@@ -71,10 +73,13 @@ export async function cloneLayersIdle(layers, boundsFor, isCurrent,
   yieldWork = yieldToGalleryIdle) {
   const output = [];
   for (let index = 0; index < layers.length; index++) {
-    const grid = await cloneGridIdle(layers[index].grid, boundsFor(index),
+    const source = layers[index].rasterRows || layers[index].grid;
+    const grid = await cloneGridIdle(source, boundsFor(index),
       isCurrent, yieldWork);
     if (!grid) return null;
-    output.push(cloneLayerRecord(layers[index], { grid }));
+    const packed = grid.format === 'rgba-rows-v1';
+    output.push(cloneLayerRecord(layers[index], packed
+      ? { grid: [], rasterRows: grid } : { grid }));
   }
   return output;
 }

@@ -23,6 +23,9 @@ while gallery autosave continues to provide recovery.
 - `GMS-05`: corrupt or incomplete metadata cannot block unrelated documents.
 - `GMS-06`: source-bound PNG/PSD Open and Save remain unchanged; removing the
   gallery is not part of this recovery.
+- `GMS-07`: dense imported PSD layers persist as bounded RGBA row buffers and
+  expose the same indexed compatibility surface without one JS property per
+  opaque pixel.
 
 ## Delivery order
 
@@ -30,6 +33,7 @@ while gallery autosave continues to provide recovery.
 | --- | --- | --- | --- | --- |
 | `GMS1` | lightweight gallery index and safe deletion | none | done | `fix: keep gallery listing memory bounded` |
 | `GMS2` | compact crop/Trim raster remaps | `GMS1` | done | `fix: preserve compact cells during raster remap` |
+| `GMS3` | packed dense PSD persistence and live compatibility | `GMS2` | done | `fix: open large dense psd files` |
 
 Only one stage may be `in_progress`.
 
@@ -48,6 +52,8 @@ Only one stage may be `in_progress`.
 - Existing v1 databases upgrade without one `getAll()` of full documents.
 - Deleting a document or folder needs no document decode/materialization.
 - Crop and Undo preserve pixels while repeated colours share immutable cells.
+- Dense PSD import, IndexedDB save/reopen and live raster reads stay below the
+  decoded byte budget without expanding every pixel into a JS property.
 - Focused persistence/performance tests, changed validation and packaged desktop
   smoke pass; manual testing with the user's large files remains user-led.
 
@@ -55,12 +61,12 @@ Only one stage may be `in_progress`.
 
 - Current stage: complete
 - Status: `done`
-- Last completed stage: `GMS2 — compact raster remap`
-- Next action: user acceptance with the actual large gallery and crop files
+- Last completed stage: `GMS3 — packed dense PSD persistence`
+- Next action: user-owned visual acceptance from the permanent desktop shortcut
 - Blockers: none
-- Working paths: `src/core/storage.js`, `src/systems/gallery`, `src/logic`,
+- Working paths: `src/core/storage.ts`, `src/systems/gallery`, `src/logic/raster`,
   `tests`, `test`, `docs/tutorials/gallery-memory-safety`
-- Last checks: focused remap/crop/Undo 10/10; changed-surface 94 files,
-  277 tests; typecheck, lint, docs, lines, architecture, cycles and shell gates;
-  packaged Windows desktop smoke passed
-- Last updated: 2026-08-28
+- Last checks: `Items (1).psd` decode, packed record and fake-IndexedDB reopen
+  passed; focused packed/import/progress tests 32/32; full validation passed
+  118 files/350 tests plus 15 performance files/53 tests; packaged smoke passed
+- Last updated: 2026-08-30

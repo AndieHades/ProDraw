@@ -1,5 +1,8 @@
 import { createSparseGrid, sparseGridShape, visitSparseGridCells } from './sparse-grid.js';
 import { createRasterCellInterner } from './raster-cell-interner.js';
+import { clonePackedRgbaGrid, invalidatePackedRgbaBounds, notePackedRgbaBounds,
+  packedRgbaBounds, packedRgbaBoundsMetadata, packedRgbaShape,
+  setPackedRgbaBounds, visitPackedRgbaCells } from './raster/PackedRgbaGrid.ts';
 
 let boundsMetadata = new WeakMap();
 const copyBounds = (bounds) => bounds ? { ...bounds } : null;
@@ -34,6 +37,7 @@ function sparseBlank(width, height) {
 export const blank = (width, height) => sparseBlank(width, height);
 
 function dimensions(grid) {
+  const packed = packedRgbaShape(grid); if (packed) return packed;
   const sparse = sparseGridShape(grid); if (sparse) return sparse;
   let width = 0;
   for (const key of Object.keys(grid)) {
@@ -53,10 +57,12 @@ function visitDense(grid, bounds, visit) {
 }
 
 function visitContent(grid, bounds, visit) {
-  if (!visitSparseGridCells(grid, visit)) visitDense(grid, bounds, visit);
+  if (!visitPackedRgbaCells(grid, visit) &&
+    !visitSparseGridCells(grid, visit)) visitDense(grid, bounds, visit);
 }
 
 export function cloneGrid(grid, internCells = false) {
+  const packed = clonePackedRgbaGrid(grid); if (packed) return packed;
   const shape = dimensions(grid), out = blank(shape.width, shape.height);
   const cells = internCells ? createRasterCellInterner() : null;
   const known = boundsMetadata.get(grid);
@@ -68,25 +74,30 @@ export function cloneGrid(grid, internCells = false) {
 }
 
 export function noteGridBounds(grid, bounds) {
+  if (notePackedRgbaBounds(grid, bounds)) return true;
   if (!grid || !bounds || !boundsMetadata.has(grid)) return false;
   const known = boundsMetadata.get(grid);
   boundsMetadata.set(grid, { bounds: mergeBounds(known.bounds, bounds), exact: false });
   return true;
 }
 
-export function forgetGridBounds(grid) { if (grid) boundsMetadata.delete(grid); }
+export function forgetGridBounds(grid) { if (invalidatePackedRgbaBounds(grid)) return;
+  if (grid) boundsMetadata.delete(grid); }
 
 export function setGridBounds(grid, bounds, exact = true) {
   if (!grid) return false;
+  if (setPackedRgbaBounds(grid, bounds, exact)) return true;
   boundsMetadata.set(grid, { bounds: copyBounds(bounds), exact: !!exact }); return true;
 }
 
 export function gridBoundsMetadata(grid) {
+  const packed = packedRgbaBoundsMetadata(grid); if (packed) return packed;
   const known = grid && boundsMetadata.get(grid);
   return known ? { bounds: copyBounds(known.bounds), exact: known.exact } : undefined;
 }
 
 export function gridBounds(grid) {
+  if (packedRgbaShape(grid)) return packedRgbaBounds(grid);
   const known = boundsMetadata.get(grid);
   // Sparse rows keep native data properties on the hot paint path; an exact
   // query therefore rechecks only stored properties to notice direct erases.
@@ -99,6 +110,8 @@ export function gridBounds(grid) {
 }
 
 export function conservativeGridBounds(grid) {
+  const packed = packedRgbaBoundsMetadata(grid);
+  if (packed) return packed.exact ? copyBounds(packed.bounds) : packedRgbaBounds(grid);
   const known = boundsMetadata.get(grid);
   return known ? copyBounds(known.bounds) : gridBounds(grid);
 }

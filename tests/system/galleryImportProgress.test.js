@@ -1,7 +1,9 @@
 /** @vitest-environment jsdom */
 import { File } from "node:buffer";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { importGalleryImage } from "../../src/systems/gallery/index.js";
+import * as actions from "../../src/core/actions.ts";
+import { importGalleryImage, importPsdSelection } from
+  "../../src/systems/gallery/index.js";
 import { beginGalleryImportProgress } from
   "../../src/ui/import/GalleryImportProgressPresenter.ts";
 
@@ -16,7 +18,7 @@ function mount() {
 
 describe("gallery import progress", () => {
   beforeEach(() => { mount(); vi.useFakeTimers(); });
-  afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
+  afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
   it("does not flash for an import completed within two seconds", () => {
     const progress = beginGalleryImportProgress("fast.png");
@@ -57,6 +59,26 @@ describe("gallery import progress", () => {
     const ready = progress.ready();
     vi.advanceTimersByTime(50); await ready;
     progress.finish(false); vi.unstubAllGlobals();
+  });
+
+  it("uses the delayed progress session for the gallery PSD picker", async () => {
+    vi.stubGlobal("requestAnimationFrame", undefined);
+    let release = () => undefined;
+    const opened = new Promise((resolve) => { release = () => resolve(true); });
+    const route = vi.fn(() => opened);
+    actions.registerOrReplace("import.psdFile", route);
+    const file = new File(["8BPS"], "picked.psd",
+      { type: "image/vnd.adobe.photoshop" });
+
+    const result = importPsdSelection(file);
+    await vi.advanceTimersByTimeAsync(50);
+    expect(route).toHaveBeenCalledWith(file, null, expect.any(Object));
+    await vi.advanceTimersByTimeAsync(1_950);
+    expect(globalThis.document.getElementById("gal-import-progress")
+      ?.classList.contains("on")).toBe(true);
+    release(); await expect(result).resolves.toBe(true);
+    expect(globalThis.document.getElementById("gal-import-progress")
+      ?.classList.contains("on")).toBe(false);
   });
 });
 

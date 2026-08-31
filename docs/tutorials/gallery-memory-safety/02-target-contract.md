@@ -22,6 +22,12 @@ grids for Undo safety. Destination cell values pass through one operation-local
 `createRasterCellInterner()`: equal RGBA values share one frozen array, and no
 destination cell aliases a mutable legacy input array.
 
+Dense imported PSD layers use the versioned `rgba-rows-v1` persisted contract:
+one typed RGBA span per content row plus exact bounds and opaque-pixel counts.
+On Open, a non-serialized compatibility view preserves `grid[y][x]` behavior,
+while render/history read packed bytes through the existing raster owner. Save
+copies row buffers directly instead of creating one JS property per pixel.
+
 ## User workflow
 
 Direct source-bound PNG/PSD Open and Save continue unchanged. Gallery autosave

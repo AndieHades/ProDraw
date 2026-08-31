@@ -9,6 +9,8 @@ import { beginConvertedWork, newWorkFromImage, saveCurrent,
 import { configure, render, goBack, setSelecting, isSelecting, stackSelected, dupSelected, delSelected } from './screen.js';
 import { openDesktopFile, PSD_FILTERS } from '../import/desktop-file.ts';
 import { decodeImageFile, runGalleryImageImport } from '../import/GalleryImageImport.ts';
+import { beginGalleryImportProgress } from '../../ui/import/GalleryImportProgressPresenter.ts';
+import { runGalleryImportProgress } from '../../core/import/GalleryImportProgressRunner.ts';
 
 let galleryChange = 0, readyTask = Promise.resolve(true), mounted = false;
 function setGalleryOpen(on) {
@@ -45,7 +47,9 @@ export async function importGalleryImage(f, sourceLocation = null, progress = nu
   return result === 'opened' || result === 'converted';
 }
 function photo() { pick('image/*', (file) => void importGalleryImage(file)); }
-export const importPsdSelection = (file, location = null) => actions.run('import.psdFile', file, location);
+export const importPsdSelection = (file, location = null,
+  beginProgress = beginGalleryImportProgress) => runGalleryImportProgress(file.name,
+  beginProgress, (progress) => actions.run('import.psdFile', file, location, progress));
 function importPsd() { void openDesktopFile(PSD_FILTERS).then((opened) => {
   if (opened !== undefined) return opened && importPsdSelection(opened.file, opened.location);
   pick('.psd,.psb,image/vnd.adobe.photoshop', importPsdSelection);

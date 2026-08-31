@@ -14,6 +14,7 @@ import { hasPsdIdentity, isPsdFile } from './psd-file.ts';
 import { droppedFileLocation } from './desktop-file.ts';
 import { requestPngDropDestination } from '../../ui/import/PngDropDestinationPresenter.ts';
 import { beginGalleryImportProgress } from '../../ui/import/GalleryImportProgressPresenter.ts';
+import { runGalleryImportProgress } from '../../core/import/GalleryImportProgressRunner.ts';
 
 let impSrcImg = null;
 export { looksPixelArt };
@@ -61,12 +62,6 @@ function centerImpBox() { const b = $('imp-box'); if (!b) return;
 // Точный пиксель-арт вставляется как есть — конвертер не открывается ни в каком случае.
 const isPngFile = (file) => file.type.toLowerCase() === 'image/png' || /\.png$/i.test(file.name);
 const baseName = (name) => name.replace(/\.png$/i, '');
-async function runGalleryImport(file, beginProgress, operation) {
-  const progress = beginProgress(file.name);
-  try { await progress.ready?.();
-    const result = await operation(progress); progress.finish(result !== false); return result; }
-  catch (error) { progress.finish(false); throw error; }
-}
 export function insertPngFileAsLayer(file) {
   return new Promise((resolve) => { const url = URL.createObjectURL(file), im = new Image();
     im.onerror = () => { URL.revokeObjectURL(url); toast(t('toast.imgOpenFail')); resolve(false); };
@@ -77,7 +72,7 @@ export async function dropImage(file, locationFor = droppedFileLocation, depende
   const sourceLocation = locationFor(file);
   const galleryOpen = typeof document !== 'undefined' &&
     Boolean($('gallery')?.classList.contains('on'));
-  const runForGallery = (operation) => runGalleryImport(file,
+  const runForGallery = (operation) => runGalleryImportProgress(file.name,
     dependencies.beginGalleryProgress ?? beginGalleryImportProgress, operation);
   if (hasPsdIdentity(file) || await isPsdFile(file)) {
     if (galleryOpen) return runForGallery((progress) =>

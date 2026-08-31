@@ -6,6 +6,7 @@ import { $, showMenuAt, toast, t } from '../../ui/dom/ShellDom.ts';
 import { insertImageTop } from './index.js';
 import { decodePsdFile, isPsdFile } from './psd-file.ts';
 import { IMPORT_FILTERS, openDesktopFile } from './desktop-file.ts';
+import { psdImportFailure } from './psd-error.ts';
 
 function pick(accept, fn) { const i = document.createElement('input'); i.type = 'file'; i.accept = accept;
   i.onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) fn(f); }; i.click(); }
@@ -21,7 +22,8 @@ export async function importPsd(f, sourceLocation = null, progress = null) { con
       decoded.document, decoded.name, sourceLocation, progress);
     if (status === 'failed') toast(t('toast.documentOpenFailed'));
     return status === 'opened';
-  } catch (error) { toast(t('toast.documentOpenFailed')); return false; } }
+  } catch (error) { const failure = psdImportFailure(error);
+    toast(t(failure.key, failure.vars)); return false; } }
 function file(f0) { const go = async (f, sourceLocation = null) => {
     if (await isPsdFile(f)) await importPsd(f, sourceLocation);
     else loadImg(f, (im) => insertImageTop(im, baseName(f.name))); };

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { decodePsdDocument } from '../../src/core/psd/decodePsdDocument.ts';
 import { buildPsdGalleryRecord } from '../../src/systems/gallery/psd-record.js';
+import { packedRgbaRecordCell } from '../../src/logic/raster/packedRgbaRecord.ts';
 import { nestedPsd } from './psdFixture.ts';
 
 describe('PSD nested groups', () => {
@@ -13,7 +14,8 @@ describe('PSD nested groups', () => {
     ]);
     expect(record.layers[0]).toMatchObject({ name: 'Pixel', fid: 2,
       blendMode: 'normal' });
-    expect(record.layers[0].grid[0][0]).toEqual([40, 80, 120, 192]);
+    expect(packedRgbaRecordCell(record.layers[0].rasterRows, 0, 0))
+      .toEqual([40, 80, 120, 192]);
   });
 
   it('converts either decoded direction into the bottom-first runtime stack', () => {

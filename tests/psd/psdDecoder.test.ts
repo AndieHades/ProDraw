@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PSD_IMPORT_LIMITS } from "../../src/config/psd-import";
+import { MAX_SIZE } from "../../src/config/limits.ts";
 import { decodePsdDocument } from "../../src/core/psd/decodePsdDocument";
 import { PsdDecodeError } from "../../src/core/psd/PsdDecodeError";
 import { preflightPsd } from "../../src/logic/psd/preflightPsd";
@@ -10,6 +11,13 @@ describe("PSD preflight", () => {
     expect(preflightPsd(psdHeader(800, 600))).toMatchObject({
       version: 1, channels: 4, width: 800, height: 600, depth: 8, colorMode: 3,
     });
+  });
+
+  it("accepts a wide PSD canvas while its total pixel budget stays bounded", () => {
+    expect(preflightPsd(psdHeader(4539, 2553))).toMatchObject({
+      width: 4539, height: 2553,
+    });
+    expect(4539).toBeGreaterThan(MAX_SIZE);
   });
 
   it("rejects invalid signature, depth and canvas limits", () => {

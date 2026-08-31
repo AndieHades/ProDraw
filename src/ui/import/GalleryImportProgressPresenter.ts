@@ -4,13 +4,9 @@ import {
   GALLERY_IMPORT_UI_COMMIT_TIMEOUT_MS,
   type GalleryImportStage,
 } from "../../config/import-progress.ts";
+import type { GalleryImportProgress } from
+  "../../core/import/GalleryImportProgressRunner.ts";
 import { t } from "../../i18n/index.ts";
-
-export interface GalleryImportProgress {
-  ready(): Promise<void>;
-  stage(value: GalleryImportStage): void;
-  finish(success: boolean): void;
-}
 
 const STAGE_KEYS: Record<GalleryImportStage, string> = {
   checking: "gallery.importProgressChecking",
