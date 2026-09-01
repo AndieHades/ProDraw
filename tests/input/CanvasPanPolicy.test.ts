@@ -29,4 +29,13 @@ describe("typed global canvas pan", () => {
       moved: true });
     expect(session.finish()).toEqual({ button: 0, moved: true });
   });
+
+  it("copies native-style non-enumerable pointer coordinates and button", () => {
+    const pointer = Object.create({ button: 2, clientX: 10, clientY: 20 });
+    const session = new CanvasPanSession(4);
+    session.begin(pointer, { ox: 3, oy: 4 });
+    expect(session.move({ clientX: 20, clientY: 30 })).toEqual({ ox: 13, oy: 14,
+      moved: true });
+    expect(session.finish()).toEqual({ button: 2, moved: true });
+  });
 });

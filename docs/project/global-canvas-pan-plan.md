@@ -71,6 +71,14 @@ Status: `done`
   Windows desktop smoke passed.
 - Commit: `feat: make canvas pan global across modes`.
 
+## Follow-up 2026-08-31
+
+- Исправлен cutover-дефект: нативный `PointerEvent` больше не копируется через
+  object spread; button/client coordinates сохраняются явно.
+- Реальный mouse route снова панорамирует и открывает layer picker коротким ПКМ.
+- Gallery/page exit сбрасывают view в centered fit; Crop завершает Transform/Move.
+- Commit: `fix: restore canvas navigation lifecycle`.
+
 ## Resume Here
 
 - Current stage: complete
@@ -79,6 +87,6 @@ Status: `done`
 - Next action: user acceptance with preferred mouse/pen/touch navigation
 - Blockers: none
 - Working paths: `src/core`, `src/systems/input`, `src/systems/keyboard`, `tests/input`
-- Last checks: focused input 14/14; changed-surface 96 files/286 tests; packaged
-  Windows desktop smoke passed
+- Last checks: focused input/lifecycle 21/21; changed-surface 120 files/355 tests;
+  live browser mouse route; packaged Windows desktop smoke passed
 - Last updated: 2026-08-28

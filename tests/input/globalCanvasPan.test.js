@@ -6,7 +6,7 @@ import { registerMode, registerTool } from '../../src/core/canvas-handlers.ts';
 import { setCanvasPanModifierHeld } from '../../src/core/navigationModifiers.ts';
 import { down, move, up } from '../../src/systems/input/index.js';
 
-const pointer = (button, x, y, pointerType = 'mouse') => ({ pointerId: 12,
+const pointer = (button, x, y, pointerType = 'mouse') => Object.create({ pointerId: 12,
   pointerType, button, clientX: x, clientY: y,
   target: document.getElementById('cv') });
 

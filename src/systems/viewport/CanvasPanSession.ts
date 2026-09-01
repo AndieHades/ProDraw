@@ -27,7 +27,9 @@ export class CanvasPanSession {
   get active(): boolean { return this.#start !== null; }
 
   begin(pointer: PanPointerPosition, view: LegacyViewPosition): void {
-    this.#start = { ...pointer, ...view, moved: false };
+    this.#start = { button: pointer.button,
+      clientX: pointer.clientX, clientY: pointer.clientY,
+      ox: view.ox, oy: view.oy, moved: false };
   }
 
   move(pointer: Pick<PanPointerPosition, "clientX" | "clientY">): PanMove | null {

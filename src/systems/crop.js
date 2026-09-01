@@ -14,6 +14,7 @@ import { mountCropControls } from '../ui/crop/CropControlsPresenter.ts';
 import { CropPointerSystem } from './crop/CropPointerSystem.ts';
 import { appliedCropRect, createCropMode, cropChangesDocument,
   cropSize as measureCrop, placeCropSize } from './crop/CropSession.ts';
+import { setTool } from '../core/tools.js';
 
 let mounted = false;
 const cropSize = (crop = S.cropMode) => { const size = measureCrop(crop);
@@ -47,6 +48,8 @@ function dimensionInput(dimension, commit = false) {
 
 export function toggleCrop() {
   if (S.cropMode) { cancelCrop(); return; }
+  if (S.rotMode) actions.run('transform.apply');
+  if (S.tool === 'move') setTool('pencil');
   S.cropMode = createCropMode(S.W, S.H, S.sel);
   S.sel = null; S.selMask = null; bus.emit('selection');
   $('crop').classList.add('on'); $('cropbar').classList.add('on');

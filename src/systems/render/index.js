@@ -20,6 +20,7 @@ import { isIncrementalCompositeSafe } from '../../core/render/LegacyCompositeDam
 import { drawOverlays } from './overlays.js';
 import { drawBrushCursor } from './cursor.js';
 import { updateAnts } from './ants.js';
+import { mountLegacyViewportLifecycle } from '../viewport/LegacyViewportLifecycle.ts';
 
 const cv = $('cv'), ctx = cv.getContext('2d');
 const buf = makeCanvas(1, 1); // композит слой+эффекты в пиксельном масштабе (размер ставится по кадру)
@@ -131,6 +132,7 @@ export function zoomStep(dir) {
 bus.on('render', requestRender);
 bus.on('fit', fitView);
 window.addEventListener('resize', fitView);
+mountLegacyViewportLifecycle(fitView);
 actions.register('view.fit', fitView);
 actions.register('view.realSize', realSizeView);
 actions.register('zoom.in', () => zoomStep(1));
