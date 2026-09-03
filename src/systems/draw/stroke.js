@@ -35,6 +35,7 @@ export function beginStroke(lightweight = false, bulk = false) { bus.emit('strok
   if (!tiled && !started && !beginTextReference()) snapshot();
   S.stroke = true; resetScatter(); }
 export function cancelStroke() { if (!S.stroke) return;
+  bus.emit('stroke-end');
   if (legacyTileEditActive()) { const changed = cancelLegacyTileEdit(); S.stroke = false;
     if (changed) bus.emitDoc(); return; }
   const patched = pixelPatchActive();
@@ -42,5 +43,6 @@ export function cancelStroke() { if (!S.stroke) return;
     if (changed) bus.emitDoc(); return; }
   S.stroke = false; if (cancelTextReference()) { bus.emitDoc(); return; }
   if (S.undoStack.length) restore(S.undoStack.pop()); }
-export function afterStroke() { commitLegacyTileEdit(); commitPixelPatch(); referenceStroke = null;
+export function afterStroke() { bus.emit('stroke-end');
+  commitLegacyTileEdit(); commitPixelPatch(); referenceStroke = null;
   const p = $('lay-pop'); if (p && p.classList.contains('on')) bus.emit('layers'); }

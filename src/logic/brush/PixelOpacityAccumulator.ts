@@ -11,6 +11,7 @@ interface OpacityTile {
 }
 
 type OpacityVisitor = (x: number, y: number, opacity: number) => void;
+type OpacityTileVisitor = (minX: number, minY: number, maxX: number, maxY: number) => void;
 
 export class PixelOpacityAccumulator {
   readonly #width: number;
@@ -61,11 +62,13 @@ export class PixelOpacityAccumulator {
 
   clear(): void { this.#tiles.clear(); this.#dirtyTiles.clear(); }
 
-  visitDirty(visit: OpacityVisitor): void {
+  visitDirty(visit: OpacityVisitor, visitTile?: OpacityTileVisitor): void {
     const dirty = [...this.#dirtyTiles]; this.#dirtyTiles.clear();
     for (const key of dirty) {
       const tile = this.#tiles.get(key);
       if (!tile) continue;
+      visitTile?.(tile.x + tile.minX, tile.y + tile.minY,
+        tile.x + tile.maxX, tile.y + tile.maxY);
       for (const index of tile.changed) {
         tile.dirty[index] = 0;
         const x = index % this.#side, y = Math.floor(index / this.#side);

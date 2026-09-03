@@ -7,11 +7,13 @@ import { bres, closedContourMask, ellipseEdges, ellipseFill, parseRasterPoint,
   rectEdges, rectFill } from '../../logic/ShapeGeometry.ts';
 import { maskRound } from '../../logic/brush-mask.js';
 import { stamp } from './stamp.js';
-import { brushStampWith } from './brush.js';
+import { brushStampWith, flushBrushStroke } from './brush.js';
 import { createCellPainter, setCell } from './cells.js';
 import { afterStroke, beginStroke } from './stroke.js';
 
-export const line = (x0, y0, x1, y1) => bres(x0, y0, x1, y1, stamp);
+export const line = (x0, y0, x1, y1) => {
+  bres(x0, y0, x1, y1, (x, y) => stamp(x, y, false)); flushBrushStroke();
+};
 
 export function commitLine() {
   const lp = S.linePrev; S.linePrev = null; S.lineStart = null;

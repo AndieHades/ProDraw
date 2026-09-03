@@ -1,6 +1,7 @@
 import type { RgbaColor } from "../../contracts/raster.ts";
 import { pixelTileCoordinate, tileKey } from "../raster/tileAddress.ts";
 import type { RasterSurface } from "../raster/RasterSurface.ts";
+import type { RasterPixelWrite } from "../raster/RasterTilePixels.ts";
 import type { TileChangeSet, TilePatch } from "./tilePatch.ts";
 import { tileBytesEqual } from "./tilePatch.ts";
 
@@ -48,6 +49,29 @@ export class RasterEdit {
     return this.#surface.mutatePixel(x, y, () => color);
   }
 
+  setPixels(pixels: readonly RasterPixelWrite[]): boolean {
+    const groups = new Map<string, { x: number; y: number; pixels: RasterPixelWrite[] }>();
+    for (const pixel of pixels) {
+      if (!this.#surface.containsPixel(pixel.x, pixel.y)) continue;
+      const x = pixelTileCoordinate(pixel.x, this.#surface.tileSize);
+      const y = pixelTileCoordinate(pixel.y, this.#surface.tileSize);
+      const key = tileKey(x, y); let group = groups.get(key);
+      if (!group) { group = { x, y, pixels: [] }; groups.set(key, group); }
+      group.pixels.push(pixel);
+    }
+    let changed = false;
+    for (const group of groups.values()) {
+      changed = this.setTilePixels(group.x, group.y, group.pixels) || changed;
+    }
+    return changed;
+  }
+
+  setTilePixels(x: number, y: number, pixels: readonly RasterPixelWrite[]): boolean {
+    if (!pixels.length) return false;
+    this.captureTile(x, y);
+    return this.#surface.writeTilePixels(x, y, pixels);
+  }
+
   commit(): TileChangeSet | null {
     this.assertOpen();
     const patches: TilePatch[] = [];
@@ -76,6 +100,11 @@ export class RasterEdit {
     const tileY = pixelTileCoordinate(y, this.#surface.tileSize);
     if (tileX === this.#lastTileX && tileY === this.#lastTileY) return;
     this.#lastTileX = tileX; this.#lastTileY = tileY;
+    this.captureTile(tileX, tileY);
+  }
+
+  private captureTile(tileX: number, tileY: number): void {
+    this.assertOpen();
     const key = tileKey(tileX, tileY);
     if (!this.#touched.has(key)) {
       this.#touched.set(key, { x: tileX, y: tileY,

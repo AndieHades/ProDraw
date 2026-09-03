@@ -6,6 +6,7 @@ import { visitBrushDab } from "../../core/brush/renderBrushDab";
 import { renderSmudgeDab, type SmudgeState } from "../../core/brush/renderSmudgeDab";
 import type { TileHistory } from "../../core/history/TileHistory";
 import type { RasterSurface } from "../../core/raster/RasterSurface";
+import type { RasterPixelWrite } from "../../core/raster/RasterTilePixels";
 import { StrokePipeline } from "../../logic/stroke/StrokePipeline";
 import { PixelOpacityAccumulator } from "../../logic/brush/PixelOpacityAccumulator";
 import { eraseAlpha, sourceOver } from "../../logic/raster/colorComposite";
@@ -75,20 +76,25 @@ export class ActiveRasterStroke {
   }
 
   private flushOpacity(): void {
+    const pixels: RasterPixelWrite[] = [];
     this.#opacity?.visitDirty((x, y, opacity) => {
       const key = y * this.#surface.width + x;
       let base = this.#base.get(key);
       if (!base) { base = this.#edit.getPixel(x, y); this.#base.set(key, base); }
-      this.#edit.setPixel(x, y, this.#tool === "eraser"
-        ? eraseAlpha(base, opacity) : sourceOver(base, this.#color, opacity));
+      const color = this.#tool === "eraser"
+        ? eraseAlpha(base, opacity) : sourceOver(base, this.#color, opacity);
+      pixels.push({ x, y, ...color });
     });
+    this.#edit.setPixels(pixels);
   }
 
   private resetOpacity(): void {
+    const pixels: RasterPixelWrite[] = [];
     for (const [key, color] of this.#base) {
       const x = key % this.#surface.width, y = Math.floor(key / this.#surface.width);
-      this.#edit.setPixel(x, y, color);
+      pixels.push({ x, y, ...color });
     }
+    this.#edit.setPixels(pixels);
     this.#base.clear(); this.#opacity?.clear();
   }
 }

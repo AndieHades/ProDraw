@@ -1,14 +1,12 @@
-import type { RgbaColor, TileCoordinate } from "../../contracts/raster.ts";
+import type { RgbaColor } from "../../contracts/raster.ts";
 import { RASTER_LIMITS } from "../../config/raster.ts";
 import { eraseAlpha, sourceOver } from "../../logic/raster/colorComposite.ts";
 import { isEmptyTile, sameTileBytes } from "../../logic/raster/tileBytes.ts";
 import {
   localPixelCoordinate, pixelByteOffset, pixelTileCoordinate, tileKey
 } from "./tileAddress.ts";
-export type TileVisitor = (
-  coordinate: TileCoordinate,
-  bytes: Uint8ClampedArray
-) => void;
+import { writeRasterTilePixels, type RasterPixelWrite,
+  type RasterTileVisitor } from "./RasterTilePixels.ts";
 export class RasterSurface {
   readonly id: string;
   readonly width: number;
@@ -32,12 +30,8 @@ export class RasterSurface {
     this.height = height;
     this.tileSize = tileSize;
   }
-  get allocatedTileCount(): number {
-    return this.#tiles.size;
-  }
-  get allocatedBytes(): number {
-    return this.#tiles.size * this.tileSize * this.tileSize * 4;
-  }
+  get allocatedTileCount(): number { return this.#tiles.size; }
+  get allocatedBytes(): number { return this.#tiles.size * this.tileSize * this.tileSize * 4; }
   get revision(): number { return this.#revision; }
   tileRevision(x: number, y: number): number {
     return this.#tileRevisions.get(tileKey(x, y)) ?? 0;
@@ -92,6 +86,11 @@ export class RasterSurface {
   erasePixel(x: number, y: number, opacity = 1): boolean {
     return this.mutatePixel(x, y, (destination) => eraseAlpha(destination, opacity));
   }
+  writeTilePixels(x: number, y: number, pixels: readonly RasterPixelWrite[]): boolean {
+    const changed = writeRasterTilePixels(this.#tiles, x, y, this.tileSize, pixels);
+    if (changed) this.bumpTile(x, y);
+    return changed;
+  }
   copyTile(x: number, y: number): Uint8ClampedArray | null {
     const bytes = this.#tiles.get(tileKey(x, y));
     return bytes ? bytes.slice() : null;
@@ -128,7 +127,7 @@ export class RasterSurface {
     this.#tileRevisions.set(key, revision);
     this.#revision = Math.max(this.#revision, revision);
   }
-  visitTiles(visitor: TileVisitor): void {
+  visitTiles(visitor: RasterTileVisitor): void {
     for (const [key, bytes] of this.#tiles) {
       const [x, y] = key.split(":").map(Number);
       visitor({ x: x ?? 0, y: y ?? 0 }, bytes);

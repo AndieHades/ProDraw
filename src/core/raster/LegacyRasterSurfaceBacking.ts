@@ -5,26 +5,22 @@ import { RasterSurface } from "./RasterSurface.ts";
 import { pixelTileCoordinate, tileKey } from "./tileAddress.ts";
 import { copySurfaceRegion, type LegacyRasterBounds,
   type LegacyRasterRegion } from "./LegacyRasterRegion.ts";
-import { copyPackedRgbaTile,
-  replacePackedRgbaTile } from "../../logic/raster/PackedRgbaGridTiles.ts";
+import { loadLegacyGridTile, syncLegacyGridTile } from "./LegacyRasterGridTiles.ts";
+import type { RasterPixelWrite } from "./RasterTilePixels.ts";
 
 type Cell = number[] | null;
 type Grid = { readonly length: number; [index: number]: unknown[] };
+export interface LegacyRasterWrite extends RasterPixelWrite { readonly value: Cell }
 
 const rgba = (cell: readonly number[]): RgbaColor => ({ red: cell[0] ?? 0,
   green: cell[1] ?? 0, blue: cell[2] ?? 0, alpha: cell[3] ?? 255 });
-const cell = (color: RgbaColor): Cell => color.alpha > 0 ?
-  [color.red, color.green, color.blue, color.alpha] : null;
-const numericKeys = (value: object): number[] => Object.keys(value)
-  .map(Number).filter((key) => Number.isInteger(key) && key >= 0);
-
 export class LegacyRasterSurfaceBacking {
   readonly #width: number;
   readonly #height: number;
   readonly #id: string;
   #surface: RasterSurface;
   #edit: RasterEdit | null = null;
-  readonly #changed = new Set<number>();
+  readonly #changedTiles = new Map<string, { x: number; y: number }>();
   readonly #loadedTiles = new Set<string>();
 
   constructor(id: string, width: number, height: number) {
@@ -39,30 +35,67 @@ export class LegacyRasterSurfaceBacking {
 
   begin(label: string): boolean {
     if (this.#edit) return false;
-    this.#edit = new RasterEdit(this.#surface, label); this.#changed.clear(); return true;
+    this.#edit = new RasterEdit(this.#surface, label); this.#changedTiles.clear(); return true;
   }
 
   write(grid: Grid, x: number, y: number, value: Cell): void {
     const row = grid[y]; if (!row) return;
-    if (this.#edit) { this.loadPixelTile(grid, x, y);
+    if (this.#edit) { this.touchTile(grid, x, y);
       this.#edit.setPixel(x, y, value ? rgba(value) :
       { red: 0, green: 0, blue: 0, alpha: 0 });
-      this.#changed.add(y * this.#width + x); }
+    }
     row[x] = value;
+  }
+
+  writeCells(grid: Grid, writes: readonly LegacyRasterWrite[]): void {
+    const edit = this.#edit;
+    if (!edit) { for (const write of writes) { const row = grid[write.y];
+      if (row) row[write.x] = write.value; } return; }
+    const groups = new Map<string, { x: number; y: number; pixels: RasterPixelWrite[] }>();
+    for (const write of writes) {
+      const row = grid[write.y]; if (!row) continue;
+      const x = pixelTileCoordinate(write.x, this.#surface.tileSize);
+      const y = pixelTileCoordinate(write.y, this.#surface.tileSize);
+      const key = tileKey(x, y); let group = groups.get(key);
+      if (!group) { this.loadTile(grid, x, y); group = { x, y, pixels: [] };
+        groups.set(key, group); this.#changedTiles.set(key, { x, y }); }
+      group.pixels.push(write);
+      row[write.x] = write.value;
+    }
+    for (const group of groups.values()) edit.setTilePixels(group.x, group.y, group.pixels);
+  }
+
+  prepareRegion(grid: Grid, minX: number, minY: number, maxX: number, maxY: number): void {
+    const side = this.#surface.tileSize;
+    for (let y = Math.floor(minY / side); y <= Math.floor(maxY / side); y++)
+      for (let x = Math.floor(minX / side); x <= Math.floor(maxX / side); x++) {
+        this.loadTile(grid, x, y); this.#changedTiles.set(tileKey(x, y), { x, y });
+      }
+  }
+
+  writePreparedCells(writes: readonly LegacyRasterWrite[]): void {
+    const edit = this.#edit; if (!edit) return;
+    const groups = new Map<string, { x: number; y: number; pixels: RasterPixelWrite[] }>();
+    for (const write of writes) {
+      const x = pixelTileCoordinate(write.x, this.#surface.tileSize);
+      const y = pixelTileCoordinate(write.y, this.#surface.tileSize);
+      const key = tileKey(x, y); let group = groups.get(key);
+      if (!group) { group = { x, y, pixels: [] }; groups.set(key, group); }
+      group.pixels.push(write);
+    }
+    for (const group of groups.values()) edit.setTilePixels(group.x, group.y, group.pixels);
   }
 
   commit(): TileChangeSet | null {
     const edit = this.#edit; if (!edit) return null;
-    this.#edit = null; this.#changed.clear(); return edit.commit();
+    this.#edit = null; const result = edit.commit(); this.#changedTiles.clear(); return result;
   }
 
   cancel(grid: Grid): boolean {
     const edit = this.#edit; if (!edit) return false;
     edit.cancel(); this.#edit = null;
-    for (const key of this.#changed) { const x = key % this.#width,
-      y = Math.floor(key / this.#width), row = grid[y];
-      if (row) row[x] = cell(this.#surface.getPixel(x, y)); }
-    this.#changed.clear(); return true;
+    for (const tile of this.#changedTiles.values()) this.syncTile(grid, tile.x, tile.y);
+    this.#changedTiles.clear(); return true;
   }
 
   swap(grid: Grid, changeSet: TileChangeSet): TileChangeSet {
@@ -93,54 +126,22 @@ export class LegacyRasterSurfaceBacking {
     return new RasterSurface(this.#id, this.#width, this.#height);
   }
 
-  private loadPixelTile(grid: Grid, x: number, y: number): void {
-    this.loadTile(grid, pixelTileCoordinate(x, this.#surface.tileSize),
-      pixelTileCoordinate(y, this.#surface.tileSize));
+  private touchTile(grid: Grid, x: number, y: number): void {
+    const tileX = pixelTileCoordinate(x, this.#surface.tileSize);
+    const tileY = pixelTileCoordinate(y, this.#surface.tileSize);
+    this.loadTile(grid, tileX, tileY);
+    this.#changedTiles.set(tileKey(tileX, tileY), { x: tileX, y: tileY });
   }
 
   private loadTile(grid: Grid, tileX: number, tileY: number,
     bounds?: LegacyRasterBounds): void {
     const key = tileKey(tileX, tileY); if (this.#loadedTiles.has(key)) return;
-    const packed = copyPackedRgbaTile(grid, tileX, tileY, this.#surface.tileSize);
-    if (packed !== undefined) { if (packed) this.#surface.replaceTile(tileX, tileY, packed);
-      this.#loadedTiles.add(key); return; }
-    const size = this.#surface.tileSize, bytes = new Uint8ClampedArray(size * size * 4);
-    const startX = Math.max(tileX * size, bounds?.minx ?? 0);
-    const startY = Math.max(tileY * size, bounds?.miny ?? 0);
-    const endX = Math.min(this.#width, (tileX + 1) * size,
-      (bounds?.maxx ?? this.#width - 1) + 1);
-    const endY = Math.min(this.#height, (tileY + 1) * size,
-      (bounds?.maxy ?? this.#height - 1) + 1); let occupied = false;
-    for (const y of numericKeys(grid)) { if (y < startY || y >= endY) continue;
-      const row = grid[y]; if (!row) continue;
-      for (const x of numericKeys(row)) { if (x < startX || x >= endX) continue;
-        const value = row[x]; if (!Array.isArray(value) || (value[3] ?? 255) <= 0) continue;
-        const offset = ((y - tileY * size) * size + x - tileX * size) * 4;
-        bytes[offset] = value[0] ?? 0; bytes[offset + 1] = value[1] ?? 0;
-        bytes[offset + 2] = value[2] ?? 0; bytes[offset + 3] = value[3] ?? 255;
-        occupied = true;
-      }
-    }
-    if (occupied) this.#surface.replaceTile(tileX, tileY, bytes);
+    loadLegacyGridTile(this.#surface, grid, tileX, tileY,
+      this.#width, this.#height, bounds);
     this.#loadedTiles.add(key);
   }
 
   private syncTile(grid: Grid, tileX: number, tileY: number): void {
-    const packed = this.#surface.copyTile(tileX, tileY);
-    if (replacePackedRgbaTile(grid, tileX, tileY, this.#surface.tileSize, packed)) return;
-    const size = this.#surface.tileSize, startX = tileX * size, startY = tileY * size;
-    const endX = Math.min(this.#width, startX + size);
-    const endY = Math.min(this.#height, startY + size);
-    for (const y of numericKeys(grid)) { if (y < startY || y >= endY) continue;
-      const row = grid[y]; if (!row) continue;
-      for (const x of numericKeys(row)) if (x >= startX && x < endX) delete row[x];
-    }
-    const bytes = packed; if (!bytes) return;
-    for (let y = startY; y < endY; y++) for (let x = startX; x < endX; x++) {
-      const offset = ((y - startY) * size + x - startX) * 4;
-      if (!bytes[offset + 3]) continue;
-      const row = grid[y] ?? (grid[y] = new Array(this.#width));
-      row[x] = [bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]];
-    }
+    syncLegacyGridTile(this.#surface, grid, tileX, tileY, this.#width, this.#height);
   }
 }

@@ -1,5 +1,6 @@
 import type { TileChangeSet } from "../history/tilePatch.ts";
-import { LegacyRasterSurfaceBacking } from "./LegacyRasterSurfaceBacking.ts";
+import { LegacyRasterSurfaceBacking,
+  type LegacyRasterWrite } from "./LegacyRasterSurfaceBacking.ts";
 import type { LegacyRasterBounds,
   LegacyRasterRegion } from "./LegacyRasterRegion.ts";
 import { createPackedRgbaGrid } from "../../logic/raster/PackedRgbaGrid.ts";
@@ -38,6 +39,19 @@ export class LegacyRasterOwner {
     if (!row) return;
     if (this.#active) this.#active.write(this.grid as unknown[][], x, y, value);
     else row[x] = value;
+  }
+  setCells(writes: readonly LegacyRasterWrite[]): void {
+    const grid = this.grid as unknown[][];
+    if (this.#active) { this.#active.writeCells(grid, writes); return; }
+    for (const write of writes) {
+      const row = grid[write.y]; if (row) row[write.x] = write.value;
+    }
+  }
+  prepareRegion(minX: number, minY: number, maxX: number, maxY: number): void {
+    this.#active?.prepareRegion(this.grid as unknown[][], minX, minY, maxX, maxY);
+  }
+  setPreparedCells(writes: readonly LegacyRasterWrite[]): void {
+    this.#active?.writePreparedCells(writes);
   }
   beginRasterEdit(label: string, width: number, height: number): boolean {
     if (this.#active) return false;

@@ -4,6 +4,7 @@ export const PERFORMANCE_BUDGETS = Object.freeze({
   coldCompositeMilliseconds: 500,
   warmCompositeP95Milliseconds: 16,
   pointerKernelP95Milliseconds: 16,
+  largeSoftDabP50Milliseconds: 75,
   inputToPresentP95Milliseconds: 16,
   boundedEffectP95Milliseconds: 40,
   structuralHistoryP95Milliseconds: 8,

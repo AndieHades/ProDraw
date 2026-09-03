@@ -5,6 +5,7 @@ import { markDirty } from '../../src/core/layer-cache.js';
 import { newLayer, S } from '../../src/core/state.js';
 import { rasterOwnerForLayer } from '../../src/core/raster/legacyRasterOwner.ts';
 import { createCellPainter } from '../../src/systems/draw/cells.js';
+import { brushStamp } from '../../src/systems/draw/brush.js';
 import { floodAt } from '../../src/systems/draw/fill.js';
 import { afterStroke, beginStroke,
   cancelStroke } from '../../src/systems/draw/stroke.js';
@@ -37,6 +38,14 @@ describe('legacy paint tools on tiled RGBA history', () => {
     expect(S.layers[0].grid[5][5]).toBeNull(); cancelStroke();
     expect(S.layers[0].grid[5][5]).toEqual(rgba(20));
     expect(S.undoStack).toHaveLength(0);
+  });
+
+  it('reuses one painter across a simple brush stroke without darkening overlaps', () => {
+    S.pencilSize = 5; S.brushOpacity.pencil = 0.5; beginStroke();
+    brushStamp(6, 6, false); brushStamp(6, 6, false);
+    expect(S.layers[0].grid[6][6]).toEqual([9, 8, 7, 128]);
+    S.stroke = false; afterStroke(); expect(S.undoStack).toHaveLength(1);
+    doUndo(); expect(S.layers[0].grid[6][6]).toBeNull();
   });
 
   it('fills a bounded region through the same tile history', () => {
