@@ -9,6 +9,7 @@ import { attachReorder } from './ui/shell/ReorderGesture.ts';
 import { selectLoadedStampBrush } from './core/stamp-brush.js';
 import { legacyBrushStamp } from './logic/brush/legacyBrushAdapter.ts';
 import { mountOriginalInterfaceBridge } from './main.ts';
+import { saveCurrent } from './systems/gallery/doc.js';
 
 const compactBrushShell = {
   registerOpen(handler) { actions.registerOrReplace('ui.brushLibrary', handler); },
@@ -26,6 +27,6 @@ const compactBrushShell = {
   },
 };
 
-mountOriginalInterfaceBridge(compactBrushShell).catch((error) => {
+mountOriginalInterfaceBridge(compactBrushShell, saveCurrent).catch((error) => {
   console.error('ProDraw compact brush library failed', error);
 });
