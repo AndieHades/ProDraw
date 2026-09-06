@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { PSD_IMPORT_LIMITS } from "../../src/config/psd-import";
 import { decodePsdDocument } from "../../src/core/psd/decodePsdDocument";
 import { PsdDecodeError } from "../../src/core/psd/PsdDecodeError";
+import { normalizePsdNodes } from "../../src/core/psd/psdNodeNormalizer";
 import { preflightPsd } from "../../src/logic/psd/preflightPsd";
 import { psdHeader, structuredPsd } from "./psdFixture";
 
@@ -47,5 +48,12 @@ describe.each([false, true])("structured PSD decode (compress=%s)", (compress) =
     expect(layer.effects.map(({ kind }) => kind)).toEqual(["dropShadow", "solidFill"]);
     expect(layer.effects[0]).toMatchObject({ enabled: true });
     expect(layer.effects[0]!.opacity).toBeCloseTo(0.6, 2);
+  });
+});
+
+describe("PSD group state", () => {
+  it("keeps unknown third-party group state collapsed", () => {
+    const nodes = normalizePsdNodes([{ name: "Unknown state", children: [] }], []);
+    expect(nodes[0]).toMatchObject({ kind: "group", opened: false });
   });
 });

@@ -31,7 +31,7 @@ function normalizeLayer(layer: Layer, warnings: string[]): PsdImportLayer {
 }
 
 function normalizeGroup(layer: Layer, warnings: string[]): PsdImportGroup {
-  return { kind: "group", ...common(layer, warnings), opened: layer.opened !== false,
+  return { kind: "group", ...common(layer, warnings), opened: layer.opened === true,
     children: normalizePsdNodes(layer.children ?? [], warnings) };
 }
 

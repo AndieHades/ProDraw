@@ -68,9 +68,9 @@ export function syncLayerPanelHeight(allowShrink = false) {
 
 function showLayerPanel() { const pop = $('lay-pop'); pop.classList.add('on'); $('layers').classList.add('on');
   layList(); syncLayerPanelWidth(); syncLayerPanelHeight(); }
-function selectCanvasLayer(index) {
+export function selectCanvasLayer(index, renderPanel = showLayerPanel) {
   S.cur = index; S.marked.clear(); S.markedFolders.clear(); S.selFolder = null;
-  S.fxSel.clear(); S.fxCur = null; S.bgSel = false; revealLayer(index, showLayerPanel);
+  S.fxSel.clear(); S.fxCur = null; S.bgSel = false; revealLayer(index, renderPanel);
 }
 function layersAtCursor(event) { let [x, y] = gridAt(event.clientX, event.clientY);
   if (S.tile?.on) { x = ((x % S.W) + S.W) % S.W; y = ((y % S.H) + S.H) % S.H; }

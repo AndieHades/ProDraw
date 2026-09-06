@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { decodePsdDocument } from '../../src/core/psd/decodePsdDocument.ts';
 import { buildPsdGalleryRecord } from '../../src/systems/gallery/psd-record.js';
-import { nestedPsd } from './psdFixture.ts';
+import { nestedPsd, structuredPsd } from './psdFixture.ts';
 
 describe('PSD nested groups', () => {
+  it('keeps a collapsed PSD group collapsed in the gallery record', () => {
+    const document = decodePsdDocument(structuredPsd());
+    const record = buildPsdGalleryRecord('collapsed', 'Collapsed', document);
+    expect(record.folders[0]).toMatchObject({ name: 'Group Ю', open: false });
+  });
+
   it('keeps isolated/pass-through hierarchy in the editable gallery record', () => {
     const document = decodePsdDocument(nestedPsd());
     const record = buildPsdGalleryRecord('nested', 'Nested', document);
