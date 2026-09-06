@@ -40,6 +40,24 @@ describe('layer merge exact scoped history', () => {
     doRedo(); expect(S.layers).toEqual([merged]);
   });
 
+  it('keeps a merged clipping stack attached to its unmerged base', () => {
+    const base = makeLayer('Base'), lower = makeLayer('Lower clip');
+    const upper = makeLayer('Upper clip'); lower.clip = upper.clip = true;
+    base.grid[20][20] = [20, 30, 40, 128];
+    lower.grid[20][20] = [200, 20, 20, 128];
+    upper.grid[20][20] = [20, 20, 200, 128];
+    lower.grid[2][2] = [200, 20, 20, 128];
+    S.layers = [base, lower, upper]; S.cur = 2;
+    dirtyAll({ preserveGridBounds: true }); doMerge();
+
+    expect(S.layers).toHaveLength(2);
+    expect(S.layers[1].clip).toBe(true);
+    expect(S.layers[1].grid[20][20]).toEqual(mergeCells(
+      [200, 20, 20, 128], [20, 20, 200, 128], 1));
+    expect(S.layers[1].grid[2][2]).toEqual([200, 20, 20, 128]);
+    doUndo(); expect(S.layers).toEqual([base, lower, upper]);
+  });
+
   it('bakes nested folder opacity/effects and restores the tree', () => {
     const root = { id: 1, name: 'Root', parent: null, visible: true,
       opacity: 0.5, effects: [{ type: 'stroke', visible: true, opacity: 1,

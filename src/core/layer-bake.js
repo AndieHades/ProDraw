@@ -14,8 +14,16 @@ const visibleColorEffects = (effects = []) => effects.filter((effect) =>
 const layerGrid = (i, inherited = []) => bakeGrid(S.layers[i].grid,
   layerEffectsFor(S.layers[i]), inherited, S.W, S.H);
 
-function visibleLayerGrid(i, selected) { const L = S.layers[i]; if (!effVis(i) || L.opacity <= 0) return null;
+export function preservesClipping(idx) {
+  const selected = new Set(idx), clips = idx.filter((i) => S.layers[i]?.clip);
+  if (!clips.length || clips.length !== idx.length) return false;
+  const base = clipBase(clips[0]);
+  return base >= 0 && !selected.has(base) && clips.every((i) => clipBase(i) === base);
+}
+
+function visibleLayerGrid(i, selected, keepClipping) { const L = S.layers[i]; if (!effVis(i) || L.opacity <= 0) return null;
   const cb = clipBase(i); if (L.clip) {
+    if (keepClipping) return layerGrid(i);
     if (cb < 0 || !selected.has(cb) || !effVis(cb)) return null;
     return clipGridToAlpha(layerGrid(i), S.layers[cb].grid, S.W, S.H);
   }
@@ -23,8 +31,9 @@ function visibleLayerGrid(i, selected) { const L = S.layers[i]; if (!effVis(i) |
 }
 
 export function bakeLayerIndices(idx) {
-  const selected = new Set(idx), out = blank(S.W, S.H);
-  for (const i of idx) { const grid = visibleLayerGrid(i, selected);
+  const selected = new Set(idx), keepClipping = preservesClipping(idx);
+  const out = blank(S.W, S.H);
+  for (const i of idx) { const grid = visibleLayerGrid(i, selected, keepClipping);
     if (grid) drawBoundedGrid(out, grid, S.layers[i].opacity, S.W, S.H); }
   return out;
 }
