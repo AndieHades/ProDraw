@@ -17,6 +17,7 @@
     "build:desktop": "npm run check && vite build --mode desktop",
     "check": "tsc --noEmit --incremental --tsBuildInfoFile node_modules/.cache/prodraw.tsbuildinfo",
     "package:desktop": "node tools/package-desktop.mjs",
+    "package:mac": "node tools/package-macos.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "npm run test:legacy && npm run test:ts && npm run test:performance",
@@ -62,7 +63,11 @@
       "dist/**",
       "desktop/**",
       "package.json"
-    ]
+    ],
+    "mac": {
+      "category": "public.app-category.graphics-design",
+      "icon": "public/icon-512.png"
+    }
   },
   "dependencies": {
     "ag-psd": "^31.0.2"

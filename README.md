@@ -38,5 +38,15 @@ npm run package:desktop
 несжатый каталог и печатает путь к `ProDraw.exe`; в CI artifact остаётся в
 `artifacts/desktop/win-unpacked`.
 
+На Apple Silicon Mac команда ниже собирает, проверяет и обновляет приложение по
+постоянному пути `/Applications/ProDraw.app`:
+
+```bash
+npm run package:mac
+```
+
+После первого запуска закрепи ProDraw в Dock. Последующие сборки обновляют тот
+же `.app`, поэтому ярлык менять не нужно.
+
 Перед изменениями прочитай [`AGENTS.md`](AGENTS.md) и
 [`docs/index.md`](docs/index.md).
