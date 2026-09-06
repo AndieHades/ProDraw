@@ -23,6 +23,9 @@
     #rowctx button.danger { color: var(--danger); }
     #cctx button.cur { background: var(--accent); }
     #cctx button.dim { opacity: .45; }
+    #cctx { max-height: min(70vh, 520px); overflow-y: auto; scrollbar-gutter: stable; }
+    #cctx button { gap: 10px; }
+    #cctx .cctx-thumb { width: 30px; height: 30px; flex: none; image-rendering: pixelated; }
     .cctx-head { color: var(--txt2); font-size: var(--type-system); padding: 6px 12px 2px; }
     /* Треугольник-указатель меню-бабла (единый для всех меню). */
     .menu-arrow { position: absolute; width: 12px; height: 12px; background: var(--panel-solid);
@@ -52,5 +55,4 @@
     /* Ghost пачки: дополнительные карточки видны только при переносе нескольких элементов. */
     .drag-ghost[data-stack] { box-shadow: var(--win-shadow), 7px 10px 0 var(--panel-solid), 7px 10px 0 1px var(--line); }
     .drag-ghost[data-stack="3"] { box-shadow: var(--win-shadow), 7px 10px 0 var(--panel-solid), 7px 10px 0 1px var(--line), 14px 20px 0 var(--panel-solid), 14px 20px 0 1px var(--line); }
-
 
