@@ -14,6 +14,9 @@ export function normalizeBitmap(
   if (!image || image.width < 1 || image.height < 1) return undefined;
   const pixels = image.width * image.height;
   if (image.data.length < pixels * 4) return undefined;
+  if (image.data instanceof Uint8ClampedArray && image.data.length === pixels * 4) {
+    return { left, top, width: image.width, height: image.height, rgba: image.data };
+  }
   const rgba = new Uint8ClampedArray(pixels * 4);
   for (let index = 0; index < rgba.length; index += 1) {
     rgba[index] = byte(image.data, index);

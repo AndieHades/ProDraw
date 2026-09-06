@@ -11,6 +11,7 @@ import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { imageData, looksPixelArt } from '../../core/image.js';
 import { setImpData, impConvert, applyImport, rotateImp, setImportMode, getImportMode } from './convert.js';
 import { isPsdFile } from './psd-file.ts';
+import { bindFileDrop } from './file-drop.ts';
 
 let impSrcImg = null;
 export { looksPixelArt };
@@ -79,14 +80,8 @@ export function mount() {
     else { actions.run('gallery.hide'); insertPixelImage(impSrcImg); } // новый проект — как есть
     setImportMode('replace'); };
   floatingWindow($('imp-box'), { grip: $('imp-grip'), storeKey: 'impwin' }); // конвертер — перетаскиваемое окно
-  let depth = 0; const show = (on) => $('dropmask').classList.toggle('on', on);
-  window.addEventListener('pxh:drop-reset', () => { depth = 0; show(false); });
-  window.addEventListener('dragover', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
-  window.addEventListener('dragenter', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); depth++; show(true); } });
-  window.addEventListener('dragleave', () => { depth = Math.max(0, depth - 1); if (!depth) show(false); });
-  window.addEventListener('drop', (e) => { e.preventDefault(); depth = 0; show(false);
-    const f = e.dataTransfer && e.dataTransfer.files[0];
-    if (f) void dropImage(f); });
+  bindFileDrop(window, (on) => $('dropmask').classList.toggle('on', on),
+    (file) => void dropImage(file));
 }
 
 // открыть файл в конвертере как новый проект (галерея, меню Pixelize) — режим replace
