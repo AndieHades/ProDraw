@@ -6,7 +6,7 @@ import { applyTheme } from './styles/theme.ts';
 import { refreshColors } from './styles/canvas-colors.ts';
 import * as palette from './systems/palette.js';
 import * as eraserBar from './systems/eraser-bar.js';
-import * as simpleBrushLibrary from './systems/simple-brush-library.js';
+import * as simpleBrushLibrary from './systems/draw/brush-library-panel.ts';
 import * as colorPicker from './systems/color-picker.js';
 import * as colorPreferences from './systems/color-preferences.ts';
 import * as toolbars from './systems/toolbars.js';

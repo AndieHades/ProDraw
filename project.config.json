@@ -4,7 +4,10 @@
   "product": "touch-first raster graphics editor",
   "targetPlatform": "macos-desktop",
   "developmentRuntime": "vite-web",
-  "languages": ["ru", "en"],
+  "languages": [
+    "ru",
+    "en"
+  ],
   "lineLimit": 150,
   "docsLineLimit": 250,
   "maxCanvasSide": 8192,
@@ -14,13 +17,15 @@
     "runtimeMode": "shell",
     "productionEntry": "src/legacy-entry.js",
     "targetEntry": "src/app/mountProductionShell.ts",
-    "maximumSourceJavaScriptFiles": 184,
-    "maximumLegacyStateJavaScriptFiles": 141,
+    "maximumSourceJavaScriptFiles": 183,
+    "maximumLegacyStateJavaScriptFiles": 140,
     "maximumIndexedGridReads": 47
   },
   "legacyCodeOverLimit": [
     "test/module-int.mjs",
     "test/unit.mjs"
   ],
-  "legacyDocsOverLimit": ["docs/animation.md"]
+  "legacyDocsOverLimit": [
+    "docs/animation.md"
+  ]
 }

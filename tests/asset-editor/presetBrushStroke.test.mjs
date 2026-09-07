@@ -8,7 +8,7 @@ import { brushStamp, endBrushStroke } from '../../src/systems/draw/brush.js';
 import { beginStroke } from '../../src/systems/draw/stroke.js';
 import { ensurePresetBrush, presetBrush,
   presetShapeId } from '../../src/systems/draw/preset-brush.ts';
-import { restoreSelectedPresets } from '../../src/systems/simple-brush-library.js';
+import { restoreSelectedPresets } from '../../src/systems/draw/brush-library-panel.ts';
 
 const FILE = 'big_soft_brush.brush';
 const sample = (x, y, pressure) => ({ x, y, pressure, tiltX: 0, tiltY: 0,
