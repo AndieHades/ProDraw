@@ -3,7 +3,10 @@
   box-sizing: border-box; top: calc(env(safe-area-inset-top, 0px) + 70px); left: 50%; transform: translateX(-50%);
   background: var(--panel); border: 1px solid var(--line); border-radius: var(--win-radius); box-shadow: var(--win-shadow); }
 #brush-pop.on { display: block; animation: pop .18s ease-out; }
-#brush-body { padding: var(--gap); }
+/* шапка, отступы и строка действий — как в окне палитры */
+#brush-body { padding: var(--gap); display: flex; flex-direction: column; gap: var(--gap); }
+#brush-act { padding: 6px 2px 0; border-top: 1px solid var(--line); }
+#brush-act button:disabled { opacity: .35; cursor: default; }
 #brush-list { overflow-y: auto; min-height: 0; display: grid; grid-template-columns: repeat(auto-fill, var(--brush-tile-min)); justify-content: start; align-content: start; gap: var(--gap);
   max-height: calc(100vh - env(safe-area-inset-top, 0px) - 120px); }
 /* плитка кисти — как иконка переносного тулбара */

@@ -136,5 +136,7 @@ export const ruFeedback: LocaleDictionary = {
   "toast.folderExportFailed": "Не удалось сохранить дерево PNG",
   "toast.animationLastFrame": "Это последний кадр",
   "toast.brushLoadFailed": "Кисть {name} не загрузилась — рисуем твёрдой",
+  "toast.brushBuiltin": "Встроенную кисть удалить нельзя — сделайте копию",
+  "toast.brushCopyShape": "Дублировать можно только кисть из библиотеки",
   "toast.animationExported": "Анимация экспортирована",
 };

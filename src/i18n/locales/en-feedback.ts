@@ -136,5 +136,7 @@ export const enFeedback: LocaleDictionary = {
   "toast.folderExportFailed": "Could not save the PNG tree",
   "toast.animationLastFrame": "This is the last frame",
   "toast.brushLoadFailed": "Brush {name} did not load, drawing with the hard tip",
+  "toast.brushBuiltin": "A bundled brush cannot be deleted, duplicate it first",
+  "toast.brushCopyShape": "Only a library brush can be duplicated",
   "toast.animationExported": "Animation exported",
 };

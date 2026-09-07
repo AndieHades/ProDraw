@@ -2,6 +2,7 @@
 // Ассеты и декодер загружаются лениво, чтобы не попадать в основной чанк.
 // Ошибка одной кисти изолируется: вызывающий продолжает твёрдым отпечатком.
 import type { BrushPreset, LoadedBrush } from "../../contracts/brush.ts";
+import { userBrush, userIdOf } from "./brush-library-store.ts";
 
 // Рендерер даба и планировщик хода нужны только тому, кто выбрал пресет,
 // поэтому они грузятся вместе с кистью и не лежат в основном чанке.
@@ -32,9 +33,13 @@ const bundled = (): Promise<readonly BrushPreset[]> => (catalog ??=
     .catch(() => []));
 
 export const presetShapeId = (id: string): string => PREFIX + id;
-export const presetIdOf = (shape: unknown): string | null =>
-  typeof shape === "string" && shape.startsWith(PREFIX)
-    ? shape.slice(PREFIX.length) : null;
+// Пользовательская копия ссылается на встроенный пресет: рисует она тем же
+// декодированным ассетом, отличаются только имя и настройки инструмента.
+export const presetIdOf = (shape: unknown): string | null => {
+  if (typeof shape !== "string") return null;
+  if (shape.startsWith(PREFIX)) return shape.slice(PREFIX.length);
+  return userBrush(userIdOf(shape))?.source ?? null;
+};
 
 export async function presetBrushCatalog(): Promise<readonly PresetBrushEntry[]> {
   return (await bundled()).map(({ id, name }) => ({ id, name }));
