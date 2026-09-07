@@ -27,6 +27,21 @@ describe('simple brush runtime', () => {
     expect(S.layers[0].grid[2][2][3]).toBe(255);
   });
 
+  it('mirrors the stamp once when horizontal symmetry is on', () => {
+    reset('square'); S.sym = true; S.active = [7, 8, 9];
+    brushStamp(1, 4, false);
+    expect(S.layers[0].grid[4][1][3]).toBe(255);
+    expect(S.layers[0].grid[4][7][3]).toBe(255);
+    expect(S.layers[0].grid[4][4]).toBeNull();
+  });
+
+  it('does not compound opacity across mirrored stamps', () => {
+    reset('square', .5); S.sym = true; S.active = [7, 8, 9];
+    brushStamp(1, 4, false);
+    expect(S.layers[0].grid[4][1][3]).toBe(128);
+    expect(S.layers[0].grid[4][7][3]).toBe(128);
+  });
+
   it('erases alpha with the same hard selected footprint', () => {
     reset('round');
     for (const row of S.layers[0].grid) row.fill([1, 2, 3, 255]);

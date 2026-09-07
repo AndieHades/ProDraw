@@ -13,8 +13,10 @@ export function blendOver(s, d, sa) {
   const ta = sa * (s.length > 3 ? s[3] / 255 : 1);
   if (!d) return [s[0], s[1], s[2], Math.round(ta * 255)];
   const ba = d.length > 3 ? d[3] / 255 : 1, oa = ta + ba * (1 - ta);
-  const f = (sc, dc) => Math.round((sc * ta + dc * ba * (1 - ta)) / oa);
-  return [f(s[0], d[0]), f(s[1], d[1]), f(s[2], d[2]), Math.round(oa * 255)];
+  const dw = ba * (1 - ta); // без замыкания на пиксель: путь кисти вызывает это на каждый мазок
+  return [Math.round((s[0] * ta + d[0] * dw) / oa),
+    Math.round((s[1] * ta + d[1] * dw) / oa),
+    Math.round((s[2] * ta + d[2] * dw) / oa), Math.round(oa * 255)];
 }
 
 // смешать пиксель t (с непрозрачностью op) поверх b — для слияния слоёв

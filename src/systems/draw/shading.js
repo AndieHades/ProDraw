@@ -3,6 +3,8 @@
 // toward the first color in the ramp.
 import { S, G } from '../../core/state.js';
 import { inSel } from '../../core/selection.js';
+import { symmetryConfig } from '../../core/layers.js';
+import { mirrorPoints } from '../../logic/symmetry.ts';
 import { markDirty } from '../../core/layer-cache.js';
 import { previousRampColor } from '../../logic/PaletteRamp.ts';
 import { brushStampWith } from './brush.js';
@@ -24,6 +26,13 @@ export function shadeCell(x, y) {
   markDirty(S.cur);
 }
 
+// Отпечаток больше не зеркалит сам, поэтому симметрию затенения применяет
+// обёртка с конфигурацией, посчитанной один раз на отпечаток.
 export function shadingStamp(x, y) {
-  brushStampWith(x, y, 'pencil', shadeCell, false);
+  const symmetry = symmetryConfig();
+  brushStampWith(x, y, 'pencil', (px, py) => {
+    for (const [mx, my] of mirrorPoints(px, py, S.W, S.H, false, false, symmetry)) {
+      shadeCell(mx, my);
+    }
+  });
 }
