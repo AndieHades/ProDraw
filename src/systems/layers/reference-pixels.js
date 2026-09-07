@@ -1,4 +1,6 @@
 import { S, blank } from '../../core/state.js';
+import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
+import { someOpaqueRegionPixel } from '../../logic/raster/regionScan.ts';
 import { snapshotRasterReferences } from '../../core/history.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { rasterizeTextTargets } from '../../core/text-rasterize.js';
@@ -35,11 +37,9 @@ function beginReference(layers, { fork = false, rasterize = false } = {}) {
 
 function contentBounds(item) {
   const bounds = item.bounds;
-  if (bounds) for (let y = bounds.miny; y <= bounds.maxy; y++) {
-    for (let x = bounds.minx; x <= bounds.maxx; x++) {
-      if (opaque(item.layer.grid[y][x])) return bounds;
-    }
-  }
+  const owner = bounds && rasterOwnerForLayer(item.layer);
+  if (owner && someOpaqueRegionPixel(owner.readRegion(bounds, S.W, S.H),
+    () => true)) return bounds;
   return [...item.layer.ext.values()].some(opaque) ? bounds : null;
 }
 

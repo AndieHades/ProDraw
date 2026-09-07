@@ -103,12 +103,12 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 - Current stage: `Q2A — тайлы как единственный источник чтения`
 - Status: `in_progress`
 - Last completed stage: `Q1 — исправленная цель cutover`
-- Next action: подэтап `Q2A-3` — перевести команды слоёв
-  (`layers/{bulk-pixels,fill,reference-pixels}`, `layer-center`, `mono`,
-  `recolor`, `free-rotate`, `layer-bake-grid`) на регионное чтение
+- Next action: подэтап `Q2A-4` — перевести сканы текста, коррекций, эффектов и
+  импорта, затем `Q2A-5` — счётчик обращений `grid[` в `validate:cutover`
 - Blockers: none
 - Working paths: `src/core/layer-cache.js`, `src/logic/raster`,
   `src/systems/render`, `src/systems/selection`, `tools/validate-cutover.mjs`
-- Last checks: `npm run validate` зелёный целиком на `Q2A-2`: `166`/`462`
-  TypeScript и `16`/`57` performance тестов; `Q2A-1`, `Q2A-1b`, `Q2A-2` закрыты
+- Last checks: `npm run validate` зелёный целиком на `Q2A-3`: `166`/`464`
+  TypeScript и `16`/`57` performance тестов; закрыты `Q2A-1`, `Q2A-1b`,
+  `Q2A-2`, `Q2A-3`
 - Last updated: 2026-09-06

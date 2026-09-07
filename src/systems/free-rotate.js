@@ -5,14 +5,19 @@ import * as bus from '../core/bus.ts';
 import { snapshot } from '../core/history.js';
 import { rotSprite } from '../logic/rotsprite.js';
 import { markDirty } from '../core/layer-cache.js';
+import { rasterOwnerForLayer } from '../core/raster/legacyRasterOwner.ts';
+import { packRegionToInt32 } from '../logic/raster/regionScan.ts';
 import { paintCanvas } from '../core/canvas.js';
 import { toast, t } from '../ui/dom/ShellDom.ts';
 
-const cellInt = (c) => (c ? (((c[0] << 24) | (c[1] << 16) | (c[2] << 8) | (c.length > 3 ? c[3] : 255)) >>> 0) : 0);
 const intCell = (v) => (v ? [(v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255] : null);
 
+// Слой читается одним регионом у растрового владельца, а не поячеечно.
 export function layerToInt(L) { const src = new Int32Array(S.W * S.H);
-  for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) src[y * S.W + x] = cellInt(L.grid[y][x]); return src; }
+  const owner = rasterOwnerForLayer(L); if (!owner) return src;
+  packRegionToInt32(owner.readRegion({ minx: 0, miny: 0, maxx: S.W - 1,
+    maxy: S.H - 1 }, S.W, S.H), src, S.W);
+  return src; }
 
 export function buildRotPreview(L, ang, scale) { const r = rotSprite(layerToInt(L), S.W, S.H, ang, scale);
   const c = paintCanvas(r.w, r.h, (d) => {

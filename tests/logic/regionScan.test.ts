@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { someOpaqueRegionPixel,
+import { packRegionToInt32, someOpaqueRegionPixel,
   visitOpaqueRegionPixels } from "../../src/logic/raster/regionScan.ts";
 
 function region(width: number, height: number, pixels: readonly (readonly number[])[]) {
@@ -37,5 +37,23 @@ describe("region scanning", () => {
     const empty = { minx: 0, miny: 0, width: 0, height: 0, data: new Uint8ClampedArray(0) };
     expect(someOpaqueRegionPixel(empty, () => true)).toBe(false);
     visitOpaqueRegionPixels(empty, () => { throw new Error("must not visit"); });
+  });
+});
+
+describe("region to integer packing", () => {
+  it("packs opaque samples as 0xRRGGBBAA at their document offset", () => {
+    const data = new Uint8ClampedArray(8);
+    data.set([1, 2, 3, 255], 0); data.set([0, 0, 0, 0], 4);
+    const target = new Int32Array(16);
+    packRegionToInt32({ minx: 1, miny: 2, width: 2, height: 1, data }, target, 4);
+    expect((target[2 * 4 + 1] ?? 0) >>> 0).toBe(0x010203ff);
+    expect(target[2 * 4 + 2]).toBe(0);
+  });
+
+  it("leaves the target untouched for a transparent region", () => {
+    const target = new Int32Array(4).fill(7);
+    packRegionToInt32({ minx: 0, miny: 0, width: 2, height: 1,
+      data: new Uint8ClampedArray(8) }, target, 2);
+    expect([...target]).toEqual([7, 7, 7, 7]);
   });
 });

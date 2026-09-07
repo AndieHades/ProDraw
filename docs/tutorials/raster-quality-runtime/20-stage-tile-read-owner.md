@@ -22,7 +22,8 @@
 | `Q2A-1b` | подсветка перекраски читает регионом и кэшируется (`render/overlays`) | 2 | done |
 | `Q2A-2` | чистые сканы выделения: `selection/content`, `selection/model` | 2 | done |
 | `Q2A-2b` | read-modify-write выделения: `selection/{fragment,float,clipboard,pixel-transform,full-canvas}` | 5 | draft |
-| `Q2A-3` | команды слоёв: `layers/{bulk-pixels,fill,reference-pixels}`, `layer-center`, `mono`, `recolor`, `free-rotate`, `layer-bake-grid` | 8 | draft |
+| `Q2A-3` | сканы команд слоёв: `layers/{bulk-pixels,reference-pixels}`, `free-rotate` | 3 | done |
+| `Q2A-3b` | read-modify-write слоёв: `layers/fill`, `layer-center`, `mono`, `recolor`, `layer-bake-grid` | 5 | draft |
 | `Q2A-4` | текст, коррекции, эффекты, импорт: `text-grid-raster`, `draw/adjust`, `adjustment-preview`, `effects/convert`, `import/convert`, `logic/cleanup`, `logic/layer-effects`, `logic/flood`, `document` | 9 | draft |
 | `Q2A-5` | счётчик обращений в `validate:cutover` и его предел в `project.config.json` | 2 | draft |
 

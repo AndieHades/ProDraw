@@ -5,6 +5,8 @@ import { S, blank } from '../../core/state.js';
 import { beginPixelBatch, commitPixelPatch,
   recordPixelBefore, snapshotRasterReferences } from '../../core/history.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
+import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
+import { someOpaqueRegionPixel } from '../../logic/raster/regionScan.ts';
 
 const fullBounds = () => ({ minx: 0, miny: 0,
   maxx: S.W - 1, maxy: S.H - 1 });
@@ -30,14 +32,10 @@ function replaceWithUniformGrid(indices, color) {
   return true;
 }
 
-function hasOpaque(grid, bounds) {
-  if (!bounds) return false;
-  for (let y = bounds.miny; y <= bounds.maxy; y++) {
-    for (let x = bounds.minx; x <= bounds.maxx; x++) {
-      if (opaque(grid[y][x])) return true;
-    }
-  }
-  return false;
+function hasOpaque(index, bounds) {
+  const owner = bounds && rasterOwnerForLayer(S.layers[index]);
+  return !!owner && someOpaqueRegionPixel(owner.readRegion(bounds, S.W, S.H),
+    () => true);
 }
 
 function replaceOpaque(index, color, bounds) {
@@ -74,13 +72,13 @@ export function replaceOrFillRasterTargets(layers, color) {
   if (!candidates.length || candidates.some((index) =>
     !isOrdinaryRaster(S.layers[index]))) return null;
   const states = candidates.map((index) => ({ index,
-    bounds: layerContentBounds(index), grid: S.layers[index].grid }));
-  if (states.every(({ bounds, grid }) => !hasOpaque(grid, bounds)))
+    bounds: layerContentBounds(index) }));
+  if (states.every(({ index, bounds }) => !hasOpaque(index, bounds)))
     return replaceWithUniformGrid(candidates, color);
   const indices = beginTargets(layers); if (!indices) return null;
   for (const index of indices) {
-    const bounds = layerContentBounds(index), grid = S.layers[index].grid;
-    if (hasOpaque(grid, bounds)) replaceOpaque(index, color, bounds);
+    const bounds = layerContentBounds(index);
+    if (hasOpaque(index, bounds)) replaceOpaque(index, color, bounds);
     else fillWhole(index, color);
   }
   commitPixelPatch(); return true;
@@ -98,7 +96,7 @@ export function clearRasterTargets(layers) {
   let changed = false;
   for (const index of indices) {
     const grid = S.layers[index].grid, bounds = layerContentBounds(index);
-    if (!hasOpaque(grid, bounds)) continue;
+    if (!hasOpaque(index, bounds)) continue;
     let recording = true;
     for (let y = bounds.miny; y <= bounds.maxy; y++) {
       for (let x = bounds.minx; x <= bounds.maxx; x++) {

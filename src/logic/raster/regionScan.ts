@@ -32,3 +32,19 @@ export function visitOpaqueRegionPixels(
     }
   }
 }
+
+// Packs a region into the legacy 0xRRGGBBAA integer layout used by RotSprite.
+// Transparent samples stay zero, matching the null cell they came from.
+export function packRegionToInt32(
+  region: RegionPixels, target: Int32Array, stride: number
+): void {
+  const { data, width, height, minx, miny } = region;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const offset = (y * width + x) * 4, alpha = data[offset + 3] ?? 0;
+      if (!alpha) continue;
+      target[(miny + y) * stride + minx + x] = (((data[offset] ?? 0) << 24) |
+        ((data[offset + 1] ?? 0) << 16) | ((data[offset + 2] ?? 0) << 8) | alpha) >>> 0;
+    }
+  }
+}
