@@ -10,19 +10,21 @@ Canonical owner: this package.
 
 - Current stage: `R2 / R2.11 / C4B — creative tools, text and colour`
 - Status: `in_progress`
-- Last completed stage: `R2.11/C1`; F3-R1..F3-R5 and the bounded
+- Last completed stage: `R2.11/C5B`; F3-R1..F3-R5 and the bounded
   P1 merge/document-remap recovery also remain complete
-- Next action: port creative tools, text/font and colour workflows under the
-  registered
-  [`R2.11 owner cutover`](r2-11-owner-cutover/README.md)
-- Blockers: final F5 acceptance needs a connected Huion and a user-drawn trace;
+- Next action: continue in
+  [`raster-quality-runtime`](../raster-quality-runtime/README.md), which
+  supersedes `R2.11/C6A` and `C6B`; that package's `Resume Here` owns the
+  current stage
+- Blockers: tablet acceptance needs a connected device and a user-drawn trace;
   R2 engine acceptance remains revoked until the restored UI uses typed RGBA owners
-- Working paths: `src/app.js`, `src/raster-main.ts`, `src/core`, `src/systems`,
-  `src/ui`, `tests/system`, `tests/performance`, `test/module-int.mjs`
-- Last checks: `npm run validate` passed 117 legacy unit, storage/reconnect,
-  112 TypeScript files/329 checks and the sequential 14 performance files/52
-  checks; architecture, docs, cutover, desktop and production build gates passed.
-- Last updated: `2026-08-28, C4A closed and C4B active`
+- Working paths: `src/app.js`, `src/core`, `src/systems`, `src/ui`,
+  `tests/system`, `tests/performance`, `test/module-int.mjs`
+- Last checks: `npm run validate` green at `asset-editor@ceac0a2`: 117 legacy
+  unit, storage/reconnect, 162 TypeScript files/448 checks and the sequential
+  16 performance files/57 checks; architecture, docs, cutover, desktop,
+  shell-catalog and production build gates passed.
+- Last updated: `2026-09-06, C6A/C6B superseded by raster-quality-runtime`
 
 ## Product Outcome
 

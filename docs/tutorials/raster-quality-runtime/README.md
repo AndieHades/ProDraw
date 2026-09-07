@@ -58,8 +58,8 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 | Stage | Outcome | Depends on | Status |
 | --- | --- | --- | --- |
 | `Q0` | правдивые гейты и macOS-сдача | none | done |
-| `Q1` | исправленная цель cutover, C6A/C6B superseded | `Q0` | in_progress |
-| `Q2A` | тайлы — единственный источник чтения | `Q1` | draft |
+| `Q1` | исправленная цель cutover, C6A/C6B superseded | `Q0` | done |
+| `Q2A` | тайлы — единственный источник чтения | `Q1` | in_progress |
 | `Q2B` | тайлы — единственная цель записи, `grid[y][x]` снят | `Q2A` | draft |
 | `Q3` | coalesced ввод с pressure и tilt | `Q2B` | draft |
 | `Q4` | настоящий движок кистей в продакшн-оболочке | `Q3` | draft |
@@ -100,17 +100,18 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 
 ## Resume Here
 
-- Current stage: `Q1 — исправленная цель cutover`
+- Current stage: `Q2A — тайлы как единственный источник чтения`
 - Status: `in_progress`
-- Last completed stage: `Q0 — правдивые гейты и macOS-сдача`
-- Next action: снять `src/raster-main.ts` как цель в `project.config.json`,
-  переписать `tools/validate-raster-entry.mjs` и перевести `C6A`/`C6B` из
-  `r2-11-owner-cutover` в `superseded`
+- Last completed stage: `Q1 — исправленная цель cutover`
+- Next action: перевести читателей пикселей (`layer-cache`, `composite`,
+  `raster-grid`, экспорт, эффекты, сериализация галереи, PSD-импорт) на
+  регионное чтение у владельца и убрать `fillRect` на пиксель из
+  `layerFloatCanvas`
 - Blockers: none
-- Working paths: `project.config.json`, `tools/validate-raster-entry.mjs`,
-  `tools/validate-cutover-fixtures.mjs`,
-  `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`
-- Last checks: `npm run validate` зелёный целиком; `npm test` код выхода `0`
-  (`117` legacy unit, `162`/`448` TypeScript, `16`/`57` performance);
-  `npm run package:mac` установил `/Applications/ProDraw.app` и прошёл smoke
+- Working paths: `src/core/layer-cache.js`, `src/core/composite.js`,
+  `src/logic/raster-grid.js`, `src/systems/export`, `src/systems/effects`,
+  `src/systems/gallery`, `src/core/psd`, `tools/validate-cutover.mjs`
+- Last checks: `validate:raster-entry`, `validate:cutover`,
+  `validate:cutover-fixtures`, `validate:docs`, `validate:lines`, `check`,
+  `eslint` зелёные; `npm test` код выхода `0`
 - Last updated: 2026-09-06

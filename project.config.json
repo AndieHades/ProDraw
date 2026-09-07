@@ -13,7 +13,7 @@
     "stage": "C5",
     "runtimeMode": "shell",
     "productionEntry": "src/legacy-entry.js",
-    "targetEntry": "src/raster-main.ts",
+    "targetEntry": "src/app/mountProductionShell.ts",
     "maximumSourceJavaScriptFiles": 253,
     "maximumLegacyStateJavaScriptFiles": 169
   },

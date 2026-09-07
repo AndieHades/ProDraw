@@ -1,26 +1,46 @@
 # R2.11: TypeScript RGBA Owner Cutover
 
-- Status: `in_progress`
+- Status: `superseded`
 - Evidence baseline: `aset-editor@c37c01f`, 2026-08-28
 - Parent plan: [`Raster Editor Migration`](../README.md)
 - Authority: user requested full audit, implementation and one commit per stage;
   after stabilizing gallery memory, Crop, selected-layer trim and global Pan,
   the user authorized the full TypeScript transition.
 
+## Why `C6A` and `C6B` are superseded
+
+Both stages assumed `src/raster-main.ts` and `RasterEditorApp` were the
+TypeScript port of the product. The audit at `asset-editor@6cc56bb` disproved
+that: `RasterEditorApp` throws without a brush library, handles about fifteen
+commands and contains no PSD import or export, gallery, layer folders,
+selection, transform, crop, trim, text, animation or effects. The live graph and
+the `RasterEditorApp` graph share 17 of their modules, so they are two nearly
+disjoint bodies of code rather than one migration at two stages.
+
+Booting `RasterEditorApp` as written would therefore drop nearly every workflow
+of the product. `C0`–`C5B` remain valid and delivered: they moved live owners
+into TypeScript inside the preserved shell, which is the correct direction.
+
+The remaining work continues in
+[`raster-quality-runtime`](../../raster-quality-runtime/README.md): `Q1`
+corrects the declared cutover target, `Q6` builds the TypeScript composition
+root that mounts the preserved shell, and `Q7` deletes the parallel editor.
+Evidence: [`01-current-state.md`](../../raster-quality-runtime/01-current-state.md).
+
 ## Resume Here
 
-- Current stage: `C6A — TypeScript production composition root`
-- Status: `in_progress`
+- Current stage: `none — package superseded after C5B`
+- Status: `superseded`
 - Last completed stage: `C5B`; timeline/frame mutation, playback position, onion
   neighbours and sprite-sheet metadata use TypeScript owners
-- Next action: make the preserved production shell start from one TypeScript root
-- Blockers: physical Huion acceptance remains a final device-only check; it does
-  not block code migration or automated trace evidence
-- Working paths: `src`, `tests`, `tools`,
-  `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`
-- Last checks: 117 legacy, 335 TypeScript and 52 sequential performance tests
-  pass; full suites, creative owner focus tests and import-cycle checks stay green
-- Last updated: 2026-08-28
+- Next action: continue in
+  [`raster-quality-runtime`](../../raster-quality-runtime/README.md); its
+  `Resume Here` owns the current stage
+- Blockers: none here; physical tablet acceptance moves to `Q3`/`Q4` of that package
+- Working paths: none owned by this package
+- Last checks: `npm run validate` green at `asset-editor@ceac0a2`, including
+  `117` legacy unit, `162`/`448` TypeScript and `16`/`57` performance tests
+- Last updated: 2026-09-06
 
 ## Outcome
 
@@ -65,8 +85,8 @@ all other rows remain required.
 | `C4B` | creative tools, text and colour are typed | `C4A` | done | `feat: port creative tools to TypeScript` |
 | `C5A` | gallery, import, export and Save as Canvas are typed | `C4B` | done | `refactor: port document file workflows` |
 | `C5B` | animation and timeline are typed | `C5A` | done | `refactor: port animation workflows` |
-| `C6A` | production starts at the TypeScript composition root | `C5B` | in progress | `refactor: switch production to TypeScript entry` |
-| `C6B` | legacy graph is deleted and final gates are green | `C6A` | pending | `refactor: retire the legacy editor runtime` |
+| `C6A` | production starts at the TypeScript composition root | `C5B` | superseded | see `Q1`/`Q6` |
+| `C6B` | legacy graph is deleted and final gates are green | `C6A` | superseded | see `Q7` |
 
 Only one row may be `in_progress`. Every stage chapter owns its exact file
 allowlist, focused checks, completion record and commit hash.

@@ -1,6 +1,6 @@
 # Stage `Q1`: исправленная цель cutover
 
-- Status: `draft`
+- Status: `done`
 - Depends on: `Q0`
 - Requirements: `RQ-OWN-02`
 
@@ -74,6 +74,13 @@
 
 ## Completion record
 
-- Commit:
-- Checks:
-- Date:
+- Commit: `AE-Q1`
+- Checks: `validate:raster-entry` (`cutover target is
+  src/app/mountProductionShell.ts`), `validate:cutover`
+  (`431 modules, 253 source JS, 169 legacy-state JS`),
+  `validate:cutover-fixtures` (`5 fixtures`), `validate:docs`,
+  `validate:lines`, `npm run check`, `npx eslint .`, `npm test` — все зелёные.
+- Note: `tools/validate-raster-entry.mjs` больше не требует существования
+  `src/raster-main.ts` и отклоняет его и `src/main.ts` как цель. Файл цели
+  создаётся в `Q6`, поэтому проверяется объявление, а не наличие.
+- Date: 2026-09-06
