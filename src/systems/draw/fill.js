@@ -1,11 +1,11 @@
 // Заливка связной области (4-связность) с учётом выделения-маски.
-import { S, G, blank } from '../../core/state.js';
+import { S, blank } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch, recordPixelBefore,
   snapshot, snapshotDescriptors, snapshotRasterReferences } from '../../core/history.js';
-import { eqc } from '../../logic/color.ts';
 import { visitFloodRegion } from '../../logic/flood.js';
+import { colorKeyOf, regionColorKeys } from '../../logic/raster/regionColorKeys.ts';
 import { inSel } from '../../core/selection.js';
 import { referenceIndexFor, symmetryConfig } from '../../core/layers.js';
 import { mirrorPoints } from '../../logic/symmetry.ts';
@@ -18,13 +18,23 @@ import { beginLegacyTileEdit,
 import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
 import { wrapTilePoint } from '../../logic/TileGeometry.ts';
 
+// Снимок цветов слоя-источника: заливка сравнивает ключи, а не ячейки, и
+// читает документ одним регионом вместо обращения на каждый пиксель.
+function floodSurface(index) {
+  const owner = rasterOwnerForLayer(S.layers[index]); if (!owner) return null;
+  const keys = regionColorKeys(owner.readRegion({ minx: 0, miny: 0,
+    maxx: S.W - 1, maxy: S.H - 1 }, S.W, S.H));
+  return { width: S.W, height: S.H, keyAt: (x, y) => keys[y * S.W + x] };
+}
+
 function floodFrom(x, y, paint) {
   const wrap = !!(S.tile && S.tile.on);
   if (wrap) [x, y] = wrapTilePoint(x, y, S.W, S.H);
   if (x < 0 || y < 0 || x >= S.W || y >= S.H) return;
-  const g = G(), ri = referenceIndexFor(S.cur), src = ri >= 0 ? S.layers[ri].grid : g, target = src[y][x], to = S.active;
-  if (src === g && eqc(target, to)) return;
-  visitFloodRegion(src, x, y, inSel, paint, wrap);
+  const reference = referenceIndexFor(S.cur);
+  const surface = floodSurface(reference >= 0 ? reference : S.cur); if (!surface) return;
+  if (reference < 0 && surface.keyAt(x, y) === colorKeyOf(S.active)) return;
+  visitFloodRegion(surface, x, y, inSel, paint, wrap);
 }
 
 function floodPainter() {

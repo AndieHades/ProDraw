@@ -48,6 +48,24 @@ describe('legacy paint tools on tiled RGBA history', () => {
     doUndo(); expect(S.layers[0].grid[6][6]).toBeNull();
   });
 
+  it('spreads the fill across equal colour and stops at a different one', () => {
+    const owner = rasterOwnerForLayer(S.layers[0]);
+    for (let y = 0; y < S.H; y++) owner.setCell(5, y, rgba(60));
+    markDirty(0); S.tool = 'fill'; floodAt(1, 1);
+    expect(S.layers[0].grid[0][0]).toEqual([9, 8, 7]);
+    expect(S.layers[0].grid[6][4]).toEqual([9, 8, 7]);
+    expect(S.layers[0].grid[6][5]).toEqual(rgba(60));
+    expect(S.layers[0].grid[6][6]).toBeFalsy();
+  });
+
+  it('does nothing when the seed already carries the active colour', () => {
+    const owner = rasterOwnerForLayer(S.layers[0]);
+    owner.setCell(3, 3, [9, 8, 7, 255]); markDirty(0);
+    S.tool = 'fill'; S.undoStack = []; floodAt(3, 3);
+    expect(S.layers[0].grid[0][0]).toBeFalsy();
+    expect(S.undoStack).toHaveLength(0);
+  });
+
   it('fills a bounded region through the same tile history', () => {
     const owner = rasterOwnerForLayer(S.layers[0]); owner.setCell(2, 2, rgba(30));
     markDirty(0); S.tool = 'fill'; floodAt(2, 2);

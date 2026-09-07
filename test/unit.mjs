@@ -6,7 +6,7 @@ import * as bus from '../src/core/bus.ts';
 import { hexToRgb, rgbToHex, rgb, eqc, rgbToHsv, hsvToRgb } from '../src/logic/color.ts';
 import { parseKey, blendOver, mergeCells, gridBounds, noteGridBounds, alphaBounds, boundsWithExt, symmetrizeGrid, rectFill, ellipseEdges, ellipseFill, cloneGrid } from '../src/logic/raster.js';
 import { clamp, clamp01, clamp255, clampRound, evalNumericField, isNumericLiteral } from '../src/logic/math.ts';
-import { floodRegion } from '../src/logic/flood.js';
+import { floodRegion, gridFloodSurface } from '../src/logic/flood.js';
 import { parsePsdEffects } from '../src/logic/psd-effects.js';
 import { sampleGrid } from '../src/logic/sample.js';
 import { medianCut, nearest, paletteFromGrid, dedupePal, exactPaletteFromRgba, samplesFromRgba, sourcePaletteFromSamples } from '../src/logic/quantize.js';
@@ -85,7 +85,7 @@ t("unit case 014", () => { const c = new Set(); ellipseFill(0, 0, 8, 6, (x, y) =
 t('raster: symmetrizeGrid', () => { const g = blank(8, 4); g[0][0] = [1, 2, 3, 255]; symmetrizeGrid(g, true, false); assert.deepEqual(g[0][7], [1, 2, 3, 255]); });
 t("unit case 015", () => { const g = blank(5, 5), line = [1, 1, 1, 255];
   for (let y = 0; y < 5; y++) g[y][2] = line;
-  const cells = floodRegion(g, 0, 0); assert.equal(cells.length, 10);
+  const cells = floodRegion(gridFloodSurface(g), 0, 0); assert.equal(cells.length, 10);
   assert.ok(cells.every(([x]) => x < 2)); });
 
 

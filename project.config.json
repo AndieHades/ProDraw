@@ -16,7 +16,7 @@
     "targetEntry": "src/app/mountProductionShell.ts",
     "maximumSourceJavaScriptFiles": 253,
     "maximumLegacyStateJavaScriptFiles": 169,
-    "maximumIndexedGridReads": 73
+    "maximumIndexedGridReads": 68
   },
   "legacyCodeOverLimit": [
     "test/module-int.mjs",

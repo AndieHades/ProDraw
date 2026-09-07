@@ -59,8 +59,8 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 | --- | --- | --- | --- |
 | `Q0` | правдивые гейты и macOS-сдача | none | done |
 | `Q1` | исправленная цель cutover, C6A/C6B superseded | `Q0` | done |
-| `Q2A` | тайлы — единственный источник чтения | `Q1` | in_progress |
-| `Q2B` | тайлы — единственная цель записи, `grid[y][x]` снят | `Q2A` | draft |
+| `Q2A` | тайлы — единственный источник чтения | `Q1` | done |
+| `Q2B` | тайлы — единственная цель записи, `grid[y][x]` снят | `Q2A` | in_progress |
 | `Q3` | coalesced ввод с pressure и tilt | `Q2B` | draft |
 | `Q4` | настоящий движок кистей в продакшн-оболочке | `Q3` | draft |
 | `Q5` | горячие пути композита, панели слоёв и эффектов | `Q2B` | draft |
@@ -100,16 +100,18 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 
 ## Resume Here
 
-- Current stage: `Q2A — тайлы как единственный источник чтения`
+- Current stage: `Q2B — тайлы как единственная цель записи`
 - Status: `in_progress`
-- Last completed stage: `Q1 — исправленная цель cutover`
-- Next action: подэтап `Q2A-4` — перевести `logic/flood` на чтение региона,
-  сохранив семантику мутации из visitor и тороидальную заливку
+- Last completed stage: `Q2A — тайлы как единственный источник чтения`
+- Next action: снять двойную запись в `src/systems/draw/cells.js` и
+  `LegacyRasterSurfaceBacking`, затем перевести историю на байтовый бюджет
 - Blockers: none
-- Working paths: `src/core/layer-cache.js`, `src/logic/raster`,
-  `src/systems/render`, `src/systems/selection`, `tools/validate-cutover.mjs`
-- Last checks: `npm run validate` зелёный целиком на `Q2A-5`: `166`/`464`
-  TypeScript и `16`/`57` performance тестов; закрыты `Q2A-1`, `Q2A-1b`,
-  `Q2A-2`, `Q2A-3`, `Q2A-5`. Индексных чтений пикселей `73` (было `81`),
-  предел зафиксирован храповиком в `project.config.json`
+- Working paths: `src/systems/draw/cells.js`,
+  `src/core/raster/LegacyRasterSurfaceBacking.ts`,
+  `src/core/raster/legacyRasterOwner.ts`, `src/logic/sparse-grid.js`,
+  `src/core/history`, `src/config/limits.ts`
+- Last checks: `npm run validate` зелёный целиком на закрытом `Q2A`:
+  `167`/`469` TypeScript и `16`/`57` performance тестов. Индексных чтений
+  пикселей `68` (было `81`), предел зафиксирован храповиком
+  `cutover.maximumIndexedGridReads`
 - Last updated: 2026-09-06
