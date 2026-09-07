@@ -38,5 +38,8 @@ npm run package:desktop
 ярлык на `ProDraw.exe` остаётся рабочим и после следующей сборки. В CI artifact
 остаётся в `artifacts/desktop/win-unpacked`.
 
+На Apple Silicon Mac `npm run package:mac` обновляет приложение по постоянному
+пути `/Applications/ProDraw.app`, поэтому ярлык Dock менять не нужно.
+
 Перед изменениями прочитай [`AGENTS.md`](AGENTS.md) и
 [`docs/index.md`](docs/index.md).
