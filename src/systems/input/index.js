@@ -8,7 +8,7 @@ import { $ } from '../../core/shell.ts';
 import { selHit } from '../../core/selection.ts';
 import { toolHandler, modeHandler, globalHandlers } from '../../core/canvas-handlers.ts';
 import { canvasAt, canvasBounds, gridAt, holdCanvasBounds,
-  releaseCanvasBounds } from '../../core/viewport.js';
+  releaseCanvasBounds } from '../../core/viewport.ts';
 import { DRAG_THRESHOLD } from '../../config/timings.ts';
 import { ZOOM_MIN, ZOOM_MAX } from '../../config/limits.ts';
 import { canvasPanModifierHeld } from '../../core/navigationModifiers.ts';

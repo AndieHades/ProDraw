@@ -6,7 +6,7 @@
 import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { $ } from '../../core/shell.ts';
-import { gridAt } from '../../core/viewport.js';
+import { gridAt } from '../../core/viewport.ts';
 import { compositeAt } from '../../core/layer-cache.js';
 import { wrapTilePoint } from '../../logic/TileGeometry.ts';
 

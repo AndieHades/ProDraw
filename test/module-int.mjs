@@ -47,7 +47,7 @@ const clip = await import('../src/systems/selection/clipboard.js');
 const xtree = await import('../src/systems/export/tree.ts');
 const xrender = await import('../src/systems/export/render.js');
 const xpipe = await import('../src/systems/export/pipeline.js');
-const xbounds = await import('../src/systems/export/bounds.js');
+const xbounds = await import('../src/systems/export/bounds.ts');
 const xui = await import('../src/systems/export/ui.js');
 const { writePsd } = await import('../src/systems/export/psd-write.ts');
 const { FORMATS } = await import('../src/systems/export/formats.js');
@@ -75,7 +75,7 @@ const shading = await import('../src/systems/shading.js');
 const palMgr = await import('../src/systems/palette-manager.js');
 const tsg = await import('../src/systems/tint-shade/index.js');
 const tb = await import('../src/systems/toolbars.js');
-const gridSys = await import('../src/systems/grid.js');
+const gridSys = await import('../src/systems/grid.ts');
 const symLines = await import('../src/systems/symmetry-lines.js');
 const effects = await import('../src/systems/effects/index.js');
 const fxShared = await import('../src/systems/effects/shared.js');
@@ -1033,7 +1033,7 @@ await ta("module-int case 113", async () => { resetWH(20, 20); S.tool = 'pencil'
   const h = toolHandler('pencil'); h.down({ gx: 2, gy: 2 }); h.move({ gx: 5, gy: 8 }); h.up({});
   assert.equal(S.qsShape, null); assert.ok(S.layers[0].grid[2][2] && S.layers[0].grid[8][5]); });
 
-const penButton = await import('../src/systems/pen-button.js'); penButton.mount();
+const penButton = await import('../src/systems/pen-button.ts'); penButton.mount();
 const penBtn = (button = 2) => { const ev = new window.MouseEvent('pointerdown', { button, bubbles: true }); Object.defineProperty(ev, 'pointerType', { value: 'pen' }); window.dispatchEvent(ev); };
 t("module-int case 114", () => { resetWH(8, 8); S.tool = 'pencil';
   penBtn(); assert.equal(S.tool, 'eraser'); penBtn(); assert.equal(S.tool, 'pencil'); });

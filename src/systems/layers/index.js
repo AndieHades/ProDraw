@@ -7,7 +7,7 @@ import { $ } from '../../core/shell.ts';
 import { showMenuAt } from '../../ui/dom/ShellDom.ts';
 import { effVis } from '../../core/layers.js';
 import { layerIndicesAt } from '../../core/layer-hit.ts';
-import { gridAt } from '../../core/viewport.js';
+import { gridAt } from '../../core/viewport.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { layList } from './list.js';
 import { layerThumbnail } from './thumbnail.js';

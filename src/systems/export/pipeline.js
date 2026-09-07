@@ -6,7 +6,7 @@ import { saveFile } from '../../core/io.ts';
 import { toast, t } from '../../core/shell.ts';
 import { buildExportDoc, docName, exportTargetRoot } from './tree.ts';
 import { flattenNodes, standaloneLayerCanvas } from './render.js';
-import { applyBounds, visibleBounds, unionBounds, cropTo } from './bounds.js';
+import { applyBounds, visibleBounds, unionBounds, cropTo } from './bounds.ts';
 import { FORMATS } from './formats.js';
 import { planSelectedPngTree } from '../../logic/export/folderPngPlan.ts';
 import { createFileTreeWriter } from '../../platform/fileTreeWriter.ts';

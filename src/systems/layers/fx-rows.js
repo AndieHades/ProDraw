@@ -10,7 +10,7 @@ import { t } from '../../core/shell.ts';
 import { EYE, layList, layDragSquelch } from './list.js';
 import { onDoubleTap, onContext } from '../../ui/gestures/ContextGesture.ts';
 import { dragRow } from './drag.js';
-import { selectRange } from './range-select.js';
+import { selectRange } from './range-select.ts';
 
 let fxUid = 0; // уникальный ключ строки эффекта для дедупликации цели зазора
 
