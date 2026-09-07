@@ -9,10 +9,11 @@ const clamp01 = (value: number): number => value < 0 ? 0 : value > 1 ? 1 : value
 // Радиус в непрерывных координатах: центр пикселя `n` лежит в `n + 0.5`.
 export const tipRadius = (size: number): number => Math.max(0.5, size / 2);
 
-// Шаг между отпечатками вдоль пути: меньше пикселя, чтобы соседние отпечатки
-// перекрывались и быстрое движение не давало разрывов.
+// Шаг между отпечатками вдоль пути. Он растёт вместе с радиусом: соседние
+// отпечатки всё равно перекрываются, а фиксированный шаг в один пиксель делал
+// крупную кисть в десятки раз дороже без выигрыша в качестве края.
 export const tipSpacing = (radius: number): number =>
-  Math.max(0.2, Math.min(1, radius * 0.25));
+  Math.max(0.4, radius * 0.3);
 
 export function stampTip(centreX: number, centreY: number, radius: number,
   square: boolean, opacity: number, paint: TipPaint): void {
