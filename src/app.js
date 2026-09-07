@@ -55,7 +55,7 @@ import './systems/layer-center.js';
 import './systems/mono.js';
 import './systems/recolor.js';
 import './systems/free-rotate.js';
-import { mount as mountKeyboard } from './systems/keyboard/index.js';
+import { mount as mountKeyboard } from './systems/keyboard/index.ts';
 import * as xMirror from './systems/x-mirror.js';
 import { rendererSmokeRequested, reportRendererSmokeFailure,
   runRendererSmoke } from './app/runRendererSmoke.ts';

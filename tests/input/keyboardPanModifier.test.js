@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { canvasPanModifierHeld,
   setCanvasPanModifierHeld } from '../../src/core/navigationModifiers.ts';
-import { mount } from '../../src/systems/keyboard/index.js';
+import { mount } from '../../src/systems/keyboard/index.ts';
 
 describe('keyboard canvas-pan modifier', () => {
   afterEach(() => setCanvasPanModifierHeld(false));

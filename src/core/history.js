@@ -11,7 +11,7 @@ import { historyRef, syncHistoryFrame } from './animation.js';
 import { compactPixelEntry, createPixelBatch, createPixelPatch,
   recordPixel, swapPixelEntry } from './history/pixelPatch.ts';
 import { cloneEffects, createEffectsEntry } from './history/effectsPatch.ts';
-import { createDescriptorEntry } from './history/descriptorPatch.js';
+import { createDescriptorEntry } from './history/descriptorPatch.ts';
 import { createStructureEntry,
   inheritStructureIdentity } from './history/structurePatch.ts';
 import { createRasterReferenceEntry } from './history/rasterReferencePatch.js';

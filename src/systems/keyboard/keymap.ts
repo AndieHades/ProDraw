@@ -1,8 +1,10 @@
+import type { ShellActionName } from "../../contracts/shellActionCatalog.ts";
+
 // Карта хоткеев по умолчанию: комбо → имя действия. Это ДАННЫЕ — чтобы
 // перенастроить, правишь здесь или через rebind() в рантайме (index.js).
 // Комбо: модификатор 'mod+' (Ctrl/Cmd), 'shift+', 'alt+' + клавиша
 // (буква в нижнем регистре, цифра, или '=', '-', '[', ']', 'delete'…).
-export const DEFAULT_KEYMAP: Readonly<Record<string, string>> = {
+export const DEFAULT_KEYMAP: Readonly<Record<string, ShellActionName>> = {
   // инструменты
   b: "tool.pencil", e: "tool.eraser", f: "tool.fill",
   m: "tool.select", u: "tool.line", k: "tool.rect", q: "tool.ellipse",
