@@ -15,6 +15,7 @@ import { droppedFileLocation } from './desktop-file.ts';
 import { requestPngDropDestination } from '../../ui/import/PngDropDestinationPresenter.ts';
 import { beginGalleryImportProgress } from '../../ui/import/GalleryImportProgressPresenter.ts';
 import { runGalleryImportProgress } from '../../core/import/GalleryImportProgressRunner.ts';
+import { bindFileDrop } from './file-drop.ts';
 
 let impSrcImg = null;
 export { looksPixelArt };
@@ -109,10 +110,8 @@ export function mount() {
     else { actions.run('gallery.hide'); insertPixelImage(impSrcImg); } // новый проект — как есть
     setImportMode('replace'); };
   floatingWindow($('imp-box'), { grip: $('imp-grip'), storeKey: 'impwin' }); // конвертер — перетаскиваемое окно
-  window.addEventListener('dragover', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
-  window.addEventListener('drop', (e) => { e.preventDefault();
-    const f = e.dataTransfer && e.dataTransfer.files[0];
-    if (f) void dropImage(f); });
+  bindFileDrop(window, (on) => $('dropmask').classList.toggle('on', on),
+    (file) => void dropImage(file));
 }
 
 // открыть файл в конвертере как новый проект (галерея, меню Pixelize) — режим replace
