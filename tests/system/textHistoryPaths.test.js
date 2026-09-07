@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { S, blank } from '../../src/core/state.js';
+import { S, blank } from '../../src/core/state.ts';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { makeTextLayer } from '../../src/core/text-layer.js';
 import { rasterizeMatchingText } from '../../src/core/text-rasterize.js';

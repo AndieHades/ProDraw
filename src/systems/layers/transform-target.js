@@ -1,6 +1,6 @@
 // Смена слоя не должна выбрасывать уже изменённую свободную трансформацию.
 // Transform остаётся владельцем Apply/Enter через команды, не через импорт системы.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as actions from '../../core/actions.ts';
 
 export function switchLayerDuringTransform(change) {

@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { dirtyAll, markDirty } from '../../src/core/layer-cache.js';
 import { rasterOwnerForLayer } from '../../src/core/raster/legacyRasterOwner.ts';
 import { layerThumbnail } from '../../src/systems/layers/thumbnail.js';

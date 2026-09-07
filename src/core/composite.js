@@ -1,7 +1,7 @@
 // Раскладка композита: слои в порядке стопки, их bounded effect surfaces,
 // обтравка, эффекты папок (под группой и поверх неё) и живые превью move/transform.
 // Единая точка для видимого рендера, экспорта и окна-превью.
-import { S } from './state.js';
+import { S } from './state.ts';
 import { effVis, clipBase, folderChain } from './layers.js';
 import { layerSrcSurface, clippedShift } from './layer-cache.js';
 import { folderFx, folderEffectsFor, layerMoveCanvas } from './effects-render.js';

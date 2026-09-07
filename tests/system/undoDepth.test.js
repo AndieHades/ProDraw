@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { beforeEach, describe, expect, it } from 'vitest';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { doUndo } from '../../src/core/history.js';
 import { brushStamp } from '../../src/systems/draw/brush.js';
 import { afterStroke, beginStroke } from '../../src/systems/draw/stroke.js';

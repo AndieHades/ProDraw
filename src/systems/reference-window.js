@@ -1,7 +1,7 @@
 // Reference board: several draggable images, persisted with the current doc.
 // Eyedropper reads rendered pixels from #refcv through systems/eyedropper.
 import { $, toast, t } from '../core/shell.ts';
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import { makeCanvas, syncCanvasSize } from '../core/canvas.ts';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../core/reference-board.ts';

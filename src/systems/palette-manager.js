@@ -1,5 +1,5 @@
 // Менеджер палитр: сохранить текущую, загрузить, собрать из изображения.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import { $, toast, t } from '../core/shell.ts';
 import { showMenuAt } from '../ui/dom/ShellDom.ts';

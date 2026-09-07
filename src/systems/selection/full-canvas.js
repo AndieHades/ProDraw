@@ -1,6 +1,6 @@
 // Fast whole-canvas selection edits: replace the grid and keep one reversible
 // raster reference instead of visiting every selected cell for history.
-import { S, blank } from '../../core/state.js';
+import { S, blank } from '../../core/state.ts';
 import { snapshotRasterReferences } from '../../core/history.js';
 import { markDirty } from '../../core/layer-cache.js';
 import { isSelectionMask } from '../../logic/mask-ops.js';

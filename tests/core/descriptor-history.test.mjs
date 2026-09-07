@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { beforeEach, describe, expect, it } from 'vitest';
 import * as bus from '../../src/core/bus.ts';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { doRedo, doUndo, snapshot, snapshotDescriptors } from '../../src/core/history.js';
 
 function reset() {

@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { S, blank, newLayer } from '../../src/core/state.js';
+import { S, blank, newLayer } from '../../src/core/state.ts';
 import { dirtyAll, layerCanvas, markDirty } from '../../src/core/layer-cache.js';
 import { rasterOwnerForLayer } from '../../src/core/raster/legacyRasterOwner.ts';
 

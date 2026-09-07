@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { doRedo, doUndo } from '../../src/core/history.js';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { layDrop } from '../../src/systems/layers/lay-drop.js';
 import { deleteFolder, deleteLayerRef, doAddLayer, doGroup,
   duplicateLayer, ungroupFolder } from '../../src/systems/layers/ops.js';

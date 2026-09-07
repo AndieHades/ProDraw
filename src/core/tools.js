@@ -1,6 +1,6 @@
 // Активный инструмент: смена + сигнал. Кнопки/курсор/бары реагируют на 'tool',
 // не зная про систему инструмента.
-import { S } from './state.js';
+import { S } from './state.ts';
 import * as bus from './bus.ts';
 import * as actions from './actions.ts';
 

@@ -3,7 +3,7 @@
 // решает, над ней ли курсор, переводит их в локальные и берёт цвет.
 // Возврат: [r,g,b] — цвет; null — над источником, но прозрачно/нет цвета;
 // undefined — курсор не над этим источником.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { $ } from '../../core/shell.ts';
 import { gridAt } from '../../core/viewport.js';

@@ -1,5 +1,5 @@
 // Bounded merge bake: effects and clipping become pixels without W×H scratch grids.
-import { S, blank } from './state.js';
+import { S, blank } from './state.ts';
 import { clipBase, effVis, folderChain } from './layers.js';
 import { folderEffectsFor, layerEffectsFor } from './effects-render.js';
 import { INNER_EFFECTS } from '../logic/layer-effects.js';

@@ -1,5 +1,5 @@
 // Лёгкий твёрдый отпечаток Pencil/Eraser без preset, pressure или preview.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { createCellPainter } from './cells.js';
 import { presetBrushForShape } from './preset-brush.ts';

@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { buildGridEffects } from '../../src/core/effect-canvas.js';
 import { dirtyAll, layerCanvas } from '../../src/core/layer-cache.js';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 
 const allocations = [];
 const contexts = new WeakMap();

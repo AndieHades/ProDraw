@@ -1,7 +1,7 @@
 // Жесты по строке слоя. Свайп влево — настраиваемые кнопки действий
 // (config/layer-actions.ts). Свайп вправо — выбор слоя цветом (мультивыбор:
 // смахни несколько). Те же действия есть в контекстном меню (menu.js).
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { t } from '../../i18n/index.ts';
 import { attachSwipe } from '../../core/swipe-actions.ts';

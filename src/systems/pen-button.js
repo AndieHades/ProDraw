@@ -2,7 +2,7 @@
 // Примечание: двойной тап Apple Pencil iOS-браузеры веб-приложению не отдают —
 // жест работает для перьев с физической кнопкой и пера-«ластика». Ловим в
 // capture-фазе, чтобы нажатие кнопки не рисовало и не открывало контекстное меню.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import { setTool } from '../core/tools.js';
 
 function onDown(e) {

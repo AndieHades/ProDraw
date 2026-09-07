@@ -1,7 +1,7 @@
 // «Бегущие муравьи» вокруг выделения: SVG-оверлей поверх холста (рамка или
 // контур маски). Бег пунктира — чистый CSS (stroke-dashoffset), без цикла
 // перерисовок; рендер лишь обновляет геометрию путей и ручки выделения.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { selectionBoundaryEdges } from '../../logic/mask-ops.js';
 import { SELECTION_ANTS } from '../../config/selection-ants.ts';
 

@@ -1,6 +1,6 @@
 // Замена цвета по всему документу. Палитра сохраняет исходные цвета; новый цвет
 // добавляется в конец, если его там ещё нет.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch, recordPixelBefore,

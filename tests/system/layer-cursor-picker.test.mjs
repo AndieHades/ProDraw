@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { describe, expect, it, vi } from 'vitest';
 import { layerIndicesAt } from '../../src/core/layer-hit.js';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { layerPickerButton, selectCanvasLayer } from '../../src/systems/layers/index.js';
 
 function reset() {

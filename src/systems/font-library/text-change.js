@@ -1,4 +1,4 @@
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as actions from '../../core/actions.ts';
 import { snapshotRasterReferences } from '../../core/history.js';
 import { markDirty } from '../../core/layer-cache.js';

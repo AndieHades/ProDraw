@@ -3,7 +3,7 @@
 // палец/мышь/стилус, распознаёт форму и заменяет raw-штрих ровной фигурой
 // (превью S.qsShape), а на отпускании коммитит её в активный слой. Не трогает
 // выделение/маски — рисует только по текущему слою через общий stamp.
-import { S, G } from '../../core/state.js';
+import { S, G } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { cloneGrid } from '../../core/history.js';
 import { markDirty } from '../../core/layer-cache.js';

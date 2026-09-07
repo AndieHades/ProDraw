@@ -1,6 +1,6 @@
 // Sparse backup for destructive canvas adjustment previews. Transparent canvas
 // area is never copied or revisited; the caller owns transaction boundaries.
-import { S } from './state.js';
+import { S } from './state.ts';
 import { layerContentBounds, markDirty } from './layer-cache.js';
 import { recordPixelBefore } from './history.js';
 import { adjustColor } from '../logic/adjustment.ts';

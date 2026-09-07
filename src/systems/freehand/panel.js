@@ -1,7 +1,7 @@
 // Панель Freehand Selection: режим контура (Continuous/Segment) и операция
 // выделения (New/Add/Subtract/Intersect) + отмена незавершённого контура.
 // Перетаскиваемость даёт общий toolpops (панель свёрстана как .toolpop).
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/shell.ts';

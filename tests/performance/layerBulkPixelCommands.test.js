@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CANVAS_PRESETS } from '../../src/config/canvasPresets.ts';
-import { S, blank } from '../../src/core/state.js';
+import { S, blank } from '../../src/core/state.ts';
 import { dirtyAll, markDirty } from '../../src/core/layer-cache.js';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { fillLayerRefs, fillWholeLayerRefs } from '../../src/systems/layers/fill.js';

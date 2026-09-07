@@ -1,5 +1,5 @@
 // Операции над слоями: добавить, слить отмеченные/диапазон, сгруппировать, дублировать.
-import { S, blank } from '../../core/state.js';
+import { S, blank } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { snapshot, snapshotRasterReferences,

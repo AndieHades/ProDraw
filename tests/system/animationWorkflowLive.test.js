@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { newLayer, S } from "../../src/core/state.js";
+import { newLayer, S } from "../../src/core/state.ts";
 import { activeFrameId, activeTimeline, createFrame, deleteFrame, ensureAnimator,
   reorderFrames, saveActiveFrame, selectFrame,
   setFrameDuration } from "../../src/core/animation.js";

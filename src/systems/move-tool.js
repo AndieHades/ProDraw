@@ -1,5 +1,5 @@
 // Инструмент «перемещение»: тащит активный слой (или все отмеченные) целиком.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import { registerTool } from '../core/canvas-handlers.ts';
 import { snapshot, snapshotRasterReferences } from '../core/history.js';

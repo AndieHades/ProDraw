@@ -1,5 +1,5 @@
 // Lightweight history for non-structural layer, folder and background fields.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { snapshotDescriptors, snapshotEffects } from '../../core/history.js';
 import { folderChain } from '../../core/layers.js';

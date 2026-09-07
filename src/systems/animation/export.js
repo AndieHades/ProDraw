@@ -1,4 +1,4 @@
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { saveFile } from '../../core/io.ts';
 import { makeCanvas } from '../../core/canvas.ts';
 import { activeTimeline, renderFrameToCanvas, saveActiveFrame } from '../../core/animation.js';

@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as actions from '../../src/core/actions.ts';
-import { S } from '../../src/core/state.js';
+import { S } from '../../src/core/state.ts';
 import { setTool } from '../../src/core/tools.js';
 import '../../src/systems/transform/index.js';
 

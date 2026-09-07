@@ -1,6 +1,6 @@
 // Bounded Free Transform preview. Every scratch canvas is cropped to visible
 // transformed content plus the largest active layer/folder effect halo.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { makeCanvas, paintCanvas } from '../../core/canvas.ts';
 import { folderEffectCanvas } from '../../core/effect-canvas.js';
 import { folderEffectsFor, fxOnCanvas, layerRenderEffects } from '../../core/effects-render.js';

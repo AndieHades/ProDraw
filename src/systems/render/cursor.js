@@ -1,4 +1,4 @@
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { C } from '../../styles/canvas-colors.ts';
 
 export function drawBrushCursor(ctx, ox, oy, z) {

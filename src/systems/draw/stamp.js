@@ -1,6 +1,6 @@
 // Диспетчер штампа: по активному инструменту кладёт кисть/ластик/коррекцию
 // или заливает. Пипетка — отдельная Eyedropper System (Hot Key), не инструмент.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { brushStamp } from './brush.js';
 import { adjustStamp } from './adjust.js';
 import { flood } from './fill.js';

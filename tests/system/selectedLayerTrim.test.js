@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { doUndo } from "../../src/core/history.js";
 import { dirtyAll } from "../../src/core/layer-cache.js";
-import { newLayer, S } from "../../src/core/state.js";
+import { newLayer, S } from "../../src/core/state.ts";
 import { trimSelectedLayers } from "../../src/systems/trim.js";
 
 const rgba = (red) => [red, 2, 3, 255];

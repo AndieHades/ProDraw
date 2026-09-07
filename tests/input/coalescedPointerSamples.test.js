@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { registerTool, toolHandler } from '../../src/core/canvas-handlers.ts';
 import { down, forgetCanvasBounds, move, up } from '../../src/systems/input/index.js';
 

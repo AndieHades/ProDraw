@@ -1,5 +1,5 @@
 // Заливка связной области (4-связность) с учётом выделения-маски.
-import { S, blank } from '../../core/state.js';
+import { S, blank } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch, recordPixelBefore,

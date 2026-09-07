@@ -1,7 +1,7 @@
 // Операции с эффектами как со слоями: контекст-меню строки (Правка/Скопировать/
 // Дублировать/Удалить) работает над выделением; копирование/вставка на все
 // выбранные слои. Перенос/переупорядочивание — drag в списке (layers/fx-drag).
-import { S, cloneFx } from '../../core/state.js';
+import { S, cloneFx } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { snapshotEffects } from '../../core/history.js';
 import { $, toast, t } from '../../core/shell.ts';

@@ -1,7 +1,7 @@
 // Selection Path: строит временный контур (Continuous/Segment). Точки — в
 // координатах сетки. Ничего не знает о масках и операциях выделения — только
 // геометрия пути и близость к стартовой точке (для замыкания/подсветки).
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { LASSO_CLOSE_PX } from '../../config/lasso.ts';
 

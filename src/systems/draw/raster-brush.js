@@ -1,6 +1,6 @@
 // Полноценный raster-путь для .brush: настоящий shape/grain, динамика Huion,
 // spacing, taper и стабилизация из Brush Studio поверх сохранённого UI.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { visitBrushDab } from '../../core/brush/renderBrushDab.ts';
 import { StrokePipeline } from '../../logic/stroke/StrokePipeline.ts';
 import { createCellPainter } from './cells.js';

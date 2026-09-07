@@ -4,7 +4,7 @@
 // пером — размер кисти, касание — выбор цвета); долгое нажатие пальцем по холсту.
 // Пока активна — показывает preview (Found/Current) и по клику/касанию делает
 // цвет под курсором активным через Active Color Manager (action 'color.setActive').
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/shell.ts';

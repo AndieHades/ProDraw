@@ -4,7 +4,7 @@ import { intersectEffectBounds, translateEffectBounds,
   unionEffectBounds } from './effect-surface.js';
 import { layerCanvas, layerContentBounds, layerExtCanvas } from './layer-cache.js';
 import { applyPsdMasks } from './psd-mask.ts';
-import { S } from './state.js';
+import { S } from './state.ts';
 
 const documentBounds = () => ({ minx: 0, miny: 0, maxx: S.W - 1, maxy: S.H - 1 });
 

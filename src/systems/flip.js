@@ -1,6 +1,6 @@
 // Отражение по горизонтали/вертикали. С Selection — активная область слоя,
 // без Selection — весь документ (все слои).
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { snapshot, snapshotRasterReferences } from '../core/history.js';

@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { S, blank } from '../../src/core/state.js';
+import { S, blank } from '../../src/core/state.ts';
 import { dirtyAll, layerFloatCanvas } from '../../src/core/layer-cache.js';
 
 function stubContext() {

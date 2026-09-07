@@ -1,4 +1,4 @@
-import { S, MAX_LAYERS } from '../../core/state.js';
+import { S, MAX_LAYERS } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, t, toast } from '../../core/shell.ts';

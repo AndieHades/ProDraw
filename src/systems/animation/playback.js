@@ -1,6 +1,6 @@
 import { activeFrameId, activeTimeline, loadFrame, saveActiveFrame } from '../../core/animation.js';
 import * as bus from '../../core/bus.ts';
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { framePlaybackDuration, nextPlaybackPosition } from '../../logic/AnimationPlayback.ts';
 
 let playing = false, timer = null, idx = 0, dir = 1;

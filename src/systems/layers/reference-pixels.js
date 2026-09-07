@@ -1,4 +1,4 @@
-import { S, blank } from '../../core/state.js';
+import { S, blank } from '../../core/state.ts';
 import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
 import { someOpaqueRegionPixel } from '../../logic/raster/regionScan.ts';
 import { snapshotRasterReferences } from '../../core/history.js';

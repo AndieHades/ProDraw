@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { S } from '../../src/core/state.js';
+import { S } from '../../src/core/state.ts';
 import { drawBrushCursor } from '../../src/systems/render/cursor.js';
 
 describe('simple tool cursor during an active stroke', () => {

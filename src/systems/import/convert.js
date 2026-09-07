@@ -1,6 +1,6 @@
 // Конвертация картинки в пиксель-арт: дискретизация → палитра → чистка →
 // предпросмотр; применение создаёт новый документ. Чистые алгоритмы — в logic.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { rgb, eqc } from '../../logic/color.ts';

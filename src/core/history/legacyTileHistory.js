@@ -1,6 +1,6 @@
 import * as bus from '../bus.ts';
 import { markDirty } from '../layer-cache.js';
-import { S } from '../state.js';
+import { S } from '../state.ts';
 import { createLegacyTileEntry } from './legacyTilePatch.ts';
 import { trimHistoryStack } from './historyBudget.ts';
 import { rasterOwnerForLayer } from '../raster/legacyRasterOwner.ts';

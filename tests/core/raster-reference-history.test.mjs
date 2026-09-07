@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { doRedo, doUndo, snapshotRasterReferences } from '../../src/core/history.js';
 import { createRasterReferenceEntry } from '../../src/core/history/rasterReferencePatch.js';
-import { S } from '../../src/core/state.js';
+import { S } from '../../src/core/state.ts';
 
 function guardedA4Grid(onRead) {
   return new Proxy({ length: 3508 }, {

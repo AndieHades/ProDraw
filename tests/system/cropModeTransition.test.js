@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import * as actions from '../../src/core/actions.ts';
 import { cancelCrop, toggleCrop } from '../../src/systems/crop.js';
 

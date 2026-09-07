@@ -5,7 +5,7 @@ import { activeFrameId, duplicateFrame, ensureAnimator,
 import { applyCropRect } from '../../src/core/document.js';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { dirtyAll } from '../../src/core/layer-cache.js';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { normalizeTextSource } from '../../src/logic/text-model.ts';
 
 const rgba = (red) => [red, 2, 3, 255];

@@ -1,7 +1,7 @@
 // Вставка PSD в текущий документ верхней папкой: порядок слоёв, видимость,
 // вложенные группы и поддерживаемые эффекты (best-effort). Холст не меняется —
 // то, что не влезло, уходит в ext (Trim покажет). Старые проекты не создаём.
-import { S, newLayer, newEffect, blank } from '../../core/state.js';
+import { S, newLayer, newEffect, blank } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { snapshot } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';

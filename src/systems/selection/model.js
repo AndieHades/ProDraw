@@ -1,6 +1,6 @@
 // Модель выделения: нормализация рамки, маски, операции над содержимым.
 // Drag/перенос — в selection-input; здесь логика, не жесты.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { combineSelectionState, selectionMaskFromState, selectionStateFromMask,

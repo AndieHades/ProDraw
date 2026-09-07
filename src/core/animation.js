@@ -1,4 +1,4 @@
-import { S, cloneFx, cloneLayer } from './state.js';
+import { S, cloneFx, cloneLayer } from './state.ts';
 import * as bus from './bus.ts';
 import { dirtyAll } from './layer-cache.js';
 import { paintStack } from './composite.js';

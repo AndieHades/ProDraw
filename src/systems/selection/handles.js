@@ -1,5 +1,5 @@
 // Постоянные ручки выделения: тянут/двигают только область выделения, не пиксели.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, toast, t } from '../../core/shell.ts';

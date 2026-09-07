@@ -1,4 +1,4 @@
-import { S, cloneFx } from '../../core/state.js';
+import { S, cloneFx } from '../../core/state.ts';
 import { liveFrameId } from '../../core/animation.js';
 import { cloneReferenceBoard } from '../../core/reference-board.ts';
 import { ensureGrid } from '../../core/grid.js';

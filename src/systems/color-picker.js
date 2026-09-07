@@ -1,6 +1,6 @@
 // HSV-пикер в углу: тап по кружку — открыть, перетащить на холст — залить
 // активным цветом. Активный цвет хранится в S; смену разносит событие 'palette'.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { $, t, toast } from '../core/shell.ts';

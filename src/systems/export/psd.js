@@ -1,7 +1,7 @@
 // PSD-формат: разворачивает ExportDocument в дескрипторы (слои + разделители
 // групп lsct), эффекты слоёв/папок запекаются в пиксели (живые lfx2 не пишем —
 // сохраняем визуал и структуру). Объявляет свои возможности для UI.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { folderFx } from '../../core/effects-render.js';
 import { materializeEffectSurface } from '../../core/effect-surface.js';
 import { flattenNodes, leafCanvas, splitChannels } from './render.js';

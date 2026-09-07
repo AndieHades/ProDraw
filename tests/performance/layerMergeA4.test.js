@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { CANVAS_PRESETS } from '../../src/config/canvasPresets.ts';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { dirtyAll, takeCompositeDamage } from '../../src/core/layer-cache.js';
-import { S, blank } from '../../src/core/state.js';
+import { S, blank } from '../../src/core/state.ts';
 import { mergeCells, setGridBounds, sparseGridStats } from '../../src/logic/raster.ts';
 import { clearLayerRefs, doMerge } from '../../src/systems/layers/ops.js';
 

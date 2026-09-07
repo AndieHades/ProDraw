@@ -2,7 +2,7 @@
 // панели: слои, папки, эффекты/настройки. Короткое ПКМ без движения остаётся
 // контекст-меню (его подавляем только если была протяжка). Строки помечаем сразу
 // классом, состояние пишем на отпускании.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { squelchContextMenu } from '../../ui/gestures/ContextGesture.ts';
 

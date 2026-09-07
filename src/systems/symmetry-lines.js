@@ -1,4 +1,4 @@
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import { $ } from '../core/shell.ts';
 import { registerGlobal } from '../core/canvas-handlers.ts';

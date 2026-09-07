@@ -1,7 +1,7 @@
 // Tile Mode: бесшовный 3×3-повтор холста с заворотом рисования (как в Aseprite).
 // Кнопка-тумблер в сайдбаре рядом с сеткой. Сам повтор рисует render, заворот
 // координат — слой рисования (cells/flood) и перемещение; здесь только режим.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { $ } from '../core/shell.ts';

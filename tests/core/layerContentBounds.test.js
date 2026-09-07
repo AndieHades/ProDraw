@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { S } from '../../src/core/state.js';
+import { S } from '../../src/core/state.ts';
 import { dirtyAll, layerContentBounds, markDirty } from '../../src/core/layer-cache.js';
 
 const emptyGrid = (width, height) => Array.from({ length: height }, () => Array(width).fill(null));

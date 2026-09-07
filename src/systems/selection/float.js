@@ -1,6 +1,6 @@
 // Плавающий фрагмент выделения: поднять из слоя, нести (в т.ч. зеркально),
 // положить обратно. Мутирует G и S.selFloat; жесты — в ./input.js.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { parseKey } from '../../logic/raster.ts';
 import { symA, symHA } from '../../core/layers.js';

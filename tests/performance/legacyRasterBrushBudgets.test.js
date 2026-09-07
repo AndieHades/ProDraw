@@ -6,7 +6,7 @@ import { BUNDLED_BRUSHES } from '../../src/config/bundledBrushes.ts';
 import { PERFORMANCE_BUDGETS } from '../../src/config/performance.ts';
 import { decodeProcreateBrush } from '../../src/core/brush/procreateBrush.ts';
 import { visitBrushDab } from '../../src/core/brush/renderBrushDab.ts';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { createCellPainter } from '../../src/systems/draw/cells.js';
 import { brushStamp } from '../../src/systems/draw/brush.js';
 import { line } from '../../src/systems/draw/shapes.js';

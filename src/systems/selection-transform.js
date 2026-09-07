@@ -1,5 +1,5 @@
 // Мгновенные Flip/Rotate для активного пиксельного выделения.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import { commitFloat } from './selection/float.js';
 import { transformPixelSelection } from './selection/pixel-transform.js';

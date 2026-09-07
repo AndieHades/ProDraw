@@ -1,6 +1,6 @@
 // Инструменты «линия» и «прямоугольник»: интерполяция Брезенхемом и фиксация
 // превью в слой (углы целы — pp молчит при stroke=false).
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { bres, closedContourMask, ellipseEdges, ellipseFill, parseRasterPoint,

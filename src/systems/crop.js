@@ -1,6 +1,6 @@
 // Лёгкий crop: рамка и числовой размер холста. Сетка и cell-режим намеренно
 // не входят в ассетный редактор — они не нужны для PSD/PNG-подготовки.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { $, toast, t } from '../core/shell.ts';

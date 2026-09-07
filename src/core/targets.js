@@ -1,5 +1,5 @@
 // Общая выборка слоёв-целей для операций по активному выбору в панели слоёв.
-import { S } from './state.js';
+import { S } from './state.ts';
 import { folderChain } from './layers.js';
 
 const inFolder = (L, fid) => folderChain(L.fid).some((f) => f.id === fid);

@@ -1,4 +1,4 @@
-import { S } from './core/state.js';
+import { S } from './core/state.ts';
 import * as bus from './core/bus.ts';
 import { fitView } from './systems/render/index.js';
 import { detect, applyDom } from './i18n/index.ts';

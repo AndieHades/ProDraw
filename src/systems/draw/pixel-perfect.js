@@ -1,5 +1,5 @@
 // Пиксель-перфект: при Г-образном уголке штриха убираем средний пиксель.
-import { S, G } from '../../core/state.js';
+import { S, G } from '../../core/state.ts';
 import { symA, symHA } from '../../core/layers.js';
 import { inSel } from '../../core/selection.js';
 import { markDirty } from '../../core/layer-cache.js';

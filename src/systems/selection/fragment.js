@@ -1,4 +1,4 @@
-import { S, G } from '../../core/state.js';
+import { S, G } from '../../core/state.ts';
 import { layerContentBounds } from '../../core/layer-cache.js';
 import { maskHas } from '../../core/selection.js';
 import { SELECTION_FRAGMENT_DENSE_RATIO } from '../../config/selection-mask.ts';

@@ -1,4 +1,4 @@
-import { S } from './state.js';
+import { S } from './state.ts';
 import { clampRound } from '../logic/math.ts';
 
 const clampStep = (v) => clampRound(+v || 1, 1, 128);

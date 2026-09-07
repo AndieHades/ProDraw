@@ -1,5 +1,5 @@
 // Жесты выделения: новая рамка, перенос изнутри, растяжение за ручку (NN-масштаб).
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { symA, symHA } from '../../core/layers.js';
 import { registerTool } from '../../core/canvas-handlers.ts';

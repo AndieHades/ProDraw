@@ -1,7 +1,7 @@
 // Тач-жесты: 1 палец — рисование/тап; 2 пальца — зум/панорама или тап-отмена;
 // 3 пальца — повтор. Делегирует down/move/up системе ввода. Пипетка на тач —
 // через единую Eyedropper System (удержание кнопки bb-pick), здесь её нет.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { doUndo, doRedo } from '../../core/history.js';
 import { TAP_MAX_MS, DRAG_THRESHOLD, PINCH_MIN } from '../../config/timings.ts';

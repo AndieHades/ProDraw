@@ -1,6 +1,6 @@
 // Запросы выделения: попадает ли клетка в активное выделение/маску. Нужны
 // рисованию, заливке, эффектам — выносим в core, чтобы не дублировать.
-import { S } from './state.js';
+import { S } from './state.ts';
 import { maskHas as queryMaskHas, pointInSelection, selectedPoints,
   selectionHit, selectionIntersectsRect } from './selection/SelectionGeometry.ts';
 

@@ -1,4 +1,4 @@
-import { activeColorSnapshot } from '../core/state.js';
+import { activeColorSnapshot } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import { saveActiveColor } from '../core/color-prefs.ts';
 

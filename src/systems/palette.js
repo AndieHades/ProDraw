@@ -1,7 +1,7 @@
 // Палитра (рендер): отрисовка свотчей, активный цвет, добавление, режим
 // «использованные». Интерактив (выделение/drag/контекст-меню) — в
 // palette-select.js. Перекраска/выбор по цвету — через actions.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { $, toast, t } from '../core/shell.ts';

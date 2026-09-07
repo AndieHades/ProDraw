@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { beforeEach, describe, expect, it } from 'vitest';
-import { S, blank } from '../../src/core/state.js';
+import { S, blank } from '../../src/core/state.ts';
 import { doUndo } from '../../src/core/history.js';
 import { dirtyAll, markDirty } from '../../src/core/layer-cache.js';
 import { gridBoundsMetadata } from '../../src/logic/raster.ts';

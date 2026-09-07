@@ -1,4 +1,4 @@
-import { S } from './state.js';
+import { S } from './state.ts';
 import { boundsWithExt } from '../logic/raster.ts';
 import { effectReach } from '../logic/layer-effects.js';
 

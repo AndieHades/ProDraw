@@ -1,5 +1,5 @@
 // Индикатор размера документа и активной рамки (кроп, выделение, трансформ).
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import { $ } from '../core/shell.ts';
 

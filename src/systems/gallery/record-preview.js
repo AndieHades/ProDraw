@@ -1,4 +1,4 @@
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { compositeLayers } from '../../core/layer-cache.js';
 import { makeCanvas } from '../../core/canvas.ts';
 import { GALLERY_PREVIEW_MAX_SIDE } from '../../config/limits.ts';

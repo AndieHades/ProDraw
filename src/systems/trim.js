@@ -1,6 +1,6 @@
 // Legacy composition bridge. Trim decisions live in typed TrimSystem; this file
 // only injects the current state, bounds, history and feedback owners.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as actions from '../core/actions.ts';
 import { activeTimelineBounds } from '../core/animation-canvas.js';
 import { boundsFor, canvasContentBounds } from '../core/canvas-bounds.js';

@@ -4,7 +4,7 @@ import * as actions from '../../src/core/actions.ts';
 import { toolHandler } from '../../src/core/canvas-handlers.ts';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { markDirty } from '../../src/core/layer-cache.js';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { flipLayer, flipLayerRefs } from '../../src/systems/flip.js';
 import '../../src/systems/layer-center.js';
 import { symmetrizeLayerRefs } from '../../src/systems/layers/ops.js';

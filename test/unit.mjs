@@ -1,7 +1,7 @@
 
 
 import assert from 'node:assert/strict';
-import { S, MAX_LAYERS, blank, newLayer, cloneLayer, G } from '../src/core/state.js';
+import { S, MAX_LAYERS, blank, newLayer, cloneLayer, G } from '../src/core/state.ts';
 import * as bus from '../src/core/bus.ts';
 import { hexToRgb, rgbToHex, rgb, eqc, rgbToHsv, hsvToRgb } from '../src/logic/color.ts';
 import { parseKey, blendOver, mergeCells, gridBounds, noteGridBounds, alphaBounds, boundsWithExt, symmetrizeGrid, rectFill, ellipseEdges, ellipseFill, cloneGrid } from '../src/logic/raster.ts';

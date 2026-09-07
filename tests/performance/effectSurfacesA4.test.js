@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { folderFx, layerFxSurface, layerMoveCanvas } from '../../src/core/effects-render.js';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { clippedShift, dirtyAll, layerCanvas } from '../../src/core/layer-cache.js';
-import { newEffect, S } from '../../src/core/state.js';
+import { newEffect, S } from '../../src/core/state.ts';
 import { setGridBounds } from '../../src/logic/raster.ts';
 import { convertFxToLayer } from '../../src/systems/effects/convert.js';
 

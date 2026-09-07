@@ -2,7 +2,7 @@
 // перестановка (без gap), подбор shade-рампы и контекст-меню. Рендер свотчей —
 // в palette.js; обратная связь идёт через колбэки rebuild()/setActive(),
 // заданные initPaletteSelect (без кольцевых импортов).
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as actions from '../core/actions.ts';
 import { $, toast, t } from '../core/shell.ts';
 import { showMenuAt } from '../ui/dom/ShellDom.ts';

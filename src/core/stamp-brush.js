@@ -1,6 +1,6 @@
 // Активная импортированная кисть-штамп — отдельная для карандаша и ластика.
 // Запись кончика + токен для кеша маски (меняется при каждой смене кисти).
-import { S } from './state.js';
+import { S } from './state.ts';
 import { BP_SMAX } from '../config/limits.ts';
 import { saveBrushPrefs } from './brush-prefs.js';
 import { savedBrushControls } from '../logic/brush/savedBrushControls.ts';

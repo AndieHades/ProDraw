@@ -1,6 +1,6 @@
 // Настройки приложения: тема (тумблер), язык и жест Brush Size Modifier
 // (Hot Key / чувствительность / направление). Шестерёнка в галерее.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { $ } from '../core/shell.ts';

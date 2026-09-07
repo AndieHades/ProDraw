@@ -1,6 +1,6 @@
 // Жизненный цикл штриха: начать (снимок + сброс pp), отменить (откат), завершить
 // (обновить список слоёв, если панель открыта).
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { $ } from '../../core/shell.ts';
 import { beginPixelBatch, beginPixelPatch, cancelPixelPatch, commitPixelPatch,

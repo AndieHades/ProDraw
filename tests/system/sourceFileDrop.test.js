@@ -2,7 +2,7 @@
 import { File } from "node:buffer";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as actions from "../../src/core/actions.ts";
-import { newLayer, S } from "../../src/core/state.js";
+import { newLayer, S } from "../../src/core/state.ts";
 import { dropImage, insertPngFileAsLayer } from "../../src/systems/import/index.js";
 import { requestPngDropDestination } from
   "../../src/ui/import/PngDropDestinationPresenter.ts";

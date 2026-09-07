@@ -1,5 +1,5 @@
 // Раскрывает цепочку папок и прокручивает реальную панель слоёв к строке.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { folderChain } from '../../core/layers.js';
 
 export function revealLayer(index, renderPanel) {

@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { doRedo, doUndo } from '../../src/core/history.js';
-import { cloneLayer, newLayer, S } from '../../src/core/state.js';
+import { cloneLayer, newLayer, S } from '../../src/core/state.ts';
 import { sparseGridStats } from '../../src/logic/raster.ts';
 import { duplicateFolder, duplicateLayer } from '../../src/systems/layers/structure-ops.js';
 

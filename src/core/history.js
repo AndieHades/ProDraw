@@ -1,6 +1,6 @@
 // История: снимок всего документа (слои + размеры) и откат. Восстановление
 // шлёт события 'layers'/'render' — история не знает про системы визуала.
-import { S, cloneLayer } from './state.js';
+import { S, cloneLayer } from './state.ts';
 import * as bus from './bus.ts';
 import * as actions from './actions.ts';
 import { t } from '../i18n/index.ts';

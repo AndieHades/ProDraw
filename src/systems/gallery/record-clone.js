@@ -1,4 +1,4 @@
-import { cloneFx, cloneLayerRecord } from '../../core/state.js';
+import { cloneFx, cloneLayerRecord } from '../../core/state.ts';
 import { ANIMATION } from '../../config/animation.ts';
 import { AUTOSAVE_CLONE_YIELD_ROWS, AUTOSAVE_IDLE_TIMEOUT_MS } from '../../config/timings.ts';
 import { normalizeAnimator } from '../../logic/animation-data.ts';

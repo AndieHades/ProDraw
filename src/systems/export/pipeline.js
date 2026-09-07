@@ -1,7 +1,7 @@
 // Единый пайплайн экспорта: Scope → ExportDocument → Mode → Format → Save.
 // Никаких отдельных веток «экспорт слоя/папки/проекта» — режим и формат
 // комбинируются над одним и тем же документом.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { saveFile } from '../../core/io.ts';
 import { toast, t } from '../../core/shell.ts';
 import { buildExportDoc, docName, exportTargetRoot } from './tree.js';

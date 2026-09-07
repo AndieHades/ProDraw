@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { dirtyAll } from '../../src/core/layer-cache.js';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { exportTargetPng } from '../../src/systems/export/pipeline.js';
 
 const pixels = new WeakMap();

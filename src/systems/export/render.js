@@ -1,6 +1,6 @@
 // Растеризация ExportDocument в canvas: единственная точка композита (paintStack)
 // переиспользуется с фильтром состава и флагом скрытых слоёв. Без своих циклов.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { paintStack } from '../../core/composite.js';
 import { clipBase, folderOpacity } from '../../core/layers.js';
 import { clippedShift, layerSrcSurface } from '../../core/layer-cache.js';

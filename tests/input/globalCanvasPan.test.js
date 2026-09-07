@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { S } from '../../src/core/state.js';
+import { S } from '../../src/core/state.ts';
 import { registerMode, registerTool } from '../../src/core/canvas-handlers.ts';
 import { setCanvasPanModifierHeld } from '../../src/core/navigationModifiers.ts';
 import { down, move, up } from '../../src/systems/input/index.js';

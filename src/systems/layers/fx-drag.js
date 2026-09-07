@@ -1,7 +1,7 @@
 // Данные-операции переноса эффектов (сам drag — общий dragRow из layers/drag.js).
 // Перенос меняет массивы .effects владельцев: переупорядочивание внутри стека или
 // применение эффекта к другому слою/папке. Верх списка = верх стека (как у слоёв).
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { snapshotEffects } from '../../core/history.js';
 

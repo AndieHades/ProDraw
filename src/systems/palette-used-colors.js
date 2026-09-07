@@ -1,4 +1,4 @@
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import { effVis } from '../core/layers.js';
 import { layerContentBounds, layerRev } from '../core/layer-cache.js';
 

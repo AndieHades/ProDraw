@@ -7,7 +7,7 @@ import { createEffectSurface, drawEffectSurface, materializeEffectSurface,
   unionEffectBounds } from './effect-surface.js';
 import { layerRev } from './layer-cache.js';
 import { effVis, folderChain } from './layers.js';
-import { S } from './state.js';
+import { S } from './state.ts';
 
 const effectsFor = (target) => {
   const base = target.effects || [], draft = S.fxDraft;

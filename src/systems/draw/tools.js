@@ -1,6 +1,6 @@
 // Регистрация обработчиков холста для инструментов рисования. Ввод вызывает
 // down/move/up; координаты клетки приходят готовыми из системы ввода.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { registerTool } from '../../core/canvas-handlers.ts';

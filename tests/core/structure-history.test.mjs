@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { PERFORMANCE_BUDGETS } from '../../src/config/performance.ts';
 import { doRedo, doUndo, snapshot, snapshotStructure } from '../../src/core/history.js';
 import { createStructureEntry } from '../../src/core/history/structurePatch.js';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 
 const plainLayer = (name, onRead) => {
   const layer = { name, opacity: 1, visible: true, fid: null, effects: [],

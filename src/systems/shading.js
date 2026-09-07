@@ -1,6 +1,6 @@
 // Shading ramp: a compact Aseprite-like ink mode driven by a selected palette
 // range. The ramp order is the brush direction; clicking it reverses direction.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { t, toast } from '../core/shell.ts';

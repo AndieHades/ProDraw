@@ -1,4 +1,4 @@
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { buildExportDocument, collectLayerIndices, exportDocumentName,
   exportTargetRoot as targetRoot } from '../../core/export/ExportTree.ts';
 

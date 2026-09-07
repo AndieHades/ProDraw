@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { doRedo, doUndo, snapshotCompound } from '../../src/core/history.js';
-import { newEffect, newLayer, S } from '../../src/core/state.js';
+import { newEffect, newLayer, S } from '../../src/core/state.ts';
 
 function reset() {
   S.W = 4; S.H = 4; S.cur = 0;

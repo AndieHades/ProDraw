@@ -13,7 +13,7 @@ for (const k of ['document', 'requestAnimationFrame', 'cancelAnimationFrame', 'm
 globalThis.URL.createObjectURL = () => 'blob:stub';
 globalThis.URL.revokeObjectURL = () => {};
 
-const { S, blank, BP_SMAX, newEffect, cloneFx } = await import('../src/core/state.js');
+const { S, blank, BP_SMAX, newEffect, cloneFx } = await import('../src/core/state.ts');
 const { BRUSH_PREFS_STORE, loadBrushPrefs, saveBrushPrefs } = await import('../src/core/brush-prefs.js');
 const cache = await import('../src/core/layer-cache.js');
 const io = await import('../src/core/io.ts');

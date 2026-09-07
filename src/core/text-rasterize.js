@@ -1,4 +1,4 @@
-import { S } from './state.js';
+import { S } from './state.ts';
 import * as bus from './bus.ts';
 import { snapshotRasterReferences } from './history.js';
 import { markDirty } from './layer-cache.js';

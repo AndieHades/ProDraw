@@ -1,7 +1,7 @@
 // Оверлеи поверх слоёв: оси симметрии, превью линии/эффектов, плавающее
 // выделение, рамка/маска выделения, подсветка перекраски, рамка кропа, контур
 // кисти. Всё выражается из общего S.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { rgb, hexToRgb } from '../../logic/color.ts';
 import { bres, rectEdges, rectFill, ellipseEdges,
   ellipseFill } from '../../logic/ShapeGeometry.ts';

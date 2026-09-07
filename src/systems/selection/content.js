@@ -1,4 +1,4 @@
-import { S, G } from '../../core/state.js';
+import { S, G } from '../../core/state.ts';
 import * as actions from '../../core/actions.ts';
 import * as bus from '../../core/bus.ts';
 import {

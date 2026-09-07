@@ -1,4 +1,4 @@
-import { S } from './state.js';
+import { S } from './state.ts';
 import { layerContentBounds } from './layer-cache.js';
 import { folderChain } from './layers.js';
 import { effectReach } from '../logic/layer-effects.js';

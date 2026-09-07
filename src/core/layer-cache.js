@@ -1,6 +1,6 @@
 // Растеризация слоёв: каждый слой кешируется в canvas W×H, грязь помечается
 // markDirty. Здесь же сборка композита — единственная точка композита в проекте.
-import { S } from './state.js';
+import { S } from './state.ts';
 import { effVis, clipBase } from './layers.js';
 import { conservativeGridBounds, forgetGridBounds, noteGridBounds, parseKey } from '../logic/raster.ts';
 import { layerFxSurface, layerPlainSurface,

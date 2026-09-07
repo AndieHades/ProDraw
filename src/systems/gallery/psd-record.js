@@ -1,4 +1,4 @@
-import { newEffect, newLayerRecord } from '../../core/state.js';
+import { newEffect, newLayerRecord } from '../../core/state.ts';
 import { defaultPalette, DEFAULT_ACTIVE } from '../../config/palette.ts';
 import { defaultReferenceBoard } from '../../core/reference-board.ts';
 import { runtimePsdEffectSpecs } from '../../logic/psd-effects.js';

@@ -1,6 +1,6 @@
 // Image adjustments. Canvas scope is destructive with live backup; layer/folder
 // scope is a non-destructive editable effect row (`adjustment`).
-import { S, newEffect } from '../core/state.js';
+import { S, newEffect } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch,

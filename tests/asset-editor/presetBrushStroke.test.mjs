@@ -2,7 +2,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { rasterOwnerForLayer } from '../../src/core/raster/legacyRasterOwner.ts';
 import { brushStamp, endBrushStroke } from '../../src/systems/draw/brush.js';
 import { beginStroke } from '../../src/systems/draw/stroke.js';

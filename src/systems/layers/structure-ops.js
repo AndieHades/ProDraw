@@ -1,5 +1,5 @@
 // Reversible layer/folder topology. Pixel payloads are referenced, never cloned.
-import { S, newLayer, cloneFx, cloneLayer } from '../../core/state.js';
+import { S, newLayer, cloneFx, cloneLayer } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { snapshotStructure } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';

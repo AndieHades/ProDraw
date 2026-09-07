@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { markDirty } from '../../src/core/layer-cache.js';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { rasterOwnerForLayer } from '../../src/core/raster/legacyRasterOwner.ts';
 import { createCellPainter } from '../../src/systems/draw/cells.js';
 import { brushStamp } from '../../src/systems/draw/brush.js';

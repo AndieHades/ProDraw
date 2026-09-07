@@ -1,4 +1,4 @@
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { snapshotStructure } from '../../core/history.js';
 import { dirtyAll } from '../../core/layer-cache.js';

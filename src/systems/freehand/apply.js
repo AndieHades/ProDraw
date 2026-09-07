@@ -1,7 +1,7 @@
 // Мост «контур → маска»: замыкает путь, растеризует его в множество клеток и
 // применяет выбранную операцию выделения. Способ построения контура ему не
 // важен (Continuous/Segment) — общая точка для любых инструментов выделения.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as actions from '../../core/actions.ts';
 import { polygonToMask } from '../../logic/poly-mask.ts';
 import { LASSO_MIN_POINTS } from '../../config/lasso.ts';

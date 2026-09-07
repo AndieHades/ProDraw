@@ -1,7 +1,7 @@
 // Aseprite-like shading brush: the selected palette ramp is ordered from the
 // desired target side to the opposite side. Each stroke moves a pixel one step
 // toward the first color in the ramp.
-import { S, G } from '../../core/state.js';
+import { S, G } from '../../core/state.ts';
 import { inSel } from '../../core/selection.js';
 import { symmetryConfig } from '../../core/layers.js';
 import { mirrorPoints } from '../../logic/symmetry.ts';

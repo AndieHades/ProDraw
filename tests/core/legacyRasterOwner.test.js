@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cloneLayer, newLayer, S } from "../../src/core/state.js";
+import { cloneLayer, newLayer, S } from "../../src/core/state.ts";
 import { rasterOwnerForLayer } from
   "../../src/core/raster/legacyRasterOwner.ts";
 import { blank } from "../../src/logic/raster.ts";

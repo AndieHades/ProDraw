@@ -1,6 +1,6 @@
 // Зеркальная кисть по горизонтали при зажатом X: пока клавиша держится, мазки
 // дублируются по центральной вертикальной оси (через S.xMirror в symmetryConfig).
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 
 const typing = (t) => !!((t && t.matches && t.matches('input, textarea')) || (t && t.isContentEditable));

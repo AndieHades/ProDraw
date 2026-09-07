@@ -1,5 +1,5 @@
 // Reversible removal of layer-tree objects without copying their raster grids.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as actions from '../../core/actions.ts';
 import * as bus from '../../core/bus.ts';
 import { snapshotStructure } from '../../core/history.js';

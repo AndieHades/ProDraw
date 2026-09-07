@@ -1,5 +1,5 @@
 // Буфер обмена: копировать/вырезать/вставить/удалить (выделение или весь слой).
-import { S, G, newLayer } from '../../core/state.js';
+import { S, G, newLayer } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import {

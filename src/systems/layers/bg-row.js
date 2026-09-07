@@ -1,7 +1,7 @@
 // Строка фон-слоя Background внизу списка: свотч цвета, имя, глаз. Не
 // перетаскивается, без эффектов; выбирается только в одиночку. Контекст-меню —
 // общее #lctx (kind='background'): Залить активным цветом / Очистить (прозрачный).
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { t } from '../../core/shell.ts';
 import { menuGesture } from '../../ui/gestures/ContextGesture.ts';

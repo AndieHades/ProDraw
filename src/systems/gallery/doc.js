@@ -1,5 +1,5 @@
 // Персистентность активной работы: снимок S → запись, восстановление, новая работа и автосохранение.
-import { S, newLayer } from '../../core/state.js';
+import { S, newLayer } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../../core/reference-board.ts';

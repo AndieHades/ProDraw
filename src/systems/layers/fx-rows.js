@@ -2,7 +2,7 @@
 // выделение (клик/Ctrl), ПКМ-меню (Правка/Копировать/Дублировать/Удалить),
 // drag для переноса и переупорядочивания. Верх списка = перёд стека (как у слоёв):
 // порядок в .effects (последний = поверх) рисуется сверху вниз.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { snapshotEffects } from '../../core/history.js';

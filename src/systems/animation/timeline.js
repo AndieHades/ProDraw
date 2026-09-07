@@ -1,4 +1,4 @@
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import { attachReorder } from '../../ui/shell/ReorderGesture.ts';
 import { activeFrameId, activeTimeline, renderFrameToCanvas, reorderFrames, selectFrame } from '../../core/animation.js';
 import { ANIMATION } from '../../config/animation.ts';

@@ -1,6 +1,6 @@
 // Слои, реально содержащие непрозрачный пиксель в координате документа.
 // Видимость намеренно не учитывается: скрытый слой тоже можно выбрать и раскрыть.
-import { S } from './state.js';
+import { S } from './state.ts';
 import { rasterOwnerForLayer } from './raster/legacyRasterOwner.ts';
 
 export function layerIndicesAt(x, y) {

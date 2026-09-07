@@ -1,7 +1,7 @@
 // Панель действий над выделением (#selbar): копировать/вырезать/вставить/
 // удалить/снять. Видна, пока есть активное выделение — снять можно при любом
 // инструменте, не только при «Выделении».
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/shell.ts';

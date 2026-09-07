@@ -1,6 +1,6 @@
 // Структурные операции над холстом-документом (примитив для многих систем).
 // Меняет размеры/слои, сдвигает запасные пиксели, сбрасывает выделение.
-import { S, blank, newLayer } from './state.js';
+import { S, blank, newLayer } from './state.ts';
 import * as bus from './bus.ts';
 import { translateRaster } from '../logic/raster-remap.js';
 import { isTextLayer, moveTextSource } from '../logic/text-model.ts';

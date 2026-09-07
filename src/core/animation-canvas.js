@@ -1,4 +1,4 @@
-import { S } from './state.js';
+import { S } from './state.ts';
 import { activeTimeline, liveFrameId, saveActiveFrame } from './animation.js';
 import { moveTextSource } from '../logic/text-model.ts';
 import { translateRaster } from '../logic/raster-remap.js';

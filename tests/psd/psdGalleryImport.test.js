@@ -2,7 +2,7 @@ import { IDBFactory } from 'fake-indexeddb';
 import { describe, expect, it } from 'vitest';
 import { decodePsdDocument } from '../../src/core/psd/decodePsdDocument.ts';
 import { getDoc, listDocs } from '../../src/core/storage.ts';
-import { S } from '../../src/core/state.js';
+import { S } from '../../src/core/state.ts';
 import { beginPsdImport, completePsdImport, curWorkId } from
   '../../src/systems/gallery/doc.js';
 import { structuredPsd } from './psdFixture.ts';

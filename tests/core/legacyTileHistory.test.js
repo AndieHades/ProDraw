@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { markDirty } from '../../src/core/layer-cache.js';
-import { newLayer, S } from '../../src/core/state.js';
+import { newLayer, S } from '../../src/core/state.ts';
 import { beginLegacyTileEdit, cancelLegacyTileEdit,
   commitLegacyTileEdit } from '../../src/core/history/legacyTileHistory.js';
 import { rasterOwnerForLayer } from '../../src/core/raster/legacyRasterOwner.ts';

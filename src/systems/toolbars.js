@@ -1,4 +1,4 @@
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { setTool } from '../core/tools.js';

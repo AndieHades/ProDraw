@@ -1,5 +1,5 @@
 // Окно 1:1: живой предпросмотр в реальном размере (пан/зум, кнопка 1:1).
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import { $ } from '../core/shell.ts';
 import { floatingWindow } from '../ui/windows/FloatingWindow.ts';

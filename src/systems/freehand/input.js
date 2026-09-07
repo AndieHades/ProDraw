@@ -1,7 +1,7 @@
 // Selection Tool: разбирает указатель (мышь/перо/палец) в построение контура.
 // Continuous — один мазок с авто-замыканием на отпускании; Segment — контур по
 // частям, замыкается возвратом к стартовой точке. Отмена — Escape/кнопка панели.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { registerTool } from '../../core/canvas-handlers.ts';

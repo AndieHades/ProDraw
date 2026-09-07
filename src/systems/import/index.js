@@ -1,6 +1,6 @@
 // Импорт картинки: выбор файла/drag-n-drop → пиксель-арт (через диалог) или
 // вставка как есть. Конвертация — в ./convert.js.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { snapshot, restore } from '../../core/history.js';

@@ -1,7 +1,7 @@
 // Система рендера: рисует видимый холст (фон, шахматка, слои с живыми
 // превью move/transform/crop, сетка), затем оверлеи. Системные оверлеи
 // (рамка трансформации) подмешиваются через событие 'overlay'.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/shell.ts';

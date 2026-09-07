@@ -1,7 +1,7 @@
 // Система ввода: мышь/перо и колесо на холсте. Диспетчеризует указатель в
 // обработчики инструментов/режимов (core/canvas-handlers), пан правой кнопкой,
 // зум колесом, Alt — пипетка. Тач-жесты — в ./gestures.js.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/shell.ts';

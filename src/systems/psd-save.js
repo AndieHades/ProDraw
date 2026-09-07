@@ -1,5 +1,5 @@
 // Сохранение открытого PSD идёт в исходный desktop path, а не в download.
-import { S } from '../core/state.js';
+import { S } from '../core/state.ts';
 import { buildExportDoc, docName } from './export/tree.js';
 import { PSD } from './export/psd.js';
 import { PNG } from './export/png.ts';

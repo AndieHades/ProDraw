@@ -1,6 +1,6 @@
 // Контекстное меню слоя/папки и переименование. Кросс-системные операции —
 // через actions; правки слоёв — на месте.
-import { S } from '../../core/state.js';
+import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/shell.ts';
