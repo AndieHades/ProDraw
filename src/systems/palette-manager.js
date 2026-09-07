@@ -4,7 +4,7 @@ import * as bus from '../core/bus.ts';
 import { $, showMenuAt, toast, t } from '../ui/dom/ShellDom.ts';
 import { createLibraryDialog } from '../ui/dom/LibraryDialogPresenter.ts';
 import { compositeAt, contentRevision } from '../core/layer-cache.js';
-import { PaletteCompositeCache } from '../core/palette-composite-cache.js';
+import { PaletteCompositeCache } from '../core/palette-composite-cache.ts';
 import { paletteFromCanvasSource, paletteFromImageData,
   paletteFromImageSource, paletteFromPointSource } from '../core/palette-sampling.js';
 import { rgb, eqc } from '../logic/color.ts';

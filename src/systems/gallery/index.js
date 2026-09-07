@@ -3,7 +3,7 @@
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, t, toast } from '../../ui/dom/ShellDom.ts';
-import { imageData, looksPixelArt } from '../../core/image.js';
+import { imageData, looksPixelArt } from '../../core/image.ts';
 import { beginConvertedWork, newWorkFromImage, saveCurrent,
   autosave, autosaveInputStarted, beginPsdImport, completePsdImport } from './doc.js';
 import { configure, render, goBack, setSelecting, isSelecting, stackSelected, dupSelected, delSelected } from './screen.js';

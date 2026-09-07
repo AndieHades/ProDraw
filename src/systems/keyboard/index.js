@@ -2,7 +2,7 @@
 // карте (дефолт + пользовательские переопределения из localStorage) и запускает
 // его из реестра. Перенастройка — rebind()/resetKeymap(), сохраняется.
 import * as actions from '../../core/actions.ts';
-import { DEFAULT_KEYMAP } from './keymap.js';
+import { DEFAULT_KEYMAP } from './keymap.ts';
 import { keyboardCombo } from '../../logic/key-code.ts';
 import { canvasPanModifierHeld,
   setCanvasPanModifierHeld } from '../../core/navigationModifiers.ts';

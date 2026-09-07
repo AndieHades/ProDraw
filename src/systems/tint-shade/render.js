@@ -3,7 +3,7 @@
 import { $, t } from '../../ui/dom/ShellDom.ts';
 import { rgb, rgbToHex } from '../../logic/color.ts';
 import { generateTints, generateShades, generateTintShadeScalesForHarmony } from '../../logic/tint-shade.ts';
-import { tsg, isSel, allSel, setGroup } from './store.js';
+import { tsg, isSel, allSel, setGroup } from './store.ts';
 
 let H = { onTap: () => {}, onAdd: () => {} }; // обработчики из index (выбор / ПКМ-добавление)
 export const setHandlers = (h) => { H = h; };

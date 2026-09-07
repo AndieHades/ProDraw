@@ -8,7 +8,7 @@ import { expandCanvas, placeImageLayer, addImageLayerTop } from '../../core/docu
 import { MAX_LAYERS, IMPORT_MAX_SIDE } from '../../config/limits.ts';
 import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
-import { imageData, looksPixelArt } from '../../core/image.js';
+import { imageData, looksPixelArt } from '../../core/image.ts';
 import { setImpData, impConvert, applyImport, rotateImp, setImportMode, getImportMode } from './convert.js';
 import { hasPsdIdentity, isPsdFile } from './psd-file.ts';
 import { droppedFileLocation } from './desktop-file.ts';

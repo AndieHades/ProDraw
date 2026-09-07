@@ -5,7 +5,7 @@ import * as bus from '../../core/bus.ts';
 import { $, toast, t } from '../../ui/dom/ShellDom.ts';
 import { eqc } from '../../logic/color.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
-import { tsg, toggleSel, openWith } from './store.js';
+import { tsg, toggleSel, openWith } from './store.ts';
 import { render, setHandlers } from './render.js';
 
 function parseHex(s) {
