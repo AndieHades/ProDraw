@@ -45,7 +45,7 @@ Baseline: `asset-editor@6cc56bb`, 2026-09-06. Каждое утверждени�
 
 `docs/rule-packs/00-core/repository-rules.md` запрещает «возвращать `grid[y][x]`
 как модель полноцветного документа». Живой слой — именно она:
-[`src/logic/sparse-grid.js`](../../../src/logic/sparse-grid.js) хранит строку
+[`src/logic/sparse-grid.ts`](../../../src/logic/sparse-grid.ts) хранит строку
 как `Proxy` над `Array`, а пиксель — как отдельный JS-массив `[r,g,b,a]`.
 
 Замер на baseline-машине, 1024×1024 = 1 048 576 пикселей, тот же

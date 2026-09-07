@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { blank, cloneGrid, conservativeGridBounds, forgetGridBounds,
-  gridBounds, noteGridBounds, setGridBounds } from '../../src/logic/raster.js';
+  gridBounds, noteGridBounds, setGridBounds } from '../../src/logic/raster.ts';
 
 describe('legacy grid bounds metadata', () => {
   it('tracks blank and cloned grids without hiding full invalidations', () => {

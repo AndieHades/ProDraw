@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { S, MAX_LAYERS, blank, newLayer, cloneLayer, G } from '../src/core/state.js';
 import * as bus from '../src/core/bus.ts';
 import { hexToRgb, rgbToHex, rgb, eqc, rgbToHsv, hsvToRgb } from '../src/logic/color.ts';
-import { parseKey, blendOver, mergeCells, gridBounds, noteGridBounds, alphaBounds, boundsWithExt, symmetrizeGrid, rectFill, ellipseEdges, ellipseFill, cloneGrid } from '../src/logic/raster.js';
+import { parseKey, blendOver, mergeCells, gridBounds, noteGridBounds, alphaBounds, boundsWithExt, symmetrizeGrid, rectFill, ellipseEdges, ellipseFill, cloneGrid } from '../src/logic/raster.ts';
 import { clamp, clamp01, clamp255, clampRound, evalNumericField, isNumericLiteral } from '../src/logic/math.ts';
 import { floodRegion, gridFloodSurface } from '../src/logic/flood.ts';
 import { parsePsdEffects } from '../src/logic/psd-effects.js';

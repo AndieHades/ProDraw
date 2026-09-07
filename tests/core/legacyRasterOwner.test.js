@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { cloneLayer, newLayer, S } from "../../src/core/state.js";
 import { rasterOwnerForLayer } from
   "../../src/core/raster/legacyRasterOwner.ts";
-import { blank } from "../../src/logic/raster.js";
+import { blank } from "../../src/logic/raster.ts";
 
 describe("live legacy raster ownership", () => {
   it("keeps one stable typed owner while raster references change", () => {

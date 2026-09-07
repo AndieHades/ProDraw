@@ -7,7 +7,7 @@ import { folderChain } from '../../core/layers.js';
 import { S } from '../../core/state.js';
 import { hexToRgb } from '../../logic/color.ts';
 import { INNER_EFFECTS } from '../../logic/layer-effects.js';
-import { setGridBounds } from '../../logic/raster.js';
+import { setGridBounds } from '../../logic/raster.ts';
 
 function insertAt(target, inner) {
   if (target.grid) {

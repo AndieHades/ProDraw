@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { S, blank } from '../../src/core/state.js';
 import { doUndo } from '../../src/core/history.js';
 import { dirtyAll, markDirty } from '../../src/core/layer-cache.js';
-import { gridBoundsMetadata } from '../../src/logic/raster.js';
+import { gridBoundsMetadata } from '../../src/logic/raster.ts';
 import {
   beginLiftHistory,
   commitFloat,

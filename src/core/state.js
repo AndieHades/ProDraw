@@ -10,7 +10,7 @@ import { LASSO_DEFAULT } from '../config/lasso.ts';
 import { EYEDROPPER } from '../config/eyedropper.ts';
 import { DEFAULT_CANVAS_BACKGROUND } from '../config/canvas-background.ts';
 import { loadActiveColor } from './color-prefs.ts';
-import { cloneGrid, blank, sparseGridStats } from '../logic/raster.js';
+import { cloneGrid, blank, sparseGridStats } from '../logic/raster.ts';
 import { createLegacyLayerCollection, normalizeLegacyRasterLayer } from
   './raster/legacyRasterOwner.ts';
 import { cloneTextSource } from '../logic/text-model.ts';

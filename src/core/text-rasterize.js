@@ -4,7 +4,7 @@ import { snapshotRasterReferences } from './history.js';
 import { markDirty } from './layer-cache.js';
 import { rasterizeTextLayer, textLayerBounds } from './text-layer.js';
 import { isTextLayer } from '../logic/text-model.ts';
-import { gridBoundsMetadata, setGridBounds } from '../logic/raster.js';
+import { gridBoundsMetadata, setGridBounds } from '../logic/raster.ts';
 
 export function rasterizeTextAt(index, opts = {}) {
   const L = S.layers[index];

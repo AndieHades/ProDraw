@@ -4,7 +4,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { snapshot, snapshotRasterReferences,
   snapshotStructure } from '../../core/history.js';
-import { cloneGrid, symmetrizeGrid } from '../../logic/raster.js';
+import { cloneGrid, symmetrizeGrid } from '../../logic/raster.ts';
 import { dirtyAll, layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { bakeFolder, bakeLayerIndices, preservesClipping } from '../../core/layer-bake.js';
 import { toast, t } from '../../core/shell.ts';

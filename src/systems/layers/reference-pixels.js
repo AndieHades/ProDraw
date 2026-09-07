@@ -6,7 +6,7 @@ import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { rasterizeTextTargets } from '../../core/text-rasterize.js';
 import { isTextLayer } from '../../logic/text-model.ts';
 import { forkRasterRows } from '../../logic/raster-row-fork.js';
-import { setGridBounds } from '../../logic/raster.js';
+import { setGridBounds } from '../../logic/raster.ts';
 
 const opaque = (cell) => !!cell && (cell[3] ?? 255) > 0;
 const fullBounds = () => ({ minx: 0, miny: 0,

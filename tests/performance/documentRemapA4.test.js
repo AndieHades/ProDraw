@@ -5,7 +5,7 @@ import { applyCropRect } from '../../src/core/document.js';
 import { doUndo } from '../../src/core/history.js';
 import { dirtyAll } from '../../src/core/layer-cache.js';
 import { S, blank } from '../../src/core/state.js';
-import { setGridBounds, sparseGridStats } from '../../src/logic/raster.js';
+import { setGridBounds, sparseGridStats } from '../../src/logic/raster.ts';
 import { flipLayer } from '../../src/systems/flip.js';
 import { centerLayer } from '../../src/systems/layer-center.js';
 import { rotateCanvas } from '../../src/systems/rotate-canvas.js';

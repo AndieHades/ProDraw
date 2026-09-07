@@ -2,7 +2,7 @@
 // markDirty. Здесь же сборка композита — единственная точка композита в проекте.
 import { S } from './state.js';
 import { effVis, clipBase } from './layers.js';
-import { conservativeGridBounds, forgetGridBounds, noteGridBounds, parseKey } from '../logic/raster.js';
+import { conservativeGridBounds, forgetGridBounds, noteGridBounds, parseKey } from '../logic/raster.ts';
 import { layerFxSurface, layerPlainSurface,
   layerRenderEffects } from './effects-render.js';
 import { paintStack } from './composite.js';

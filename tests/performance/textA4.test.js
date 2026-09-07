@@ -5,7 +5,7 @@ import { doRedo, doUndo } from '../../src/core/history.js';
 import { makeTextLayer, updateTextLayerGrid } from '../../src/core/text-layer.js';
 import { rasterizeTextAt } from '../../src/core/text-rasterize.js';
 import { rasterTextBox } from '../../src/core/text-canvas-raster.js';
-import { gridBoundsMetadata } from '../../src/logic/raster.js';
+import { gridBoundsMetadata } from '../../src/logic/raster.ts';
 import { captureTextLayer, commitTextLayerEdit } from
   '../../src/systems/text-tool/history.js';
 

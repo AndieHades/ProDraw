@@ -1,5 +1,5 @@
 import { S } from './state.js';
-import { boundsWithExt } from '../logic/raster.js';
+import { boundsWithExt } from '../logic/raster.ts';
 import { effectReach } from '../logic/layer-effects.js';
 
 const grow = (b, r) => ({ minx: b.minx - r.l, miny: b.miny - r.t, maxx: b.maxx + r.r, maxy: b.maxy + r.b });

@@ -5,7 +5,7 @@ import { captureAdjustmentLayers, writeAdjustmentLayers } from
   '../../src/core/adjustment-preview.js';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { makeTextLayer } from '../../src/core/text-layer.js';
-import { gridBoundsMetadata, setGridBounds } from '../../src/logic/raster.js';
+import { gridBoundsMetadata, setGridBounds } from '../../src/logic/raster.ts';
 import { beginCanvasReference } from
   '../../src/systems/brightness-contrast/reference.js';
 import { createCellPainter } from '../../src/systems/draw/cells.js';

@@ -3,7 +3,7 @@ import { hexToRgb } from '../logic/color.ts';
 import { effectRegionFromGrid } from '../logic/effect-region.js';
 import { EFFECT_PIXELS, INNER_EFFECTS } from '../logic/layer-effects.js';
 import { monochromeColor } from '../logic/monochrome.ts';
-import { blank, gridBounds, mergeCells } from '../logic/raster.js';
+import { blank, gridBounds, mergeCells } from '../logic/raster.ts';
 
 const alpha = (cell) => cell ? (cell[3] ?? 255) : 0;
 const visibleAdjustments = (effects) => effects.filter((effect) =>

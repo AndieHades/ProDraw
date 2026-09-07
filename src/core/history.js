@@ -6,7 +6,7 @@ import * as actions from './actions.ts';
 import { t } from '../i18n/index.ts';
 import { dirtyAll, markDirty } from './layer-cache.js';
 import { trimHistoryStack } from './history/historyBudget.ts';
-import { cloneGrid } from '../logic/raster.js';
+import { cloneGrid } from '../logic/raster.ts';
 import { historyRef, syncHistoryFrame } from './animation.js';
 import { compactPixelEntry, createPixelBatch, createPixelPatch,
   recordPixel, swapPixelEntry } from './history/pixelPatch.ts';

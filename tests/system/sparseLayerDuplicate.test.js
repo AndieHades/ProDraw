@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { cloneLayer, newLayer, S } from '../../src/core/state.js';
-import { sparseGridStats } from '../../src/logic/raster.js';
+import { sparseGridStats } from '../../src/logic/raster.ts';
 import { duplicateFolder, duplicateLayer } from '../../src/systems/layers/structure-ops.js';
 
 const W = 2480, H = 3508;

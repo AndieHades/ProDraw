@@ -1,5 +1,5 @@
 import { isSelectionMask } from './selection-mask.ts';
-import { parseKey } from './raster.js';
+import { parseKey } from './raster.ts';
 
 const compactCache = new WeakMap();
 

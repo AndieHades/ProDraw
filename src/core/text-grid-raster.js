@@ -1,4 +1,4 @@
-import { conservativeGridBounds, setGridBounds } from '../logic/raster.js';
+import { conservativeGridBounds, setGridBounds } from '../logic/raster.ts';
 import { hexToRgb } from '../logic/color.ts';
 import { normalizeTextSource } from '../logic/text-model.ts';
 import { displayLines, lineAdvance, lineWidth } from '../logic/text-layout.ts';

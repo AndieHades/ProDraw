@@ -4,7 +4,7 @@ import { folderFx, layerFxSurface, layerMoveCanvas } from '../../src/core/effect
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { clippedShift, dirtyAll, layerCanvas } from '../../src/core/layer-cache.js';
 import { newEffect, S } from '../../src/core/state.js';
-import { setGridBounds } from '../../src/logic/raster.js';
+import { setGridBounds } from '../../src/logic/raster.ts';
 import { convertFxToLayer } from '../../src/systems/effects/convert.js';
 
 const WIDTH = 2480, HEIGHT = 3508;

@@ -11,7 +11,7 @@ import { clearLayer } from '../../core/document.js';
 import { layerContentBounds, dirtyAll } from '../../core/layer-cache.js';
 import { toast, t } from '../../core/shell.ts';
 import { MAX_LAYERS } from '../../config/limits.ts';
-import { parseKey, setGridBounds } from '../../logic/raster.js';
+import { parseKey, setGridBounds } from '../../logic/raster.ts';
 import { symA, symHA } from '../../core/layers.js';
 import { deleteSelContent, deselect } from './model.js';
 import { commitFloat } from './float.js';

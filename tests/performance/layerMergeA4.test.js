@@ -4,7 +4,7 @@ import { CANVAS_PRESETS } from '../../src/config/canvasPresets.ts';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { dirtyAll, takeCompositeDamage } from '../../src/core/layer-cache.js';
 import { S, blank } from '../../src/core/state.js';
-import { mergeCells, setGridBounds, sparseGridStats } from '../../src/logic/raster.js';
+import { mergeCells, setGridBounds, sparseGridStats } from '../../src/logic/raster.ts';
 import { clearLayerRefs, doMerge } from '../../src/systems/layers/ops.js';
 
 const A4 = CANVAS_PRESETS.find((preset) => preset.id === 'a4-p');

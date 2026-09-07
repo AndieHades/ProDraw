@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { PERFORMANCE_BUDGETS } from '../../src/config/performance.ts';
 import { cloneLayer, newLayer } from '../../src/core/state.js';
-import { gridBounds, sparseGridStats } from '../../src/logic/raster.js';
+import { gridBounds, sparseGridStats } from '../../src/logic/raster.ts';
 import { rasterOwnerForLayer } from '../../src/core/raster/legacyRasterOwner.ts';
 
 const W = 2480, H = 3508;

@@ -1,5 +1,5 @@
 import { cloneTextSource, isTextLayer } from '../../logic/text-model.ts';
-import { gridBoundsMetadata, setGridBounds } from '../../logic/raster.js';
+import { gridBoundsMetadata, setGridBounds } from '../../logic/raster.ts';
 
 const field = (target, property, cloneText = false) => ({
   present: Object.prototype.hasOwnProperty.call(target, property),

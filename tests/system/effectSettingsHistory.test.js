@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { dirtyAll } from '../../src/core/layer-cache.js';
 import { newLayer, S } from '../../src/core/state.js';
-import { setGridBounds } from '../../src/logic/raster.js';
+import { setGridBounds } from '../../src/logic/raster.ts';
 import { fxApply, openFxNew } from '../../src/systems/effects/settings.js';
 
 function mountForm() {

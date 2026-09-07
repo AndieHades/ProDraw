@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blank } from '../../src/logic/raster.js';
+import { blank } from '../../src/logic/raster.ts';
 import { compactPixelEntry, createPixelBatch, recordPixel,
   swapPixelEntry } from '../../src/core/history/pixelPatch.ts';
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blank } from '../../src/logic/raster.js';
+import { blank } from '../../src/logic/raster.ts';
 import { translateRaster } from '../../src/logic/raster-remap.js';
 
 describe('raster remap cell ownership', () => {

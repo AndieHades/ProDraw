@@ -2,13 +2,13 @@
 // положить обратно. Мутирует G и S.selFloat; жесты — в ./input.js.
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
-import { parseKey } from '../../logic/raster.js';
+import { parseKey } from '../../logic/raster.ts';
 import { symA, symHA } from '../../core/layers.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { maskHas } from '../../core/selection.js';
 import { SelectionMask, selectionStateFromMask } from '../../logic/mask-ops.js';
 import { snapshot, snapshotRasterReferences } from '../../core/history.js';
-import { gridBoundsMetadata, setGridBounds } from '../../logic/raster.js';
+import { gridBoundsMetadata, setGridBounds } from '../../logic/raster.ts';
 
 let pendingCow = null;
 

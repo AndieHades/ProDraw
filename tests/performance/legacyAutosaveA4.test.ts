@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { cloneGridIdle } from "../../src/systems/gallery/record-clone";
-// @ts-expect-error Legacy raster bridge is JavaScript until the R2.11 cutover.
 import { blank, sparseGridStats } from "../../src/logic/raster";
 
 describe("legacy A4 autosave work", () => {

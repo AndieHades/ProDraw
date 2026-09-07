@@ -1,4 +1,4 @@
-import { blank, parseKey, setGridBounds } from './raster.js';
+import { blank, parseKey, setGridBounds } from './raster.ts';
 import { createRasterCellInterner } from './raster-cell-interner.ts';
 
 const arrayIndex = (key, length) => {

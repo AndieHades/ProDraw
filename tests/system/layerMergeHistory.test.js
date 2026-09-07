@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { dirtyAll } from '../../src/core/layer-cache.js';
 import { S, blank } from '../../src/core/state.js';
-import { mergeCells } from '../../src/logic/raster.js';
+import { mergeCells } from '../../src/logic/raster.ts';
 import { doMerge } from '../../src/systems/layers/ops.js';
 
 function makeLayer(name, fid = null) {

@@ -1,6 +1,6 @@
 import { TEXT_DEFAULT, TEXT_BOX } from '../config/text.ts';
 import { cloneTextSource, normalizeTextPrefs, normalizeTextSource, isTextLayer } from '../logic/text-model.ts';
-import { gridBoundsMetadata, setGridBounds } from '../logic/raster.js';
+import { gridBoundsMetadata, setGridBounds } from '../logic/raster.ts';
 import { textRasterBounds } from './text-canvas-raster.js';
 import { materializeTextGrid, rasterTextGrid } from './text-grid-raster.js';
 

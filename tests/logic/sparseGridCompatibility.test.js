@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blank, cloneGrid, gridBounds, sparseGridStats } from '../../src/logic/raster.js';
+import { blank, cloneGrid, gridBounds, sparseGridStats } from '../../src/logic/raster.ts';
 
 describe('sparse legacy grid compatibility', () => {
   it('preserves indexed Array and serialization behavior without empty slots', () => {

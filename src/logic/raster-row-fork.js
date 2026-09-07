@@ -1,4 +1,4 @@
-import { gridBoundsMetadata, setGridBounds } from './raster.js';
+import { gridBoundsMetadata, setGridBounds } from './raster.ts';
 
 // Copy-on-write fork for reference-backed history. The outer row list is cheap;
 // pixel arrays are copied only immediately before a caller changes that row.

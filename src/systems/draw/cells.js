@@ -1,6 +1,6 @@
 // Low-level selected/symmetric raster writes through the typed live owner.
 import { S } from '../../core/state.js';
-import { blendOver } from '../../logic/raster.js';
+import { blendOver } from '../../logic/raster.ts';
 import { symmetryConfig } from '../../core/layers.js';
 import { mirrorPoints } from '../../logic/symmetry.ts';
 import { inSel } from '../../core/selection.js';
