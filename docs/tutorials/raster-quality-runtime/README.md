@@ -105,14 +105,16 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 
 ## Resume Here
 
-- Current stage: `Q8 — дефекты приёмки: сначала кисти (D1–D4), затем интерфейс`
+- Current stage: `Q6 — оставшийся продакшн-JavaScript переведён в TypeScript`
 - Status: `in_progress`
 - Last completed stage: `Q5 — горячие пути композита, панели слоёв и эффектов`
-- Next action: закрыть `D1`–`D3` (ход не остаётся на слое и идёт оттисками),
-  затем `D4` превью; `Q6` и `Q7-2` продолжаются после дефектов
+- Next action: продолжить `Q6` — фронт после команды меню: `transform/drag`,
+  `reference-window-ops`, `layers/helpers`, `core/layers`, `core/effect-surface`,
+  `core/app-folders`, `logic/psd-effects` (требует деления)
 - Blockers: none
 - Working paths: `src/core`, `src/systems`, `project.config.json`
-- Last checks: `npm run validate` зелёный целиком после `Q7-1`: `177`/`518`
-  TypeScript и `16`/`57` performance тестов. Source JS `253` → `215`, индексных
-  чтений `81` → `56`, параллельный редактор удалён (`31` модуль)
-- Last updated: 2026-09-06
+- Last checks: `npm run validate` зелёный; `199`/`596` TypeScript и `16`/`57`
+  performance тестов. Source JS `184` → `170`, legacy-state JS `141` → `133`,
+  индексных чтений `47` → `46`, импортов `src/ui` из систем `47` → `26`.
+  Дефекты приёмки `D1`–`D7` закрыты, `/Applications/ProDraw.app` пересобран
+- Last updated: 2026-09-07
