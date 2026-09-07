@@ -4,7 +4,7 @@ import * as actions from '../../core/actions.ts';
 import { $, showMenuAt, t, toast } from '../../ui/dom/ShellDom.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { loadFonts, importFontFile, renameFont, deleteFont } from '../../core/font-store.js';
-import { loadTextPrefs, saveTextPrefs } from '../../core/text-prefs.js';
+import { loadTextPrefs, saveTextPrefs } from '../../core/text-prefs.ts';
 import { TEXT_IMPORT, TEXT_LETTER_SPACING, TEXT_LINE_SPACING, TEXT_SIZE } from '../../config/text.ts';
 import { rgbToHex } from '../../logic/color.ts';
 import { applyTextChange, snapshotTextChange } from './text-change.js';

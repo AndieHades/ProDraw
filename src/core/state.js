@@ -3,8 +3,8 @@
 // системами нет. Поля менять как S.W = …, не реэкспортируя биндинги.
 // Настраиваемые значения берутся из src/config (а не зашиты тут).
 import { MAX_LAYERS, MAX_SIZE } from '../config/limits.ts';
-import { DEFAULT_DOC } from '../config/presets.js';
-import { defaultPalette, DEFAULT_ACTIVE } from '../config/palette.js';
+import { DEFAULT_DOC } from '../config/presets.ts';
+import { defaultPalette, DEFAULT_ACTIVE } from '../config/palette.ts';
 import { PENCIL_DEFAULT_SIZE, ERASER_DEFAULT_SIZE, ADJUST_DEFAULT, EFFECT_DEFAULTS } from '../config/defaults.ts';
 import { LASSO_DEFAULT } from '../config/lasso.ts';
 import { EYEDROPPER } from '../config/eyedropper.ts';

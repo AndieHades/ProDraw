@@ -1,5 +1,5 @@
 import { newEffect, newLayerRecord } from '../../core/state.js';
-import { defaultPalette, DEFAULT_ACTIVE } from '../../config/palette.js';
+import { defaultPalette, DEFAULT_ACTIVE } from '../../config/palette.ts';
 import { defaultReferenceBoard } from '../../core/reference-board.js';
 import { runtimePsdEffectSpecs } from '../../logic/psd-effects.js';
 import { psdGalleryPreview } from './psd-preview.ts';

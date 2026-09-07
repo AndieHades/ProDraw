@@ -34,7 +34,7 @@ export function filePalette(file) {
 }
 
 async function bundledPaletteUrls() {
-  try { return (await import('./palette-folder-glob.js')).FOLDER_PALETTE_URLS || {}; } catch (e) { return {}; }
+  try { return (await import('./palette-folder-glob.ts')).FOLDER_PALETTE_URLS || {}; } catch (e) { return {}; }
 }
 
 export async function folderPalettes() {

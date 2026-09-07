@@ -1,3 +1,3 @@
 // Тип управления: десктоп (есть наведение мышью) против тача (iPad). Свайпы —
 // только на таче; на десктопе те же действия вызываются правой кнопкой (ПКМ).
-export const isDesktop = () => matchMedia('(hover: hover)').matches;
+export const isDesktop = (): boolean => matchMedia("(hover: hover)").matches;

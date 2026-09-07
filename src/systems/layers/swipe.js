@@ -5,7 +5,7 @@ import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { t } from '../../i18n/index.ts';
 import { attachSwipe } from '../../core/swipe-actions.js';
-import { isDesktop } from '../../core/env.js';
+import { isDesktop } from '../../core/env.ts';
 import { LAYER_SWIPE_ACTIONS } from '../../config/layer-actions.ts';
 import { duplicateLayer, deleteLayerRef, toggleLock, toggleAlphaLock, toggleClip, clearLayerRef } from './ops.js';
 import { pinchActive } from './pinch.js';

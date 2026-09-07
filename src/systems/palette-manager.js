@@ -9,7 +9,7 @@ import { paletteFromCanvasSource, paletteFromImageData,
   paletteFromImageSource, paletteFromPointSource } from '../core/palette-sampling.js';
 import { rgb, eqc } from '../logic/color.ts';
 import { sortPalette } from '../logic/palette-sort.ts';
-import { defaultPalette } from '../config/palette.js';
+import { defaultPalette } from '../config/palette.ts';
 import { CANVAS_PALETTE_LIMIT, FILE_PALETTE_LIMIT,
   PALETTE_EXACT_LIMIT } from '../config/palette-sampling.ts';
 import { initPaletteCreateChoice, refreshPaletteCreateChoice } from './palette-create-choice.js';

@@ -38,10 +38,10 @@ import * as lasso from './systems/freehand/panel.js';
 import * as eyedropper from './systems/eyedropper/index.js';
 import * as penButton from './systems/pen-button.js';
 import * as status from './systems/status.js';
-import * as toolpops from './systems/toolpops.js';
 import * as textTool from './systems/text-tool/index.js';
 import * as animation from './systems/animation/index.js';
 import { mountPreservedShellLayout } from './ui/shell/PreservedShellLayout.ts';
+import { mountToolPopoverWindows } from './ui/windows/ToolPopoverWindows.ts';
 import './systems/draw/tools.js';
 import './systems/move-tool.js';
 import './systems/selection/input.js';
@@ -60,12 +60,12 @@ import * as xMirror from './systems/x-mirror.js';
 import { rendererSmokeRequested, reportRendererSmokeFailure,
   runRendererSmoke } from './app/runRendererSmoke.ts';
 
-const MOUNTS = [colorPreferences, palette, eraserBar, simpleBrushLibrary, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, documentSave, palManager, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, toolpops, xMirror, tile, textTool];
+const MOUNTS = [colorPreferences, palette, eraserBar, simpleBrushLibrary, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, documentSave, palManager, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, xMirror, tile, textTool];
 
 export function start() {
   detect(); applyTheme(); refreshColors();
   for (const m of MOUNTS) if (m.mount) m.mount();
-  mountKeyboard();
+  mountKeyboard(); mountToolPopoverWindows();
   applyDom(); // проставить переводы в статичный UI
 
   mountPreservedShellLayout({ fitView });

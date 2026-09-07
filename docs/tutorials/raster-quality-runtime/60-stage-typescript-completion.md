@@ -36,9 +36,16 @@
 `Q6a` перевёл чистую `logic`: `monochrome`, `poly-mask`,
 `raster-cell-interner`, `cleanup`, `quickshape`, `flood`,
 `selection-mask-map`, `rotsprite`, `sample`, `brush-mask`.
-Счётчики: source JS `253` → `243`, legacy-state JS `169` → `167`, индексных
-чтений пикселей `68` → `57` (типизация сеток заменила прямое индексирование
-проверяемыми аксессорами).
+Затем `env`, `palette-folder-glob`, `box-fit`, `text-prefs`, `config/presets`
+и `config/palette`. Счётчики: source JS `253` → `236`, legacy-state JS
+`169` → `167`, индексных чтений пикселей `68` → `57` (типизация сеток заменила
+прямое индексирование проверяемыми аксессорами).
+
+Портирование вскрыло нарушение слоёв, которое JS скрывал: `systems/toolpops`
+импортировал `ui/windows/FloatingWindow`. Правило `no-ui-in-core-runtime`
+проверяет только TypeScript, поэтому нарушение держалось. Модуль переехал в
+`ui/windows/ToolPopoverWindows` и монтируется из composition root, а не из
+списка систем.
 
 ## Contracts
 

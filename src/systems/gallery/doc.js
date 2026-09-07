@@ -4,7 +4,7 @@ import * as bus from '../../core/bus.ts';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../../core/reference-board.js';
 import { dedupePal } from '../../logic/quantize.js';
-import { defaultPalette, grayscalePalette, DEFAULT_ACTIVE } from '../../config/palette.js';
+import { defaultPalette, grayscalePalette, DEFAULT_ACTIVE } from '../../config/palette.ts';
 import { saveDoc, getGalleryDoc, removeDoc } from '../../core/storage.ts';
 import { ensureGrid } from '../../core/grid.js';
 import { cloneAnimator, loadFrame } from '../../core/animation.js';

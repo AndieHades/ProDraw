@@ -1,7 +1,7 @@
 // Списки обычных растровых холстов и сохранённых пользовательских размеров.
 import { $, showMenuAt } from '../../ui/dom/ShellDom.ts';
 import { t } from '../../i18n/index.ts';
-import { DIGITAL_CANVAS_PRESETS, PRINT_SOCIAL_CANVAS_PRESETS } from '../../config/presets.js';
+import { DIGITAL_CANVAS_PRESETS, PRINT_SOCIAL_CANVAS_PRESETS } from '../../config/presets.ts';
 
 const dim = (p) => `${p.w} x ${p.h}`;
 export const presetLabel = (p) => p.labelKey ? t(p.labelKey) : p.label || dim(p);
