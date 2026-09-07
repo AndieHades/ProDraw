@@ -2,7 +2,7 @@
 import { S, newLayer } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { dirtyAll } from '../../core/layer-cache.js';
-import { defaultReferenceBoard, normalizeReferenceBoard } from '../../core/reference-board.js';
+import { defaultReferenceBoard, normalizeReferenceBoard } from '../../core/reference-board.ts';
 import { dedupePal } from '../../logic/quantize.js';
 import { defaultPalette, grayscalePalette, DEFAULT_ACTIVE } from '../../config/palette.ts';
 import { saveDoc, getGalleryDoc, removeDoc } from '../../core/storage.ts';

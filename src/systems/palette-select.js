@@ -11,7 +11,7 @@ import { LONG_PRESS_MS } from '../config/timings.ts';
 import { dropZone, makeDropGap } from '../ui/dragdrop/DropGap.ts';
 import { reorderPalette } from '../logic/paletteReorder.ts';
 import { mountPaletteContextMenu } from '../ui/palette/PaletteContextMenuPresenter.ts';
-import { finishPaletteDrag } from './palette-select/finish.js';
+import { finishPaletteDrag } from './palette-select/finish.ts';
 import { colorsAtIndices, paletteRange } from '../logic/paletteSelection.ts';
 import { markMovingSwatches } from '../ui/palette/PaletteDragVisuals.ts';
 

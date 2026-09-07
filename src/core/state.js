@@ -14,7 +14,7 @@ import { cloneGrid, blank, sparseGridStats } from '../logic/raster.js';
 import { createLegacyLayerCollection, normalizeLegacyRasterLayer } from
   './raster/legacyRasterOwner.ts';
 import { cloneTextSource } from '../logic/text-model.ts';
-import { defaultReferenceBoard } from './reference-board.js';
+import { defaultReferenceBoard } from './reference-board.ts';
 import { t } from '../i18n/index.ts';
 export { MAX_LAYERS, MAX_SIZE };
 

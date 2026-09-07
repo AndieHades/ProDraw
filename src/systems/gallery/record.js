@@ -1,6 +1,6 @@
 import { S, cloneFx } from '../../core/state.js';
 import { liveFrameId } from '../../core/animation.js';
-import { cloneReferenceBoard } from '../../core/reference-board.js';
+import { cloneReferenceBoard } from '../../core/reference-board.ts';
 import { ensureGrid } from '../../core/grid.js';
 import { t } from '../../i18n/index.ts';
 import { cloneAnimatorIdle, cloneLayersIdle } from './record-clone.js';

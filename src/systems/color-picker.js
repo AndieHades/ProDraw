@@ -7,7 +7,7 @@ import { $, t, toast } from '../core/shell.ts';
 import { copyText } from '../ui/dom/ShellDom.ts';
 import { rgb, rgbToHex, rgbToHsv, hsvToRgb, hexToRgb } from '../logic/color.ts';
 import { initColorHistory, rememberUsedColor, clearColorHistory } from './color-history.ts';
-import { DISC_INNER_RATIO, DISC_GAP, discBox, svDiscBox } from './color-disc.js';
+import { DISC_INNER_RATIO, DISC_GAP, discBox, svDiscBox } from './color-disc.ts';
 import { bindColorDiscGesture } from '../ui/color/ColorDiscGesture.ts';
 
 let colH = 0, colS = 0, colV = 100, replaceFrom = null; // replaceFrom — цвет или список цветов для режима замены
