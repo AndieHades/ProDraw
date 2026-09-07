@@ -9,7 +9,7 @@ import { medianCut, nearest, paletteFromGrid } from '../../logic/quantize.js';
 import { cloneGrid } from '../../logic/raster.js';
 import { makeCanvas, syncCanvasSize } from '../../core/canvas.js';
 import { C } from '../../styles/canvas-colors.ts';
-import { symmetrizeV, despeckle, cropEmpty } from '../../logic/cleanup.js';
+import { symmetrizeV, despeckle, cropEmpty } from '../../logic/cleanup.ts';
 import { setTool } from '../../core/tools.js';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { addImageLayerTop } from '../../core/document.js';

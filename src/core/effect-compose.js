@@ -1,7 +1,7 @@
 import { adjustColor } from '../logic/adjustment.ts';
 import { hexToRgb } from '../logic/color.ts';
 import { INNER_EFFECTS } from '../logic/layer-effects.js';
-import { monochromeRgba } from '../logic/monochrome.js';
+import { monochromeRgba } from '../logic/monochrome.ts';
 import { applyPsdOverlays } from '../logic/psd/effectOverlay.ts';
 import { makeCanvas, paintCanvas } from './canvas.js';
 import { createEffectSurface, drawPsdSurface,

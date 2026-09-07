@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { floodRegion, gridFloodSurface,
-  visitFloodRegion } from '../../src/logic/flood.js';
+  visitFloodRegion } from '../../src/logic/flood.ts';
 
 describe('scanline flood visitor', () => {
   it('matches the legacy region while allowing in-place paint', () => {

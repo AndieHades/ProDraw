@@ -1,6 +1,6 @@
 # Stage `Q6`: оставшийся продакшн-JavaScript переведён в TypeScript
 
-- Status: `draft`
+- Status: `in_progress`
 - Depends on: `Q5`
 - Requirements: `RQ-TS-01`, `RQ-OWN-02`, `RQ-PAR-01`
 
@@ -17,7 +17,7 @@
 
 | Подэтап | Владелец | Порядок |
 | --- | --- | ---: |
-| `Q6a` | `core` без систем: `state`, `layers`, `history`, `canvas`, `selection` | 1 |
+| `Q6a` | чистая `logic` без зависимостей от JS | 1 |
 | `Q6b` | `systems/draw`, `systems/freehand`, `systems/selection` | 2 |
 | `Q6c` | `systems/layers` | 3 |
 | `Q6d` | `systems/transform`, `crop`, `trim`, `effects`, `tint-shade` | 4 |
@@ -26,6 +26,17 @@
 | `Q6g` | `systems/palette`, `color`, `eyedropper`, `reference-window` | 7 |
 | `Q6h` | `systems/input`, `keyboard`, `toolbars`, `status`, `toolpops` | 8 |
 | `Q6i` | composition root, `index.html`, удаление `app.js` и `legacy-entry.js` | 9 |
+
+### Порядок внутри подэтапа
+
+Конвертируется только «фронт»: модуль, у которого не осталось импортов `.js`.
+После каждой партии фронт пересчитывается. На старте `Q6a` таких модулей было
+`45` из `232`.
+
+`Q6a` перевёл `monochrome`, `poly-mask`, `raster-cell-interner`, `cleanup`,
+`quickshape`, `flood` и `selection-mask-map`: `253` → `246` source JS,
+`169` → `168` legacy-state JS, индексных чтений пикселей `68` → `59`
+(`cleanup` перестал индексировать сетку напрямую).
 
 ## Contracts
 

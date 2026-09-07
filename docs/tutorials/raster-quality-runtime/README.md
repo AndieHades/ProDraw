@@ -104,12 +104,12 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 - Current stage: `Q6 — оставшийся продакшн-JavaScript переведён в TypeScript`
 - Status: `in_progress`
 - Last completed stage: `Q5 — горячие пути композита, панели слоёв и эффектов`
-- Next action: подэтап `Q6a` — перевести ядро без систем (`state`, `layers`,
-  `history`, `canvas`, `selection`) в TypeScript
+- Next action: продолжить `Q6` — пересчитать фронт конвертируемых модулей и
+  перевести следующую партию (`rotsprite`, `sample`, `quantize`,
+  `effect-kernels`, `psd-effects`, `brush-mask`)
 - Blockers: none
 - Working paths: `src/core`, `src/systems`, `project.config.json`
-- Last checks: `npm run validate` зелёный целиком на закрытом `Q5`:
-  `177`/`518` TypeScript и `16`/`57` performance тестов. Ресайз сохраняет вид,
-  раскладка групп и цепочки папок считаются раз на кадр, изоляция берёт
-  поверхность из пула, миниатюра кешируется
+- Last checks: `npm run validate` зелёный целиком на партии `Q6a`:
+  `177`/`518` TypeScript и `16`/`57` performance тестов. Source JS
+  `253` → `246`, индексных чтений пикселей `68` → `59`; храповики понижены
 - Last updated: 2026-09-06

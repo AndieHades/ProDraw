@@ -1,5 +1,5 @@
 import { blank, parseKey, setGridBounds } from './raster.js';
-import { createRasterCellInterner } from './raster-cell-interner.js';
+import { createRasterCellInterner } from './raster-cell-interner.ts';
 
 const arrayIndex = (key, length) => {
   const value = Number(key);

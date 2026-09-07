@@ -9,7 +9,7 @@ import { toast, t } from '../ui/dom/ShellDom.ts';
 import { rasterizeTextTargets } from '../core/text-rasterize.js';
 import { isTextLayer } from '../logic/text-model.ts';
 import { forkRasterRows } from '../logic/raster-row-fork.js';
-import { monochromeColor } from '../logic/monochrome.js';
+import { monochromeColor } from '../logic/monochrome.ts';
 
 export function toMono(L) { const g = L.grid;
   for (let y = 0; y < S.H; y++) for (let x = 0; x < S.W; x++) { const c = g[y][x]; if (!c) continue;

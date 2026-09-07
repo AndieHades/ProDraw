@@ -1,5 +1,5 @@
 import { createSparseGrid, sparseGridShape, visitSparseGridCells } from './sparse-grid.js';
-import { createRasterCellInterner } from './raster-cell-interner.js';
+import { createRasterCellInterner } from './raster-cell-interner.ts';
 import { clonePackedRgbaGrid, invalidatePackedRgbaBounds, notePackedRgbaBounds,
   packedRgbaBounds, packedRgbaBoundsMetadata, packedRgbaShape,
   setPackedRgbaBounds, visitPackedRgbaCells } from './raster/PackedRgbaGrid.ts';

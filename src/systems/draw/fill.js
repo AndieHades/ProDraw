@@ -4,7 +4,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch, recordPixelBefore,
   snapshot, snapshotDescriptors, snapshotRasterReferences } from '../../core/history.js';
-import { visitFloodRegion } from '../../logic/flood.js';
+import { visitFloodRegion } from '../../logic/flood.ts';
 import { colorKeyOf, regionColorKeys } from '../../logic/raster/regionColorKeys.ts';
 import { inSel } from '../../core/selection.js';
 import { referenceIndexFor, symmetryConfig } from '../../core/layers.js';

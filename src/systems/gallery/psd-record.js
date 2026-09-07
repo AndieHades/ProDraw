@@ -3,7 +3,7 @@ import { defaultPalette, DEFAULT_ACTIVE } from '../../config/palette.js';
 import { defaultReferenceBoard } from '../../core/reference-board.js';
 import { runtimePsdEffectSpecs } from '../../logic/psd-effects.js';
 import { psdGalleryPreview } from './psd-preview.ts';
-import { createRasterCellInterner } from '../../logic/raster-cell-interner.js';
+import { createRasterCellInterner } from '../../logic/raster-cell-interner.ts';
 import { packedRgbaRecordFromBitmap } from '../../logic/raster/packedRgbaRecord.ts';
 
 const copyEffects = (effects) => effects.map((effect) => ({ ...effect,
