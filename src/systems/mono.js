@@ -8,7 +8,7 @@ import { dirtyAll, layerContentBounds, markDirty } from '../core/layer-cache.js'
 import { toast, t } from '../core/shell.ts';
 import { rasterizeTextTargets } from '../core/text-rasterize.js';
 import { isTextLayer } from '../logic/text-model.ts';
-import { forkRasterRows } from '../logic/raster-row-fork.js';
+import { forkRasterRows } from '../logic/raster-row-fork.ts';
 import { monochromeColor } from '../logic/monochrome.ts';
 
 export function toMono(L) { const g = L.grid;

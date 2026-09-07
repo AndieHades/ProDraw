@@ -10,7 +10,7 @@ import { dirtyAll, layerContentBounds, markDirty } from '../core/layer-cache.js'
 import { toast, t } from '../core/shell.ts';
 import { rasterizeMatchingText } from '../core/text-rasterize.js';
 import { isTextLayer } from '../logic/text-model.ts';
-import { forkRasterRows } from '../logic/raster-row-fork.js';
+import { forkRasterRows } from '../logic/raster-row-fork.ts';
 
 const fromList = (from) => (Array.isArray(from && from[0]) ? from : [from]).filter(Boolean).map((c) => c.slice(0, 3));
 

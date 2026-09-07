@@ -2,7 +2,7 @@ import { S } from '../../core/state.ts';
 import { snapshotRasterReferences } from '../../core/history.js';
 import { rasterizeTextTargets } from '../../core/text-rasterize.js';
 import { isTextLayer } from '../../logic/text-model.ts';
-import { forkRasterRows } from '../../logic/raster-row-fork.js';
+import { forkRasterRows } from '../../logic/raster-row-fork.ts';
 
 export function beginCanvasReference(backup, indices) {
   const layers = backup.map(({ L }) => L);

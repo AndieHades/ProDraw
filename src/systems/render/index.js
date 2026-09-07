@@ -18,7 +18,7 @@ import { isIncrementalCompositeSafe } from '../../core/render/LegacyCompositeDam
 import { drawGrid, gridStroke } from './grid-lines.ts';
 import { recentredViewOffset } from '../../logic/view/viewportResize.ts';
 import { drawOverlays } from './overlays.js';
-import { drawBrushCursor } from './cursor.js';
+import { drawBrushCursor } from './cursor.ts';
 import { updateAnts } from './ants.js';
 import { mountLegacyViewportLifecycle } from '../viewport/LegacyViewportLifecycle.ts';
 

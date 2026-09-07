@@ -34,7 +34,7 @@ import * as newCanvas from './systems/new-canvas.js';
 import * as settings from './systems/settings.js';
 import * as panels from './ui/shell/PanelOrderPresenter.ts';
 import * as selBar from './systems/selection/bar.js';
-import * as lasso from './systems/freehand/panel.js';
+import * as lasso from './systems/freehand/panel.ts';
 import * as eyedropper from './systems/eyedropper/index.js';
 import * as penButton from './systems/pen-button.js';
 import * as status from './systems/status.ts';

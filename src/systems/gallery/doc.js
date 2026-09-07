@@ -6,7 +6,7 @@ import { defaultReferenceBoard, normalizeReferenceBoard } from '../../core/refer
 import { dedupePal } from '../../logic/quantize.ts';
 import { defaultPalette, grayscalePalette, DEFAULT_ACTIVE } from '../../config/palette.ts';
 import { saveDoc, getGalleryDoc, removeDoc } from '../../core/storage.ts';
-import { ensureGrid } from '../../core/grid.js';
+import { ensureGrid } from '../../core/grid.ts';
 import { cloneAnimator, loadFrame } from '../../core/animation.js';
 import { t } from '../../i18n/index.ts';
 import { DEFAULT_CANVAS_BACKGROUND } from '../../config/canvas-background.ts';

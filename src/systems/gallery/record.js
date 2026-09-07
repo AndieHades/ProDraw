@@ -1,7 +1,7 @@
 import { S, cloneFx } from '../../core/state.ts';
 import { liveFrameId } from '../../core/animation.js';
 import { cloneReferenceBoard } from '../../core/reference-board.ts';
-import { ensureGrid } from '../../core/grid.js';
+import { ensureGrid } from '../../core/grid.ts';
 import { t } from '../../i18n/index.ts';
 import { cloneAnimatorIdle, cloneLayersIdle } from './record-clone.js';
 import { renderGalleryPreview } from './record-preview.js';
