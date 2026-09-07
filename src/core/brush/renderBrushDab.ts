@@ -57,9 +57,11 @@ export function visitBrushDab(
       visitSubpixelDab(sampler, stamp, size, baseOpacity, visit); continue;
     }
     const stampRadius = radius * maximumScale;
-    // Один пиксель кромки в долях радиуса: без него кисть с hardness 1 даёт
-    // бинарный край, и штрих идёт зазубринами.
-    const tip = { ...stamp, edgeFloor: 1 / Math.max(1, stampRadius) };
+    // Радиус в пикселях: кромка не тоньше пикселя, а карта формы читается с
+    // уровня пирамиды по масштабу. Без первого кисть с hardness 1 даёт
+    // бинарный край, без второго карта в пятьсот текселей ложится в
+    // шестьдесят пикселей одной выборкой — и там, и там штрих идёт ступенями.
+    const tip = { ...stamp, pixelRadius: Math.max(1, stampRadius) };
     const bounds = [Math.floor(stamp.x - stampRadius - 1),
       Math.ceil(stamp.x + stampRadius + 1), Math.floor(stamp.y - stampRadius - 1),
       Math.ceil(stamp.y + stampRadius + 1)] as const;

@@ -19,9 +19,9 @@ function referenceDab(brush: LoadedBrush, sample: StrokeSample,
   for (const stamp of dabStampPlan(brush, sample, size)) {
     const stampRadius = radius * Math.max(stamp.scaleX, stamp.scaleY);
     const extent = stampRadius + 1;
-    // Кромка отпечатка не тоньше пикселя — иначе кисть с hardness 1 даёт
-    // бинарный край. Эталон обязан считать её так же, как рендерер.
-    const tip = { ...stamp, edgeFloor: 1 / Math.max(1, stampRadius) };
+    // Радиус отпечатка в пикселях задаёт и ширину кромки, и уровень пирамиды
+    // карты формы. Эталон обязан считать их так же, как рендерер.
+    const tip = { ...stamp, pixelRadius: Math.max(1, stampRadius) };
     for (let y = Math.floor(stamp.y - extent); y <= Math.ceil(stamp.y + extent); y += 1) {
       for (let x = Math.floor(stamp.x - extent); x <= Math.ceil(stamp.x + extent); x += 1) {
         const coverage = sampler.tip((x + 0.5 - stamp.x) / radius,

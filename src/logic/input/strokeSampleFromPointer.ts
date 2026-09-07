@@ -28,7 +28,15 @@ export const pointerSampleKind = (pointerType?: string): PointerSampleKind =>
 
 function samplePressure(kind: PointerSampleKind, reported: number,
   fallback: PointerPressureFallback): number {
-  if (kind === "pen") return clamp(reported, fallback.minimumPenPressure, 1);
+  // Перо в контакте всегда даёт нажим выше порога срабатывания. Ровный ноль —
+  // это не нулевое усилие, а отсутствие данных: драйверы планшетов на macOS
+  // часто не отдают нажим в браузер. Раньше такой ноль поднимался до нижней
+  // границы, и кисть с реакцией на нажим рисовала штрих в сотую размера —
+  // визуально перо не рисовало вовсе. Без данных ведём себя как мышь.
+  if (kind === "pen") {
+    return reported > 0 ? clamp(reported, fallback.minimumPenPressure, 1)
+      : fallback.mousePressure;
+  }
   if (kind === "touch") {
     return reported > 0 ? clamp(reported, 0, 1) : fallback.touchPressure;
   }

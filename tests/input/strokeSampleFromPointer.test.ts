@@ -13,10 +13,19 @@ describe("stroke samples from pointer events", () => {
       tiltY: -8, time: 120, pointerType: "pen" });
   });
 
-  it("lifts a pen reporting no pressure at contact off zero", () => {
+  // Перо в контакте всегда даёт нажим выше порога срабатывания, поэтому ровный
+  // ноль — отсутствие данных, а не нулевое усилие. Раньше он поднимался до
+  // сотой, и кисть с реакцией на нажим рисовала штрих в сотую размера.
+  it("falls back to full pressure when the pen reports none", () => {
     expect(sample({ pointerType: "pen", pressure: 0 }).pressure)
-      .toBe(POINTER_INPUT.minimumPenPressure);
+      .toBe(POINTER_INPUT.mousePressure);
     expect(sample({ pointerType: "pen", pressure: 4 }).pressure).toBe(1);
+  });
+
+  it("keeps the lowest reported pen pressure above the floor", () => {
+    expect(sample({ pointerType: "pen", pressure: 0.0001 }).pressure)
+      .toBe(POINTER_INPUT.minimumPenPressure);
+    expect(sample({ pointerType: "pen", pressure: 0.2 }).pressure).toBe(0.2);
   });
 
   it("gives the mouse the configured pressure whatever it reports", () => {
@@ -35,7 +44,7 @@ describe("stroke samples from pointer events", () => {
     const result = sample({ pointerType: "pen", pressure: Number.NaN });
     expect(result.tiltX).toBe(0);
     expect(result.time).toBe(0);
-    expect(result.pressure).toBe(POINTER_INPUT.minimumPenPressure);
+    expect(result.pressure).toBe(POINTER_INPUT.mousePressure);
   });
 
   it("maps unknown pointer types to mouse", () => {

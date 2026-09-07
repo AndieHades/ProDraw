@@ -1,6 +1,8 @@
 import type { BrushPreset, CoverageMap, LoadedBrush } from "../../contracts/brush";
 import rasterConfig from "../../config/brush-raster.json" with { type: "json" };
 import { sampleCoverage, sampleTile } from "./coverageSampling.ts";
+import { buildCoverageMips, sampleCoverageMips,
+  type CoverageMips } from "./coverageMips.ts";
 import { DEFAULT_GRAIN, DEFAULT_SHAPE } from "../../config/brushDefaults.ts";
 import { adjustGrain, adjustedGrainMean } from "./grainAdjustment.ts";
 
@@ -9,9 +11,10 @@ function shapeOf(brush: BrushPreset | LoadedBrush): CoverageMap | null {
 }
 
 export interface BrushTipTransform {
-  // Ширина спада кромки в долях радиуса, ниже которой край становится
-  // бинарным. Знает её только рендерер даба: она равна пикселю.
-  readonly edgeFloor?: number;
+  // Радиус отпечатка в пикселях холста. Знает его только рендерер даба, а
+  // сэмплеру он нужен дважды: чтобы кромка была не тоньше пикселя и чтобы
+  // выбрать уровень пирамиды карты формы.
+  readonly pixelRadius?: number;
   readonly rotation?: number;
   readonly scaleX?: number;
   readonly scaleY?: number;
@@ -60,6 +63,11 @@ export function brushCoverageSampler(
   const physicalWidth = reference * physicalScale * Math.max(0.05, grainSettings.zoom);
   const physicalHeight = reference > 0 && grain
     ? physicalWidth * grain.height / grain.width : 0;
+  let mips: CoverageMips | null = null;
+  const shapeMips = (): CoverageMips | null => {
+    if (!shape) return null;
+    return (mips ??= buildCoverageMips(shape));
+  };
   const sampler: BrushCoverageSampler = {
     textured: strength > 0 && Boolean(grain),
     radialEdge: !shape && shapeSettings.angle === 0 && roundness === 1
@@ -76,10 +84,18 @@ export function brushCoverageSampler(
       const transformedX = sourceX * cosine + sourceY * sine;
       const transformedY = (-sourceX * sine + sourceY * cosine) / roundness;
       if (Math.abs(transformedX) > 1 || Math.abs(transformedY) > 1) return 0;
-      if (shape) return sampleCoverage(shape, (transformedX + 1) / 2,
-        (transformedY + 1) / 2, shapeSettings.filtering);
+      if (shape) {
+        const levels = shapeMips();
+        const pixelRadius = transform.pixelRadius ?? 0;
+        const texelsPerPixel = pixelRadius > 0 ? shape.width / (pixelRadius * 2) : 0;
+        return levels ? sampleCoverageMips(levels, (transformedX + 1) / 2,
+          (transformedY + 1) / 2, texelsPerPixel, shapeSettings.filtering)
+          : sampleCoverage(shape, (transformedX + 1) / 2,
+            (transformedY + 1) / 2, shapeSettings.filtering);
+      }
       const distance = Math.hypot(transformedX, transformedY);
-      const softness = Math.max(edge, transform.edgeFloor ?? 0);
+      const pixel = transform.pixelRadius ?? 0;
+      const softness = Math.max(edge, pixel > 0 ? 1 / pixel : 0);
       return distance >= 1 ? 0 : Math.min(1, Math.max(0, (1 - distance) / softness));
     },
     texture: (x, y, transform) => {

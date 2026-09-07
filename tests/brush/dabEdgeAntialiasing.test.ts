@@ -55,3 +55,38 @@ describe("dab edge antialiasing", () => {
     expect(small.partial / small.full).toBeGreaterThan(large.partial / large.full);
   });
 });
+
+describe("shape map minification", () => {
+  // Карта формы 512×512 ложится в отпечаток шестидесяти пикселей: одна выборка
+  // на пиксель отбрасывает всё, что между текселями, и край выходит рваным.
+  it("averages the map instead of point sampling it", async () => {
+    const { buildCoverageMips,
+      sampleCoverageMips } = await import("../../src/logic/brush/coverageMips.ts");
+    const width = 256, data = new Uint8Array(width * width);
+    // шахматка в один тексель — предельный случай минификации
+    for (let y = 0; y < width; y += 1) for (let x = 0; x < width; x += 1) {
+      data[y * width + x] = (x + y) % 2 === 0 ? 255 : 0;
+    }
+    const levels = buildCoverageMips({ width, height: width, data });
+    expect(levels.length).toBe(9);
+    const radius = 16, texels = width / (radius * 2);
+    let point = 0, averaged = 0;
+    for (let step = 0; step < 64; step += 1) {
+      const at = step / 64;
+      point += sampleCoverageMips(levels, at, at, 0, "improved");
+      averaged += sampleCoverageMips(levels, at, at, texels, "improved");
+    }
+    // усреднённая выборка шахматки стремится к половине, точечная скачет
+    expect(Math.abs(averaged / 64 - 0.5)).toBeLessThan(0.05);
+    expect(Math.abs(point / 64 - 0.5)).toBeGreaterThan(0.05);
+  });
+
+  it("keeps the finest level when the dab is larger than the map", async () => {
+    const { buildCoverageMips,
+      sampleCoverageMips } = await import("../../src/logic/brush/coverageMips.ts");
+    const data = new Uint8Array(4 * 4).fill(200);
+    const levels = buildCoverageMips({ width: 4, height: 4, data });
+    expect(sampleCoverageMips(levels, 0.5, 0.5, 0.25, "improved"))
+      .toBeCloseTo(200 / 255, 5);
+  });
+});
