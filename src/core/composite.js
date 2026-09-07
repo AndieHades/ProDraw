@@ -8,11 +8,21 @@ import { folderFx, folderEffectsFor, layerMoveCanvas } from './effects-render.js
 import { drawEffectSurface, drawPsdSurface, fullCanvasSurface } from './effect-surface.js';
 import { buildCanvasEffectSurface } from './effect-canvas.js';
 import { makeCanvas } from './canvas.js';
+import { compositeGroupLayout } from '../logic/compositeGroupLayout.ts';
 
-const memberOf = (i, fid) => folderChain(S.layers[i].fid).some((f) => f.id === fid);
-const folderVis = (f) => folderChain(f.id).every((x) => x.visible);
-const depth = (f) => folderChain(f.id).length;
-const opacityFor = (fid, omitted) => folderChain(fid).reduce((value, folder) =>
+// Цепочка папок кешируется на один проход композита: во время отрисовки
+// дерево не меняется, а раньше её пересчитывали на слой на папку на кадр.
+let chains = null;
+const chainOf = (fid) => {
+  if (!chains) return folderChain(fid);
+  const key = fid ?? null; const known = chains.get(key);
+  if (known) return known;
+  const chain = folderChain(fid); chains.set(key, chain); return chain;
+};
+const memberOf = (i, fid) => chainOf(S.layers[i].fid).some((f) => f.id === fid);
+const folderVis = (f) => chainOf(f.id).every((x) => x.visible);
+const depth = (f) => chainOf(f.id).length;
+const opacityFor = (fid, omitted) => chainOf(fid).reduce((value, folder) =>
   omitted?.has(folder.id) ? value : value * (folder.opacity ?? 1), 1);
 const documentBounds = () => ({ minx: 0, miny: 0, maxx: S.W - 1, maxy: S.H - 1 });
 
@@ -44,7 +54,7 @@ function isolatedGroups(opt) {
   const candidates = S.folders.filter((folder) => !opt.skipIsolation?.has(folder.id) &&
     (opt.showHidden || folderVis(folder)) && needsIsolation(folder));
   const ids = new Set(candidates.map((folder) => folder.id));
-  return candidates.filter((folder) => !folderChain(folder.parent).some(
+  return candidates.filter((folder) => !chainOf(folder.parent).some(
     (parent) => ids.has(parent.id))).map((folder) => groupInterval(folder, opt))
     .filter(Boolean);
 }
@@ -52,7 +62,7 @@ function isolatedGroups(opt) {
 function isolatedSurface(folder, live, opt) {
   const canvas = makeCanvas(S.W, S.H), context = canvas.getContext('2d');
   context.imageSmoothingEnabled = false;
-  const chain = new Set(folderChain(folder.id).map((item) => item.id));
+  const chain = new Set(chainOf(folder.id).map((item) => item.id));
   paintStack(context, live, { include: (index) => opt.inc(index) && memberOf(index, folder.id),
     showHidden: opt.showHidden, skipIsolation: new Set([...(opt.skipIsolation || []), folder.id]),
     omitOpacity: new Set([...(opt.omitOpacity || []), ...chain]),
@@ -78,22 +88,27 @@ function paintBackground(ctx) {
 
 // opt0: { include(i), showHidden, bg } — по умолчанию весь видимый стек (видимый рендер).
 export function paintStack(ctx, live, opt0 = {}) {
+  const outer = chains; chains ??= new Map();
+  try { return paintStackPass(ctx, live, opt0); }
+  finally { if (!outer) chains = null; }
+}
+
+function paintStackPass(ctx, live, opt0 = {}) {
   const opt = { inc: opt0.include || (() => true), showHidden: !!opt0.showHidden,
     skipIsolation: opt0.skipIsolation || new Set(), omitOpacity: opt0.omitOpacity || new Set(),
     omitEffects: opt0.omitEffects || new Set() };
   const vis = (i) => opt.inc(i) && (opt.showHidden || effVis(i));
   if (opt0.bg) paintBackground(ctx);
   const iox = live && S.cropMode ? S.cropMode.idx : 0, ioy = live && S.cropMode ? S.cropMode.idy : 0;
-  const groups = fxGroups(opt);
-  const isolated = isolatedGroups(opt);
+  const layout = compositeGroupLayout(fxGroups(opt), isolatedGroups(opt), depth);
   const drawC = (c, f) => { if (c) { ctx.globalAlpha = f ? opacityFor(f.id, opt.omitOpacity) : 1;
     drawEffectSurface(ctx, c, iox, ioy); } }; // эффекты папки гаснут вместе с её прозрачностью
   for (let i = 0; i < S.layers.length; i++) {
-    const entry = isolated.find((group) => group.bottom === i);
+    const entry = layout.isolated.get(i);
     if (entry) { drawIsolated(ctx, entry, live, opt); i = entry.top; continue; }
-    groups.filter((g) => g.bottom === i).sort((a, b) => depth(a.f) - depth(b.f)).forEach((g) => drawC(folderFx(g.f, 'below'), g.f));
+    for (const g of layout.below.get(i) ?? []) drawC(folderFx(g.f, 'below'), g.f);
     drawLayer(ctx, i, live, iox, ioy, vis, opt.omitOpacity);
-    groups.filter((g) => g.top === i).sort((a, b) => depth(b.f) - depth(a.f)).forEach((g) => drawC(folderFx(g.f, 'above'), g.f));
+    for (const g of layout.above.get(i) ?? []) drawC(folderFx(g.f, 'above'), g.f);
   }
   ctx.globalAlpha = 1;
 }

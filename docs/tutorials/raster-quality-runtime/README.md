@@ -104,8 +104,8 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 - Current stage: `Q5 — горячие пути композита, панели слоёв и эффектов`
 - Status: `in_progress`
 - Last completed stage: `Q4 — настоящий движок кистей в продакшн-оболочке`
-- Next action: подэтап `Q5-2` — считать раскладку групп эффектов и изоляции
-  один раз на кадр и кешировать `folderChain`
+- Next action: подэтап `Q5-3` — пул поверхностей для изолированных папок,
+  чтобы кадр не аллоцировал полноразмерный canvas на папку
 - Blockers: none
 - Working paths: `src/core/composite.js`, `src/core/layers.js`,
   `src/systems/render`, `src/systems/layers`, `src/core/effect-surface.js`
