@@ -12,4 +12,4 @@ export const GALLERY_PREVIEW_MAX_SIDE = 512; // PNG-превью не повто
 // millions of per-cell history records can freeze an A4 document.
 export const PIXEL_BATCH_SPARSE_LIMIT = 65536;
 export const ROT_MIN_SCALE = 0.15; // минимальный масштаб при свободной трансформации
-export const IMPORT_MAX_SIDE = 2048; // конвертер: даунскейлим исходник только выше этого (иначе теряется сетка пиксель-арта)
+export const IMPORT_MAX_SIDE = 2048; // потолок стороны вставляемой картинки

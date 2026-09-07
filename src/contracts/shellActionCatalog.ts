@@ -14,7 +14,7 @@ export const SHELL_ACTION_NAMES = [
   "fx.edit", "fx.menu", "fx.panel",
   "fx.paste", "gallery.beginPsdImport", "gallery.completePsdImport",
   "gallery.hide", "gallery.importDrop", "import.psdFile",
-  "grid.open", "import.openFile", "lasso.cancel",
+  "grid.open", "lasso.cancel",
   "layer.add", "layer.center", "layer.delete",
   "layer.dropColorAt", "layer.fitShortSide", "layer.flipH",
   "layer.flipSelectedH", "layer.flipV", "layer.group", "layer.merge",

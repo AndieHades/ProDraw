@@ -58,7 +58,6 @@ export const enFeedback: LocaleDictionary = {
   "toast.transformSelectionHint": "Drag selection handles — only the area changes",
   "toast.canvasEmpty": "Canvas is empty",
   "toast.selectedLayersEmpty": "Selected layers are empty",
-  "toast.shadingPickColors": "Pick a color range in the palette",
   "toast.colorAdded": "Color added to palette",
   "toast.shapeSquare": "Square",
   "toast.shapeCircle": "Circle",

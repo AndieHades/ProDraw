@@ -8,10 +8,7 @@ import { parseKey, blendOver, mergeCells, gridBounds, noteGridBounds, alphaBound
 import { clamp, clamp01, clamp255, clampRound, evalNumericField, isNumericLiteral } from '../src/logic/math.ts';
 import { floodRegion, gridFloodSurface } from '../src/logic/flood.ts';
 import { parsePsdEffects } from '../src/logic/psd-effects.js';
-import { sampleGrid } from '../src/logic/sample.ts';
-import { medianCut, nearest, paletteFromGrid, dedupePal, exactPaletteFromRgba, samplesFromRgba, sourcePaletteFromSamples } from '../src/logic/quantize.ts';
-import { despeckle, cropEmpty } from '../src/logic/cleanup.ts';
-import { rotSprite } from '../src/logic/rotsprite.ts';
+import { paletteFromGrid, dedupePal, exactPaletteFromRgba, samplesFromRgba, sourcePaletteFromSamples } from '../src/logic/palette-samples.ts';
 import { computeGlow } from '../src/logic/glow.js';
 import { outlineRings } from '../src/logic/outline.js';
 import { bcAdjust, contrastFactor } from '../src/logic/bc.ts';
@@ -159,58 +156,6 @@ t("unit case 023", () => {
   const c = cloneLayer(L);
   c.text.box.x = 9; assert.equal(L.text.box.x, 1);
 });
-t("unit case 024", () => {
-  const data = new Uint8ClampedArray([10, 20, 30, 255, 40, 50, 60, 255, 70, 80, 90, 255, 100, 110, 120, 255]);
-  const r = sampleGrid({ w: 2, h: 2, ch: 4, data }, 1, 0);
-  assert.equal(r.nx, 2); assert.equal(r.ny, 2); assert.equal(r.samples.length, 4);
-  assert.deepEqual(r.grid[0][0], [10, 20, 30]);
-});
-t("unit case 025", () => {
-
-  let seed = 7; const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7FFFFFFF) % 256;
-  const cells = Array.from({ length: 50 }, () => Array.from({ length: 50 }, () => [rnd(), rnd(), rnd()]));
-  const data = new Uint8ClampedArray(300 * 300 * 4);
-  for (let y = 0; y < 300; y++) for (let x = 0; x < 300; x++) { const c = cells[(y / 6) | 0][(x / 6) | 0], i = (y * 300 + x) * 4;
-    data[i] = c[0]; data[i + 1] = c[1]; data[i + 2] = c[2]; data[i + 3] = 255; }
-  const r = sampleGrid({ w: 300, h: 300, ch: 4, data }, 0, 0);
-  assert.equal(r.nx, 50); assert.equal(r.ny, 50);
-});
-t("unit case 026", () => {
-
-  const data = new Uint8ClampedArray(51 * 128 * 4).fill(200);
-  const r = sampleGrid({ w: 51, h: 128, ch: 4, data }, 51 / 120, 0); // detail=120 → cell≈0.425
-  assert.equal(r.nx, 51); assert.equal(r.ny, 128);
-});
-t("unit case 027", () => {
-
-  const data = new Uint8ClampedArray([200, 10, 10, 255, 0, 0, 0, 0]);
-  const r = sampleGrid({ w: 2, h: 1, ch: 4, data }, 1, 0);
-  assert.deepEqual(r.grid[0][0], [200, 10, 10]); assert.equal(r.grid[0][1], null);
-});
-t('quantize: medianCut/nearest', () => {
-  const pal = medianCut([[0, 0, 0], [255, 255, 255]], 2);
-  assert.equal(pal.length, 2); assert.deepEqual(nearest([20, 20, 20], pal), [0, 0, 0]);
-});
-t("unit case 028", () => {
-
-  const cols = [];
-  for (let i = 0; i < 1000; i++) cols.push([200 + (i % 11), (i % 7), (i % 5)]);
-  cols.push([0, 180, 0]);
-  const pal = medianCut(cols, 8);
-  assert.ok(pal.some((c) => c[1] > 150), 'green should survive');
-  const reds = pal.filter((c) => c[0] > 150);
-  assert.equal(reds.length, 1, 'near-duplicate reds collapse to one color');
-});
-t("unit case 029", () => {
-
-
-  const cols = [];
-  for (let i = 0; i < 500; i++) cols.push([240, 230, 220], [20, 20, 20]);
-  for (let i = 0; i < 5; i++) cols.push([228, 216, 204], [40, 160, 50]);
-  const pal = medianCut(cols, 16);
-  assert.ok(pal.some((c) => c[1] > c[0] + 50), 'green should remain');
-  assert.equal(pal.filter((c) => c[0] > 180).length, 1, 'AA cream merged into the base cream');
-});
 t('quantize: source palette fills the limit with real sample colors', () => {
   const cols = [];
   for (let r = 0; r < 8; r++) for (let g = 0; g < 8; g++) cols.push([r * 32, g * 32, (r * 17 + g * 13) % 256]);
@@ -234,14 +179,6 @@ t("unit case 032", () => {
   const r = exactPaletteFromRgba(d, 1); assert.equal(r.overflow, true); assert.equal(r.colors.length, 2);
 });
 t('quantize: dedupePal', () => { assert.deepEqual(dedupePal([[1, 1, 1], [1, 1, 1]]), [[1, 1, 1]]); assert.deepEqual(dedupePal([]), [[12, 12, 16]]); });
-t("unit case 033", () => {
-  const g = [[null, null, null], [null, [9, 9, 9, 255], null], [null, null, null]];
-  const c = cropEmpty(g); assert.equal(c.length, 1); assert.equal(c[0].length, 1); assert.deepEqual(c[0][0], [9, 9, 9, 255]);
-});
-t("unit case 034", () => {
-  const g = [[null, null, null], [null, [9, 9, 9, 255], null], [null, null, null]];
-  assert.equal(despeckle(g, 3, 3)[1][1], null);
-});
 t("unit case 035", () => { const g = blank(8, 8); g[4][4] = [1, 1, 1, 255]; assert.ok(computeGlow(g, 8, 8, 3, 0.8).length > 0); });
 t("unit case 036", () => { const g = blank(8, 8); g[4][4] = [1, 1, 1, 255]; assert.ok(outlineRings(g, 8, 8, 1).some(([x, y]) => x === 4 && y === 3)); });
 t("unit case 037", () => { const c = bcAdjust([100, 100, 100, 255], 50, 1); assert.equal(c[0], 150); assert.equal(c[3], 255); });
@@ -255,11 +192,6 @@ t('monochrome: Rec.601 conversion preserves alpha for cells and RGBA buffers', (
   const rgba = new Uint8ClampedArray([0, 255, 0, 64, 7, 8, 9, 0]);
   monochromeRgba(rgba);
   assert.deepEqual([...rgba], [150, 150, 150, 64, 7, 8, 9, 0]);
-});
-t("unit case 041", () => {
-  const src = new Int32Array([0, 0, 0, 0xff0000ff | 0]);
-  const r = rotSprite(src, 2, 2, 0, 1);
-  assert.ok(r.w > 0 && r.h > 0); assert.ok(r.data.some((v) => v !== 0));
 });
 
 // --- Tint & Shade Generator ---

@@ -1,6 +1,6 @@
-// Единая кнопка Import редактора (рядом с Галереей): меню Photo / File / Pixelize.
+// Единая кнопка Import редактора (рядом с Галереей): меню Photo / File.
 // Всё вставляется в ТЕКУЩИЙ документ верхним слоем/папкой; новый холст/проект не
-// создаём. Photo/File — прямая вставка, Pixelize — открыть конвертер.
+// создаём. Photo/File — прямая вставка в текущий документ.
 import * as actions from '../../core/actions.ts';
 import { $, toast, t } from '../../core/shell.ts';
 import { showMenuAt } from '../../ui/dom/ShellDom.ts';
@@ -16,7 +16,6 @@ function loadImg(f, cb) { const im = new Image(); im.onerror = () => toast(t('to
 const baseName = (n) => n.replace(/\.[^.]+$/, '');
 
 const photo = () => pick('image/*', (f) => loadImg(f, (im) => insertImageTop(im, baseName(f.name))));
-const pixelize = () => pick('image/*', (f) => actions.run('import.openFile', f)); // конвертер как новый проект
 export async function importPsd(f, sourceLocation = null, progress = null) { const token = actions.run('gallery.beginPsdImport');
   if (!isDocumentGenerationToken(token)) { toast(t('toast.documentOpenFailed')); return false; }
   try { progress?.stage('decoding'); const decoded = await decodePsdFile(f);
@@ -39,7 +38,6 @@ export function mount() {
   const close = () => $('impmenu').classList.remove('on');
   $('impmenu-photo').onclick = () => { close(); photo(); };
   $('impmenu-file').onclick = () => { close(); file(); };
-  $('impmenu-pix').onclick = () => { close(); pixelize(); };
   actions.register('file.import', () => file());
   actions.register('import.psdFile', importPsd);
 }

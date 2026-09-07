@@ -3,7 +3,7 @@ import { S, newLayer } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../../core/reference-board.ts';
-import { dedupePal } from '../../logic/quantize.ts';
+import { dedupePal } from '../../logic/palette-samples.ts';
 import { defaultPalette, grayscalePalette, DEFAULT_ACTIVE } from '../../config/palette.ts';
 import { saveDoc, getGalleryDoc, removeDoc } from '../../core/storage.ts';
 import { ensureGrid } from '../../core/grid.ts';
@@ -62,7 +62,6 @@ function applyRec(rec) { retireTilemapRecord(rec);
   S.folderSeq = S.folders.reduce((m, f) => Math.max(m, f.id), rec.folderSeq || 0); S.palette = dedupePal(rec.palette); S.active = (rec.active || S.palette[0]).slice();
   S.bg = rec.bg ? { color: rec.bg.color ? rec.bg.color.slice() : null, visible: rec.bg.visible !== false } : { color: null, visible: true }; S.bgSel = false;
   S.grid = rec.grid ? { ...rec.grid } : {}; ensureGrid();
-  S.shading = { colors: [], on: false, open: false, picking: false };
   S.referenceBoard = normalizeReferenceBoard(rec.referenceBoard);
   S.animator = rec.animator ? cloneAnimator(rec.animator) : null;
   S.docName = rec.name; S.colorMode = rec.colorMode || 'rgba';
@@ -76,7 +75,6 @@ function blankWork(w, h, name, colorMode = 'rgba') { session.activateNew(uid('d'
   S.W = w; S.H = h; S.dpi = 72; S.layerSeq = 1; S.folderSeq = 0; S.layers = [newLayer(t('layer.name') + ' 1', w, h)]; S.folders = []; S.cur = 0; S.marked.clear();
   S.colorMode = colorMode; S.palette = colorMode === 'grayscale' ? grayscalePalette() : defaultPalette();
   S.active = colorMode === 'grayscale' ? S.palette[S.palette.length - 1].slice() : S.palette[DEFAULT_ACTIVE].slice(); S.docName = name || t('gallery.untitled');
-  S.shading = { colors: [], on: false, open: false, picking: false };
   S.grid = {}; ensureGrid();
   S.referenceBoard = defaultReferenceBoard(); bus.emit('reference');
   S.bg = { color: null, visible: true }; S.bgSel = false;
@@ -117,9 +115,6 @@ export function newWorkFromLayers(w, h, layers, name) { blankWork(w, h, name);
   S.cur = S.layers.length - 1;
   dirtyAll(); bus.emit('palette'); bus.emit('layers'); bus.emit('fit'); saveCurrent(); }
 
-// заготовка нового документа под результат конвертера (applyImport заполнит S)
-export function beginConvertedWork() { session.activateNew(uid('d'));
-  S.docName = t('gallery.untitled'); S.sourceFormat = null; S.sourceLocation = null; }
 export const beginPsdImport = () => session.supersede();
 export async function completePsdImport(token, document, name, sourceLocation = null, progress = null) {
   if (!session.isCurrent(token)) return { status: 'superseded', layerCount: 0, warningCount: 0 };

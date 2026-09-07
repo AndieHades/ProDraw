@@ -58,7 +58,6 @@ export const ruFeedback: LocaleDictionary = {
   "toast.transformSelectionHint": "Тяни ручки выделения — меняется только область",
   "toast.canvasEmpty": "Холст пуст",
   "toast.selectedLayersEmpty": "В выбранных слоях нет пикселей",
-  "toast.shadingPickColors": "Выбери диапазон цветов в палитре",
   "toast.colorAdded": "Цвет добавлен в палитру",
   "toast.shapeSquare": "Квадрат",
   "toast.shapeCircle": "Круг",

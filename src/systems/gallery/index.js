@@ -3,8 +3,8 @@
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, t, toast } from '../../core/shell.ts';
-import { imageData, looksPixelArt } from '../../core/image.ts';
-import { beginConvertedWork, newWorkFromImage, saveCurrent,
+import { imageData } from '../../core/image.ts';
+import { newWorkFromImage, saveCurrent,
   autosave, autosaveInputStarted, beginPsdImport, completePsdImport } from './doc.js';
 import { configure, render, goBack, setSelecting, isSelecting, stackSelected, dupSelected, delSelected } from './screen.js';
 import { openDesktopFile, PSD_FILTERS } from '../import/desktop-file.ts';
@@ -35,10 +35,9 @@ export function hide() { galleryChange++; setGalleryOpen(false);
 function pick(accept, fn) { const i = document.createElement('input'); i.type = 'file'; i.accept = accept;
   i.onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) fn(f); }; i.click(); }
 
-// картинка → новый проект: пиксель-арт сразу как есть, иначе через Pixelize (конвертер)
-const imageImportPorts = () => ({ decodeImage: decodeImageFile, imageData, looksPixelArt,
-  newWorkFromImage, beginConvertedWork, onOpened: hide,
-  openConverter: (file) => actions.run('import.openFile', file) });
+// картинка → новый проект: всегда как есть, растровый редактор не пикселизует
+const imageImportPorts = () => ({ decodeImage: decodeImageFile, imageData,
+  newWorkFromImage, onOpened: hide });
 export async function importGalleryImage(f, sourceLocation = null, progress = null,
   dependencies = imageImportPorts()) {
   const result = await runGalleryImageImport(f, sourceLocation, progress, dependencies);

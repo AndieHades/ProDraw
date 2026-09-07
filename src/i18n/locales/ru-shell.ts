@@ -26,8 +26,6 @@ export const ruShell: LocaleDictionary = {
   "tool.importMenu": "Импорт в проект",
   "import.photo": "Фото",
   "import.file": "Файл",
-  "import.pixelize": "Pixelize",
-  "import.auto": "Авто",
   "import.brush": "Кисть…",
   "brush.library": "Кисти",
   "brush.add": "Добавить набор",

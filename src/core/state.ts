@@ -49,8 +49,6 @@ export const S: EditorState = {
 
   palette: pal0 as unknown as number[][], active: active0 as unknown as number[],
   colorMode: "rgba",
-  // palette ramp + Aseprite-like shading brush mode
-  shading: { colors: [], on: false, open: false, picking: false },
   tool: "pencil", sym: false, symH: false, symD1: false, symD2: false,
   symEnabled: true,
   // зажатый X — временное горизонтальное зеркало кисти во время рисования

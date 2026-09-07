@@ -1,7 +1,7 @@
-// Выбор палитры из готовых сэмплов и из RGBA-буферов. Отделено от median-cut
-// ради размера модуля; общие метрики — в quantize-metrics.
-import type { Color, ColorEntry, ReadColor } from "./quantize-metrics.ts";
-import { bnd, ch, chromaD2, cubeKey, keyOf } from "./quantize-metrics.ts";
+// Палитра растрового документа: выбор из готовых сэмплов и из RGBA-буферов.
+// Общие цветовые метрики — в palette-metrics.
+import type { Color, ColorEntry, ReadColor } from "./palette-metrics.ts";
+import { bnd, ch, chromaD2, cubeKey, keyOf } from "./palette-metrics.ts";
 
 function sourceEntries(cols: readonly ReadColor[]): ColorEntry[] {
   const m = new Map<string, ColorEntry>();

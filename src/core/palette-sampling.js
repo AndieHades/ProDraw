@@ -1,6 +1,6 @@
 import { makeCanvas } from './canvas.ts';
 import { exactPaletteFromRgba, samplesFromRgba,
-  sourcePaletteFromSamples } from '../logic/quantize.ts';
+  sourcePaletteFromSamples } from '../logic/palette-samples.ts';
 import { PALETTE_EXACT_LIMIT, PALETTE_EXACT_MAX_PIXELS,
   PALETTE_QUANTIZED_COLORS, PALETTE_SAMPLE_MAX_SIDE } from '../config/palette-sampling.ts';
 

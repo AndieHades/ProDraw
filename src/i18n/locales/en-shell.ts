@@ -28,8 +28,6 @@ export const enShell: LocaleDictionary = {
   "tool.importMenu": "Import to project",
   "import.photo": "Photo",
   "import.file": "File",
-  "import.pixelize": "Pixelize",
-  "import.auto": "Auto",
   "import.brush": "Brush…",
   "brush.library": "Brushes",
   "brush.add": "Add set",

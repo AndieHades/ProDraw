@@ -1,6 +1,6 @@
 import { makeCanvas } from './canvas.ts';
 import { deleteAppFile, readAppFiles, writeAppFile } from './app-folders.js';
-import { exactPaletteFromRgba, sourcePaletteFromSamples, samplesFromRgba } from '../logic/quantize.ts';
+import { exactPaletteFromRgba, sourcePaletteFromSamples, samplesFromRgba } from '../logic/palette-samples.ts';
 
 const CELL = 32, LIMIT = 128;
 

@@ -9,15 +9,11 @@ export interface GalleryImageImportPorts<TImage extends DecodedImage = DecodedIm
   readonly decodeImage: (file: File) => Promise<TImage>;
   readonly imageData: (image: TImage, width: number, height: number,
     smooth: boolean) => DecodedPixels;
-  readonly looksPixelArt: (image: TImage) => boolean;
   readonly newWorkFromImage: (width: number, height: number, data: Uint8ClampedArray,
     name: string, format: string | null, location: string | null) => Promise<boolean>;
-  readonly beginConvertedWork: () => void;
-  readonly openConverter: (file: File) => void;
   readonly onOpened: () => void;
 }
-export type GalleryImageImportResult = "opened" | "converted" | "save-failed" |
-  "decode-failed";
+export type GalleryImageImportResult = "opened" | "save-failed" | "decode-failed";
 export const isPngImageFile = (file: File): boolean =>
   file.type.toLowerCase() === "image/png" || /\.png$/i.test(file.name);
 const documentName = (name: string): string => name.replace(/\.\w+$/, "");
@@ -35,14 +31,12 @@ export async function runGalleryImageImport<TImage extends DecodedImage>(file: F
   progress?.stage("decoding");
   try {
     const image = await ports.decodeImage(file); progress?.stage("preparing");
-    if (isPngImageFile(file) || ports.looksPixelArt(image)) {
-      const pixels = ports.imageData(image, image.naturalWidth, image.naturalHeight, false);
-      progress?.stage("saving"); const png = isPngImageFile(file);
-      const opened = await ports.newWorkFromImage(pixels.width, pixels.height, pixels.data,
-        documentName(file.name), png ? "png" : null, png ? sourceLocation : null);
-      if (!opened) return "save-failed";
-      progress?.stage("opening"); ports.onOpened(); return "opened";
-    }
-    ports.beginConvertedWork(); ports.openConverter(file); return "converted";
+    // Растровый редактор открывает картинку как есть: ветки пикселизации нет.
+    const pixels = ports.imageData(image, image.naturalWidth, image.naturalHeight, false);
+    progress?.stage("saving"); const png = isPngImageFile(file);
+    const opened = await ports.newWorkFromImage(pixels.width, pixels.height, pixels.data,
+      documentName(file.name), png ? "png" : null, png ? sourceLocation : null);
+    if (!opened) return "save-failed";
+    progress?.stage("opening"); ports.onOpened(); return "opened";
   } catch { return "decode-failed"; }
 }
