@@ -34,12 +34,11 @@ export function brushStamp(x, y, erase, flush = true, sample = null) {
   }
   const tool = erase ? 'eraser' : 'pencil';
   const preset = presetBrushForShape(S.brushShape[tool]);
-  if (preset) {
-    if (!presetStrokeActive()) beginPresetStroke(preset, active.painter,
-      { size: erase ? S.eraserSize : S.pencilSize,
-        opacity: S.brushOpacity[tool], erase });
-    pushPresetSample(sample ?? centred(x, y));
-  } else brushStampWith(x, y, tool, active.painter.paint);
+  const ready = preset && (presetStrokeActive() || beginPresetStroke(preset,
+    active.painter, { size: erase ? S.eraserSize : S.pencilSize,
+      opacity: S.brushOpacity[tool], erase }));
+  if (ready) pushPresetSample(sample ?? centred(x, y));
+  else brushStampWith(x, y, tool, active.painter.paint);
   if (flush) active.painter.flush();
   if (!S.stroke) active = null;
 }

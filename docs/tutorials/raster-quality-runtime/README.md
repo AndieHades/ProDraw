@@ -63,8 +63,8 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 | `Q2B` | тайлы — единственная цель записи, `grid[y][x]` снят | `Q2A` | in_progress |
 | | `Q2B-3` перенесён после `Q3`/`Q4`: замер снял его блокирующую роль | | |
 | `Q3` | coalesced ввод с pressure и tilt | `Q2B-1` | done |
-| `Q4` | настоящий движок кистей в продакшн-оболочке | `Q3` | in_progress |
-| `Q5` | горячие пути композита, панели слоёв и эффектов | `Q2B` | draft |
+| `Q4` | настоящий движок кистей в продакшн-оболочке | `Q3` | done |
+| `Q5` | горячие пути композита, панели слоёв и эффектов | `Q2B-1` | in_progress |
 | `Q6` | оставшийся продакшн-JavaScript переведён в TypeScript | `Q5` | draft |
 | `Q7` | параллельный редактор удалён, финальные гейты | `Q6` | draft |
 
@@ -101,17 +101,15 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 
 ## Resume Here
 
-- Current stage: `Q4 — настоящий движок кистей в продакшн-оболочке`
+- Current stage: `Q5 — горячие пути композита, панели слоёв и эффектов`
 - Status: `in_progress`
-- Last completed stage: `Q3 — честный ввод пера`
-- Next action: подэтап `Q4-4` — вернуть основной чанк под порог Vite, вынеся
-  движок кистей в ленивый чанк
+- Last completed stage: `Q4 — настоящий движок кистей в продакшн-оболочке`
+- Next action: убрать пересчёт раскладки групп на слой в `paintStack`, пул
+  поверхностей для изолированных папок и сброс вида при ресайзе окна
 - Blockers: none
-- Working paths: `src/systems/draw`, `src/core/brush`, `src/logic/brush`,
-  `src/logic/stroke`, `src/core/brush-library`, `src/systems/simple-brush-library.js`,
-  `src/i18n`
-- Last checks: `npm run validate` зелёный целиком на `Q4-1`: `172`/`497`
-  TypeScript и `16`/`57` performance тестов. Продакшн рисует настоящими
-  `.brush` пресетами через `StrokePipeline`, линия и контуры фигур — через
-  интервальный штамповщик; ассеты и декодер в отдельных чанках
+- Working paths: `src/core/composite.js`, `src/core/layers.js`,
+  `src/systems/render`, `src/systems/layers`, `src/core/effect-surface.js`
+- Last checks: `npm run validate` зелёный целиком на закрытом `Q4`:
+  `173`/`504` TypeScript и `16`/`57` performance тестов. Продакшн рисует
+  настоящими `.brush` пресетами; движок и ассеты грузятся лениво
 - Last updated: 2026-09-06

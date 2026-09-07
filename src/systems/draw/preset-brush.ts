@@ -3,6 +3,23 @@
 // Ошибка одной кисти изолируется: вызывающий продолжает твёрдым отпечатком.
 import type { BrushPreset, LoadedBrush } from "../../contracts/brush.ts";
 
+// Рендерер даба и планировщик хода нужны только тому, кто выбрал пресет,
+// поэтому они грузятся вместе с кистью и не лежат в основном чанке.
+type DabModule = typeof import("../../core/brush/renderBrushDab.ts");
+type StrokeModule = typeof import("../../logic/stroke/StrokePipeline.ts");
+export type PresetEngine = DabModule & StrokeModule;
+let engine: PresetEngine | null = null;
+export const presetEngine = (): PresetEngine | null => engine;
+
+async function loadEngine(): Promise<PresetEngine> {
+  if (engine) return engine;
+  const [dab, stroke] = await Promise.all([
+    import("../../core/brush/renderBrushDab.ts"),
+    import("../../logic/stroke/StrokePipeline.ts")
+  ]);
+  engine = { ...dab, ...stroke }; return engine;
+}
+
 const PREFIX = "preset:";
 const decoded = new Map<string, LoadedBrush>();
 const failed = new Set<string>();
@@ -37,7 +54,8 @@ export async function ensurePresetBrush(id: string,
   if (!preset) { failed.add(id); return null; }
   try {
     const [module, response] = await Promise.all([
-      import("../../core/brush/procreateBrush.ts"), fetch(preset.sourceUrl)
+      import("../../core/brush/procreateBrush.ts"), fetch(preset.sourceUrl),
+      loadEngine()
     ]);
     if (!response.ok) throw new Error(`brush request failed: ${response.status}`);
     const brush = await module.decodeProcreateBrush(

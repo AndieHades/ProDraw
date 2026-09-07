@@ -2,10 +2,14 @@ import { describe, expect, it, vi } from "vitest";
 import type { LoadedBrush } from "../../src/contracts/brush.ts";
 import { createPresetPathStamper } from "../../src/systems/draw/preset-path.ts";
 
-vi.mock("../../src/core/brush/renderBrushDab.ts", () => ({
-  visitBrushDab: (_brush: unknown, sample: { x: number; y: number },
-    _settings: unknown, paint: (x: number, y: number, o: number) => void) =>
-    paint(sample.x, sample.y, 1)
+vi.mock("../../src/systems/draw/preset-brush.ts", () => ({
+  presetEngine: () => ({
+    visitBrushDab: (_brush: unknown, sample: { x: number; y: number },
+      _settings: unknown, paint: (x: number, y: number, o: number) => void) =>
+      paint(sample.x, sample.y, 1),
+    rasterDabSpacing: (size: number, requested: number) =>
+      Math.max(1, size * requested)
+  })
 }));
 
 const brush = { strokePath: { spacing: 1 } } as unknown as LoadedBrush;
@@ -13,7 +17,7 @@ const stamps = (points: readonly (readonly [number, number])[], size: number) =>
   const seen: string[] = [];
   const stamper = createPresetPathStamper(brush,
     { size, opacity: 1, erase: false }, (x, y) => seen.push(`${x},${y}`));
-  for (const [x, y] of points) stamper.at(x, y);
+  for (const [x, y] of points) stamper?.at(x, y);
   return seen;
 };
 
@@ -29,6 +33,15 @@ describe("preset dabs along a geometric path", () => {
 
   it("stamps every point when the brush is small enough", () => {
     expect(stamps([[0, 0], [1, 0], [2, 0]], 1)).toHaveLength(3);
+  });
+
+  it("reports nothing to stamp with when the engine has not loaded", async () => {
+    const module = await import("../../src/systems/draw/preset-brush.ts");
+    const missing = vi.spyOn(module, "presetEngine").mockReturnValue(null);
+    try {
+      expect(createPresetPathStamper(brush, { size: 4, opacity: 1, erase: false },
+        () => undefined)).toBeNull();
+    } finally { missing.mockRestore(); }
   });
 
   it("stamps again after a jump in the path", () => {

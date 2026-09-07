@@ -28,6 +28,8 @@ function shapePainter(painter) {
     (px, py) => painter.paint(px, py, 1));
   const stamper = createPresetPathStamper(preset, { size: S.pencilSize,
     opacity: S.brushOpacity.pencil, erase: false }, painter.paint);
+  if (!stamper) return (x, y) => brushStampWith(x, y, 'pencil',
+    (px, py) => painter.paint(px, py, 1));
   return (x, y) => stamper.at(x, y);
 }
 

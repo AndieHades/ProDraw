@@ -4,8 +4,7 @@
 // предыдущего на интервал пресета. Разрыв пути просто даёт новый даб.
 import type { LoadedBrush } from "../../contracts/brush.ts";
 import type { BrushRenderSettings } from "../../contracts/stroke.ts";
-import { visitBrushDab } from "../../core/brush/renderBrushDab.ts";
-import { rasterDabSpacing } from "../../logic/stroke/StrokePipeline.ts";
+import { presetEngine } from "./preset-brush.ts";
 
 type Paint = (x: number, y: number, opacity: number) => void;
 
@@ -14,8 +13,9 @@ export interface PresetPathStamper {
 }
 
 export function createPresetPathStamper(brush: LoadedBrush,
-  settings: BrushRenderSettings, paint: Paint): PresetPathStamper {
-  const spacing = rasterDabSpacing(settings.size, brush.strokePath.spacing);
+  settings: BrushRenderSettings, paint: Paint): PresetPathStamper | null {
+  const engine = presetEngine(); if (!engine) return null;
+  const spacing = engine.rasterDabSpacing(settings.size, brush.strokePath.spacing);
   const minimum = spacing * spacing;
   let lastX = Number.NaN, lastY = Number.NaN, index = 0;
   return {
@@ -26,7 +26,7 @@ export function createPresetPathStamper(brush: LoadedBrush,
         if (dx * dx + dy * dy < minimum) return;
       }
       lastX = cx; lastY = cy;
-      visitBrushDab(brush, { x: cx, y: cy, pressure: 1, tiltX: 0, tiltY: 0,
+      engine.visitBrushDab(brush, { x: cx, y: cy, pressure: 1, tiltX: 0, tiltY: 0,
         time: index++, pointerType: "mouse" }, settings, paint);
     }
   };
