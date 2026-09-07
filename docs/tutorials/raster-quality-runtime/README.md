@@ -57,8 +57,8 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 
 | Stage | Outcome | Depends on | Status |
 | --- | --- | --- | --- |
-| `Q0` | правдивые гейты и macOS-сдача | none | ready |
-| `Q1` | исправленная цель cutover, C6A/C6B superseded | `Q0` | draft |
+| `Q0` | правдивые гейты и macOS-сдача | none | done |
+| `Q1` | исправленная цель cutover, C6A/C6B superseded | `Q0` | in_progress |
 | `Q2A` | тайлы — единственный источник чтения | `Q1` | draft |
 | `Q2B` | тайлы — единственная цель записи, `grid[y][x]` снят | `Q2A` | draft |
 | `Q3` | coalesced ввод с pressure и tilt | `Q2B` | draft |
@@ -100,16 +100,17 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 
 ## Resume Here
 
-- Current stage: `Q0 — правдивые гейты и macOS-сдача`
-- Status: `ready`
-- Last completed stage: none
-- Next action: выполнить `Q0` — починить eslint для `tests/**/*.js`, вернуть
-  `tests/brush` в `npm test`, довести `npm test` до кода выхода `0` и перевести
-  контракт сдачи на macOS
+- Current stage: `Q1 — исправленная цель cutover`
+- Status: `in_progress`
+- Last completed stage: `Q0 — правдивые гейты и macOS-сдача`
+- Next action: снять `src/raster-main.ts` как цель в `project.config.json`,
+  переписать `tools/validate-raster-entry.mjs` и перевести `C6A`/`C6B` из
+  `r2-11-owner-cutover` в `superseded`
 - Blockers: none
-- Working paths: `eslint.config.js`, `package.json`, `project.config.json`,
-  `AGENTS.md`, `tools/validate-desktop-shell.mjs`, `tests`
-- Last checks: аудит `asset-editor@6cc56bb` — `tsc --noEmit` зелёный;
-  `npx eslint .` 14 ошибок; `npm test` код выхода `1`, 3 упавших файла;
-  `validate:cycles` и `validate:lines` зелёные
+- Working paths: `project.config.json`, `tools/validate-raster-entry.mjs`,
+  `tools/validate-cutover-fixtures.mjs`,
+  `docs/tutorials/raster-editor-migration/r2-11-owner-cutover`
+- Last checks: `npm run validate` зелёный целиком; `npm test` код выхода `0`
+  (`117` legacy unit, `162`/`448` TypeScript, `16`/`57` performance);
+  `npm run package:mac` установил `/Applications/ProDraw.app` и прошёл smoke
 - Last updated: 2026-09-06

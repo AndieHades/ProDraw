@@ -30,3 +30,25 @@ pre-cutover brush shell и не входят в зелёный gate. `npm run te
 выполняет чистые legacy unit tests и storage tests; новый runtime доказывают
 Vitest, `validate:raster-entry`
 и browser/packaged smoke.
+
+## Именованные пропуски
+
+Пропущенная проверка называется точным именем, причиной и владельцем. Сейчас
+пропущены ровно эти:
+
+- `test/module-int.mjs` и `test/module-boot.mjs` — относятся к удалённому
+  pre-cutover brush shell; владелец — `Q6i` пакета
+  [`raster-quality-runtime`](../tutorials/raster-quality-runtime/README.md),
+  который вернёт их в гейт или удалит.
+- `brushGoldenPlans` для `lineart.brush` и `sketching.brush` — их shape и grain
+  живут отдельными источниками, эталон падал уже на коммите `37fb91d`, где был
+  записан. Остальные десять кистей и различимость всех двенадцати проверяются.
+  Владелец — [`procreate-brush-parity`](../tutorials/procreate-brush-parity/README.md).
+
+Других исключений нет: `npm test` запускает `tests/brush` и `tests/performance`.
+
+## Сдача
+
+Сдаваемая сборка — `/Applications/ProDraw.app` через `npm run package:mac` без
+`CI`. `npm run validate:desktop` проверяет, что smoke-команда собирает именно
+её. Windows-package остаётся доступным, но не является условием приёмки.

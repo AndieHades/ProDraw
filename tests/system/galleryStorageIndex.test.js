@@ -1,5 +1,4 @@
 import 'fake-indexeddb/auto';
-/* global indexedDB */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { getDoc, listGalleryDocs, saveDoc,
   updateGalleryDoc } from '../../src/core/storage.ts';

@@ -1,5 +1,4 @@
 /** @vitest-environment jsdom */
-/* global document */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { doRedo, doUndo } from '../../src/core/history.js';
 import { cloneLayer, newLayer, S } from '../../src/core/state.js';

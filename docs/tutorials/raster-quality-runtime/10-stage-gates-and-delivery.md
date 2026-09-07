@@ -1,6 +1,6 @@
 # Stage `Q0`: правдивые гейты и macOS-сдача
 
-- Status: `ready`
+- Status: `done`
 - Depends on: none
 - Requirements: `RQ-GATE-01`, `RQ-DELIVERY-01`
 
@@ -57,6 +57,29 @@
    macOS-путь и не требовал Windows-артефактов.
 9. Синхронизировать `README.md` и `docs/project/validation-policy.md`.
 
+## Найдено во время выполнения
+
+1. `test:ts` исключал перф-набор строкой `--exclude tests/performance/**` без
+   кавычек. `sh` разворачивал glob, поэтому исключался только первый файл, а
+   остальные пятнадцать становились фильтром включения. Функциональный набор
+   прогонял `54` файла из `178`, а перф-тесты шли параллельными воркерами и
+   меряли конкуренцию runner. После кавычек `test:ts` даёт `162` файла и `448`
+   тестов, `test:performance` — `16` и `57`.
+2. `brushGoldenPlans` падал не из-за регрессии: записанные значения для
+   `lineart` и `sketching` не воспроизводятся и на коммите `37fb91d`, который
+   их записал. Это единственные две кисти с отдельными источниками shape/grain.
+   Они исключены поимённо с причиной, остальные десять и различимость всех
+   двенадцати проверяются.
+3. `validate:shell-catalog` не знал событие `stroke-end`. Оно эмитится
+   `src/systems/draw/stroke.js` и потребляется `src/systems/draw/brush.js`;
+   `tsc` его не ловил, потому что оба файла — JavaScript.
+4. Одиночный холодный замер `ProductionSimple-pencil-64-line` давал от `70` до
+   `286 ms` при пределе `75`. Методика приведена к медиане пяти прогретых
+   замеров, как у соседнего кейса того же файла: `64.99 ms`, разброс
+   `64.74`–`65.37`. Предел не поднимался.
+5. `tools/validate-desktop-shell.mjs` превысил лимит `150` строк, поэтому
+   runtime-гарантии вынесены в `tools/desktop-runtime-guarantees.mjs`.
+
 ## Edge and failure cases
 
 - Golden-хеши расходятся из-за платформы, а не кода: проверить на том же
@@ -92,6 +115,15 @@
 
 ## Completion record
 
-- Commit:
-- Checks:
-- Date:
+- Commit: `AE-Q0`
+- Checks: `npm run validate` зелёный целиком — `check`, `lint`, `test`
+  (`117` legacy unit, `162`/`448` TypeScript, `16`/`57` performance),
+  `validate:docs`, `validate:hooks`, `validate:interface`, `validate:lines`,
+  `validate:architecture`, `validate:cycles`, `validate:cutover`,
+  `validate:cutover-fixtures`, `validate:desktop`, `validate:raster-entry`,
+  `validate:shell-catalog`, `build:bundle`. `npm run package:mac` собрал,
+  подписал ad-hoc, прошёл packaged renderer smoke
+  (`workspace true, file tree true, alpha 137`) и установил
+  `/Applications/ProDraw.app`.
+- Пропущено: приёмка пользователем, который открывает установленное приложение.
+- Date: 2026-09-06

@@ -1,5 +1,4 @@
 /** @vitest-environment jsdom */
-/* global document */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CANVAS_PRESETS } from '../../src/config/canvasPresets.ts';
 import { SELECTION_ANTS } from '../../src/config/selection-ants.ts';

@@ -27,19 +27,20 @@ npm run lint
 npm run build
 ```
 
-Полная проверка и Windows package:
+Полная проверка и сдаваемый macOS package:
 
 ```bash
 npm run validate
-npm run package:desktop
+npm run package:mac
 ```
 
-Локальная сборка всегда лежит в `%LOCALAPPDATA%\\ProDraw\\desktop-build\\win-unpacked`:
-ярлык на `ProDraw.exe` остаётся рабочим и после следующей сборки. В CI artifact
-остаётся в `artifacts/desktop/win-unpacked`.
+`npm run package:mac` обновляет приложение по постоянному пути
+`/Applications/ProDraw.app`, поэтому значок в Dock менять не нужно. Это и есть
+сдаваемая сборка.
 
-На Apple Silicon Mac `npm run package:mac` обновляет приложение по постоянному
-пути `/Applications/ProDraw.app`, поэтому ярлык Dock менять не нужно.
+Windows-сборка остаётся доступной через `npm run package:desktop` и лежит в
+`%LOCALAPPDATA%\\ProDraw\\desktop-build\\win-unpacked`; в CI artifact остаётся в
+`artifacts/desktop/win-unpacked`. Условием приёмки этапа она не является.
 
 Перед изменениями прочитай [`AGENTS.md`](AGENTS.md) и
 [`docs/index.md`](docs/index.md).

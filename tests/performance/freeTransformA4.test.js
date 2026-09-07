@@ -1,5 +1,4 @@
 /** @vitest-environment jsdom */
-/* global document, HTMLCanvasElement */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as actions from '../../src/core/actions.ts';
 import { doRedo, doUndo } from '../../src/core/history.js';

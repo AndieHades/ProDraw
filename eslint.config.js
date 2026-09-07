@@ -35,8 +35,8 @@ export default [
     rules: relaxedLegacy
   },
   {
-    files: ["test/**/*.mjs", "*.config.js", "desktop/**/*.{mjs,cjs}", "tools/**/*.mjs",
-      ".claude/hooks/**/*.mjs"],
+    files: ["test/**/*.mjs", "tests/**/*.{js,mjs}", "*.config.js",
+      "desktop/**/*.{mjs,cjs}", "tools/**/*.mjs", ".claude/hooks/**/*.mjs"],
     languageOptions: {
       ecmaVersion: "latest", sourceType: "module",
       globals: { ...globals.node, ...globals.browser }

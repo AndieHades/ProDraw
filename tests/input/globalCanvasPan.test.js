@@ -1,5 +1,4 @@
 /** @vitest-environment jsdom */
-/* global document */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { S } from '../../src/core/state.js';
 import { registerMode, registerTool } from '../../src/core/canvas-handlers.ts';

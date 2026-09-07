@@ -6,7 +6,7 @@ export const SHELL_EVENT_NAMES = [
   "layer-active", "layers", "locale",
   "overlay", "palette", "reference",
   "render", "selection", "selection-menu",
-  "snapshot", "stroke-begin",
+  "snapshot", "stroke-begin", "stroke-end",
   "theme", "tool",
   "transform-menu", "visibility"
 ] as const;

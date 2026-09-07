@@ -2,7 +2,7 @@
   "title": "ProDraw",
   "packageName": "prodraw",
   "product": "touch-first raster graphics editor",
-  "targetPlatform": "windows-desktop",
+  "targetPlatform": "macos-desktop",
   "developmentRuntime": "vite-web",
   "languages": ["ru", "en"],
   "lineLimit": 150,

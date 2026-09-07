@@ -1,5 +1,4 @@
 /** @vitest-environment jsdom */
-/* global document */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { newLayer, S } from '../../src/core/state.js';
 import * as actions from '../../src/core/actions.ts';

@@ -1,5 +1,4 @@
 /** @vitest-environment jsdom */
-/* global document, window, KeyboardEvent, Event */
 import { afterEach, describe, expect, it } from 'vitest';
 import { canvasPanModifierHeld,
   setCanvasPanModifierHeld } from '../../src/core/navigationModifiers.ts';

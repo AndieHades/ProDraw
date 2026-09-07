@@ -47,12 +47,21 @@ describe('production raster brush budgets', () => {
         PERFORMANCE_BUDGETS.largeSoftDabP50Milliseconds);
     });
 
+  // Measured as a warmed median of five, matching the large soft dab case
+  // below. A single cold sample here measured allocator state, not the paint
+  // path: it read 70 ms alone and 286 ms after the other A4 fixtures had run.
   it('batches every stamp from one interpolated pointer move', () => {
-    prepareLayer(); S.pencilSize = 64; beginStroke();
-    const started = performance.now(); line(380, 300, 420, 300);
-    const milliseconds = performance.now() - started; cancelStroke();
+    const paint = () => {
+      prepareLayer(); S.pencilSize = 64; beginStroke();
+      const started = performance.now(); line(380, 300, 420, 300);
+      const milliseconds = performance.now() - started; cancelStroke();
+      return milliseconds;
+    };
+    paint();
+    const samples = Array.from({ length: 5 }, paint).sort((a, b) => a - b);
+    const milliseconds = samples[Math.floor(samples.length / 2)];
     if (process.env.PRODRAW_REPORT_PERF === '1') {
-      console.info('ProductionSimple-pencil-64-line', { milliseconds });
+      console.info('ProductionSimple-pencil-64-line', { milliseconds, samples });
     }
     expect(milliseconds).toBeLessThan(
       PERFORMANCE_BUDGETS.largeSoftDabP50Milliseconds);

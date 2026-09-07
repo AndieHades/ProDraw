@@ -76,3 +76,28 @@ Tile bytes и history учитываются точно, process RSS/GPU allocat
 пятиминутный Huion trace, palm rejection и 60/120/240 Hz device equivalence
 принадлежат F5. PSD и полноценный flattened PNG workflow принадлежат F7; текущий
 PNG renderer уже имеет F3 safety/cancel contract.
+
+## Baseline `Q0` (2026-09-06, macOS)
+
+Host: Apple Silicon Mac, Node из `.nvmrc`. Записано этапом `Q0` пакета
+[`raster-quality-runtime`](../tutorials/raster-quality-runtime/README.md)
+командой `PRODRAW_REPORT_PERF=1 npm run test:performance`.
+
+| Метрика | Замер | Предел | Запас |
+| --- | ---: | ---: | ---: |
+| `ProductionSimple-pencil-64` | `8.42 ms` | `75 ms` | 8.9× |
+| `ProductionSimple-eraser-64` | `4.89 ms` | `75 ms` | 15.3× |
+| `ProductionSimple-pencil-64-line` | `64.99 ms` | `75 ms` | **1.15×** |
+| `ProductionBigSoft-160` | `17.17 ms` | `75 ms` | 4.4× |
+
+`ProductionSimple-pencil-64-line` — один интерполированный ход пера кистью
+`64 px`. У него практически нет запаса: медиана пяти прогретых замеров
+`64.99 ms` при разбросе `64.74`–`65.37 ms`. Одиночный холодный замер в этом же
+наборе давал `286 ms`, поэтому методика приведена к медиане пяти прогретых
+замеров, как у соседнего `ProductionBigSoft`. Предел не поднимался.
+
+Причина расхода зафиксирована в
+[`01-current-state.md`](../tutorials/raster-quality-runtime/01-current-state.md):
+каждый окрашенный пиксель пишется в четыре представления, а запись в sparse
+`Proxy` в 93 раза дороже типизированного буфера. Метрика принадлежит этапу
+`Q2B`; после него требуется запас не меньше четырёх крат.

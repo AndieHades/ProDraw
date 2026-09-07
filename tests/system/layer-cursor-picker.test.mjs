@@ -1,5 +1,4 @@
 /** @vitest-environment jsdom */
-/* global document */
 import { describe, expect, it, vi } from 'vitest';
 import { layerIndicesAt } from '../../src/core/layer-hit.js';
 import { newLayer, S } from '../../src/core/state.js';

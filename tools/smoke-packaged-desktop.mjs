@@ -33,4 +33,4 @@ try {
     await rm(smokeProfile, { recursive: true, force: true });
   }
 }
-console.log("Packaged Windows desktop smoke passed.");
+console.log("Packaged desktop smoke passed.");
