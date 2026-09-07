@@ -36,6 +36,10 @@ const inWorkArea = (gx, gy) =>
 const pan = new CanvasPanSession(DRAG_THRESHOLD);
 let drawing = false, activeGlobal = null;
 let activePointerId = null;
+// Перо теряет захват, когда выходит из зоны планшета: ход при этом не
+// окончен. Возвращаем захват один раз за ход — повторная потеря значит,
+// что указателя действительно нет, и ход завершается.
+let recaptured = false;
 // Прямоугольник холста кеширует core/viewport на время жеста.
 export const forgetCanvasBounds = () => { forgetCursor(); releaseCanvasBounds(); };
 const hover = (e) => updateHover(cv(), e, !drawing && !pan.active && !activeMode());
@@ -44,7 +48,8 @@ function releaseCapture(e) { const id = e?.pointerId ?? activePointerId;
   activePointerId = null; try { cv().releasePointerCapture(id); } catch (error) {} }
 export function down(e) {
   holdCanvasBounds();
-  if (e.pointerId != null) { activePointerId = e.pointerId; capture(e.pointerId); }
+  if (e.pointerId != null) { activePointerId = e.pointerId; recaptured = false;
+    capture(e.pointerId); }
   const [rx, ry] = toCanvas(e), gx = Math.floor(rx), gy = Math.floor(ry);
   const m = activeMode(), modeHit = m?.hit?.({ gx, gy, rx, ry, e });
   if (e.pointerType === 'mouse' && e.button === 2 && S.rotMode && modeHit) {
@@ -117,7 +122,12 @@ export function mount() {
   c.addEventListener('pointermove', (e) => { if (e.pointerType !== 'touch') move(e); });
   c.addEventListener('pointerup', (e) => { if (e.pointerType !== 'touch') up(e); });
   c.addEventListener('pointercancel', (e) => { if (e.pointerType !== 'touch') cancel(e); });
-  c.addEventListener('lostpointercapture', (e) => { if (e.pointerType !== 'touch') interrupt(e); });
+  c.addEventListener('lostpointercapture', (e) => {
+    if (e.pointerType === 'touch') return;
+    if (drawing && !recaptured && activePointerId != null &&
+      e.pointerId === activePointerId) { recaptured = true; capture(activePointerId); return; }
+    interrupt(e);
+  });
   window.addEventListener('resize', releaseCanvasBounds);
   window.addEventListener('blur', () => interrupt());
   document.addEventListener('visibilitychange', () => { if (document.hidden) interrupt(); });

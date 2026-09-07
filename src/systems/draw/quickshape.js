@@ -14,23 +14,30 @@ import { stamp } from './stamp.js';
 import { beginLegacyTileEdit, cancelLegacyTileEdit,
   legacyTileEditActive } from '../../core/history/legacyTileHistory.js';
 
-let base = null, pts = null, engaged = false, timer = null, lastCell = null;
+let base = null, pts = null, engaged = false, timer = null, lastCell = null, tracking = false;
 const enabled = () => S.tool === 'pencil' || S.tool === 'eraser'; // QuickShape — для freehand-кисти/ластика
 const clearTimer = () => { clearTimeout(timer); timer = null; };
 const drawShape = (sh) => (sh.type === 'rect' ? rectEdges : sh.type === 'ellipse' ? ellipseEdges : bres)(sh.x0, sh.y0, sh.x1, sh.y1, stamp);
 const arm = () => { clearTimer(); timer = setTimeout(engage, QUICKSHAPE.holdMs); };
 
-function engage() { if (!base || engaged) return; const sh = recognizeShape(pts); if (!sh) return; // не распознали — оставляем raw, ждём дальше
-  const tiled = legacyTileEditActive(); if (tiled) cancelLegacyTileEdit();
-  engaged = true; S.layers[S.cur].grid = cloneGrid(base); markDirty(S.cur); // убираем raw-штрих с холста
+function engage() { if (!tracking || engaged) return; const sh = recognizeShape(pts); if (!sh) return; // не распознали — оставляем raw, ждём дальше
+  const tiled = legacyTileEditActive(); if (tiled) cancelLegacyTileEdit(); // тайловая правка сама вернула холст
+  else if (base) S.layers[S.cur].grid = cloneGrid(base); // убираем raw-штрих с холста
+  engaged = true; markDirty(S.cur);
   if (tiled) beginLegacyTileEdit('QuickShape');
   S.qsShape = sh; bus.emit('render'); } // ровная форма показывается превью-оверлеем
 
-export function qsBegin(gx, gy) { if (!enabled()) { base = null; return; }
-  base = cloneGrid(G()); pts = [[gx, gy]]; engaged = false; lastCell = [gx, gy]; arm(); }
+// Снимок сетки нужен только там, где нет тайловой правки: она уже помнит
+// тронутое ходом и возвращает холст сама. Копия полноцветного холста стоит
+// целый буфер W×H×4 — на 2048×2048 это 16 МБ и двести миллисекунд на каждом
+// нажатии, и именно она подвешивала рисование по мере заполнения слоя.
+export function qsBegin(gx, gy) { tracking = enabled();
+  if (!tracking) { base = null; pts = null; return; }
+  base = legacyTileEditActive() ? null : cloneGrid(G());
+  pts = [[gx, gy]]; engaged = false; lastCell = [gx, gy]; arm(); }
 
 // true → QuickShape ведёт превью (raw-штрих рисовать не нужно)
-export function qsMove(gx, gy) { if (!base) return false; if (engaged) return true;
+export function qsMove(gx, gy) { if (!tracking) return false; if (engaged) return true;
   pts.push([gx, gy]);
   if (!lastCell || gx !== lastCell[0] || gy !== lastCell[1]) { lastCell = [gx, gy]; arm(); } // двинулся в новую клетку — заново ждём удержания
   return false; }
@@ -38,5 +45,6 @@ export function qsMove(gx, gy) { if (!base) return false; if (engaged) return tr
 // true → форма зафиксирована (raw коммитить не нужно)
 export function qsRelease() { clearTimer(); const did = engaged;
   if (did) { S.stroke = false; drawShape(S.qsShape); markDirty(S.cur); } // base восстановлен — стампим ровную форму поверх (pp молчит при stroke=false)
-  base = null; pts = null; engaged = false; S.qsShape = null; if (did) bus.emit('render');
+  base = null; pts = null; engaged = false; tracking = false; S.qsShape = null;
+  if (did) bus.emit('render');
   return did; }
