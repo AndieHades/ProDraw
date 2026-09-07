@@ -1,5 +1,6 @@
 import { makeCanvas } from '../../core/canvas.js';
-import { layerCanvas, layerContentBounds } from '../../core/layer-cache.js';
+import { layerCanvas, layerContentBounds,
+  layerRev } from '../../core/layer-cache.js';
 import { C } from '../../styles/canvas-colors.ts';
 
 const SIZE = 40;
@@ -12,7 +13,12 @@ export function thumbnailDrawBox(bounds, size = SIZE) {
     dx: (size - dw) / 2, dy: (size - dh) / 2, dw, dh };
 }
 
-export function layerThumbnail(index) {
+// Панель слоёв пересобирается на каждое взаимодействие, а миниатюра стоит
+// полной растеризации слоя. Кеш по ревизии повторяет приём layerExtCanvas и
+// живёт тем же index-ключом, что и остальной кеш слоёв.
+const cache = [];
+
+function drawThumbnail(index) {
   const canvas = makeCanvas(SIZE, SIZE); canvas.className = 'lth';
   const context = canvas.getContext('2d'); context.imageSmoothingEnabled = false;
   context.fillStyle = C.checkA; context.fillRect(0, 0, SIZE, SIZE);
@@ -21,4 +27,11 @@ export function layerThumbnail(index) {
   context.drawImage(layerCanvas(index), box.sx, box.sy, box.sw, box.sh,
     box.dx, box.dy, box.dw, box.dh);
   return canvas;
+}
+
+export function layerThumbnail(index) {
+  const rev = layerRev(index), hit = cache[index];
+  if (hit && hit.rev === rev) return hit.canvas;
+  const canvas = drawThumbnail(index);
+  cache[index] = { rev, canvas }; return canvas;
 }

@@ -64,8 +64,8 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 | | `Q2B-3` перенесён после `Q3`/`Q4`: замер снял его блокирующую роль | | |
 | `Q3` | coalesced ввод с pressure и tilt | `Q2B-1` | done |
 | `Q4` | настоящий движок кистей в продакшн-оболочке | `Q3` | done |
-| `Q5` | горячие пути композита, панели слоёв и эффектов | `Q2B-1` | in_progress |
-| `Q6` | оставшийся продакшн-JavaScript переведён в TypeScript | `Q5` | draft |
+| `Q5` | горячие пути композита, панели слоёв и эффектов | `Q2B-1` | done |
+| `Q6` | оставшийся продакшн-JavaScript переведён в TypeScript | `Q5` | in_progress |
 | `Q7` | параллельный редактор удалён, финальные гейты | `Q6` | draft |
 
 Только один этап может быть `in_progress`. Каждая глава владеет своим списком
@@ -101,15 +101,15 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 
 ## Resume Here
 
-- Current stage: `Q5 — горячие пути композита, панели слоёв и эффектов`
+- Current stage: `Q6 — оставшийся продакшн-JavaScript переведён в TypeScript`
 - Status: `in_progress`
-- Last completed stage: `Q4 — настоящий движок кистей в продакшн-оболочке`
-- Next action: подэтап `Q5-4` — инкрементальная панель слоёв и кеш миниатюры
-  по ревизии слоя
+- Last completed stage: `Q5 — горячие пути композита, панели слоёв и эффектов`
+- Next action: подэтап `Q6a` — перевести ядро без систем (`state`, `layers`,
+  `history`, `canvas`, `selection`) в TypeScript
 - Blockers: none
-- Working paths: `src/core/composite.js`, `src/core/layers.js`,
-  `src/systems/render`, `src/systems/layers`, `src/core/effect-surface.js`
-- Last checks: `npm run validate` зелёный целиком на закрытом `Q4`:
-  `173`/`504` TypeScript и `16`/`57` performance тестов. Продакшн рисует
-  настоящими `.brush` пресетами; движок и ассеты грузятся лениво
+- Working paths: `src/core`, `src/systems`, `project.config.json`
+- Last checks: `npm run validate` зелёный целиком на закрытом `Q5`:
+  `177`/`518` TypeScript и `16`/`57` performance тестов. Ресайз сохраняет вид,
+  раскладка групп и цепочки папок считаются раз на кадр, изоляция берёт
+  поверхность из пула, миниатюра кешируется
 - Last updated: 2026-09-06
