@@ -5,7 +5,7 @@ import * as bus from './bus.ts';
 import { translateRaster } from '../logic/raster-remap.js';
 import { isTextLayer, moveTextSource } from '../logic/text-model.ts';
 import { dirtyAll, markDirty } from './layer-cache.js';
-import { applyLayerRemap } from './document-layer-remap.js';
+import { applyLayerRemap } from './document-layer-remap.ts';
 import { effectExpansion, needsEffectExpansion } from './effect-expansion.js';
 import { snapshot, snapshotDocumentRemap } from './history.js';
 import { t } from '../i18n/index.ts';

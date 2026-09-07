@@ -4,7 +4,7 @@ import { CANVAS_PALETTE_LIMIT, PALETTE_SAMPLE_MAX_SIDE } from
   '../../src/config/palette-sampling.ts';
 import { PaletteCompositeCache } from '../../src/core/palette-composite-cache.ts';
 import { paletteFromCanvasSource, paletteFromPointSource,
-  paletteSampleSize } from '../../src/core/palette-sampling.js';
+  paletteSampleSize } from '../../src/core/palette-sampling.ts';
 
 const A4 = CANVAS_PRESETS.find((preset) => preset.id === 'a4-p');
 

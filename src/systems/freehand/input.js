@@ -5,7 +5,7 @@ import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { registerTool } from '../../core/canvas-handlers.ts';
-import { beginPath, addPoint, resetPath, pathActive, nearStart } from './path.js';
+import { beginPath, addPoint, resetPath, pathActive, nearStart } from './path.ts';
 import { closePath } from './apply.js';
 import { clamp } from '../../logic/math.ts';
 

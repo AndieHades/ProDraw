@@ -5,7 +5,7 @@ import { S } from '../../core/state.ts';
 import * as actions from '../../core/actions.ts';
 import { polygonToMask } from '../../logic/poly-mask.ts';
 import { LASSO_MIN_POINTS } from '../../config/lasso.ts';
-import { getPoints, resetPath } from './path.js';
+import { getPoints, resetPath } from './path.ts';
 
 export function closePath() {
   const pts = getPoints();

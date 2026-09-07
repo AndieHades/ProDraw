@@ -6,7 +6,7 @@ import { $, toast, t } from '../../core/shell.ts';
 import { eqc } from '../../logic/color.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { tsg, toggleSel, openWith } from './store.ts';
-import { render, setHandlers } from './render.js';
+import { render, setHandlers } from './render.ts';
 
 function parseHex(s) {
   const raw = (s || '').trim().replace(/^#/, '');

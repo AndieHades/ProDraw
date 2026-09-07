@@ -6,7 +6,7 @@ import * as bus from '../core/bus.ts';
 import { makeCanvas, syncCanvasSize } from '../core/canvas.ts';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../core/reference-board.ts';
 import { C } from '../styles/canvas-colors.ts';
-import { copyRefs, pasteRef, saveRef } from './reference-window-clipboard.js';
+import { copyRefs, pasteRef, saveRef } from './reference-window-clipboard.ts';
 import { bindDetachDrag, detachedOpen, focusDetached, syncDetached } from './reference-window-detached.js';
 import { bindReferenceDrop, isImageFile } from './reference-window-drop.ts';
 import { openReferenceMenu } from './reference-window-menu.js';

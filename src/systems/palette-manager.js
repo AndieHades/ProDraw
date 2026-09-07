@@ -7,7 +7,7 @@ import { createLibraryDialog } from '../ui/dom/LibraryDialogPresenter.ts';
 import { compositeAt, contentRevision } from '../core/layer-cache.js';
 import { PaletteCompositeCache } from '../core/palette-composite-cache.ts';
 import { paletteFromCanvasSource, paletteFromImageData,
-  paletteFromImageSource, paletteFromPointSource } from '../core/palette-sampling.js';
+  paletteFromImageSource, paletteFromPointSource } from '../core/palette-sampling.ts';
 import { rgb, eqc } from '../logic/color.ts';
 import { sortPalette } from '../logic/palette-sort.ts';
 import { defaultPalette } from '../config/palette.ts';
