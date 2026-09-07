@@ -6,7 +6,7 @@ import { menuGesture } from '../../ui/gestures/ContextGesture.ts';
 import { folderChain } from '../../core/layers.js';
 import { dragRow } from './drag.js';
 import { selectRange } from './range-select.js';
-import { switchLayerDuringTransform } from './transform-target.js';
+import { switchLayerDuringTransform } from './transform-target.ts';
 import { openLctx } from './menu.js';
 import { attachLayerSwipe } from './swipe.js';
 import { toggleLock, toggleAlphaLock, toggleReference } from './ops.js';

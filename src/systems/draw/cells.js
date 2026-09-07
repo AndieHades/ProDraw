@@ -3,7 +3,7 @@ import { S } from '../../core/state.ts';
 import { blendOver } from '../../logic/raster.ts';
 import { symmetryConfig } from '../../core/layers.js';
 import { mirrorPoints } from '../../logic/symmetry.ts';
-import { inSel } from '../../core/selection.js';
+import { inSel } from '../../core/selection.ts';
 import { markDirty } from '../../core/layer-cache.js';
 import { rasterizeActiveText } from '../../core/text-rasterize.js';
 import { pixelPatchActive, recordPixelBefore } from '../../core/history.js';

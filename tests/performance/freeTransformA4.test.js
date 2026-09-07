@@ -6,7 +6,7 @@ import { dirtyAll, layerContentBounds, markDirty } from '../../src/core/layer-ca
 import { blank, S } from '../../src/core/state.ts';
 import { SelectionMask } from '../../src/logic/selection-mask.ts';
 import { enterRotMode, exitRotMode } from '../../src/systems/transform/index.js';
-import { switchLayerDuringTransform } from '../../src/systems/layers/transform-target.js';
+import { switchLayerDuringTransform } from '../../src/systems/layers/transform-target.ts';
 
 const W = 2480, H = 3508;
 const CONTENT = { minx: 1200, miny: 1700, maxx: 1215, maxy: 1715 };

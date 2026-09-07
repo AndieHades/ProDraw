@@ -13,7 +13,7 @@ import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
 import { visitRegionColorMatches } from '../../logic/raster/matchRegionColors.ts';
 import { visitOpaqueRegionPixels } from '../../logic/raster/regionScan.ts';
 import { toast, t } from '../../core/shell.ts';
-import { setTool } from '../../core/tools.js';
+import { setTool } from '../../core/tools.ts';
 import { commitFloat } from './float.js';
 import { fillSelection } from './content.js';
 

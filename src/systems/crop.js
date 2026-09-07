@@ -14,7 +14,7 @@ import { mountCropControls } from '../ui/crop/CropControlsPresenter.ts';
 import { CropPointerSystem } from './crop/CropPointerSystem.ts';
 import { appliedCropRect, createCropMode, cropChangesDocument,
   cropSize as measureCrop, placeCropSize } from './crop/CropSession.ts';
-import { setTool } from '../core/tools.js';
+import { setTool } from '../core/tools.ts';
 
 let mounted = false;
 const cropSize = (crop = S.cropMode) => { const size = measureCrop(crop);

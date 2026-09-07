@@ -1,6 +1,6 @@
 import { S, G } from '../../core/state.ts';
 import { layerContentBounds } from '../../core/layer-cache.js';
-import { maskHas } from '../../core/selection.js';
+import { maskHas } from '../../core/selection.ts';
 import { SELECTION_FRAGMENT_DENSE_RATIO } from '../../config/selection-mask.ts';
 import { commitFloat } from './float.js';
 

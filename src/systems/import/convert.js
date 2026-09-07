@@ -10,7 +10,7 @@ import { cloneGrid } from '../../logic/raster.ts';
 import { makeCanvas, syncCanvasSize } from '../../core/canvas.ts';
 import { C } from '../../styles/canvas-colors.ts';
 import { symmetrizeV, despeckle, cropEmpty } from '../../logic/cleanup.ts';
-import { setTool } from '../../core/tools.js';
+import { setTool } from '../../core/tools.ts';
 import { dirtyAll } from '../../core/layer-cache.js';
 import { addImageLayerTop } from '../../core/document.js';
 import { snapshot } from '../../core/history.js';

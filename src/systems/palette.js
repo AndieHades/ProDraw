@@ -7,7 +7,7 @@ import * as actions from '../core/actions.ts';
 import { $, toast, t } from '../core/shell.ts';
 import { rgb, rgbToHex, hexToRgb, eqc } from '../logic/color.ts';
 import { sortPalette } from '../logic/palette-sort.ts';
-import { setTool } from '../core/tools.js';
+import { setTool } from '../core/tools.ts';
 import { initPaletteSelect, wireSwatch, clearPaletteSelection, validSel } from './palette-select.js';
 import { usedColorKeys } from './palette-used-colors.js';
 import { attachReorder } from '../ui/shell/ReorderGesture.ts';

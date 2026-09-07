@@ -1,7 +1,7 @@
 import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
-import { setTool } from '../core/tools.js';
+import { setTool } from '../core/tools.ts';
 import { ensureSymmetryDefaults } from '../core/layers.js';
 import { ToolPanelPresenter } from '../ui/shell/ToolPanelPresenter.ts';
 

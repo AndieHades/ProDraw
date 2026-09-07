@@ -1,10 +1,10 @@
 import { S, G } from '../../core/state.ts';
 import { symA, symHA } from '../../core/layers.js';
-import { inSel } from '../../core/selection.js';
+import { inSel } from '../../core/selection.ts';
 import { markDirty } from '../../core/layer-cache.js';
 import { $, t } from '../../core/shell.ts';
 import { showMenuForAnchor } from '../../ui/dom/ShellDom.ts';
-import { setTool } from '../../core/tools.js';
+import { setTool } from '../../core/tools.ts';
 import * as bus from '../../core/bus.ts';
 import { ADJUST_MODES, ICONS } from '../../config/toolbar.ts';
 import { strokeSeen } from './seen.ts';

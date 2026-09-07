@@ -11,7 +11,7 @@ import {
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
 import { someOpaqueRegionPixel } from '../../logic/raster/regionScan.ts';
-import { inMask, selectedPoints } from '../../core/selection.js';
+import { inMask, selectedPoints } from '../../core/selection.ts';
 import { selectedLayerTargets } from '../../core/targets.js';
 import { rasterizeTextTargets } from '../../core/text-rasterize.js';
 import { t, toast } from '../../core/shell.ts';

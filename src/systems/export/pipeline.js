@@ -4,7 +4,7 @@
 import { S } from '../../core/state.ts';
 import { saveFile } from '../../core/io.ts';
 import { toast, t } from '../../core/shell.ts';
-import { buildExportDoc, docName, exportTargetRoot } from './tree.js';
+import { buildExportDoc, docName, exportTargetRoot } from './tree.ts';
 import { flattenNodes, standaloneLayerCanvas } from './render.js';
 import { applyBounds, visibleBounds, unionBounds, cropTo } from './bounds.js';
 import { FORMATS } from './formats.js';

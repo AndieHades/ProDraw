@@ -5,7 +5,7 @@ import * as bus from '../../core/bus.ts';
 import { parseKey } from '../../logic/raster.ts';
 import { symA, symHA } from '../../core/layers.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
-import { maskHas } from '../../core/selection.js';
+import { maskHas } from '../../core/selection.ts';
 import { SelectionMask, selectionStateFromMask } from '../../logic/mask-ops.js';
 import { snapshot, snapshotRasterReferences } from '../../core/history.js';
 import { gridBoundsMetadata, setGridBounds } from '../../logic/raster.ts';

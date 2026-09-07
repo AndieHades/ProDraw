@@ -15,7 +15,7 @@ import { parseKey, setGridBounds } from '../../logic/raster.ts';
 import { symA, symHA } from '../../core/layers.js';
 import { deleteSelContent, deselect } from './model.js';
 import { commitFloat } from './float.js';
-import { maskHas } from '../../core/selection.js';
+import { maskHas } from '../../core/selection.ts';
 import { captureSelectionFragment, pasteFragment } from './fragment.js';
 
 let clip = null;

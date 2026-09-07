@@ -4,7 +4,7 @@ import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { t, toast } from '../core/shell.ts';
-import { setTool } from '../core/tools.js';
+import { setTool } from '../core/tools.ts';
 import { eqc } from '../logic/color.ts';
 import { ShadingRampPresenter } from '../ui/color/ShadingRampPresenter.ts';
 

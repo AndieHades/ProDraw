@@ -3,7 +3,7 @@ import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { symA, symHA } from '../../core/layers.js';
 import { registerTool } from '../../core/canvas-handlers.ts';
-import { selHit } from '../../core/selection.js';
+import { selHit } from '../../core/selection.ts';
 import { $, toast, t } from '../../core/shell.ts';
 import { normSel, symmetrizeSelection, selHasPixels, deselect, maskFromCells } from './model.js';
 import { beginLiftHistory, liftSelection, liftSelectionSym,

@@ -2,7 +2,7 @@
 // desired target side to the opposite side. Each stroke moves a pixel one step
 // toward the first color in the ramp.
 import { S, G } from '../../core/state.ts';
-import { inSel } from '../../core/selection.js';
+import { inSel } from '../../core/selection.ts';
 import { symmetryConfig } from '../../core/layers.js';
 import { mirrorPoints } from '../../logic/symmetry.ts';
 import { markDirty } from '../../core/layer-cache.js';

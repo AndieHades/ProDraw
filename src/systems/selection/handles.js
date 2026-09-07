@@ -3,7 +3,7 @@ import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, toast, t } from '../../core/shell.ts';
-import { selHit } from '../../core/selection.js';
+import { selHit } from '../../core/selection.ts';
 import { registerGlobal } from '../../core/canvas-handlers.ts';
 import { cloneSelectionMask, resizeSelectionMask, shiftSelectionMask } from '../../logic/mask-ops.js';
 import { clamp as clampv } from '../../logic/math.ts';

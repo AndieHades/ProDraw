@@ -1,7 +1,7 @@
 import { S } from '../../core/state.ts';
 import { snapshotRasterReferences } from '../../core/history.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
-import { maskHas } from '../../core/selection.js';
+import { maskHas } from '../../core/selection.ts';
 import { setGridBounds } from '../../logic/raster.ts';
 import { SELECTION_BOUNDS_FALLBACK_PIXELS } from '../../config/selection-mask.ts';
 import {

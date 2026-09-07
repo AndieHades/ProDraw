@@ -5,7 +5,7 @@ import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/shell.ts';
-import { selHit } from '../../core/selection.js';
+import { selHit } from '../../core/selection.ts';
 import { toolHandler, modeHandler, globalHandlers } from '../../core/canvas-handlers.ts';
 import { canvasAt, canvasBounds, gridAt, holdCanvasBounds,
   releaseCanvasBounds } from '../../core/viewport.js';

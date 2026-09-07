@@ -6,7 +6,7 @@ import { clipBase, folderOpacity } from '../../core/layers.js';
 import { clippedShift, layerSrcSurface } from '../../core/layer-cache.js';
 import { makeCanvas as cv } from '../../core/canvas.ts';
 import { drawEffectSurface } from '../../core/effect-surface.js';
-import { collectIdx } from './tree.js';
+import { collectIdx } from './tree.ts';
 
 // склейка набора узлов в один canvas W×H (эффекты слоёв/папок и обтравка — внутри paintStack).
 // withBg — подложить фон-слой Background (для цельного экспорта всего документа)

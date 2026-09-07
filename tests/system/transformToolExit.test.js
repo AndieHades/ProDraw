@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as actions from '../../src/core/actions.ts';
 import { S } from '../../src/core/state.ts';
-import { setTool } from '../../src/core/tools.js';
+import { setTool } from '../../src/core/tools.ts';
 import '../../src/systems/transform/index.js';
 
 describe('transform paint-tool transition', () => {
