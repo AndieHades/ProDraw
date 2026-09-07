@@ -1,6 +1,6 @@
 // Чистое превью кисти: мазок вдоль S-кривой и иконка-штамп (оригинальный вид
 // кончика) в сетку занятости. Без DOM — рисует панель/плитки.
-import { coverageToMask, maskRound } from './brush-mask.js';
+import { coverageToMask, maskRound } from './brush-mask.ts';
 import { brushFootprint } from './brush-stamp.js';
 import { BRUSH_MASK } from '../config/brush-import.ts';
 

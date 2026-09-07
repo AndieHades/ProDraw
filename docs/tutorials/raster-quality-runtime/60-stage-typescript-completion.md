@@ -33,10 +33,12 @@
 После каждой партии фронт пересчитывается. На старте `Q6a` таких модулей было
 `45` из `232`.
 
-`Q6a` перевёл `monochrome`, `poly-mask`, `raster-cell-interner`, `cleanup`,
-`quickshape`, `flood` и `selection-mask-map`: `253` → `246` source JS,
-`169` → `168` legacy-state JS, индексных чтений пикселей `68` → `59`
-(`cleanup` перестал индексировать сетку напрямую).
+`Q6a` перевёл чистую `logic`: `monochrome`, `poly-mask`,
+`raster-cell-interner`, `cleanup`, `quickshape`, `flood`,
+`selection-mask-map`, `rotsprite`, `sample`, `brush-mask`.
+Счётчики: source JS `253` → `243`, legacy-state JS `169` → `167`, индексных
+чтений пикселей `68` → `57` (типизация сеток заменила прямое индексирование
+проверяемыми аксессорами).
 
 ## Contracts
 

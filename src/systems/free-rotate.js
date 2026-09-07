@@ -3,7 +3,7 @@
 import { S, blank } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import { snapshot } from '../core/history.js';
-import { rotSprite } from '../logic/rotsprite.js';
+import { rotSprite } from '../logic/rotsprite.ts';
 import { markDirty } from '../core/layer-cache.js';
 import { rasterOwnerForLayer } from '../core/raster/legacyRasterOwner.ts';
 import { packRegionToInt32 } from '../logic/raster/regionScan.ts';

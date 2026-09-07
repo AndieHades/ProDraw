@@ -8,10 +8,10 @@ import { parseKey, blendOver, mergeCells, gridBounds, noteGridBounds, alphaBound
 import { clamp, clamp01, clamp255, clampRound, evalNumericField, isNumericLiteral } from '../src/logic/math.ts';
 import { floodRegion, gridFloodSurface } from '../src/logic/flood.ts';
 import { parsePsdEffects } from '../src/logic/psd-effects.js';
-import { sampleGrid } from '../src/logic/sample.js';
+import { sampleGrid } from '../src/logic/sample.ts';
 import { medianCut, nearest, paletteFromGrid, dedupePal, exactPaletteFromRgba, samplesFromRgba, sourcePaletteFromSamples } from '../src/logic/quantize.js';
 import { despeckle, cropEmpty } from '../src/logic/cleanup.ts';
-import { rotSprite } from '../src/logic/rotsprite.js';
+import { rotSprite } from '../src/logic/rotsprite.ts';
 import { computeGlow } from '../src/logic/glow.js';
 import { outlineRings } from '../src/logic/outline.js';
 import { bcAdjust, contrastFactor } from '../src/logic/bc.ts';
@@ -21,7 +21,7 @@ import { generateTints, generateShades, generateHarmonyBaseColors, generateTintS
 import { sortPalette } from '../src/logic/palette-sort.ts';
 import { polygonToMask } from '../src/logic/poly-mask.ts';
 import { combineMask } from '../src/logic/mask-ops.js';
-import { coverageToMask, maskRound, coverageToTile } from '../src/logic/brush-mask.js';
+import { coverageToMask, maskRound, coverageToTile } from '../src/logic/brush-mask.ts';
 import { unarchiveBrush } from '../src/core/brush-import/bplist.js';
 import { importAbr } from '../src/core/brush-import/abr.js';
 import { previewStroke, stampIcon } from '../src/logic/brush-preview.js';

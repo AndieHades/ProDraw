@@ -5,7 +5,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { bres, closedContourMask, ellipseEdges, ellipseFill, parseRasterPoint,
   rectEdges, rectFill } from '../../logic/ShapeGeometry.ts';
-import { maskRound } from '../../logic/brush-mask.js';
+import { maskRound } from '../../logic/brush-mask.ts';
 import { stamp } from './stamp.js';
 import { brushStampWith, flushBrushStroke } from './brush.js';
 import { createCellPainter, setCell } from './cells.js';

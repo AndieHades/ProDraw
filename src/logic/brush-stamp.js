@@ -1,7 +1,7 @@
 // Общее ядро кисти-штампа: маска кончика, фильтр дизер-тайла и план одного
 // даба (режим + spacing/jitter). Переиспользуется движком рисования и
 // тест-канвасом окна настроек — без дублирования логики. Чистые функции.
-import { coverageToMask, maskRound } from './brush-mask.js';
+import { coverageToMask, maskRound } from './brush-mask.ts';
 import { BRUSH_MASK, BRUSH_SCATTER } from '../config/brush-import.ts';
 
 // маска кончика по записи кисти: из покрытия или дефолтный круг.

@@ -4,7 +4,7 @@
 import { unzip } from '../zip.js';
 import { blobToCoverage } from '../brush-decode.js';
 import { unarchiveBrush } from './bplist.js';
-import { coverageToTile } from '../../logic/brush-mask.js';
+import { coverageToTile } from '../../logic/brush-mask.ts';
 import { BRUSH_MASK, BRUSH_SRC_MAX, BRUSH_GRAIN_DECODE_MAX } from '../../config/brush-import.ts';
 
 export async function importProcreate(buf, name) {
