@@ -2,7 +2,7 @@
 // Логика генерации — в logic/tint-shade.ts; здесь оркестрация UI и операции над палитрой.
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
-import { $, toast, t } from '../../ui/dom/ShellDom.ts';
+import { $, toast, t } from '../../core/shell.ts';
 import { eqc } from '../../logic/color.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { tsg, toggleSel, openWith } from './store.ts';

@@ -7,7 +7,7 @@ import { beginPixelBatch, commitPixelPatch, recordPixelBefore,
   snapshot, snapshotRasterReferences } from '../core/history.js';
 import { eqc } from '../logic/color.ts';
 import { dirtyAll, layerContentBounds, markDirty } from '../core/layer-cache.js';
-import { toast, t } from '../ui/dom/ShellDom.ts';
+import { toast, t } from '../core/shell.ts';
 import { rasterizeMatchingText } from '../core/text-rasterize.js';
 import { isTextLayer } from '../logic/text-model.ts';
 import { forkRasterRows } from '../logic/raster-row-fork.js';

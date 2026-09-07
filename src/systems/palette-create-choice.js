@@ -1,6 +1,7 @@
 // Групповая кнопка "Новая палитра": ЛКМ запускает последний режим, ПКМ открывает
 // горизонтальную плашку вариантов на общем tool-choice.
-import { $, showMenuAt, t } from '../ui/dom/ShellDom.ts';
+import { $, t } from '../core/shell.ts';
+import { showMenuAt } from '../ui/dom/ShellDom.ts';
 
 const STORE = 'paletteCreateMode';
 const MODES = [

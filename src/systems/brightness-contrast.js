@@ -6,7 +6,7 @@ import * as actions from '../core/actions.ts';
 import { beginPixelBatch, commitPixelPatch,
   snapshot, snapshotEffects, addUndoGuard } from '../core/history.js';
 import { captureAdjustmentLayers, writeAdjustmentLayers } from '../core/adjustment-preview.js';
-import { $, t } from '../ui/dom/ShellDom.ts';
+import { $, t } from '../core/shell.ts';
 import { nextFloatingZ } from '../ui/windows/FloatingWindow.ts';
 import { adjustmentParams } from '../logic/adjustment.ts';
 import { activeTarget } from './effects/shared.js';

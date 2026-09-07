@@ -5,7 +5,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { registerTool } from '../../core/canvas-handlers.ts';
 import { ensureLayer } from '../../core/document.js';
-import { toast, t } from '../../ui/dom/ShellDom.ts';
+import { toast, t } from '../../core/shell.ts';
 import { SHAPE_SNAP_MS } from '../../config/timings.ts';
 import { stamp } from './stamp.js';
 import { continueBrushStroke, endBrushStroke } from './brush.js';

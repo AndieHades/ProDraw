@@ -5,7 +5,7 @@
 // undefined — курсор не над этим источником.
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
-import { $ } from '../../ui/dom/ShellDom.ts';
+import { $ } from '../../core/shell.ts';
 import { gridAt } from '../../core/viewport.js';
 import { compositeAt } from '../../core/layer-cache.js';
 import { wrapTilePoint } from '../../logic/TileGeometry.ts';

@@ -1,4 +1,4 @@
-import { $ } from '../../ui/dom/ShellDom.ts';
+import { $ } from '../../core/shell.ts';
 
 let creating = false;
 

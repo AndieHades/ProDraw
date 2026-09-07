@@ -3,7 +3,7 @@
 // общее #lctx (kind='background'): Залить активным цветом / Очистить (прозрачный).
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
-import { t } from '../../ui/dom/ShellDom.ts';
+import { t } from '../../core/shell.ts';
 import { menuGesture } from '../../ui/gestures/ContextGesture.ts';
 import { rgb } from '../../logic/color.ts';
 import { EYE } from './list.js';

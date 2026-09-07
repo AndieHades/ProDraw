@@ -2,7 +2,7 @@ import * as bus from '../../core/bus.ts';
 import { inlineRename, nameRenameGesture } from '../../core/inline-rename.js';
 import { snapshot } from '../../core/history.js';
 import { markDirty } from '../../core/layer-cache.js';
-import { t } from '../../ui/dom/ShellDom.ts';
+import { t } from '../../core/shell.ts';
 import { renameMetadata, toggleSymmetryLock, toggleVisibility } from './metadata.js';
 
 const MASK_ICON = '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/>' +

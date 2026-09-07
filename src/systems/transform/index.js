@@ -3,7 +3,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, showMenuAt, toast, t } from '../../ui/dom/ShellDom.ts';
+import { $, toast, t } from '../../core/shell.ts';
 import { setUndoGuard, snapshot, snapshotRasterReferences } from '../../core/history.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { maskHas } from '../../core/selection.js';
@@ -138,7 +138,6 @@ export function mount() {
     up: () => { if (!S.rotMode) return; if (S.rotMode.exitOnUp) { exitRotMode(true); return; } S.rotMode.grab = null; },
     hover: rotHover });
   bus.on('overlay', ({ ctx }) => drawTransformFrame(ctx));
-  bus.on('transform-menu', (e) => { if (S.rotMode && e) showMenuAt($('trctx'), e.clientX, e.clientY, true); });
   setUndoGuard(() => { if (!S.rotMode) return false; exitRotMode(false); return true; });
   window.addEventListener('keydown', (e) => { if (!S.rotMode) return;
     if (e.key === 'Enter') { e.preventDefault(); exitRotMode(true); }

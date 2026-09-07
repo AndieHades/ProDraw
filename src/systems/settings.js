@@ -3,7 +3,8 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
-import { $, showMenuAt } from '../ui/dom/ShellDom.ts';
+import { $ } from '../core/shell.ts';
+import { showMenuAt } from '../ui/dom/ShellDom.ts';
 import { t, getLocale, locales, setLocale } from '../i18n/index.ts';
 import { toggleTheme, getTheme } from '../styles/theme.ts';
 

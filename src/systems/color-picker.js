@@ -3,7 +3,8 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
-import { $, t, toast, copyText } from '../ui/dom/ShellDom.ts';
+import { $, t, toast } from '../core/shell.ts';
+import { copyText } from '../ui/dom/ShellDom.ts';
 import { rgb, rgbToHex, rgbToHsv, hsvToRgb, hexToRgb } from '../logic/color.ts';
 import { initColorHistory, rememberUsedColor, clearColorHistory } from './color-history.js';
 import { DISC_INNER_RATIO, DISC_GAP, discBox, svDiscBox } from './color-disc.js';

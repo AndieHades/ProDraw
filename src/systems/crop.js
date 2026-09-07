@@ -3,7 +3,7 @@
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
-import { $, toast, t } from '../ui/dom/ShellDom.ts';
+import { $, toast, t } from '../core/shell.ts';
 import { commitNumericField, isNumericLiteral, numericFieldValue,
   setNumericField } from '../core/numeric-field.ts';
 import { applyCropRect } from '../core/document.js';

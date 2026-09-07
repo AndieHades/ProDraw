@@ -12,7 +12,7 @@ import { layerContentBounds } from '../../core/layer-cache.js';
 import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
 import { visitRegionColorMatches } from '../../logic/raster/matchRegionColors.ts';
 import { visitOpaqueRegionPixels } from '../../logic/raster/regionScan.ts';
-import { toast, t } from '../../ui/dom/ShellDom.ts';
+import { toast, t } from '../../core/shell.ts';
 import { setTool } from '../../core/tools.js';
 import { commitFloat } from './float.js';
 import { fillSelection } from './content.js';

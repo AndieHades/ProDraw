@@ -2,7 +2,7 @@
 // именованные действия (универсальный пайплайн); старые команды-совместимости
 // (быстрый PNG/PSD всего проекта, PNG слоя) тоже идут через него — без дублей.
 import * as actions from '../../core/actions.ts';
-import { $, toast, t } from '../../ui/dom/ShellDom.ts';
+import { $, toast, t } from '../../core/shell.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { runExport, exportTargetPng } from './pipeline.js';
 import { exportSelectedPsd } from './selected-psd.ts';

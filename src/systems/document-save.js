@@ -2,7 +2,7 @@
 // остаётся отдельной командой: Save не меняет формат и не открывает диалог.
 import * as actions from '../core/actions.ts';
 import { S } from '../core/state.js';
-import { $, toast, t } from '../ui/dom/ShellDom.ts';
+import { $, toast, t } from '../core/shell.ts';
 import { saveCurrent } from './gallery/doc.js';
 import { saveActivePng, saveActivePsd } from './psd-save.js';
 

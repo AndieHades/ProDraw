@@ -1,5 +1,6 @@
 // Списки обычных растровых холстов и сохранённых пользовательских размеров.
-import { $, showMenuAt } from '../../ui/dom/ShellDom.ts';
+import { $ } from '../../core/shell.ts';
+import { showMenuAt } from '../../ui/dom/ShellDom.ts';
 import { t } from '../../i18n/index.ts';
 import { DIGITAL_CANVAS_PRESETS, PRINT_SOCIAL_CANVAS_PRESETS } from '../../config/presets.ts';
 

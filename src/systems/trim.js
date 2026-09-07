@@ -6,7 +6,7 @@ import { activeTimelineBounds } from '../core/animation-canvas.js';
 import { boundsFor, canvasContentBounds } from '../core/canvas-bounds.js';
 import { applyCropRect } from '../core/document.js';
 import { selectedFolderTargets, selectedLayerTargets } from '../core/targets.js';
-import { toast, t } from '../ui/dom/ShellDom.ts';
+import { toast, t } from '../core/shell.ts';
 import { TrimSystem } from './trim/TrimSystem.ts';
 
 const system = new TrimSystem({

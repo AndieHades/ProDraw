@@ -1,7 +1,7 @@
 import { S } from '../core/state.js';
 import * as actions from '../core/actions.ts';
 import * as bus from '../core/bus.ts';
-import { $, t, toast } from '../ui/dom/ShellDom.ts';
+import { $, t, toast } from '../core/shell.ts';
 import { ensurePresetBrush, presetBrushCatalog, presetIdOf,
   presetShapeId } from './draw/preset-brush.ts';
 

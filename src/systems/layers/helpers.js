@@ -1,6 +1,6 @@
 // Общие запросы по слоям/папкам (с учётом вложенных групп).
 import { S } from '../../core/state.js';
-import { t } from '../../ui/dom/ShellDom.ts';
+import { t } from '../../core/shell.ts';
 import { localeValues } from '../../i18n/index.ts';
 import { captureEmptyFolderPositions, clearEmptyFolderPositions,
   commonLayerParent, folderInsertionIndex, folderStackPosition,

@@ -1,7 +1,7 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, t } from '../../ui/dom/ShellDom.ts';
+import { $, t } from '../../core/shell.ts';
 import { menuGesture } from '../../ui/gestures/ContextGesture.ts';
 import { folderChain } from '../../core/layers.js';
 import { dragRow } from './drag.js';

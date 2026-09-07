@@ -1,4 +1,5 @@
-import { $, showMenuAt, toast, t } from '../../ui/dom/ShellDom.ts';
+import { $, toast, t } from '../../core/shell.ts';
+import { showMenuAt } from '../../ui/dom/ShellDom.ts';
 import { deleteFrame, duplicateFrame, insertFrame, setFrameDuration } from '../../core/animation.js';
 
 function ensureMenu() {

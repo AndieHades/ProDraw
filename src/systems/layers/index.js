@@ -3,7 +3,8 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, showMenuAt } from '../../ui/dom/ShellDom.ts';
+import { $ } from '../../core/shell.ts';
+import { showMenuAt } from '../../ui/dom/ShellDom.ts';
 import { effVis } from '../../core/layers.js';
 import { layerIndicesAt } from '../../core/layer-hit.js';
 import { gridAt } from '../../core/viewport.js';

@@ -1,6 +1,7 @@
 // Экран галереи: рендер плиток (работы/папки), переименование двойным кликом,
 // режим выбора, складывание (drag/наложение) и переупорядочивание.
-import { $, showMenuAt, toast } from '../../ui/dom/ShellDom.ts';
+import { $, toast } from '../../core/shell.ts';
+import { showMenuAt } from '../../ui/dom/ShellDom.ts';
 import { t, getLocale } from '../../i18n/index.ts';
 import { childrenOf, renameItem, removeItem, createFolder, moveToFolder, duplicateItem, setOrder, getItem, nextFolderName, folderStats } from './store.ts';
 import { openWork } from './doc.js';

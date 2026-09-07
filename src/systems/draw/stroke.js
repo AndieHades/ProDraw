@@ -2,7 +2,7 @@
 // (обновить список слоёв, если панель открыта).
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
-import { $ } from '../../ui/dom/ShellDom.ts';
+import { $ } from '../../core/shell.ts';
 import { beginPixelBatch, beginPixelPatch, cancelPixelPatch, commitPixelPatch,
   pixelPatchActive, snapshot, snapshotRasterReferences,
   restore } from '../../core/history.js';

@@ -1,7 +1,8 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
-import { $, showMenuAt, t, toast } from '../../ui/dom/ShellDom.ts';
+import { $, t, toast } from '../../core/shell.ts';
+import { showMenuAt } from '../../ui/dom/ShellDom.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { loadFonts, importFontFile, renameFont, deleteFont } from '../../core/font-store.js';
 import { loadTextPrefs, saveTextPrefs } from '../../core/text-prefs.ts';

@@ -4,6 +4,7 @@ import {
 import { floatingWindow, nextFloatingZ } from "../windows/FloatingWindow.ts";
 import * as bus from "../../core/bus.ts";
 import { toast } from "../dom/ToastPresenter.ts";
+import { showMenuAt } from "../dom/MenuPresenter.ts";
 
 export interface PreservedShellLayoutPorts {
   readonly fitView: () => void;
@@ -63,6 +64,11 @@ function registerServiceWorker(): void {
 
 export function mountPreservedShellLayout(ports: PreservedShellLayoutPorts): void {
   bus.on<string>("feedback", toast);
+  // Контекстное меню трансформации показывает оболочка: система только
+  // объявляет момент событием, а ввод уже проверил, что режим активен.
+  bus.on<{ clientX: number; clientY: number }>("transform-menu", (event) => {
+    if (event) showMenuAt(element("trctx"), event.clientX, event.clientY, true);
+  });
   floatingWindow(element("palbar"), { grip: element("palgrip"),
     handle: element("palrsz"), storeKey: "palwin", clampBottom: 50,
     onClose: () => element("palbar").classList.add("closed"),

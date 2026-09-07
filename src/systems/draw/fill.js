@@ -9,7 +9,7 @@ import { colorKeyOf, regionColorKeys } from '../../logic/raster/regionColorKeys.
 import { inSel } from '../../core/selection.js';
 import { referenceIndexFor, symmetryConfig } from '../../core/layers.js';
 import { mirrorPoints } from '../../logic/symmetry.ts';
-import { $ } from '../../ui/dom/ShellDom.ts';
+import { $ } from '../../core/shell.ts';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
 import { rasterizeActiveText } from '../../core/text-rasterize.js';
 import { isTextLayer } from '../../logic/text-model.ts';

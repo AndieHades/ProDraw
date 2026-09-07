@@ -1,7 +1,7 @@
 // Перемещаемая панель эффектов: кнопка-звёздочка открывает/закрывает её,
 // иконки типов добавляют эффект (через окно настроек с превью).
 import * as actions from '../../core/actions.ts';
-import { $ } from '../../ui/dom/ShellDom.ts';
+import { $ } from '../../core/shell.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { openFxNew } from './settings.js';
 

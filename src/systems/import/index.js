@@ -6,7 +6,7 @@ import * as actions from '../../core/actions.ts';
 import { snapshot, restore } from '../../core/history.js';
 import { expandCanvas, placeImageLayer, addImageLayerTop } from '../../core/document.js';
 import { MAX_LAYERS, IMPORT_MAX_SIDE } from '../../config/limits.ts';
-import { $, toast, t } from '../../ui/dom/ShellDom.ts';
+import { $, toast, t } from '../../core/shell.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { imageData, looksPixelArt } from '../../core/image.ts';
 import { setImpData, impConvert, applyImport, rotateImp, setImportMode, getImportMode } from './convert.js';
