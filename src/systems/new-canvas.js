@@ -7,7 +7,7 @@ import { clampRound } from '../logic/math.ts';
 import { createNewWork } from './gallery/doc.js';
 import { hide as hideGallery, show as showGallery,
   whenReady as whenGalleryReady } from './gallery/index.js';
-import { buildPresetLists, presetLabel } from './new-canvas/list.js';
+import { buildPresetLists, presetLabel } from './new-canvas/list.ts';
 import { newCanvasBackground } from './new-canvas/background.ts';
 import { isCreatingCanvas, setCreatingCanvas } from './new-canvas/creation-state.ts';
 import { t } from '../i18n/index.ts';

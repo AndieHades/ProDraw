@@ -9,7 +9,7 @@ import { C } from '../styles/canvas-colors.ts';
 import { copyRefs, pasteRef, saveRef } from './reference-window-clipboard.ts';
 import { bindDetachDrag, detachedOpen, focusDetached, syncDetached } from './reference-window-detached.js';
 import { bindReferenceDrop, isImageFile } from './reference-window-drop.ts';
-import { openReferenceMenu } from './reference-window-menu.js';
+import { openReferenceMenu } from './reference-window-menu.ts';
 import { boardBounds, boxRect, bringFrontIds, nextBoardPosition, referenceHit, referencePoint, selectedItems, selectedSet, setSelected, transformBoardItems, transformItem, updateBoxSelection } from './reference-window-ops.js';
 import { mountReferenceWindow } from '../ui/reference/ReferenceWindowPresenter.ts';
 import { createReferenceImageCache } from './reference-window/cache.ts';

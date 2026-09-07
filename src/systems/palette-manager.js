@@ -13,7 +13,7 @@ import { sortPalette } from '../logic/palette-sort.ts';
 import { defaultPalette } from '../config/palette.ts';
 import { CANVAS_PALETTE_LIMIT, FILE_PALETTE_LIMIT,
   PALETTE_EXACT_LIMIT } from '../config/palette-sampling.ts';
-import { initPaletteCreateChoice, refreshPaletteCreateChoice } from './palette-create-choice.js';
+import { initPaletteCreateChoice, refreshPaletteCreateChoice } from './palette-create-choice.ts';
 import { allFolderPalettes, deletePaletteFromFolder, isPaletteImageFile, savePaletteToFolder } from '../core/palette-files.js';
 
 const STORE = 'palettes';

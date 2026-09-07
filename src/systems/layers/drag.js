@@ -1,5 +1,5 @@
 // Перетаскивание строк панели слоёв (жест): призрак, зазор, drop-into. Данные
-// переносят lay-drop.js (слои/папки) и fx-drag.js (эффекты); ПКМ-протяжка — rmb-sweep.js.
+// переносят lay-drop.js (слои/папки) и fx-drag.js (эффекты); ПКМ-протяжка — rmb-sweep.ts.
 import { S } from '../../core/state.ts';
 import { $ } from '../../core/shell.ts';
 import { dragGhost } from '../../ui/dragdrop/DragGhost.ts';
@@ -10,7 +10,7 @@ import { setSquelch } from './list.js';
 import { pinchActive } from './pinch.js';
 import { fxDrop, fxBlock } from './fx-drag.js';
 import { dragBlock, canIntoFolder, layDrop } from './lay-drop.js';
-import { rmbSweep } from './rmb-sweep.js';
+import { rmbSweep } from './rmb-sweep.ts';
 import { FOLDER_HOLD_MS, LIFT_MS } from '../../config/timings.ts';
 import { selectLayer } from '../../core/layers/LayerCommandState.ts';
 
