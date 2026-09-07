@@ -61,7 +61,8 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 | `Q1` | исправленная цель cutover, C6A/C6B superseded | `Q0` | done |
 | `Q2A` | тайлы — единственный источник чтения | `Q1` | done |
 | `Q2B` | тайлы — единственная цель записи, `grid[y][x]` снят | `Q2A` | in_progress |
-| `Q3` | coalesced ввод с pressure и tilt | `Q2B` | draft |
+| | `Q2B-3` перенесён после `Q3`/`Q4`: замер снял его блокирующую роль | | |
+| `Q3` | coalesced ввод с pressure и tilt | `Q2B-1` | in_progress |
 | `Q4` | настоящий движок кистей в продакшн-оболочке | `Q3` | draft |
 | `Q5` | горячие пути композита, панели слоёв и эффектов | `Q2B` | draft |
 | `Q6` | оставшийся продакшн-JavaScript переведён в TypeScript | `Q5` | draft |
@@ -100,17 +101,16 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 
 ## Resume Here
 
-- Current stage: `Q2B — тайлы как единственная цель записи`
+- Current stage: `Q3 — честный ввод пера`
 - Status: `in_progress`
-- Last completed stage: `Q2A — тайлы как единственный источник чтения`
-- Next action: подэтап `Q2B-3` — снять зеркало `grid` в
-  `LegacyRasterSurfaceBacking` и `cells.js`, затем удалить `sparse-grid.js`
+- Last completed stage: `Q2B-2 — байтовый бюджет истории`
+- Next action: подэтап `Q3-2` — довести `pressure`, `tilt` и `pointerType` до
+  планировщика штриха с fallback для мыши и пальца из `src/config`
 - Blockers: none
-- Working paths: `src/systems/draw/cells.js`,
-  `src/core/raster/LegacyRasterSurfaceBacking.ts`,
-  `src/core/raster/legacyRasterOwner.ts`, `src/logic/sparse-grid.js`,
-  `src/core/history`, `src/config/limits.ts`
-- Last checks: `npm run validate` зелёный целиком на `Q2B-2`: `169`/`481`
-  TypeScript и `16`/`57` performance тестов. Ход пером `64.99 ms` → `20.75 ms`
-  при пределе `75 ms`; Undo на `1920×1080` — `8` шагов → `60` из `60`
+- Working paths: `src/systems/input`, `src/core/input`, `src/core/viewport.js`,
+  `src/systems/draw/tools.js`, `src/config`
+- Last checks: `npm run validate` зелёный целиком на `Q3-1`: `170`/`486`
+  TypeScript и `16`/`57` performance тестов. Ход пером `64.99 ms` →
+  `20.75 ms`; Undo на `1920×1080` — `8` → `60` шагов; сэмплы пера больше не
+  теряются
 - Last updated: 2026-09-06

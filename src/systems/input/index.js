@@ -7,13 +7,15 @@ import * as actions from '../../core/actions.ts';
 import { $ } from '../../ui/dom/ShellDom.ts';
 import { selHit } from '../../core/selection.js';
 import { toolHandler, modeHandler, globalHandlers } from '../../core/canvas-handlers.ts';
-import { canvasAt, gridAt } from '../../core/viewport.js';
+import { canvasAt, canvasBounds, gridAt, holdCanvasBounds,
+  releaseCanvasBounds } from '../../core/viewport.js';
 import { DRAG_THRESHOLD } from '../../config/timings.ts';
 import { ZOOM_MIN, ZOOM_MAX } from '../../config/limits.ts';
 import { canvasPanModifierHeld } from '../../core/navigationModifiers.ts';
 import { shouldStartCanvasPan } from '../../logic/view/CanvasPanPolicy.ts';
 import { CanvasPanSession } from '../viewport/CanvasPanSession.ts';
 import { zoomLegacyViewAt } from '../../logic/view/LegacyViewGeometry.ts';
+import { actualPointerEvents } from '../../core/input/actualPointerEvents.ts';
 import { mountGestures } from './gestures.js';
 import { isInsideTileWorkArea } from '../../logic/TileGeometry.ts';
 
@@ -27,10 +29,38 @@ const inWorkArea = (gx, gy) =>
 const pan = new CanvasPanSession(DRAG_THRESHOLD);
 let drawing = false, activeGlobal = null;
 let activePointerId = null;
+// Курсор пишется только при смене значения: раньше стиль трогали на каждом
+// событии движения. Прямоугольник холста кеширует core/viewport на время жеста.
+let appliedCursor = null;
+export const forgetCanvasBounds = () => releaseCanvasBounds();
+function applyCursor(value) {
+  if (value === appliedCursor) return;
+  appliedCursor = value; cv().style.cursor = value;
+}
+
+function updateHover(e) {
+  const [hx, hy] = toGrid(e); // в Tile Mode курсор виден над всем блоком 3×3
+  const over = inWorkArea(hx, hy);
+  S.hoverPx = over ? [hx, hy] : null;
+  let cur = over && S.eyedrop.active ? 'none' : over ? 'crosshair' : 'default';
+  let handled = null; // hover глобальных обработчиков имеет побочные эффекты
+  for (const handler of globalHandlers()) {
+    const value = handler.hover && handler.hover({ gx: hx, gy: hy, e });
+    if (value && !handled) handled = value;
+  }
+  if (!S.eyedrop.active && !drawing && !pan.active && !activeMode()) {
+    if (handled) cur = handled;
+    else { const tool = toolHandler(S.tool);
+      const value = tool && tool.hover && tool.hover({ gx: hx, gy: hy, e });
+      if (value) cur = value; }
+  }
+  applyCursor(cur);
+}
 function releaseCapture(e) { const id = e?.pointerId ?? activePointerId;
   if (id == null || (activePointerId != null && id !== activePointerId)) return;
   activePointerId = null; try { cv().releasePointerCapture(id); } catch (error) {} }
 export function down(e) {
+  holdCanvasBounds();
   if (e.pointerId != null) { activePointerId = e.pointerId; capture(e.pointerId); }
   const [rx, ry] = toCanvas(e), gx = Math.floor(rx), gy = Math.floor(ry);
   const m = activeMode(), modeHit = m?.hit?.({ gx, gy, rx, ry, e });
@@ -47,13 +77,7 @@ export function down(e) {
 }
 
 export function move(e) {
-  if (e.pointerType !== 'touch') { const [hx, hy] = toGrid(e); // в Tile Mode курсор виден над всем блоком 3×3
-    const over = inWorkArea(hx, hy);
-    S.hoverPx = over ? [hx, hy] : null;
-    let cur = over && S.eyedrop.active ? 'none' : over ? 'crosshair' : 'default';
-    const ht = toolHandler(S.tool), gh = globalHandlers().map((h) => h.hover && h.hover({ gx: hx, gy: hy, e })).find(Boolean);
-    if (!S.eyedrop.active && !drawing && !pan.active && !activeMode()) { if (gh) cur = gh; else if (ht && ht.hover) { const c2 = ht.hover({ gx: hx, gy: hy, e }); if (c2) cur = c2; } }
-    cv().style.cursor = cur; }
+  if (e.pointerType !== 'touch') updateHover(e);
   if (pan.active) { const next = pan.move(e);
     if (next?.moved) { S.view.ox = next.ox; S.view.oy = next.oy; bus.emit('render'); }
     return; }
@@ -61,10 +85,14 @@ export function move(e) {
   const m = activeMode();
   if (m) { const [gx, gy] = toGrid(e); if (drawing) m.move({ gx, gy, e }); else if (m.hover) m.hover({ gx, gy, e }); return; }
   const h = toolHandler(S.tool);
-  if (drawing && h && h.move) { const r = cv().getBoundingClientRect();
-    const rx = (e.clientX - r.left - S.view.ox) / S.view.zoom;
-    const ry = (e.clientY - r.top - S.view.oy) / S.view.zoom;
-    h.move({ gx: Math.floor(rx), gy: Math.floor(ry), rx, ry, e }); }
+  // Перо отдаёт несколько сэмплов на кадр; раньше все, кроме последнего,
+  // терялись и штрих собирался из длинных интерполированных отрезков.
+  if (drawing && h && h.move) { const r = canvasBounds();
+    for (const sample of actualPointerEvents(e)) {
+      const rx = (sample.clientX - r.left - S.view.ox) / S.view.zoom;
+      const ry = (sample.clientY - r.top - S.view.oy) / S.view.zoom;
+      h.move({ gx: Math.floor(rx), gy: Math.floor(ry), rx, ry, e: sample });
+    } }
   else if (e.pointerType !== 'touch') bus.emit('render'); // перерисовка контура кисти
 }
 
@@ -75,14 +103,14 @@ export function up(e) { try {
   if (activeGlobal) { if (activeGlobal.up) activeGlobal.up({ e }); activeGlobal = null; drawing = false; return; }
   const m = activeMode(); if (m) { if (drawing && m.up) m.up({ e }); drawing = false; return; }
   const h = toolHandler(S.tool); if (drawing && h && h.up) h.up({ e }); drawing = false;
-  } finally { releaseCapture(e); }
+  } finally { releaseCapture(e); releaseCanvasBounds(); }
 }
 
 export function cancel(e) {
   const wasDrawing = drawing, owner = activeGlobal || activeMode() || toolHandler(S.tool);
   drawing = false; activeGlobal = null; pan.cancel();
   try { if (wasDrawing && owner?.cancel) owner.cancel({ e }); }
-  finally { releaseCapture(e); bus.emit('render'); }
+  finally { releaseCapture(e); releaseCanvasBounds(); bus.emit('render'); }
 }
 
 export function mount() {
@@ -96,6 +124,7 @@ export function mount() {
   c.addEventListener('pointerup', (e) => { if (e.pointerType !== 'touch') up(e); });
   c.addEventListener('pointercancel', (e) => { if (e.pointerType !== 'touch') cancel(e); });
   c.addEventListener('lostpointercapture', (e) => { if (e.pointerType !== 'touch') cancel(e); });
+  window.addEventListener('resize', releaseCanvasBounds);
   window.addEventListener('blur', () => { if (drawing || pan.active || activePointerId != null) cancel(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden &&
     (drawing || pan.active || activePointerId != null)) cancel(); });

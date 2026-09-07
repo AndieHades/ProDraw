@@ -3,8 +3,24 @@
 import { S } from './state.js';
 import { clientToCanvas } from '../logic/view/LegacyViewGeometry.ts';
 
-export function canvasAt(clientX, clientY) { const r = document.getElementById('cv').getBoundingClientRect();
-  const point = clientToCanvas(clientX, clientY, r, S.view);
-  return [point.x, point.y]; }
+// Во время жеста холст не двигается, поэтому его прямоугольник измеряется один
+// раз: раньше каждое событие указателя форсировало layout. Вне жеста кеш не
+// держится, чтобы перемещение панелей не смещало курсор.
+let held = null, holding = false;
+
+export function canvasBounds() {
+  if (holding && held) return held;
+  const rect = document.getElementById('cv').getBoundingClientRect();
+  if (holding) held = rect;
+  return rect;
+}
+
+export function holdCanvasBounds() { holding = true; held = null; }
+export function releaseCanvasBounds() { holding = false; held = null; }
+
+export function canvasAt(clientX, clientY) {
+  const point = clientToCanvas(clientX, clientY, canvasBounds(), S.view);
+  return [point.x, point.y];
+}
 export function gridAt(clientX, clientY) { const [x, y] = canvasAt(clientX, clientY);
   return [Math.floor(x), Math.floor(y)]; }
