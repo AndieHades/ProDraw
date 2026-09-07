@@ -66,7 +66,7 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 | `Q4` | настоящий движок кистей в продакшн-оболочке | `Q3` | done |
 | `Q5` | горячие пути композита, панели слоёв и эффектов | `Q2B-1` | done |
 | `Q6` | оставшийся продакшн-JavaScript переведён в TypeScript | `Q5` | in_progress |
-| `Q7` | параллельный редактор удалён, финальные гейты | `Q6` | draft |
+| `Q7` | параллельный редактор удалён, финальные гейты | `Q4` | in_progress |
 
 Только один этап может быть `in_progress`. Каждая глава владеет своим списком
 файлов, проверками, acceptance criteria и completion record.
@@ -104,12 +104,11 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 - Current stage: `Q6 — оставшийся продакшн-JavaScript переведён в TypeScript`
 - Status: `in_progress`
 - Last completed stage: `Q5 — горячие пути композита, панели слоёв и эффектов`
-- Next action: продолжить `Q6` — пересчитать фронт конвертируемых модулей и
-  перевести следующую партию (`rotsprite`, `sample`, `quantize`,
-  `effect-kernels`, `psd-effects`, `brush-mask`)
+- Next action: продолжить `Q6` партиями по фронту конвертируемых модулей;
+  `Q7-2` ждёт его завершения
 - Blockers: none
 - Working paths: `src/core`, `src/systems`, `project.config.json`
-- Last checks: `npm run validate` зелёный целиком на партии `Q6a`:
-  `177`/`518` TypeScript и `16`/`57` performance тестов. Source JS
-  `253` → `246`, индексных чтений пикселей `68` → `59`; храповики понижены
+- Last checks: `npm run validate` зелёный целиком после `Q7-1`: `177`/`518`
+  TypeScript и `16`/`57` performance тестов. Source JS `253` → `215`, индексных
+  чтений `81` → `56`, параллельный редактор удалён (`31` модуль)
 - Last updated: 2026-09-06

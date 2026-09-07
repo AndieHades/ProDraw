@@ -6,8 +6,8 @@ Baseline: `asset-editor@6cc56bb`, 2026-09-06. Каждое утверждени�
 ## Два приложения, в продакшн идёт одно
 
 `index.html:500` грузит `/src/legacy-entry.js` → [`src/app.js`](../../../src/app.js).
-[`src/raster-main.ts`](../../../src/raster-main.ts) и
-[`src/main.ts`](../../../src/main.ts) не импортируются ниоткуда, кроме
+`src/raster-main.ts` и
+`src/main.ts` не импортируются ниоткуда, кроме
 `tools/validate-cutover-fixtures.mjs` и `tools/validate-raster-entry.mjs`.
 
 Обход графа импортов от каждой точки входа:
@@ -24,7 +24,7 @@ Baseline: `asset-editor@6cc56bb`, 2026-09-06. Каждое утверждени�
 
 ## `RasterEditorApp` не является портом продукта
 
-[`src/app/RasterEditorApp.ts`](../../../src/app/RasterEditorApp.ts):
+`src/app/RasterEditorApp.ts`:
 
 - конструктор бросает `"Brush library is empty"` без библиотеки кистей, что
   противоречит `ASSET-01` из [asset-editor cutover](../asset-editor-cutover/README.md);
@@ -99,7 +99,7 @@ preview». `brushStampWith` обходит bounding box и красит ячей
 
 Поиск по живому JavaScript: `.pressure`, `tiltX` и `tiltY` не читаются нигде.
 `getCoalescedEvents` встречается только в
-[`src/core/input/actualPointerEvents.ts:14`](../../../src/core/input/actualPointerEvents.ts)
+`src/core/input/actualPointerEvents.ts`
 и [`src/systems/drawing/DrawingSystem.ts:126`](../../../src/systems/drawing/DrawingSystem.ts)
 — оба модуля достижимы лишь из `RasterEditorApp`.
 
