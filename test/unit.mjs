@@ -9,7 +9,7 @@ import { clamp, clamp01, clamp255, clampRound, evalNumericField, isNumericLitera
 import { floodRegion, gridFloodSurface } from '../src/logic/flood.ts';
 import { parsePsdEffects } from '../src/logic/psd-effects.js';
 import { sampleGrid } from '../src/logic/sample.ts';
-import { medianCut, nearest, paletteFromGrid, dedupePal, exactPaletteFromRgba, samplesFromRgba, sourcePaletteFromSamples } from '../src/logic/quantize.js';
+import { medianCut, nearest, paletteFromGrid, dedupePal, exactPaletteFromRgba, samplesFromRgba, sourcePaletteFromSamples } from '../src/logic/quantize.ts';
 import { despeckle, cropEmpty } from '../src/logic/cleanup.ts';
 import { rotSprite } from '../src/logic/rotsprite.ts';
 import { computeGlow } from '../src/logic/glow.js';

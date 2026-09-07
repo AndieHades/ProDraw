@@ -1,6 +1,6 @@
 // Чистый расчёт пикселей неразрушающих эффектов слоя из булевой маски силуэта.
 // Возвращает списки [x, y, alpha0..255]. Без DOM и state — тестируется в node.
-import { FLAT_EFFECT_PIXELS } from './effect-kernels.js';
+import { FLAT_EFFECT_PIXELS } from './effect-kernels.ts';
 
 // маска H×W из сетки слоя (клетка непуста) или из альфы RGBA-буфера
 export const maskFromGrid = (grid, W, H) => Array.from({ length: H }, (_, y) => Array.from({ length: W }, (_, x) => !!grid[y][x]));

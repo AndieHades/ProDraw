@@ -1,5 +1,5 @@
 // Compatibility wrapper around the shared typed-array stroke kernel.
-import { flatStrokePixels } from './effect-kernels.js';
+import { flatStrokePixels } from './effect-kernels.ts';
 
 export function outlineRings(grid, W, H, size) {
   const mask = new Uint8Array(W * H);

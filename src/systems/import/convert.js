@@ -5,7 +5,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { rgb, eqc } from '../../logic/color.ts';
 import { sampleGrid } from '../../logic/sample.ts';
-import { medianCut, nearest, paletteFromGrid } from '../../logic/quantize.js';
+import { medianCut, nearest, paletteFromGrid } from '../../logic/quantize.ts';
 import { cloneGrid } from '../../logic/raster.js';
 import { makeCanvas, syncCanvasSize } from '../../core/canvas.ts';
 import { C } from '../../styles/canvas-colors.ts';

@@ -1,6 +1,6 @@
 // Crops pixel-effect work to the visible content plus that effect's reach.
 import { effectReach } from './layer-effects.js';
-import { FLAT_EFFECT_PIXELS } from './effect-kernels.js';
+import { FLAT_EFFECT_PIXELS } from './effect-kernels.ts';
 
 const clippedBounds = (bounds, reach, width, height) => {
   const minx = Math.max(0, bounds.minx - reach.l);

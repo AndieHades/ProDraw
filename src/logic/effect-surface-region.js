@@ -1,4 +1,4 @@
-import { FLAT_EFFECT_PIXELS } from './effect-kernels.js';
+import { FLAT_EFFECT_PIXELS } from './effect-kernels.ts';
 import { effectReach } from './layer-effects.js';
 
 const grow = (bounds, reach) => ({
