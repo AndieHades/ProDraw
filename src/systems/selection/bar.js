@@ -5,7 +5,7 @@ import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/shell.ts';
-import { showMenuAt } from '../../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../../core/menus.ts';
 
 const closeMenu = () => $('sctx').classList.remove('on');
 
@@ -20,6 +20,6 @@ export function mount() {
   $('sctx-transform').onclick = () => { closeMenu(); actions.run('selection.transform'); };
   $('sctx-copy-layer').onclick = () => { closeMenu(); actions.run('selection.copyLayer'); };
   const sync = () => $('selbar').classList.toggle('on', !!S.sel && !S.selFloat);
-  bus.on('selection-menu', (e) => { if (e && S.sel && !S.selFloat) showMenuAt($('sctx'), e.clientX, e.clientY, true); });
+  bus.on('selection-menu', (e) => { if (e && S.sel && !S.selFloat) openMenuAt({ menuId: 'sctx', x: e.clientX, y: e.clientY, above: true }); });
   bus.on('selection', sync); sync();
 }

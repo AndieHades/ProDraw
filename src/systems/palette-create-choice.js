@@ -1,7 +1,7 @@
 // Групповая кнопка "Новая палитра": ЛКМ запускает последний режим, ПКМ открывает
 // горизонтальную плашку вариантов на общем tool-choice.
 import { $, t } from '../core/shell.ts';
-import { showMenuAt } from '../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../core/menus.ts';
 
 const STORE = 'paletteCreateMode';
 const MODES = [
@@ -54,6 +54,6 @@ export function initPaletteCreateChoice(nextActions) {
   btn.onclick = () => run();
   btn.oncontextmenu = (e) => {
     e.preventDefault(); refreshPaletteCreateChoice();
-    const r = btn.getBoundingClientRect(); showMenuAt(menu, r.left + r.width / 2, r.top, true);
+    const r = btn.getBoundingClientRect(); openMenuAt({ menuId: 'pal-new-choice', x: r.left + r.width / 2, y: r.top, above: true });
   };
 }

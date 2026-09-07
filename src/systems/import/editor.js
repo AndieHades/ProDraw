@@ -3,7 +3,7 @@
 // создаём. Photo/File — прямая вставка в текущий документ.
 import * as actions from '../../core/actions.ts';
 import { $, toast, t } from '../../core/shell.ts';
-import { showMenuAt } from '../../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../../core/menus.ts';
 import { insertImageTop } from './index.js';
 import { decodePsdFile, isPsdFile } from './psd-file.ts';
 import { IMPORT_FILTERS, openDesktopFile } from './desktop-file.ts';
@@ -34,7 +34,7 @@ function file(f0) { const go = async (f, sourceLocation = null) => {
   }); }
 
 export function mount() {
-  $('imp-btn').addEventListener('click', (e) => { const r = e.currentTarget.getBoundingClientRect(); showMenuAt($('impmenu'), r.left + r.width / 2, r.bottom); });
+  $('imp-btn').addEventListener('click', (e) => { const r = e.currentTarget.getBoundingClientRect(); openMenuAt({ menuId: 'impmenu', x: r.left + r.width / 2, y: r.bottom }); });
   const close = () => $('impmenu').classList.remove('on');
   $('impmenu-photo').onclick = () => { close(); photo(); };
   $('impmenu-file').onclick = () => { close(); file(); };

@@ -4,7 +4,7 @@ import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/shell.ts';
-import { showMenuBeside } from '../../ui/dom/ShellDom.ts';
+import { openMenuBeside } from '../../core/menus.ts';
 import { t } from '../../i18n/index.ts';
 import { folderLayers } from './helpers.js';
 import { clearLayerRefs, duplicateLayer, duplicateFolder,
@@ -50,7 +50,7 @@ export function openLctx(x, y, kind, ref) { lctxRef = { kind, ref };
   if (isLayer) { $('lctx-clip').textContent = (ref.clip ? '✓ ' : '') + t('menu.clip');
     $('lctx-lock').textContent = (ref.lock ? '✓ ' : '') + t('menu.lock'); $('lctx-alpha').textContent = (ref.alphaLock ? '✓ ' : '') + t('menu.alphaLock');
     $('lctx-ref').textContent = (ref.reference ? '✓ ' : '') + t('label.reference'); }
-  showMenuBeside($('lctx'), $('lay-pop'), y); }
+  openMenuBeside({ menuId: 'lctx', anchorId: 'lay-pop', y }); }
 
 export function openRename(ref) { renRef = ref; $('ren-name').value = ref.name; $('ren-ovl').classList.add('on'); setTimeout(() => { $('ren-name').focus(); $('ren-name').select(); }, 80); }
 

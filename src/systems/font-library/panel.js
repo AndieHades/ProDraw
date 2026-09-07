@@ -2,7 +2,7 @@ import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, t, toast } from '../../core/shell.ts';
-import { showMenuAt } from '../../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../../core/menus.ts';
 import { floatingWindow } from '../../ui/windows/FloatingWindow.ts';
 import { loadFonts, importFontFile, renameFont, deleteFont } from '../../core/font-store.js';
 import { loadTextPrefs, saveTextPrefs } from '../../core/text-prefs.ts';
@@ -69,7 +69,7 @@ function tile(f) {
   const mark = document.createElement('b'); mark.textContent = 'Ta'; mark.style.fontFamily = f.family;
   b.append(mark);
   b.onclick = () => applyPatch({ fontId: f.id });
-  b.oncontextmenu = (e) => { e.preventDefault(); if (f.builtin || f.folder) return; menuFont = f; showMenuAt($('font-menu'), e.clientX, e.clientY, true); };
+  b.oncontextmenu = (e) => { e.preventDefault(); if (f.builtin || f.folder) return; menuFont = f; openMenuAt({ menuId: 'font-menu', x: e.clientX, y: e.clientY, above: true }); };
   return b;
 }
 

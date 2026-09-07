@@ -4,7 +4,7 @@ import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { $ } from '../core/shell.ts';
-import { showMenuAt } from '../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../core/menus.ts';
 import { t, getLocale, locales, setLocale } from '../i18n/index.ts';
 import { toggleTheme, getTheme } from '../styles/theme.ts';
 
@@ -36,7 +36,7 @@ function build() { const m = $('setmenu'); m.innerHTML = '';
   valRow(m, 'eye.key', S.eyedrop.capturing ? t('brsz.press') : S.eyedrop.key.toUpperCase(), 'eyedropper.capture');
 }
 
-function openSettings() { build(); const r = $('gal-settings').getBoundingClientRect(); showMenuAt($('setmenu'), r.left + r.width / 2, r.bottom + 2); }
+function openSettings() { build(); const r = $('gal-settings').getBoundingClientRect(); openMenuAt({ menuId: 'setmenu', x: r.left + r.width / 2, y: r.bottom + 2 }); }
 
 export function mount() { $('gal-settings').onclick = openSettings;
   const refresh = () => { if ($('setmenu').classList.contains('on')) build(); }; // захват клавиши/смена настроек — обновляем открытое меню

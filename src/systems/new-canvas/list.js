@@ -1,6 +1,6 @@
 // Списки обычных растровых холстов и сохранённых пользовательских размеров.
 import { $ } from '../../core/shell.ts';
-import { showMenuAt } from '../../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../../core/menus.ts';
 import { t } from '../../i18n/index.ts';
 import { DIGITAL_CANVAS_PRESETS, PRINT_SOCIAL_CANVAS_PRESETS } from '../../config/presets.ts';
 
@@ -19,7 +19,7 @@ function menuForSaved(e, i, handlers) {
     b.onclick = () => { m.classList.remove('on'); a.fn(); };
     m.appendChild(b);
   }
-  showMenuAt(m, e.clientX, e.clientY);
+  openMenuAt({ menuId: 'rowctx', x: e.clientX, y: e.clientY });
 }
 
 function row(p, savedIdx, handlers) {

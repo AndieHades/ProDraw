@@ -2,7 +2,7 @@
 import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import { $, toast, t } from '../core/shell.ts';
-import { showMenuAt } from '../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../core/menus.ts';
 import { createLibraryDialog } from '../ui/dom/LibraryDialogPresenter.ts';
 import { compositeAt, contentRevision } from '../core/layer-cache.js';
 import { PaletteCompositeCache } from '../core/palette-composite-cache.ts';
@@ -97,7 +97,7 @@ function showDropChoice(pal, pt) {
   const create = document.createElement('button'); create.textContent = t('palette.dropNew');
   add.onclick = () => { m.classList.remove('on'); addFromImage(pal); };
   create.onclick = () => { m.classList.remove('on'); replaceFromImage(pal); };
-  m.append(head, add, create); showMenuAt(m, pt.x, pt.y, true);
+  m.append(head, add, create); openMenuAt({ menuId: 'rowctx', x: pt.x, y: pt.y, above: true });
 }
 
 export function paletteFromImageFile(file, mode = 'replace', pt = null, limit = PALETTE_EXACT_LIMIT) {

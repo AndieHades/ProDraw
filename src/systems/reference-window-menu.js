@@ -1,5 +1,5 @@
 import { $, t } from '../core/shell.ts';
-import { showMenuAt } from '../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../core/menus.ts';
 
 function menuEl() {
   let m = $('ref-ctx');
@@ -23,5 +23,5 @@ export function openReferenceMenu(x, y, actions) {
     item(t('reference.saveImage'), actions.save),
     item(t('menu.delete'), actions.delete, 'danger'),
   );
-  showMenuAt(m, x, y, true);
+  openMenuAt({ menuId: 'ref-ctx', x, y, above: true });
 }

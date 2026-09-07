@@ -1,5 +1,5 @@
 import { $, toast, t } from '../../core/shell.ts';
-import { showMenuAt } from '../../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../../core/menus.ts';
 import { deleteFrame, duplicateFrame, insertFrame, setFrameDuration } from '../../core/animation.js';
 
 function ensureMenu() {
@@ -25,5 +25,5 @@ export function openFrameMenu(id, x, y) {
     }),
     btn('animation.deleteFrame', () => { if (!deleteFrame(id)) toast(t('toast.animationLastFrame')); }),
   );
-  showMenuAt(m, x, y);
+  openMenuAt({ menuId: 'anim-menu', x, y });
 }

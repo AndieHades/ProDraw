@@ -4,7 +4,7 @@ import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/shell.ts';
-import { showMenuAt } from '../../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../../core/menus.ts';
 import { effVis } from '../../core/layers.js';
 import { layerIndicesAt } from '../../core/layer-hit.ts';
 import { gridAt } from '../../core/viewport.ts';
@@ -89,7 +89,7 @@ function openLayerMenu(event) { const indices = layersAtCursor(event); if (!indi
   for (const i of indices.reverse()) m.append(layerPickerButton(i, (index) => {
     selectCanvasLayer(index); m.classList.remove('on');
   }));
-  showMenuAt(m, event.clientX, event.clientY); }
+  openMenuAt({ menuId: 'cctx', x: event.clientX, y: event.clientY }); }
 
 function expandLayersWindow() {
   layList();

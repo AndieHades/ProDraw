@@ -4,6 +4,7 @@ export const SHELL_EVENT_NAMES = [
   "composite-ready", "cursor", "document-transition",
   "eyedropper", "feedback", "fit", "grid",
   "layer-active", "layers", "locale",
+  "menu-at", "menu-beside",
   "overlay", "palette", "reference",
   "render", "selection", "selection-menu",
   "snapshot", "stroke-begin", "stroke-end",

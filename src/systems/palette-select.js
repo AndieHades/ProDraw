@@ -5,7 +5,7 @@
 import { S } from '../core/state.ts';
 import * as actions from '../core/actions.ts';
 import { $, toast, t } from '../core/shell.ts';
-import { showMenuAt } from '../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../core/menus.ts';
 import { eqc } from '../logic/color.ts';
 import { LONG_PRESS_MS } from '../config/timings.ts';
 import { makeDropGap } from '../ui/dragdrop/DropGap.ts';
@@ -32,7 +32,7 @@ const squelch = () => { palSquelch = true; setTimeout(() => { palSquelch = false
 
 function selectionForIdx(idx) { validSel(); return palSel.has(idx) && palSel.size ? [...palSel] : [idx]; }
 function openCtx(x, y, idx) { ctxIdx = idx; ctxIdxs = selectionForIdx(idx);
-  const c = S.palette[idx]; if (c) setActive(c, false); showMenuAt($('ctx'), x, y, true); }
+  const c = S.palette[idx]; if (c) setActive(c, false); openMenuAt({ menuId: 'ctx', x, y, above: true }); }
 
 const rangeIdx = (from, to, max = Infinity) => paletteRange(S.palette.length, from, to, max);
 const colorsFromIdx = (idxs) => colorsAtIndices(S.palette, idxs);

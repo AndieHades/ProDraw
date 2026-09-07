@@ -4,7 +4,8 @@ import {
 import { floatingWindow, nextFloatingZ } from "../windows/FloatingWindow.ts";
 import * as bus from "../../core/bus.ts";
 import { toast } from "../dom/ToastPresenter.ts";
-import { showMenuAt } from "../dom/MenuPresenter.ts";
+import { showMenuAt, showMenuBeside } from "../dom/MenuPresenter.ts";
+import type { MenuAtRequest, MenuBesideRequest } from "../../core/menus.ts";
 
 export interface PreservedShellLayoutPorts {
   readonly fitView: () => void;
@@ -68,6 +69,17 @@ export function mountPreservedShellLayout(ports: PreservedShellLayoutPorts): voi
   // объявляет момент событием, а ввод уже проверил, что режим активен.
   bus.on<{ clientX: number; clientY: number }>("transform-menu", (event) => {
     if (event) showMenuAt(element("trctx"), event.clientX, event.clientY, true);
+  });
+  // Меню по точке и меню рядом с панелью — тот же приём: система называет
+  // идентификаторы, оболочка резолвит узлы и размещает меню.
+  bus.on<MenuAtRequest>("menu-at", (request) => {
+    const menu = request && document.getElementById(request.menuId);
+    if (menu) showMenuAt(menu, request.x, request.y, request.above ?? false);
+  });
+  bus.on<MenuBesideRequest>("menu-beside", (request) => {
+    const menu = request && document.getElementById(request.menuId);
+    const anchor = request && document.getElementById(request.anchorId);
+    if (menu && anchor) showMenuBeside(menu, anchor, request.y);
   });
   floatingWindow(element("palbar"), { grip: element("palgrip"),
     handle: element("palrsz"), storeKey: "palwin", clampBottom: 50,

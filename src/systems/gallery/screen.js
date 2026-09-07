@@ -1,7 +1,7 @@
 // Экран галереи: рендер плиток (работы/папки), переименование двойным кликом,
 // режим выбора, складывание (drag/наложение) и переупорядочивание.
 import { $, toast } from '../../core/shell.ts';
-import { showMenuAt } from '../../ui/dom/ShellDom.ts';
+import { openMenuAt } from '../../core/menus.ts';
 import { t, getLocale } from '../../i18n/index.ts';
 import { childrenOf, renameItem, removeItem, createFolder, moveToFolder, duplicateItem, setOrder, getItem, nextFolderName, folderStats } from './store.ts';
 import { openWork } from './doc.js';
@@ -84,7 +84,7 @@ function tileMenu(x, y, d) { const m = $('rowctx'); m.innerHTML = ''; // ПКМ 
     b.onclick = async () => { m.classList.remove('on'); await fn(); render(); }; m.appendChild(b); };
   mk(t('gallery.duplicate'), false, () => duplicateItem(d.id));
   mk(t('gallery.delete'), true, () => removeItem(d.id));
-  showMenuAt(m, x, y); }
+  openMenuAt({ menuId: 'rowctx', x, y }); }
 
 async function tileEl(d) {
   const tile = document.createElement('div'); tile.className = 'gal-tile' + (d.kind === 'folder' ? ' folder' : '') + (selected.has(d.id) ? ' sel' : '');

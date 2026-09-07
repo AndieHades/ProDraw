@@ -5,7 +5,7 @@ import { S, cloneFx } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { snapshotEffects } from '../../core/history.js';
 import { $, toast, t } from '../../core/shell.ts';
-import { showMenuBeside } from '../../ui/dom/ShellDom.ts';
+import { openMenuBeside } from '../../core/menus.ts';
 import { openFxEdit } from './settings.js';
 import { convertFxToLayer } from './convert.js';
 import { pasteTargets, getFxClip, setFxClip, ownerOf, selectedEffects } from './shared.js';
@@ -45,7 +45,7 @@ export function pasteFx() { const clip = getFxClip(); if (!clip.length) { toast(
 export function openFxMenu(x, y, target, eff) {
   ref = { target, eff };
   $('fxctx-aslayer').style.display = eff && ['adjustment', 'monochrome'].includes(eff.type) ? 'none' : '';
-  showMenuBeside($('fxctx'), $('lay-pop'), y);
+  openMenuBeside({ menuId: 'fxctx', anchorId: 'lay-pop', y });
 }
 
 export function mountClipboard() {
