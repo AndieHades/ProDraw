@@ -9,6 +9,9 @@ function shapeOf(brush: BrushPreset | LoadedBrush): CoverageMap | null {
 }
 
 export interface BrushTipTransform {
+  // Ширина спада кромки в долях радиуса, ниже которой край становится
+  // бинарным. Знает её только рендерер даба: она равна пикселю.
+  readonly edgeFloor?: number;
   readonly rotation?: number;
   readonly scaleX?: number;
   readonly scaleY?: number;
@@ -76,7 +79,8 @@ export function brushCoverageSampler(
       if (shape) return sampleCoverage(shape, (transformedX + 1) / 2,
         (transformedY + 1) / 2, shapeSettings.filtering);
       const distance = Math.hypot(transformedX, transformedY);
-      return distance >= 1 ? 0 : Math.min(1, Math.max(0, (1 - distance) / edge));
+      const softness = Math.max(edge, transform.edgeFloor ?? 0);
+      return distance >= 1 ? 0 : Math.min(1, Math.max(0, (1 - distance) / softness));
     },
     texture: (x, y, transform) => {
       if (strength <= 0) return 1;

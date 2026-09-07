@@ -57,6 +57,9 @@ export function visitBrushDab(
       visitSubpixelDab(sampler, stamp, size, baseOpacity, visit); continue;
     }
     const stampRadius = radius * maximumScale;
+    // Один пиксель кромки в долях радиуса: без него кисть с hardness 1 даёт
+    // бинарный край, и штрих идёт зазубринами.
+    const tip = { ...stamp, edgeFloor: 1 / Math.max(1, stampRadius) };
     const bounds = [Math.floor(stamp.x - stampRadius - 1),
       Math.ceil(stamp.x + stampRadius + 1), Math.floor(stamp.y - stampRadius - 1),
       Math.ceil(stamp.y + stampRadius + 1)] as const;
@@ -70,7 +73,7 @@ export function visitBrushDab(
       const normalizedY = (y + 0.5 - stamp.y) / radius;
       for (let x = bounds[0]; x <= bounds[1]; x += 1) {
         const normalizedX = (x + 0.5 - stamp.x) / radius;
-        const coverage = sampler.tip(normalizedX, normalizedY, stamp);
+        const coverage = sampler.tip(normalizedX, normalizedY, tip);
         if (coverage <= 0) continue;
         const texture = sampler.textured ? sampler.texture(x, y, {
           centerX: stamp.x, centerY: stamp.y, offsetX: stamp.grainOffsetX,

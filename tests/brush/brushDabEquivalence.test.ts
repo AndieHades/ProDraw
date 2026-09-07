@@ -17,11 +17,15 @@ function referenceDab(brush: LoadedBrush, sample: StrokeSample,
   const sampler = brushCoverageSampler(brush);
   const baseOpacity = brushDabOpacity(brush, sample, settings.opacity);
   for (const stamp of dabStampPlan(brush, sample, size)) {
-    const extent = radius * Math.max(stamp.scaleX, stamp.scaleY) + 1;
+    const stampRadius = radius * Math.max(stamp.scaleX, stamp.scaleY);
+    const extent = stampRadius + 1;
+    // Кромка отпечатка не тоньше пикселя — иначе кисть с hardness 1 даёт
+    // бинарный край. Эталон обязан считать её так же, как рендерер.
+    const tip = { ...stamp, edgeFloor: 1 / Math.max(1, stampRadius) };
     for (let y = Math.floor(stamp.y - extent); y <= Math.ceil(stamp.y + extent); y += 1) {
       for (let x = Math.floor(stamp.x - extent); x <= Math.ceil(stamp.x + extent); x += 1) {
         const coverage = sampler.tip((x + 0.5 - stamp.x) / radius,
-          (y + 0.5 - stamp.y) / radius, stamp);
+          (y + 0.5 - stamp.y) / radius, tip);
         if (coverage <= 0) continue;
         const texture = sampler.textured ? sampler.texture(x, y, {
           centerX: stamp.x, centerY: stamp.y, offsetX: stamp.grainOffsetX,

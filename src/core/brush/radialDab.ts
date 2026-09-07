@@ -34,6 +34,9 @@ export function visitRadialDab(
   edge: number, opacity: number, visit: Visitor
 ): void {
   const [minimumX, maximumX, minimumY, maximumY] = bounds;
+  // Спад кромки не может быть тоньше пикселя: у кисти с hardness 1 он равен
+  // 0.001 радиуса, и край выходил бинарным — на кривой это зазубрины.
+  const softness = Math.max(edge, 1 / Math.max(1, radius));
   const width = maximumX - minimumX + 1;
   const capacity = width * (maximumY - minimumY + 1);
   const cacheable = radius * 2 >= rasterConfig.radialMaskCache.minimumDiameter &&
@@ -62,7 +65,7 @@ export function visitRadialDab(
       if (Math.abs(normalizedX) > 1) continue;
       const distance = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY);
       if (distance >= 1) continue;
-      const coverage = Math.min(1, Math.max(0, (1 - distance) / edge));
+      const coverage = Math.min(1, Math.max(0, (1 - distance) / softness));
       if (offsetsX && offsetsY && coverages) {
         offsetsX[length] = x - anchorX; offsetsY[length] = y - anchorY;
         coverages[length] = coverage; length += 1;
