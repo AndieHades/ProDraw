@@ -1,17 +1,15 @@
-import { historyCap } from '../../config/limits.ts';
 import * as bus from '../bus.ts';
 import { markDirty } from '../layer-cache.js';
 import { S } from '../state.js';
-import { createLegacyTileEntry, trimLegacyTileStack } from './legacyTilePatch.ts';
+import { createLegacyTileEntry } from './legacyTilePatch.ts';
+import { trimHistoryStack } from './historyBudget.ts';
 import { rasterOwnerForLayer } from '../raster/legacyRasterOwner.ts';
 
 let active = null;
 const pixelLayer = (layer) => !!layer && (!layer.kind || layer.kind === 'pixel');
 
 function push(entry) {
-  S.undoStack.push(entry); const cap = historyCap(S.W * S.H);
-  if (S.undoStack.length > cap) S.undoStack.splice(0, S.undoStack.length - cap);
-  trimLegacyTileStack(S.undoStack);
+  S.undoStack.push(entry); trimHistoryStack(S.undoStack);
   S.redoStack.length = 0; bus.emit('snapshot');
 }
 

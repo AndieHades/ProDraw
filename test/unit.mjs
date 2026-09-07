@@ -35,7 +35,8 @@ import { packSet, unpackSet } from '../src/core/brush-pack.js';
 import { brushMode, stampSize, planDab, brushHasShape } from '../src/logic/brush-stamp.js';
 import { recognizeShape } from '../src/logic/quickshape.js';
 import { expandMask, mirrorDeltas } from '../src/logic/symmetry.ts';
-import { ZOOM_MIN, ZOOM_MAX, historyCap } from '../src/config/limits.ts';
+import { ZOOM_MIN, ZOOM_MAX } from '../src/config/limits.ts';
+import { historyEntryBytes, trimHistoryStack } from '../src/core/history/historyBudget.ts';
 import { SIZE_PRESETS, DEFAULT_DOC } from '../src/config/presets.js';
 import { defaultPalette, DEFAULT_PALETTE_HEX, DEFAULT_ACTIVE } from '../src/config/palette.js';
 import { t as tr } from '../src/i18n/index.ts';
@@ -557,7 +558,12 @@ const APOLLO_46 = [
   '#819796', '#a8b5b2', '#c7cfcc', '#ebede9',
 ];
 t("unit case 095", () => { assert.ok(MAX_LAYERS >= 1 && ZOOM_MAX > ZOOM_MIN); });
-t("unit case 096", () => { assert.ok(historyCap(100) >= historyCap(50000) && historyCap(50000) >= historyCap(200000)); });
+t("unit case 096", () => { const small = { W: 8, H: 8, layers: [{}] };
+  const large = { W: 800, H: 800, layers: [{}] };
+  assert.ok(historyEntryBytes(large) > historyEntryBytes(small));
+  const stack = [small, small, large];
+  trimHistoryStack(stack, historyEntryBytes(large), 100);
+  assert.equal(stack.length, 1); });
 t("unit case 097", () => { assert.ok(SIZE_PRESETS.length > 0); for (const p of SIZE_PRESETS) {
   assert.ok(p.w > 0 && p.h > 0 && p.labelKey); assert.ok(ru[p.labelKey] && en[p.labelKey]); }
   assert.equal(SIZE_PRESETS.some((p) => p.w < 1000 || p.h < 1000), false);

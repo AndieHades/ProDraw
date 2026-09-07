@@ -103,14 +103,14 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 - Current stage: `Q2B — тайлы как единственная цель записи`
 - Status: `in_progress`
 - Last completed stage: `Q2A — тайлы как единственный источник чтения`
-- Next action: подэтап `Q2B-2` — заменить `historyCap` по площади на байтовый
-  бюджет вытеснения, чтобы `1920×1080` перестал давать восемь шагов Undo
+- Next action: подэтап `Q2B-3` — снять зеркало `grid` в
+  `LegacyRasterSurfaceBacking` и `cells.js`, затем удалить `sparse-grid.js`
 - Blockers: none
 - Working paths: `src/systems/draw/cells.js`,
   `src/core/raster/LegacyRasterSurfaceBacking.ts`,
   `src/core/raster/legacyRasterOwner.ts`, `src/logic/sparse-grid.js`,
   `src/core/history`, `src/config/limits.ts`
-- Last checks: `npm run validate` зелёный целиком на `Q2B-1`: `167`/`471`
-  TypeScript и `16`/`57` performance тестов. Интерполированный ход пером
-  `64.99 ms` → `20.75 ms` при пределе `75 ms`
+- Last checks: `npm run validate` зелёный целиком на `Q2B-2`: `169`/`481`
+  TypeScript и `16`/`57` performance тестов. Ход пером `64.99 ms` → `20.75 ms`
+  при пределе `75 ms`; Undo на `1920×1080` — `8` шагов → `60` из `60`
 - Last updated: 2026-09-06

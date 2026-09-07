@@ -5,7 +5,7 @@ import * as bus from './bus.ts';
 import * as actions from './actions.ts';
 import { t } from '../i18n/index.ts';
 import { dirtyAll, markDirty } from './layer-cache.js';
-import { historyCap } from '../config/limits.ts';
+import { trimHistoryStack } from './history/historyBudget.ts';
 import { cloneGrid } from '../logic/raster.js';
 import { historyRef, syncHistoryFrame } from './animation.js';
 import { compactPixelEntry, createPixelBatch, createPixelPatch,
@@ -36,8 +36,9 @@ function snapState() {
 
 let pixelEdit = null;
 const isPixelLayer = (layer) => !!layer && (!layer.kind || layer.kind === 'pixel');
-function trimUndo() { const cap = historyCap(S.W * S.H);
-  if (S.undoStack.length > cap) S.undoStack.splice(0, S.undoStack.length - cap); }
+// Вытеснение по фактическим байтам: штрих держит несколько тайловых патчей
+// независимо от размера холста, а полный снимок считается плотным худшим случаем.
+const trimUndo = () => trimHistoryStack(S.undoStack);
 const commitEdits = () => { if (pixelEdit) commitPixelPatch(); commitLegacyTileEdit(); };
 
 export function beginPixelPatch(layerIndex = S.cur) {
