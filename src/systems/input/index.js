@@ -16,10 +16,16 @@ import { shouldStartCanvasPan } from '../../logic/view/CanvasPanPolicy.ts';
 import { CanvasPanSession } from '../viewport/CanvasPanSession.ts';
 import { zoomLegacyViewAt } from '../../logic/view/LegacyViewGeometry.ts';
 import { actualPointerEvents } from '../../core/input/actualPointerEvents.ts';
+import { strokeSampleFromPointer } from '../../logic/input/strokeSampleFromPointer.ts';
+import { POINTER_INPUT } from '../../config/pointer.ts';
 import { mountGestures } from './gestures.js';
 import { isInsideTileWorkArea } from '../../logic/TileGeometry.ts';
 
 const cv = () => $('cv');
+// Инструмент получает нормализованный сэмпл: давление и наклон пера доходят
+// до него, а мышь и палец получают предсказуемый fallback из config.
+const sampleAt = (rx, ry, source) =>
+  strokeSampleFromPointer(rx, ry, source, POINTER_INPUT);
 export const toGrid = (e) => gridAt(e.clientX, e.clientY);
 export const toCanvas = (e) => canvasAt(e.clientX, e.clientY);
 const activeMode = () => (S.cropMode ? modeHandler('crop') : S.rotMode ? modeHandler('transform') : null);
@@ -73,7 +79,8 @@ export function down(e) {
   if (m) { m.down({ gx, gy, rx, ry, e }); drawing = true; return; }
   for (const gh of globalHandlers()) if (gh.down && gh.down({ gx, gy, rx, ry, e })) { activeGlobal = gh; drawing = true; return; }
   if (S.sel && S.tool !== 'select' && S.tool !== 'lasso' && !selHit(gx, gy)) { actions.run('select.none'); return; } // лассо строит контур поверх существующего выделения (add/subtract/intersect)
-  const h = toolHandler(S.tool); if (h && h.down) { h.down({ gx, gy, rx, ry, e }); drawing = true; }
+  const h = toolHandler(S.tool); if (h && h.down) {
+    h.down({ gx, gy, rx, ry, e, sample: sampleAt(rx, ry, e) }); drawing = true; }
 }
 
 export function move(e) {
@@ -91,7 +98,8 @@ export function move(e) {
     for (const sample of actualPointerEvents(e)) {
       const rx = (sample.clientX - r.left - S.view.ox) / S.view.zoom;
       const ry = (sample.clientY - r.top - S.view.oy) / S.view.zoom;
-      h.move({ gx: Math.floor(rx), gy: Math.floor(ry), rx, ry, e: sample });
+      h.move({ gx: Math.floor(rx), gy: Math.floor(ry), rx, ry, e: sample,
+        sample: sampleAt(rx, ry, sample) });
     } }
   else if (e.pointerType !== 'touch') bus.emit('render'); // перерисовка контура кисти
 }

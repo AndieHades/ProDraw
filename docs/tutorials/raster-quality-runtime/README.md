@@ -62,8 +62,8 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 | `Q2A` | тайлы — единственный источник чтения | `Q1` | done |
 | `Q2B` | тайлы — единственная цель записи, `grid[y][x]` снят | `Q2A` | in_progress |
 | | `Q2B-3` перенесён после `Q3`/`Q4`: замер снял его блокирующую роль | | |
-| `Q3` | coalesced ввод с pressure и tilt | `Q2B-1` | in_progress |
-| `Q4` | настоящий движок кистей в продакшн-оболочке | `Q3` | draft |
+| `Q3` | coalesced ввод с pressure и tilt | `Q2B-1` | done |
+| `Q4` | настоящий движок кистей в продакшн-оболочке | `Q3` | in_progress |
 | `Q5` | горячие пути композита, панели слоёв и эффектов | `Q2B` | draft |
 | `Q6` | оставшийся продакшн-JavaScript переведён в TypeScript | `Q5` | draft |
 | `Q7` | параллельный редактор удалён, финальные гейты | `Q6` | draft |
@@ -101,16 +101,18 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 
 ## Resume Here
 
-- Current stage: `Q3 — честный ввод пера`
+- Current stage: `Q4 — настоящий движок кистей в продакшн-оболочке`
 - Status: `in_progress`
-- Last completed stage: `Q2B-2 — байтовый бюджет истории`
-- Next action: подэтап `Q3-2` — довести `pressure`, `tilt` и `pointerType` до
-  планировщика штриха с fallback для мыши и пальца из `src/config`
+- Last completed stage: `Q3 — честный ввод пера`
+- Next action: дать живой оболочке порт к `BrushLibraryService`, провести ход
+  `StrokeSample` → `StrokePipeline` → `renderBrushDab` → батч тайлов и оставить
+  твёрдые Pencil/Eraser отдельными инструментами
 - Blockers: none
-- Working paths: `src/systems/input`, `src/core/input`, `src/core/viewport.js`,
-  `src/systems/draw/tools.js`, `src/config`
-- Last checks: `npm run validate` зелёный целиком на `Q3-1`: `170`/`486`
-  TypeScript и `16`/`57` performance тестов. Ход пером `64.99 ms` →
-  `20.75 ms`; Undo на `1920×1080` — `8` → `60` шагов; сэмплы пера больше не
-  теряются
+- Working paths: `src/systems/draw`, `src/core/brush`, `src/logic/brush`,
+  `src/logic/stroke`, `src/core/brush-library`, `src/systems/simple-brush-library.js`,
+  `src/i18n`
+- Last checks: `npm run validate` зелёный целиком на закрытом `Q3`:
+  `171`/`493` TypeScript и `16`/`57` performance тестов. Ход пером
+  `64.99 ms` → `20.75 ms`; Undo на `1920×1080` — `8` → `60` шагов; сэмплы пера
+  не теряются, давление и наклон доходят до инструмента
 - Last updated: 2026-09-06

@@ -64,6 +64,18 @@ describe('pointer samples reaching the tool', () => {
     expect(bounds).toHaveBeenCalledTimes(2);
   });
 
+  it('hands the tool a normalized sample with pen pressure and tilt', () => {
+    const samples = [];
+    registerTool('pencil', { down: ({ sample }) => samples.push(sample),
+      move: ({ sample }) => samples.push(sample), up: () => undefined });
+    down(pointer(4, 4));
+    move({ clientX: 9, clientY: 7, pointerType: 'pen', pointerId: 1,
+      pressure: 0.75, tiltX: 12, tiltY: -3, timeStamp: 90 });
+    expect(samples).toHaveLength(2);
+    expect(samples[1]).toEqual({ x: 9, y: 7, pressure: 0.75, tiltX: 12,
+      tiltY: -3, time: 90, pointerType: 'pen' });
+  });
+
   it('registers the tool handler it replaced for other suites', () => {
     expect(toolHandler('pencil')).toBeTruthy();
   });
