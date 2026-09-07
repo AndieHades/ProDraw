@@ -8,6 +8,7 @@ import { ensureLayer } from '../../core/document.js';
 import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { SHAPE_SNAP_MS } from '../../config/timings.ts';
 import { stamp } from './stamp.js';
+import { continueBrushStroke, endBrushStroke } from './brush.js';
 import { line, commitLine, commitContour, contourDab, contourStroke } from './shapes.js';
 import { beginStroke, afterStroke, cancelStroke } from './stroke.js';
 import { qsBegin, qsMove, qsRelease } from './quickshape.js';
@@ -39,13 +40,17 @@ function armSnap(gx, gy) { clearTimeout(snapTimer);
 function endSnap() { clearTimeout(snapTimer); snapTimer = null; snapCell = null; snapped = false; }
 
 const brush = {
-  down({ gx, gy }) { ensureLayer();
+  down({ gx, gy, sample }) { ensureLayer();
     beginStroke(S.tool === 'adjust' && S.layers[S.cur]?.kind === 'pixel');
-    qsBegin(gx, gy); stamp(gx, gy); last = [gx, gy]; bus.emit('render'); },
-  move({ gx, gy }) {
+    qsBegin(gx, gy); stamp(gx, gy, true, sample); last = [gx, gy]; bus.emit('render'); },
+  move({ gx, gy, sample }) {
     if (qsMove(gx, gy)) { bus.emit('render'); return; } // QuickShape выровнял форму — raw больше не рисуем
-    if (last) line(last[0], last[1], gx, gy); else stamp(gx, gy); last = [gx, gy]; bus.emit('render'); },
-  up() { qsRelease(); S.stroke = false; last = null;
+    // Пресет-кисть сама держит интервал между дабами, поэтому растровая
+    // интерполяция Bresenham для неё не нужна.
+    if (!continueBrushStroke(sample)) {
+      if (last) line(last[0], last[1], gx, gy); else stamp(gx, gy, true, sample); }
+    last = [gx, gy]; bus.emit('render'); },
+  up() { endBrushStroke(); qsRelease(); S.stroke = false; last = null;
     if (S.tool === 'pencil' || (S.tool === 'adjust' && S.adjMode === 'colorize')) actions.run('color.used', S.active);
     afterStroke(); bus.emit('render'); }, // удержал → коммитит ровную форму, иначе raw остаётся
   cancel() { const hadStroke = S.stroke; qsRelease();

@@ -104,15 +104,14 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 - Current stage: `Q4 — настоящий движок кистей в продакшн-оболочке`
 - Status: `in_progress`
 - Last completed stage: `Q3 — честный ввод пера`
-- Next action: дать живой оболочке порт к `BrushLibraryService`, провести ход
-  `StrokeSample` → `StrokePipeline` → `renderBrushDab` → батч тайлов и оставить
-  твёрдые Pencil/Eraser отдельными инструментами
+- Next action: подэтап `Q4-2` — провести пресет-кисть через инструменты линии
+  и фигур, которые пока рисуют твёрдым отпечатком
 - Blockers: none
 - Working paths: `src/systems/draw`, `src/core/brush`, `src/logic/brush`,
   `src/logic/stroke`, `src/core/brush-library`, `src/systems/simple-brush-library.js`,
   `src/i18n`
-- Last checks: `npm run validate` зелёный целиком на закрытом `Q3`:
-  `171`/`493` TypeScript и `16`/`57` performance тестов. Ход пером
-  `64.99 ms` → `20.75 ms`; Undo на `1920×1080` — `8` → `60` шагов; сэмплы пера
-  не теряются, давление и наклон доходят до инструмента
+- Last checks: `npm run validate` зелёный целиком на `Q4-1`: `172`/`497`
+  TypeScript и `16`/`57` performance тестов. Продакшн рисует настоящими
+  `.brush` пресетами через `StrokePipeline`; ассеты и декодер — в отдельных
+  чанках
 - Last updated: 2026-09-06

@@ -136,5 +136,6 @@ export const ruFeedback: LocaleDictionary = {
   "toast.folderExportUnavailable": "Экспорт папок недоступен в этом браузере",
   "toast.folderExportFailed": "Не удалось сохранить дерево PNG",
   "toast.animationLastFrame": "Это последний кадр",
+  "toast.brushLoadFailed": "Кисть {name} не загрузилась — рисуем твёрдой",
   "toast.animationExported": "Анимация экспортирована",
 };

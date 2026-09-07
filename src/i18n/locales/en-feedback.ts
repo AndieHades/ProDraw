@@ -136,5 +136,6 @@ export const enFeedback: LocaleDictionary = {
   "toast.folderExportUnavailable": "Folder export is unavailable in this browser",
   "toast.folderExportFailed": "Could not save the PNG tree",
   "toast.animationLastFrame": "This is the last frame",
+  "toast.brushLoadFailed": "Brush {name} did not load, drawing with the hard tip",
   "toast.animationExported": "Animation exported",
 };

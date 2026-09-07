@@ -1,7 +1,9 @@
 import { S } from '../core/state.js';
 import * as actions from '../core/actions.ts';
 import * as bus from '../core/bus.ts';
-import { $, t } from '../ui/dom/ShellDom.ts';
+import { $, t, toast } from '../ui/dom/ShellDom.ts';
+import { ensurePresetBrush, presetBrushCatalog,
+  presetShapeId } from './draw/preset-brush.ts';
 
 const SHAPES = [
   { id: 'round', key: 'brush.round', icon: '●' },
@@ -14,20 +16,45 @@ function save() {
   localStorage.setItem(storeKey, JSON.stringify(S.brushShape));
 }
 
+let presets = [];
+
+function tile(id, label, icon, select) {
+  const button = document.createElement('button'); button.className = 'btile';
+  button.classList.toggle('on', S.brushShape[activeTool()] === id);
+  button.title = label; button.textContent = icon;
+  button.onclick = select; return button;
+}
+
+function choose(id) {
+  S.brushShape[activeTool()] = id; save(); render(); bus.emit('render');
+}
+
+// Пресет выбирается только после успешной загрузки: пока кисть декодируется
+// или если она не загрузилась, инструмент остаётся на прежней форме.
+async function choosePreset(preset) {
+  const brush = await ensurePresetBrush(preset.id,
+    (name) => toast(t('toast.brushLoadFailed', { name })));
+  if (brush) choose(presetShapeId(preset.id));
+}
+
 function render() {
   const list = $('brush-list'); if (!list) return;
-  const tool = activeTool(); list.replaceChildren(...SHAPES.map((shape) => {
-    const button = document.createElement('button'); button.className = 'btile';
-    button.classList.toggle('on', S.brushShape[tool] === shape.id);
-    button.title = t(shape.key); button.textContent = shape.icon;
-    button.onclick = () => { S.brushShape[tool] = shape.id; save(); render(); bus.emit('render'); };
-    return button;
-  }));
+  list.replaceChildren(
+    ...SHAPES.map((shape) => tile(shape.id, t(shape.key), shape.icon,
+      () => choose(shape.id))),
+    ...presets.map((preset) => tile(presetShapeId(preset.id), preset.name,
+      preset.name.slice(0, 1), () => void choosePreset(preset))));
+}
+
+async function loadPresets() {
+  if (presets.length) return;
+  presets = await presetBrushCatalog();
+  if (presets.length) render();
 }
 
 function toggle() {
   const panel = $('brush-pop'); panel.classList.toggle('on');
-  if (panel.classList.contains('on')) render();
+  if (panel.classList.contains('on')) { render(); void loadPresets(); }
 }
 
 export function mount() {

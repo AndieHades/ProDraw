@@ -2,9 +2,12 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import { createCellPainter } from './cells.js';
+import { presetBrushForShape } from './preset-brush.ts';
+import { beginPresetStroke, cancelPresetStroke, finishPresetStroke,
+  presetStrokeActive, pushPresetSample } from './preset-stroke.ts';
 
 let active = null;
-export function resetScatter() { active = null; }
+export function resetScatter() { active = null; cancelPresetStroke(); }
 bus.on('stroke-begin', resetScatter);
 bus.on('stroke-end', resetScatter);
 
@@ -22,13 +25,32 @@ export function brushStampWith(x, y, tool, paint) {
   }
 }
 
-export function brushStamp(x, y, erase, flush = true) {
+const centred = (x, y) => ({ x: x + .5, y: y + .5, pressure: 1, tiltX: 0,
+  tiltY: 0, time: 0, pointerType: 'mouse' });
+
+export function brushStamp(x, y, erase, flush = true, sample = null) {
   if (!active || active.erase !== erase) {
     active = { erase, painter: createCellPainter(erase) };
   }
-  brushStampWith(x, y, erase ? 'eraser' : 'pencil', active.painter.paint);
+  const tool = erase ? 'eraser' : 'pencil';
+  const preset = presetBrushForShape(S.brushShape[tool]);
+  if (preset) {
+    if (!presetStrokeActive()) beginPresetStroke(preset, active.painter,
+      { size: erase ? S.eraserSize : S.pencilSize,
+        opacity: S.brushOpacity[tool], erase });
+    pushPresetSample(sample ?? centred(x, y));
+  } else brushStampWith(x, y, tool, active.painter.paint);
   if (flush) active.painter.flush();
   if (!S.stroke) active = null;
 }
 
+// Продолжение хода пресет-кистью: интервал и taper держит StrokePipeline.
+export function continueBrushStroke(sample) {
+  if (!presetStrokeActive()) return false;
+  pushPresetSample(sample); active?.painter.flush(); return true;
+}
+
 export function flushBrushStroke() { active?.painter.flush(); }
+
+// Завершение хода: хвостовые дабы пресета попадают в слой до снимка истории.
+export function endBrushStroke() { finishPresetStroke(); active?.painter.flush(); }
