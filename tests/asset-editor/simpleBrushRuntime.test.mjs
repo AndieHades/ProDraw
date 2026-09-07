@@ -19,10 +19,12 @@ describe('simple brush runtime', () => {
     expect(entry).not.toContain('BrushLibrary');
   });
 
-  it('uses a hard round or square footprint with preserved opacity', () => {
+  it('uses a soft round or square footprint with preserved opacity', () => {
     reset('round', .5); brushStamp(4, 4, false);
-    expect(S.layers[0].grid[2][2]).toBeNull();
     expect(S.layers[0].grid[4][4][3]).toBe(128);
+    expect(S.layers[0].grid[1][1]).toBeNull();
+    const edge = S.layers[0].grid[2][2][3]; // край круга сглажен покрытием
+    expect(edge).toBeGreaterThan(0); expect(edge).toBeLessThan(128);
     reset('square'); brushStamp(4, 4, false);
     expect(S.layers[0].grid[2][2][3]).toBe(255);
   });
@@ -42,11 +44,13 @@ describe('simple brush runtime', () => {
     expect(S.layers[0].grid[4][7][3]).toBe(128);
   });
 
-  it('erases alpha with the same hard selected footprint', () => {
+  it('erases alpha with the same soft selected footprint', () => {
     reset('round');
     for (const row of S.layers[0].grid) row.fill([1, 2, 3, 255]);
     brushStamp(4, 4, true);
     expect(S.layers[0].grid[4][4]).toBeNull();
-    expect(S.layers[0].grid[2][2]).toEqual([1, 2, 3, 255]);
+    const edge = S.layers[0].grid[2][2][3]; // край стирается частично
+    expect(edge).toBeGreaterThan(0); expect(edge).toBeLessThan(255);
+    expect(S.layers[0].grid[1][1]).toEqual([1, 2, 3, 255]);
   });
 });

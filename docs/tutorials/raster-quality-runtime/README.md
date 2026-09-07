@@ -67,8 +67,11 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 | `Q5` | горячие пути композита, панели слоёв и эффектов | `Q2B-1` | done |
 | `Q6` | оставшийся продакшн-JavaScript переведён в TypeScript | `Q5` | in_progress |
 | `Q7` | параллельный редактор удалён, финальные гейты | `Q4` | in_progress |
+| `Q8` | дефекты приёмки: кисти, затем интерфейс | `Q4` | in_progress |
 
-Только один этап может быть `in_progress`. Каждая глава владеет своим списком
+`Q8` ведёт дефекты приёмки и идёт параллельно оставшимся этапам: он не
+продвигает cutover, а закрывает названное пользователем. Из этапов cutover
+одновременно `in_progress` только один. Каждая глава владеет своим списком
 файлов, проверками, acceptance criteria и completion record.
 
 ## Chapters
@@ -85,7 +88,8 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 10. [`Q5` Composite and UI](50-stage-composite-and-ui.md)
 11. [`Q6` TypeScript completion](60-stage-typescript-completion.md)
 12. [`Q7` Retire the parallel editor](70-stage-retire-parallel-editor.md)
-13. [Verification](90-verification.md)
+13. [`Q8` Reported defects](80-stage-reported-defects.md)
+14. [Verification](90-verification.md)
 
 ## Completion definition
 
@@ -101,11 +105,11 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 
 ## Resume Here
 
-- Current stage: `Q6 — оставшийся продакшн-JavaScript переведён в TypeScript`
+- Current stage: `Q8 — дефекты приёмки: сначала кисти (D1–D4), затем интерфейс`
 - Status: `in_progress`
 - Last completed stage: `Q5 — горячие пути композита, панели слоёв и эффектов`
-- Next action: продолжить `Q6` партиями по фронту конвертируемых модулей;
-  `Q7-2` ждёт его завершения
+- Next action: закрыть `D1`–`D3` (ход не остаётся на слое и идёт оттисками),
+  затем `D4` превью; `Q6` и `Q7-2` продолжаются после дефектов
 - Blockers: none
 - Working paths: `src/core`, `src/systems`, `project.config.json`
 - Last checks: `npm run validate` зелёный целиком после `Q7-1`: `177`/`518`

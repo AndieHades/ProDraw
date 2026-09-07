@@ -121,6 +121,15 @@ export function cancel(e) {
   finally { releaseCapture(e); releaseCanvasBounds(); bus.emit('render'); }
 }
 
+// Прерывание не равно отмене: потеря фокуса окна или захвата указателя не
+// стирает нарисованное — ход завершается так же, как по отпусканию пера.
+// Отменяет ход только сам указатель (`pointercancel`) и смена документа.
+export function interrupt(e) {
+  if (!drawing && !pan.active && activePointerId == null) return;
+  if (!drawing || pan.active) { cancel(e); return; }
+  up(e); bus.emit('render');
+}
+
 export function mount() {
   const c = cv();
   bus.on('document-transition', () => {
@@ -131,11 +140,10 @@ export function mount() {
   c.addEventListener('pointermove', (e) => { if (e.pointerType !== 'touch') move(e); });
   c.addEventListener('pointerup', (e) => { if (e.pointerType !== 'touch') up(e); });
   c.addEventListener('pointercancel', (e) => { if (e.pointerType !== 'touch') cancel(e); });
-  c.addEventListener('lostpointercapture', (e) => { if (e.pointerType !== 'touch') cancel(e); });
+  c.addEventListener('lostpointercapture', (e) => { if (e.pointerType !== 'touch') interrupt(e); });
   window.addEventListener('resize', releaseCanvasBounds);
-  window.addEventListener('blur', () => { if (drawing || pan.active || activePointerId != null) cancel(); });
-  document.addEventListener('visibilitychange', () => { if (document.hidden &&
-    (drawing || pan.active || activePointerId != null)) cancel(); });
+  window.addEventListener('blur', () => interrupt());
+  document.addEventListener('visibilitychange', () => { if (document.hidden) interrupt(); });
   c.addEventListener('pointerleave', () => { if (S.hoverPx) { S.hoverPx = null; bus.emit('render'); } });
   window.addEventListener('pointermove', (e) => { if (S.hoverPx && e.target !== c) { S.hoverPx = null; bus.emit('render'); } }); // курсор кисти виден только над холстом
   c.addEventListener('wheel', (e) => { e.preventDefault(); const r = c.getBoundingClientRect();

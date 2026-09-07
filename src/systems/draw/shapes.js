@@ -24,12 +24,10 @@ const shapeFilled = () => (S.tool === 'rect' && S.fillShape.rect) ||
 // сплошная область — не ход кисти.
 function shapePainter(painter) {
   const preset = shapeFilled() ? null : presetBrushForShape(S.brushShape.pencil);
-  if (!preset) return (x, y) => brushStampWith(x, y, 'pencil',
-    (px, py) => painter.paint(px, py, 1));
+  if (!preset) return (x, y) => brushStampWith(x, y, 'pencil', painter.paint);
   const stamper = createPresetPathStamper(preset, { size: S.pencilSize,
     opacity: S.brushOpacity.pencil, erase: false }, painter.paint);
-  if (!stamper) return (x, y) => brushStampWith(x, y, 'pencil',
-    (px, py) => painter.paint(px, py, 1));
+  if (!stamper) return (x, y) => brushStampWith(x, y, 'pencil', painter.paint);
   return (x, y) => stamper.at(x, y);
 }
 
