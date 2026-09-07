@@ -19,6 +19,7 @@ export class StrokePipeline {
   readonly #spacing: number;
   readonly #size: number;
   readonly #stabilizer: StrokeStabilizer;
+  readonly #maximumSegment: number;
   #last: StrokeSample | null = null;
   #plannedSource: StrokeSample | null = null;
   #travelled = 0;
@@ -26,11 +27,17 @@ export class StrokePipeline {
   #dab = 0;
   #plan: StrokeSample[] = [];
 
-  constructor(brush: BrushPreset | LoadedBrush, size: number) {
+  // `maximumSegment` ограничивает разрыв, который ещё считается ходом. Планшет
+  // позиционируется абсолютно: соседние сэмплы могут отстоять на весь холст, и
+  // тогда интервальная развёртка ставила бы десятки тысяч дабов на одно
+  // событие. Такой разрыв — не ход, а перескок пера.
+  constructor(brush: BrushPreset | LoadedBrush, size: number,
+    maximumSegment = Number.POSITIVE_INFINITY) {
     this.#brush = brush;
     this.#size = Math.max(1, size);
     this.#spacing = rasterDabSpacing(size, brush.strokePath.spacing);
     this.#stabilizer = new StrokeStabilizer(brush.stabilization, size);
+    this.#maximumSegment = maximumSegment;
   }
 
   push(sample: StrokeSample): readonly StrokeSample[] {
@@ -72,6 +79,10 @@ export class StrokePipeline {
     }
     const distance = Math.hypot(point.x - start.x, point.y - start.y);
     if (distance <= 0) { this.#last = point; return; }
+    if (distance > this.#maximumSegment) {
+      this.#last = point; output.push(this.plan(point, false));
+      this.#distanceToNext = this.nextSpacing(); return;
+    }
     let consumed = 0;
     while (distance - consumed + 1e-9 >= this.#distanceToNext) {
       consumed += this.#distanceToNext;

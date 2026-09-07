@@ -51,3 +51,22 @@ describe('hard tip stroke path', () => {
     expect(Math.max(...alphas())).toBe(128);
   });
 });
+
+describe('pointer jumps across the document', () => {
+  beforeEach(() => {
+    S.W = 1920; S.H = 1080; S.cur = 0; S.layers = [newLayer('Paint', 1920, 1080)];
+    S.sel = null; S.tile = { on: false }; S.stroke = true;
+    S.sym = false; S.symH = false; S.symD1 = false; S.symD2 = false;
+    S.pencilSize = 24; S.eraserSize = 24; S.active = [10, 20, 30];
+    S.brushShape = { pencil: 'round', eraser: 'round' };
+    S.brushOpacity = { pencil: 1, eraser: 1 };
+    resetScatter();
+  });
+
+  it('still paints the part of the jump that lands on the canvas', () => {
+    brushStamp(10, 500, false, true, sample(10.5, 500.5));
+    continueBrushStroke(sample(60_000.5, 500.5));
+    const seen = columns();
+    for (let x = 200; x <= 1800; x += 200) expect(seen.has(x)).toBe(true);
+  });
+});

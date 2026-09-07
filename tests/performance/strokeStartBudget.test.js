@@ -2,7 +2,8 @@
 import { describe, expect, it } from 'vitest';
 import { PERFORMANCE_BUDGETS } from '../../src/config/performance.ts';
 import { newLayer, S } from '../../src/core/state.ts';
-import { brushStamp, continueBrushStroke } from '../../src/systems/draw/brush.js';
+import { brushStamp, continueBrushStroke,
+  resetScatter } from '../../src/systems/draw/brush.js';
 import { beginStroke, afterStroke } from '../../src/systems/draw/stroke.js';
 import { qsBegin, qsRelease } from '../../src/systems/draw/quickshape.js';
 
@@ -57,5 +58,22 @@ describe('stroke start budget', () => {
     const filled = startCost();
     expect(empty).toBeLessThan(PERFORMANCE_BUDGETS.strokeStartP95Milliseconds);
     expect(filled).toBeLessThan(PERFORMANCE_BUDGETS.strokeStartP95Milliseconds);
+  });
+
+  // Планшет позиционируется абсолютно: соседние сэмплы могут отстоять на весь
+  // экран, и развёртка такого отрезка целиком вешала поток на одном событии.
+  it('does not scale a pointer jump beyond the canvas', () => {
+    prepare(1920);
+    const cost = (target) => {
+      resetScatter();
+      S.layers = [newLayer('Paint', 1920, 1920)];
+      brushStamp(10, 500, false, true, sample(10.5, 500.5));
+      const started = performance.now();
+      continueBrushStroke(sample(target, 500.5));
+      return performance.now() - started;
+    };
+    const across = cost(1900.5);
+    const far = cost(200_000.5);
+    expect(far).toBeLessThan(across * 4 + 40);
   });
 });

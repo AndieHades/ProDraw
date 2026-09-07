@@ -20,10 +20,10 @@ let stroke: ActiveStroke | null = null;
 export const presetStrokeActive = (): boolean => stroke !== null;
 
 export function beginPresetStroke(brush: LoadedBrush, painter: StrokePainter,
-  settings: BrushRenderSettings): boolean {
+  settings: BrushRenderSettings, maximumSegment?: number): boolean {
   const engine = presetEngine(); if (!engine) return false;
   stroke = { brush, painter, pipeline: new engine.StrokePipeline(brush,
-    Math.max(1, settings.size)), settings };
+    Math.max(1, settings.size), maximumSegment), settings };
   return true;
 }
 
