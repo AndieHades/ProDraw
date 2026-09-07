@@ -7,7 +7,7 @@ import { layerSrcSurface, clippedShift } from './layer-cache.js';
 import { folderFx, folderEffectsFor, layerMoveCanvas } from './effects-render.js';
 import { drawEffectSurface, drawPsdSurface, fullCanvasSurface } from './effect-surface.js';
 import { buildCanvasEffectSurface } from './effect-canvas.js';
-import { makeCanvas } from './canvas.js';
+import { makeCanvas } from './canvas.ts';
 import { compositeGroupLayout } from '../logic/compositeGroupLayout.ts';
 import { createSurfacePool } from './render/surfacePool.ts';
 

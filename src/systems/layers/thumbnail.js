@@ -1,4 +1,4 @@
-import { makeCanvas } from '../../core/canvas.js';
+import { makeCanvas } from '../../core/canvas.ts';
 import { layerCanvas, layerContentBounds,
   layerRev } from '../../core/layer-cache.js';
 import { C } from '../../styles/canvas-colors.ts';

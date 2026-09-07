@@ -3,7 +3,7 @@
 import { $, toast, t } from '../ui/dom/ShellDom.ts';
 import { S } from '../core/state.js';
 import * as bus from '../core/bus.ts';
-import { makeCanvas, syncCanvasSize } from '../core/canvas.js';
+import { makeCanvas, syncCanvasSize } from '../core/canvas.ts';
 import { defaultReferenceBoard, normalizeReferenceBoard } from '../core/reference-board.js';
 import { C } from '../styles/canvas-colors.ts';
 import { copyRefs, pasteRef, saveRef } from './reference-window-clipboard.js';

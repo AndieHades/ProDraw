@@ -1,5 +1,5 @@
 // Разбор картинки: пиксели RGBA и эвристика «это уже пиксель-арт».
-import { makeCanvas } from './canvas.js';
+import { makeCanvas } from './canvas.ts';
 export const imageData = (im, w, h, smooth) => { const c = makeCanvas(w, h);
   const x = c.getContext('2d'); x.imageSmoothingEnabled = smooth; x.drawImage(im, 0, 0, w, h); return x.getImageData(0, 0, w, h); };
 

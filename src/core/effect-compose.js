@@ -3,7 +3,7 @@ import { hexToRgb } from '../logic/color.ts';
 import { INNER_EFFECTS } from '../logic/layer-effects.js';
 import { monochromeRgba } from '../logic/monochrome.ts';
 import { applyPsdOverlays } from '../logic/psd/effectOverlay.ts';
-import { makeCanvas, paintCanvas } from './canvas.js';
+import { makeCanvas, paintCanvas } from './canvas.ts';
 import { createEffectSurface, drawPsdSurface,
   unionEffectBounds } from './effect-surface.js';
 

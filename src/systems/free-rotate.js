@@ -7,7 +7,7 @@ import { rotSprite } from '../logic/rotsprite.ts';
 import { markDirty } from '../core/layer-cache.js';
 import { rasterOwnerForLayer } from '../core/raster/legacyRasterOwner.ts';
 import { packRegionToInt32 } from '../logic/raster/regionScan.ts';
-import { paintCanvas } from '../core/canvas.js';
+import { paintCanvas } from '../core/canvas.ts';
 import { toast, t } from '../ui/dom/ShellDom.ts';
 
 const intCell = (v) => (v ? [(v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255] : null);

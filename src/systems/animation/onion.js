@@ -1,6 +1,6 @@
 import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
-import { makeCanvas } from '../../core/canvas.js';
+import { makeCanvas } from '../../core/canvas.ts';
 import { activeFrameId, activeTimeline, renderFrameToCanvas, saveActiveFrame } from '../../core/animation.js';
 import { C } from '../../styles/canvas-colors.ts';
 import { onionFrameIds } from '../../logic/AnimationPresentation.ts';

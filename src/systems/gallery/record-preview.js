@@ -1,6 +1,6 @@
 import { S } from '../../core/state.js';
 import { compositeLayers } from '../../core/layer-cache.js';
-import { makeCanvas } from '../../core/canvas.js';
+import { makeCanvas } from '../../core/canvas.ts';
 import { GALLERY_PREVIEW_MAX_SIDE } from '../../config/limits.ts';
 
 function encodeCanvas(canvas) {

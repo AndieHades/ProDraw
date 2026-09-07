@@ -4,7 +4,7 @@ import { S } from '../../core/state.js';
 import { paintStack } from '../../core/composite.js';
 import { clipBase, folderOpacity } from '../../core/layers.js';
 import { clippedShift, layerSrcSurface } from '../../core/layer-cache.js';
-import { makeCanvas as cv } from '../../core/canvas.js';
+import { makeCanvas as cv } from '../../core/canvas.ts';
 import { drawEffectSurface } from '../../core/effect-surface.js';
 import { collectIdx } from './tree.js';
 

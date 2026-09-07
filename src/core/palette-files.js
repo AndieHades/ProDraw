@@ -1,4 +1,4 @@
-import { makeCanvas } from './canvas.js';
+import { makeCanvas } from './canvas.ts';
 import { deleteAppFile, readAppFiles, writeAppFile } from './app-folders.js';
 import { exactPaletteFromRgba, sourcePaletteFromSamples, samplesFromRgba } from '../logic/quantize.js';
 

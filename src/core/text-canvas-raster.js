@@ -1,4 +1,4 @@
-import { makeCanvas } from './canvas.js';
+import { makeCanvas } from './canvas.ts';
 import { fontById } from './font-store.js';
 import { normalizeTextSource } from '../logic/text-model.ts';
 import { displayLines, lineAdvance, lineWidth } from '../logic/text-layout.ts';

@@ -1,4 +1,4 @@
-import { makeCanvas } from './canvas.js';
+import { makeCanvas } from './canvas.ts';
 import { exactPaletteFromRgba, samplesFromRgba,
   sourcePaletteFromSamples } from '../logic/quantize.js';
 import { PALETTE_EXACT_LIMIT, PALETTE_EXACT_MAX_PIXELS,

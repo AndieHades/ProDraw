@@ -1,5 +1,5 @@
 import { parseKey } from '../logic/raster.js';
-import { makeCanvas } from './canvas.js';
+import { makeCanvas } from './canvas.ts';
 import { intersectEffectBounds, translateEffectBounds,
   unionEffectBounds } from './effect-surface.js';
 import { layerCanvas, layerContentBounds, layerExtCanvas } from './layer-cache.js';

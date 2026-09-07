@@ -2,7 +2,7 @@ import { S, cloneFx, cloneLayer } from './state.js';
 import * as bus from './bus.ts';
 import { dirtyAll } from './layer-cache.js';
 import { paintStack } from './composite.js';
-import { makeCanvas } from './canvas.js';
+import { makeCanvas } from './canvas.ts';
 import { ANIMATION } from '../config/animation.ts';
 import { t } from '../i18n/index.ts';
 import {

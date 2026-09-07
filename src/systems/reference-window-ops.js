@@ -1,4 +1,4 @@
-import { makeCanvas } from '../core/canvas.js';
+import { makeCanvas } from '../core/canvas.ts';
 
 export const selectedSet = (b) => new Set(Array.isArray(b.selected) ? b.selected : (b.selected == null ? [] : [b.selected]));
 export const setSelected = (b, ids) => { b.selected = [...new Set(ids)]; };

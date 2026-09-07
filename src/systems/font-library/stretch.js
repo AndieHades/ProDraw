@@ -1,4 +1,4 @@
-import { makeCanvas } from '../../core/canvas.js';
+import { makeCanvas } from '../../core/canvas.ts';
 import { fontById } from '../../core/font-store.js';
 import { TEXT_STRETCH } from '../../config/text.ts';
 import { clamp } from '../../logic/math.ts';

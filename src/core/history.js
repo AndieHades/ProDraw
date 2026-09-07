@@ -15,7 +15,7 @@ import { createDescriptorEntry } from './history/descriptorPatch.js';
 import { createStructureEntry,
   inheritStructureIdentity } from './history/structurePatch.ts';
 import { createRasterReferenceEntry } from './history/rasterReferencePatch.js';
-import { createCompoundEntry } from './history/compoundPatch.js';
+import { createCompoundEntry } from './history/compoundPatch.ts';
 import { createDocumentRemapEntry } from './history/documentRemapPatch.ts';
 import { isScopedEntry, swapScopedEntry } from './history/scopedPatch.js';
 import { abandonLegacyTileEdit,

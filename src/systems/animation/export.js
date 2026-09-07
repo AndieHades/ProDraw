@@ -1,6 +1,6 @@
 import { S } from '../../core/state.js';
 import { saveFile } from '../../core/io.js';
-import { makeCanvas } from '../../core/canvas.js';
+import { makeCanvas } from '../../core/canvas.ts';
 import { activeTimeline, renderFrameToCanvas, saveActiveFrame } from '../../core/animation.js';
 import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { animationExportMetadata, safeAnimationFileSegment,

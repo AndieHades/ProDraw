@@ -4,7 +4,7 @@ import { isDescriptorEntry, swapDescriptorEntry } from './descriptorPatch.js';
 import { isStructureEntry, swapStructureEntry } from './structurePatch.ts';
 import { isRasterReferenceEntry,
   swapRasterReferenceEntry } from './rasterReferencePatch.js';
-import { isCompoundEntry, swapCompoundEntry } from './compoundPatch.js';
+import { isCompoundEntry, swapCompoundEntry } from './compoundPatch.ts';
 import { isDocumentRemapEntry,
   swapDocumentRemapEntry } from './documentRemapPatch.ts';
 import { isLegacyTileEntry, swapLegacyTileEntry } from './legacyTilePatch.ts';

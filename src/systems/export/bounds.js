@@ -2,7 +2,7 @@
 // пикселям» (Trim). Trim считается по итоговому композиту, поэтому запечённые
 // эффекты слоёв (обводка/свечение/тени) автоматически входят в границы.
 import { alphaBounds } from '../../logic/raster.js';
-import { makeCanvas } from '../../core/canvas.js';
+import { makeCanvas } from '../../core/canvas.ts';
 
 // границы непрозрачных пикселей canvas (или null)
 export function visibleBounds(canvas) {

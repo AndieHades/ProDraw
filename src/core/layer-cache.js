@@ -6,7 +6,7 @@ import { conservativeGridBounds, forgetGridBounds, noteGridBounds, parseKey } fr
 import { layerFxSurface, layerPlainSurface,
   layerRenderEffects } from './effects-render.js';
 import { paintStack } from './composite.js';
-import { makeCanvas, paintCanvas } from './canvas.js';
+import { makeCanvas, paintCanvas } from './canvas.ts';
 import { materializeEffectSurface } from './effect-surface.js';
 import { clipEffectSurface } from './effect-clip-surface.js';
 import { LegacyCompositeDamageTracker } from './render/LegacyCompositeDamage.ts';

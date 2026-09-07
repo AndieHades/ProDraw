@@ -12,7 +12,7 @@ import { loadTextPrefs } from '../../core/text-prefs.ts';
 import { loadFonts, fontById } from '../../core/font-store.js';
 import { textLayerName } from '../../logic/text-model.ts';
 import { fitBoxToEditor } from './box-fit.ts';
-import { focusEditor, focusEditorAt } from './editor-focus.js';
+import { focusEditor, focusEditorAt } from './editor-focus.ts';
 import { configureFrame, drawFrame, frameHandler } from './frame.js';
 import { captureTextLayer, commitTextLayerEdit, restoreTextLayer,
   snapshotTextLayerRemoval } from './history.js';

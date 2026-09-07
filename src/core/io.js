@@ -3,7 +3,7 @@
 // системы экспорта.
 import * as bus from './bus.ts';
 import { t } from '../i18n/index.ts';
-import { paintCanvas } from './canvas.js';
+import { paintCanvas } from './canvas.ts';
 
 // фрагмент сетки [x0,y0,w×h] → canvas с попиксельной альфой
 export function gridToCanvas(grid, x0, y0, w, h) {

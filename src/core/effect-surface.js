@@ -1,4 +1,4 @@
-import { makeCanvas } from './canvas.js';
+import { makeCanvas } from './canvas.ts';
 import { blendRgba } from '../logic/psd/blendMode.ts';
 
 const NATIVE_BLEND = new Map([

@@ -10,7 +10,7 @@ import { ZOOM_MIN, ZOOM_MAX, VIEW_FIT_MARGIN_MIN, VIEW_FIT_MARGIN_RATIO } from '
 import { C } from '../../styles/canvas-colors.ts';
 import { tileRenderBlock, tileRepeatOffsets } from '../../logic/TileGeometry.ts';
 import { shouldSmoothViewportScale } from '../../logic/view/viewportSampling.ts';
-import { makeCanvas, syncCanvasSize } from '../../core/canvas.js';
+import { makeCanvas, syncCanvasSize } from '../../core/canvas.ts';
 import { contentGeneration, contentRevision,
   takeCompositeDamage } from '../../core/layer-cache.js';
 import { LegacyCompositeCache } from '../../core/render/LegacyCompositeCache.ts';
