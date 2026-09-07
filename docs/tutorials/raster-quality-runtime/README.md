@@ -104,14 +104,14 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 - Current stage: `Q4 — настоящий движок кистей в продакшн-оболочке`
 - Status: `in_progress`
 - Last completed stage: `Q3 — честный ввод пера`
-- Next action: подэтап `Q4-2` — провести пресет-кисть через инструменты линии
-  и фигур, которые пока рисуют твёрдым отпечатком
+- Next action: подэтап `Q4-3` — размер и непрозрачность пресета в панели с
+  сохранением выбора
 - Blockers: none
 - Working paths: `src/systems/draw`, `src/core/brush`, `src/logic/brush`,
   `src/logic/stroke`, `src/core/brush-library`, `src/systems/simple-brush-library.js`,
   `src/i18n`
 - Last checks: `npm run validate` зелёный целиком на `Q4-1`: `172`/`497`
   TypeScript и `16`/`57` performance тестов. Продакшн рисует настоящими
-  `.brush` пресетами через `StrokePipeline`; ассеты и декодер — в отдельных
-  чанках
+  `.brush` пресетами через `StrokePipeline`, линия и контуры фигур — через
+  интервальный штамповщик; ассеты и декодер в отдельных чанках
 - Last updated: 2026-09-06

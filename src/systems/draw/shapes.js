@@ -9,19 +9,34 @@ import { maskRound } from '../../logic/brush-mask.js';
 import { stamp } from './stamp.js';
 import { brushStampWith, flushBrushStroke } from './brush.js';
 import { createCellPainter, setCell } from './cells.js';
+import { presetBrushForShape } from './preset-brush.ts';
+import { createPresetPathStamper } from './preset-path.ts';
 import { afterStroke, beginStroke } from './stroke.js';
 
 export const line = (x0, y0, x1, y1) => {
   bres(x0, y0, x1, y1, (x, y) => stamp(x, y, false)); flushBrushStroke();
 };
 
+const shapeFilled = () => (S.tool === 'rect' && S.fillShape.rect) ||
+  (S.tool === 'ellipse' && S.fillShape.ellipse);
+
+// Пресет-кисть ведёт контур; заливка фигуры остаётся плоской, потому что
+// сплошная область — не ход кисти.
+function shapePainter(painter) {
+  const preset = shapeFilled() ? null : presetBrushForShape(S.brushShape.pencil);
+  if (!preset) return (x, y) => brushStampWith(x, y, 'pencil',
+    (px, py) => painter.paint(px, py, 1));
+  const stamper = createPresetPathStamper(preset, { size: S.pencilSize,
+    opacity: S.brushOpacity.pencil, erase: false }, painter.paint);
+  return (x, y) => stamper.at(x, y);
+}
+
 export function commitLine() {
   const lp = S.linePrev; S.linePrev = null; S.lineStart = null;
   if (!lp) { bus.emit('render'); return; }
   beginStroke(S.layers[S.cur]?.kind === 'pixel', true);
   const painter = createCellPainter(false, true);
-  const draw = (x, y) => brushStampWith(x, y, 'pencil',
-    (px, py) => painter.paint(px, py, 1));
+  const draw = shapePainter(painter);
   if (S.tool === 'rect') (S.fillShape.rect ? rectFill : rectEdges)(lp[0], lp[1], lp[2], lp[3], draw);
   else if (S.tool === 'ellipse') (S.fillShape.ellipse ? ellipseFill : ellipseEdges)(lp[0], lp[1], lp[2], lp[3], draw);
   else bres(lp[0], lp[1], lp[2], lp[3], draw);
