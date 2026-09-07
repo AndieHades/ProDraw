@@ -2,7 +2,7 @@
 import { S, blank } from './state.ts';
 import { clipBase, effVis, folderChain } from './layers.js';
 import { folderEffectsFor, layerEffectsFor } from './effects-render.js';
-import { INNER_EFFECTS } from '../logic/layer-effects.js';
+import { INNER_EFFECTS } from '../logic/layer-effects.ts';
 import { bakeGrid, clipGridToAlpha, drawBoundedGrid,
   drawEffectGrid, pixelEffects, applyMonochromeEffects } from './layer-bake-grid.js';
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { blank } from '../../src/logic/raster.ts';
-import { translateRaster } from '../../src/logic/raster-remap.js';
+import { translateRaster } from '../../src/logic/raster-remap.ts';
 
 describe('raster remap cell ownership', () => {
   it('reuses immutable imported cells across the grid and ext', () => {

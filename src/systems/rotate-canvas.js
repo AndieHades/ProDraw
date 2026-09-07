@@ -6,7 +6,7 @@ import { snapshotDocumentRemap } from '../core/history.js';
 import { dirtyAll } from '../core/layer-cache.js';
 import { applyLayerRemap, remappedLayer } from '../core/document-layer-remap.ts';
 import { toast, t } from '../core/shell.ts';
-import { rotateRasterCentered } from '../logic/raster-remap.js';
+import { rotateRasterCentered } from '../logic/raster-remap.ts';
 import { rotateSelection } from './selection-transform.js';
 import { liveFrameId, saveActiveFrame } from '../core/animation.js';
 

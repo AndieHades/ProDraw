@@ -1,7 +1,7 @@
 import { S } from './state.ts';
 import { activeTimeline, liveFrameId, saveActiveFrame } from './animation.js';
 import { moveTextSource } from '../logic/text-model.ts';
-import { translateRaster } from '../logic/raster-remap.js';
+import { translateRaster } from '../logic/raster-remap.ts';
 import { remappedLayer } from './document-layer-remap.ts';
 
 function replaceStoredFrames(remap) {

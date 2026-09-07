@@ -1,5 +1,5 @@
 import { effectRegionFromGrid } from '../logic/effect-region.js';
-import { INNER_EFFECTS } from '../logic/layer-effects.js';
+import { INNER_EFFECTS } from '../logic/layer-effects.ts';
 import { alphaMask, effectRegionFromMask } from '../logic/effect-surface-region.js';
 import { composeEffectSurface } from './effect-compose.js';
 import { cropEffectSurface, fullCanvasSurface, isEffectSurface,

@@ -1,7 +1,7 @@
 import { S } from './state.ts';
 import { layerContentBounds } from './layer-cache.js';
 import { folderChain } from './layers.js';
-import { effectReach } from '../logic/layer-effects.js';
+import { effectReach } from '../logic/layer-effects.ts';
 import { gridBounds } from '../logic/raster.ts';
 
 const zero = () => ({ pl: 0, pt: 0, pr: 0, pb: 0 });

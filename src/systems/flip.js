@@ -4,7 +4,7 @@ import { S } from '../core/state.ts';
 import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { snapshot, snapshotRasterReferences } from '../core/history.js';
-import { flipRaster } from '../logic/raster-remap.js';
+import { flipRaster } from '../logic/raster-remap.ts';
 import { markDirty } from '../core/layer-cache.js';
 import { toast, t } from '../core/shell.ts';
 import { flipSelection } from './selection-transform.js';

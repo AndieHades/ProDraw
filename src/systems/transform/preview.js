@@ -5,7 +5,7 @@ import { makeCanvas, paintCanvas } from '../../core/canvas.ts';
 import { folderEffectCanvas } from '../../core/effect-canvas.js';
 import { folderEffectsFor, fxOnCanvas, layerRenderEffects } from '../../core/effects-render.js';
 import { clipBase, effVis, folderChain } from '../../core/layers.js';
-import { effectReach } from '../../logic/layer-effects.js';
+import { effectReach } from '../../logic/layer-effects.ts';
 import { canvasBounds, unionBounds } from './raster-state.ts';
 
 const expand = (bounds, effects) => { const reach = effectReach(effects || []); return {

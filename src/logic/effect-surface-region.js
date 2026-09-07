@@ -1,5 +1,5 @@
 import { FLAT_EFFECT_PIXELS } from './effect-kernels.ts';
-import { effectReach } from './layer-effects.js';
+import { effectReach } from './layer-effects.ts';
 
 const grow = (bounds, reach) => ({
   minx: bounds.minx - reach.l, miny: bounds.miny - reach.t,

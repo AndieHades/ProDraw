@@ -2,7 +2,7 @@
 // Меняет размеры/слои, сдвигает запасные пиксели, сбрасывает выделение.
 import { S, blank, newLayer } from './state.ts';
 import * as bus from './bus.ts';
-import { translateRaster } from '../logic/raster-remap.js';
+import { translateRaster } from '../logic/raster-remap.ts';
 import { isTextLayer, moveTextSource } from '../logic/text-model.ts';
 import { dirtyAll, markDirty } from './layer-cache.js';
 import { applyLayerRemap } from './document-layer-remap.ts';

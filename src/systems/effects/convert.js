@@ -6,7 +6,7 @@ import { dirtyAll } from '../../core/layer-cache.js';
 import { folderChain } from '../../core/layers.js';
 import { S } from '../../core/state.ts';
 import { hexToRgb } from '../../logic/color.ts';
-import { INNER_EFFECTS } from '../../logic/layer-effects.js';
+import { INNER_EFFECTS } from '../../logic/layer-effects.ts';
 import { setGridBounds } from '../../logic/raster.ts';
 
 function insertAt(target, inner) {

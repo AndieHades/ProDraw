@@ -1,6 +1,6 @@
 import { S } from './state.ts';
 import { boundsWithExt } from '../logic/raster.ts';
-import { effectReach } from '../logic/layer-effects.js';
+import { effectReach } from '../logic/layer-effects.ts';
 
 const grow = (b, r) => ({ minx: b.minx - r.l, miny: b.miny - r.t, maxx: b.maxx + r.r, maxy: b.maxy + r.b });
 const merge = (a, b) => (a ? { minx: Math.min(a.minx, b.minx), miny: Math.min(a.miny, b.miny), maxx: Math.max(a.maxx, b.maxx), maxy: Math.max(a.maxy, b.maxy) } : b);

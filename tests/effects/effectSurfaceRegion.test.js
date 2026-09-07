@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { effectLayerPixels } from '../../src/logic/layer-effects.js';
+import { effectLayerPixels } from '../../src/logic/layer-effects.ts';
 import { effectRegionFromMask, gridMask } from '../../src/logic/effect-surface-region.js';
 
 const sortPixels = (pixels) => pixels.slice().sort((left, right) =>

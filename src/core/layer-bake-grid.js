@@ -1,7 +1,7 @@
 import { adjustColor } from '../logic/adjustment.ts';
 import { hexToRgb } from '../logic/color.ts';
 import { effectRegionFromGrid } from '../logic/effect-region.js';
-import { EFFECT_PIXELS, INNER_EFFECTS } from '../logic/layer-effects.js';
+import { EFFECT_PIXELS, INNER_EFFECTS } from '../logic/layer-effects.ts';
 import { monochromeColor } from '../logic/monochrome.ts';
 import { blank, gridBounds, mergeCells } from '../logic/raster.ts';
 
