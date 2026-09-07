@@ -3,6 +3,7 @@ import { PSD_IMPORT_LIMITS } from "../../src/config/psd-import";
 import { MAX_SIZE } from "../../src/config/limits.ts";
 import { decodePsdDocument } from "../../src/core/psd/decodePsdDocument";
 import { PsdDecodeError } from "../../src/core/psd/PsdDecodeError";
+import { normalizePsdNodes } from "../../src/core/psd/psdNodeNormalizer";
 import { preflightPsd } from "../../src/logic/psd/preflightPsd";
 import { paddedLayerPsd, psdHeader, structuredPsd } from "./psdFixture";
 
@@ -69,5 +70,12 @@ describe("bounded PSD bitmap decode", () => {
       throw new Error("missing padded layer");
     }
     expect([...layer.bitmap.rgba]).toEqual([12, 34, 56, 128]);
+  });
+});
+
+describe("PSD group state", () => {
+  it("keeps unknown third-party group state collapsed", () => {
+    const nodes = normalizePsdNodes([{ name: "Unknown state", children: [] }], []);
+    expect(nodes[0]).toMatchObject({ kind: "group", opened: false });
   });
 });

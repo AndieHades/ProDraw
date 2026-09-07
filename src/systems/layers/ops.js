@@ -6,7 +6,7 @@ import { snapshot, snapshotRasterReferences,
   snapshotStructure } from '../../core/history.js';
 import { cloneGrid, symmetrizeGrid } from '../../logic/raster.js';
 import { dirtyAll, layerContentBounds, markDirty } from '../../core/layer-cache.js';
-import { bakeFolder, bakeLayerIndices } from '../../core/layer-bake.js';
+import { bakeFolder, bakeLayerIndices, preservesClipping } from '../../core/layer-bake.js';
 import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { folderChain } from '../../core/layers.js';
 import { clearFolderEmptyPos, selectedIdx } from './helpers.js';
@@ -20,7 +20,7 @@ function mergeIndices(idx) { idx = [...new Set(idx)].filter((i) => S.layers[i]).
   const meta = idx[idx.length - 1];
   const out = bakeLayerIndices(idx), ext = new Map();
   snapshotStructure();
-  const merged = { name: S.layers[meta].name, grid: out, opacity: 1, visible: true, fid: S.layers[meta].fid, clip: false, lock: false, alphaLock: false, reference: idx.some((i) => S.layers[i].reference), ext, effects: [] };
+  const merged = { name: S.layers[meta].name, grid: out, opacity: 1, visible: true, fid: S.layers[meta].fid, clip: preservesClipping(idx), lock: false, alphaLock: false, reference: idx.some((i) => S.layers[i].reference), ext, effects: [] };
   for (let j = idx.length - 1; j >= 0; j--) S.layers.splice(idx[j], 1);
   const at = meta - idx.length + 1;
   S.layers.splice(at, 0, merged); clearFolderEmptyPos(merged.fid);
