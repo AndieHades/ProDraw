@@ -8,8 +8,8 @@ import { createNewWork } from './gallery/doc.js';
 import { hide as hideGallery, show as showGallery,
   whenReady as whenGalleryReady } from './gallery/index.js';
 import { buildPresetLists, presetLabel } from './new-canvas/list.js';
-import { newCanvasBackground } from './new-canvas/background.js';
-import { isCreatingCanvas, setCreatingCanvas } from './new-canvas/creation-state.js';
+import { newCanvasBackground } from './new-canvas/background.ts';
+import { isCreatingCanvas, setCreatingCanvas } from './new-canvas/creation-state.ts';
 import { t } from '../i18n/index.ts';
 const STORE = 'customSizes';
 let editIdx = null, linked = false, ratio = 1, mode = 'rgba', nameCustom = false;

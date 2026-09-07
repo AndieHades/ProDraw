@@ -14,9 +14,9 @@
     "runtimeMode": "shell",
     "productionEntry": "src/legacy-entry.js",
     "targetEntry": "src/app/mountProductionShell.ts",
-    "maximumSourceJavaScriptFiles": 229,
-    "maximumLegacyStateJavaScriptFiles": 167,
-    "maximumIndexedGridReads": 57
+    "maximumSourceJavaScriptFiles": 221,
+    "maximumLegacyStateJavaScriptFiles": 166,
+    "maximumIndexedGridReads": 56
   },
   "legacyCodeOverLimit": [
     "test/module-int.mjs",

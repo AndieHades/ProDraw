@@ -6,7 +6,7 @@ import * as actions from '../core/actions.ts';
 import { $, t, toast } from '../core/shell.ts';
 import { copyText } from '../ui/dom/ShellDom.ts';
 import { rgb, rgbToHex, rgbToHsv, hsvToRgb, hexToRgb } from '../logic/color.ts';
-import { initColorHistory, rememberUsedColor, clearColorHistory } from './color-history.js';
+import { initColorHistory, rememberUsedColor, clearColorHistory } from './color-history.ts';
 import { DISC_INNER_RATIO, DISC_GAP, discBox, svDiscBox } from './color-disc.js';
 import { bindColorDiscGesture } from '../ui/color/ColorDiscGesture.ts';
 

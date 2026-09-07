@@ -10,7 +10,7 @@ import { $, t } from '../core/shell.ts';
 import { nextFloatingZ } from '../ui/windows/FloatingWindow.ts';
 import { adjustmentParams } from '../logic/adjustment.ts';
 import { activeTarget } from './effects/shared.js';
-import { controlsToParams, setControls, syncLabels } from './brightness-contrast/form.js';
+import { controlsToParams, setControls, syncLabels } from './brightness-contrast/form.ts';
 import { beginCanvasReference } from './brightness-contrast/reference.js';
 
 let bcBackup = null;

@@ -16,7 +16,7 @@ import { focusEditor, focusEditorAt } from './editor-focus.ts';
 import { configureFrame, drawFrame, frameHandler } from './frame.js';
 import { captureTextLayer, commitTextLayerEdit, restoreTextLayer,
   snapshotTextLayerRemoval } from './history.js';
-import { editorText, placeTextEditor, setEditorText } from './editor-view.js';
+import { editorText, placeTextEditor, setEditorText } from './editor-view.ts';
 import { draftTextSource, hitTextLayer, insertTextLayer,
   removeTextLayer, selectTextLayer } from './layer-ops.js';
 

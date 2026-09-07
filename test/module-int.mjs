@@ -16,7 +16,7 @@ globalThis.URL.revokeObjectURL = () => {};
 const { S, blank, BP_SMAX, newEffect, cloneFx } = await import('../src/core/state.js');
 const { BRUSH_PREFS_STORE, loadBrushPrefs, saveBrushPrefs } = await import('../src/core/brush-prefs.js');
 const cache = await import('../src/core/layer-cache.js');
-const io = await import('../src/core/io.js');
+const io = await import('../src/core/io.ts');
 const history = await import('../src/core/history.js');
 const bus = await import('../src/core/bus.ts');
 const doc = await import('../src/core/document.js');

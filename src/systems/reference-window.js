@@ -12,7 +12,7 @@ import { bindReferenceDrop, isImageFile } from './reference-window-drop.js';
 import { openReferenceMenu } from './reference-window-menu.js';
 import { boardBounds, boxRect, bringFrontIds, nextBoardPosition, referenceHit, referencePoint, selectedItems, selectedSet, setSelected, transformBoardItems, transformItem, updateBoxSelection } from './reference-window-ops.js';
 import { mountReferenceWindow } from '../ui/reference/ReferenceWindowPresenter.ts';
-import { createReferenceImageCache } from './reference-window/cache.js';
+import { createReferenceImageCache } from './reference-window/cache.ts';
 
 let refOn = false, drag = null, mounted = false, localEmit = false, menuRefId = null;
 const rcv = () => $('refcv');

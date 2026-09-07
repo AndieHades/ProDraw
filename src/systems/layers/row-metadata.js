@@ -1,5 +1,5 @@
 import * as bus from '../../core/bus.ts';
-import { inlineRename, nameRenameGesture } from '../../core/inline-rename.js';
+import { inlineRename, nameRenameGesture } from '../../core/inline-rename.ts';
 import { snapshot } from '../../core/history.js';
 import { markDirty } from '../../core/layer-cache.js';
 import { t } from '../../core/shell.ts';
