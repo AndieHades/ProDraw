@@ -20,3 +20,11 @@
     .switch input:checked + span::after { transform: translateX(20px); }
 
 
+
+    /* подсказка оболочки: нативный тултип не показывается после ввода пером */
+    #tip { position: fixed; left: 0; top: 0; z-index: 200; max-width: 260px;
+      padding: 5px 9px; border-radius: var(--r-md); background: var(--panel);
+      border: 1px solid var(--line); box-shadow: var(--win-shadow); color: var(--txt);
+      font-size: var(--type-system); line-height: 1.3; pointer-events: none;
+      visibility: hidden; opacity: 0; transition: opacity .12s ease-out; }
+    #tip.on { visibility: visible; opacity: 1; }

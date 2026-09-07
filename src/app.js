@@ -38,6 +38,7 @@ import * as lasso from './systems/freehand/panel.ts';
 import * as eyedropper from './systems/eyedropper/index.js';
 import * as penButton from './systems/pen-button.ts';
 import * as status from './systems/status.ts';
+import * as tooltip from './systems/tooltip.ts';
 import * as textTool from './systems/text-tool/index.js';
 import * as animation from './systems/animation/index.js';
 import { mountPreservedShellLayout } from './ui/shell/PreservedShellLayout.ts';
@@ -59,7 +60,7 @@ import * as xMirror from './systems/x-mirror.ts';
 import { rendererSmokeRequested, reportRendererSmokeFailure,
   runRendererSmoke } from './app/runRendererSmoke.ts';
 
-const MOUNTS = [colorPreferences, palette, eraserBar, simpleBrushLibrary, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, documentSave, palManager, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, xMirror, tile, textTool];
+const MOUNTS = [colorPreferences, palette, eraserBar, simpleBrushLibrary, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, documentSave, palManager, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, xMirror, tile, textTool, tooltip];
 
 export function start() {
   detect(); applyTheme(); refreshColors();
