@@ -1,6 +1,6 @@
 export function cutoverErrors(model) {
   const { cutover, entries, graph, sourceJavaScriptCount,
-    legacyStateJavaScriptCount } = model;
+    legacyStateJavaScriptCount, indexedGridReadCount } = model;
   const errors = [];
   if (!cutover || !new Set(["bridge", "shell", "target"]).has(cutover.runtimeMode)) {
     return ["project.config.json must declare a bridge, shell or target cutover mode"];
@@ -13,6 +13,12 @@ export function cutoverErrors(model) {
   }
   if (legacyStateJavaScriptCount > cutover.maximumLegacyStateJavaScriptFiles) {
     errors.push(`legacy state JavaScript grew to ${legacyStateJavaScriptCount}`);
+  }
+  // Two dimensional pixel reads may only fall. grid[y][x] is forbidden as the
+  // document model, so this ratchet keeps stage Q2A from being undone.
+  const readLimit = cutover.maximumIndexedGridReads;
+  if (readLimit !== undefined && indexedGridReadCount > readLimit) {
+    errors.push(`indexed grid reads grew to ${indexedGridReadCount}`);
   }
   if (cutover.runtimeMode === "bridge") {
     for (const required of [cutover.productionEntry, "src/app.js", "src/main.ts"]) {

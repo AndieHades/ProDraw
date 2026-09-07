@@ -24,8 +24,8 @@
 | `Q2A-2b` | read-modify-write выделения: `selection/{fragment,float,clipboard,pixel-transform,full-canvas}` | 5 | draft |
 | `Q2A-3` | сканы команд слоёв: `layers/{bulk-pixels,reference-pixels}`, `free-rotate` | 3 | done |
 | `Q2A-3b` | read-modify-write слоёв: `layers/fill`, `layer-center`, `mono`, `recolor`, `layer-bake-grid` | 5 | draft |
-| `Q2A-4` | текст, коррекции, эффекты, импорт: `text-grid-raster`, `draw/adjust`, `adjustment-preview`, `effects/convert`, `import/convert`, `logic/cleanup`, `logic/layer-effects`, `logic/flood`, `document` | 9 | draft |
-| `Q2A-5` | счётчик обращений в `validate:cutover` и его предел в `project.config.json` | 2 | draft |
+| `Q2A-4` | заливка: `logic/flood` читает регион вместо сетки | 2 | draft |
+| `Q2A-5` | счётчик обращений в `validate:cutover` и его предел | 4 | done |
 
 ### Границы `Q2A`
 
@@ -33,6 +33,17 @@
 пишут её (удаление содержимого выделения, копирование с `cell.slice()`, лифт
 фрагмента, pixel-transform), сохраняют форму ячейки в историю, поэтому их
 владелец — `Q2B`, где запись и так уходит в тайлы.
+
+### Разбор остатка
+
+`text-grid-raster`, `draw/adjust`, `adjustment-preview`, `effects/convert`,
+`import/convert`, `document` и `layer-bake-grid` содержат только запись или
+чтение-с-немедленной-записью, поэтому их владелец — `Q2B`.
+
+Единственный оставшийся чистый читатель горячего пути — `logic/flood`: заливка
+читает `grid[cy][cx]` на каждый посещённый пиксель. Его контракт принимает
+сетку и допускает мутацию из visitor, поэтому перевод на регион меняет
+публичную сигнатуру чистого модуля и требует отдельного подэтапа `Q2A-4`.
 
 ### Проверено и не требует изменений
 
