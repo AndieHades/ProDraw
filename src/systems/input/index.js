@@ -20,6 +20,7 @@ import { strokeSampleFromPointer } from '../../logic/input/strokeSampleFromPoint
 import { POINTER_INPUT } from '../../config/pointer.ts';
 import { mountGestures } from './gestures.js';
 import { isInsideTileWorkArea } from '../../logic/TileGeometry.ts';
+import { forgetCursor, updateHover } from './hover.ts';
 
 const cv = () => $('cv');
 // Инструмент получает нормализованный сэмпл: давление и наклон пера доходят
@@ -35,33 +36,9 @@ const inWorkArea = (gx, gy) =>
 const pan = new CanvasPanSession(DRAG_THRESHOLD);
 let drawing = false, activeGlobal = null;
 let activePointerId = null;
-// Курсор пишется только при смене значения: раньше стиль трогали на каждом
-// событии движения. Прямоугольник холста кеширует core/viewport на время жеста.
-let appliedCursor = null;
-export const forgetCanvasBounds = () => releaseCanvasBounds();
-function applyCursor(value) {
-  if (value === appliedCursor) return;
-  appliedCursor = value; cv().style.cursor = value;
-}
-
-function updateHover(e) {
-  const [hx, hy] = toGrid(e); // в Tile Mode курсор виден над всем блоком 3×3
-  const over = inWorkArea(hx, hy);
-  S.hoverPx = over ? [hx, hy] : null;
-  let cur = over && S.eyedrop.active ? 'none' : over ? 'crosshair' : 'default';
-  let handled = null; // hover глобальных обработчиков имеет побочные эффекты
-  for (const handler of globalHandlers()) {
-    const value = handler.hover && handler.hover({ gx: hx, gy: hy, e });
-    if (value && !handled) handled = value;
-  }
-  if (!S.eyedrop.active && !drawing && !pan.active && !activeMode()) {
-    if (handled) cur = handled;
-    else { const tool = toolHandler(S.tool);
-      const value = tool && tool.hover && tool.hover({ gx: hx, gy: hy, e });
-      if (value) cur = value; }
-  }
-  applyCursor(cur);
-}
+// Прямоугольник холста кеширует core/viewport на время жеста.
+export const forgetCanvasBounds = () => { forgetCursor(); releaseCanvasBounds(); };
+const hover = (e) => updateHover(cv(), e, !drawing && !pan.active && !activeMode());
 function releaseCapture(e) { const id = e?.pointerId ?? activePointerId;
   if (id == null || (activePointerId != null && id !== activePointerId)) return;
   activePointerId = null; try { cv().releasePointerCapture(id); } catch (error) {} }
@@ -84,7 +61,7 @@ export function down(e) {
 }
 
 export function move(e) {
-  if (e.pointerType !== 'touch') updateHover(e);
+  if (e.pointerType !== 'touch') hover(e);
   if (pan.active) { const next = pan.move(e);
     if (next?.moved) { S.view.ox = next.ox; S.view.oy = next.oy; bus.emit('render'); }
     return; }
