@@ -2,13 +2,7 @@
 // colours. Comparison is RGB only, matching the legacy cell comparison, and a
 // fully transparent sample counts as an absent cell rather than opaque black.
 
-export interface RegionPixels {
-  readonly minx: number;
-  readonly miny: number;
-  readonly width: number;
-  readonly height: number;
-  readonly data: Uint8ClampedArray;
-}
+import type { RegionPixels } from "./regionScan.ts";
 
 export type RegionColor = readonly number[];
 

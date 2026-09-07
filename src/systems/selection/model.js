@@ -1,15 +1,17 @@
 // Модель выделения: нормализация рамки, маски, операции над содержимым.
 // Drag/перенос — в selection-input; здесь логика, не жесты.
-import { S, G } from '../../core/state.js';
+import { S } from '../../core/state.js';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { combineSelectionState, selectionMaskFromState, selectionStateFromMask,
   SelectionMask, symmetrizeSelectionMask } from '../../logic/mask-ops.js';
 import { expandMask } from '../../logic/symmetry.ts';
-import { eqc } from '../../logic/color.ts';
 import { anySym, symmetryConfig } from '../../core/layers.js';
 import { selectedLayerTargets } from '../../core/targets.js';
 import { layerContentBounds } from '../../core/layer-cache.js';
+import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
+import { visitRegionColorMatches } from '../../logic/raster/matchRegionColors.ts';
+import { visitOpaqueRegionPixels } from '../../logic/raster/regionScan.ts';
 import { toast, t } from '../../ui/dom/ShellDom.ts';
 import { setTool } from '../../core/tools.js';
 import { commitFloat } from './float.js';
@@ -49,17 +51,11 @@ export function selectColorPixels(color) {
   if (!S.layers[S.cur]) return;
   commitFloat();
   const colors = (Array.isArray(color?.[0]) ? color : [color]).filter(Boolean);
-  const grid = G();
   const mask = new SelectionMask(S.W, S.H);
   const bounds = layerContentBounds(S.cur);
-  if (bounds) {
-    for (let y = bounds.miny; y <= bounds.maxy; y++) {
-      for (let x = bounds.minx; x <= bounds.maxx; x++) {
-        const cell = grid[y][x];
-        if (cell && colors.some((target) => eqc(cell, target))) mask.forceSelected(x, y);
-      }
-    }
-  }
+  const owner = bounds && rasterOwnerForLayer(S.layers[S.cur]);
+  if (owner) visitRegionColorMatches(owner.readRegion(bounds, S.W, S.H), colors,
+    (x, y) => mask.forceSelected(x, y));
   if (!mask.size) {
     toast(t('toast.noColorOnLayer'));
     return;
@@ -75,11 +71,10 @@ export function selectLayerContent() {
   for (const layer of selectedLayerTargets()) {
     const bounds = layerContentBounds(S.layers.indexOf(layer));
     if (!bounds) continue;
-    for (let y = bounds.miny; y <= bounds.maxy; y++) {
-      for (let x = bounds.minx; x <= bounds.maxx; x++) {
-        if (layer.grid[y][x]) mask.forceSelected(x, y);
-      }
-    }
+    const owner = rasterOwnerForLayer(layer);
+    if (!owner) continue;
+    visitOpaqueRegionPixels(owner.readRegion(bounds, S.W, S.H),
+      (x, y) => mask.forceSelected(x, y));
   }
   if (!mask.size) {
     deselect();

@@ -9,6 +9,8 @@ import {
   snapshotRasterReferences,
 } from '../../core/history.js';
 import { layerContentBounds, markDirty } from '../../core/layer-cache.js';
+import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
+import { someOpaqueRegionPixel } from '../../logic/raster/regionScan.ts';
 import { inMask, selectedPoints } from '../../core/selection.js';
 import { selectedLayerTargets } from '../../core/targets.js';
 import { rasterizeTextTargets } from '../../core/text-rasterize.js';
@@ -28,37 +30,27 @@ function clippedContentBounds(index) {
   return clipped.minx <= clipped.maxx && clipped.miny <= clipped.maxy ? clipped : null;
 }
 
-export function selHasPixels() {
-  if (!S.sel) return false;
-  for (const layer of selectedLayerTargets()) {
+// Есть ли в выделении хотя бы один непрозрачный пиксель одного из слоёв.
+// Пиксели читаются регионом у растрового владельца, а не поячеечно.
+function targetsContainPaint(targets) {
+  for (const layer of targets) {
     const bounds = clippedContentBounds(S.layers.indexOf(layer));
     if (!bounds) continue;
-    for (let y = bounds.miny; y <= bounds.maxy; y++) {
-      for (let x = bounds.minx; x <= bounds.maxx; x++) {
-        if (layer.grid[y][x] && inMask(x, y)) return true;
-      }
-    }
+    const owner = rasterOwnerForLayer(layer);
+    if (!owner) continue;
+    if (someOpaqueRegionPixel(owner.readRegion(bounds, S.W, S.H), inMask)) return true;
   }
   return false;
 }
 
-function selectionContainsPaint(targets) {
-  for (const layer of targets) {
-    const bounds = clippedContentBounds(S.layers.indexOf(layer));
-    if (!bounds) continue;
-    for (let y = bounds.miny; y <= bounds.maxy; y++) {
-      for (let x = bounds.minx; x <= bounds.maxx; x++) {
-        if (layer.grid[y][x] && inMask(x, y)) return true;
-      }
-    }
-  }
-  return false;
+export function selHasPixels() {
+  return !!S.sel && targetsContainPaint(selectedLayerTargets());
 }
 
 export function deleteSelContent() {
   commitFloat();
   const targets = selectedLayerTargets();
-  if (!selectionContainsPaint(targets)) return false;
+  if (!targetsContainPaint(targets)) return false;
   if (clearFullSelection(targets)) {
     bus.emit('render');
     bus.emit('layers');

@@ -20,10 +20,18 @@
 | --- | --- | ---: | --- |
 | `Q2A-1` | плавающий фрагмент выделения одним draw (`layer-cache`, новый пакер) | 2 | done |
 | `Q2A-1b` | подсветка перекраски читает регионом и кэшируется (`render/overlays`) | 2 | done |
-| `Q2A-2` | выделение: `selection/{content,fragment,float,clipboard,model,pixel-transform,full-canvas}` | 7 | draft |
+| `Q2A-2` | чистые сканы выделения: `selection/content`, `selection/model` | 2 | done |
+| `Q2A-2b` | read-modify-write выделения: `selection/{fragment,float,clipboard,pixel-transform,full-canvas}` | 5 | draft |
 | `Q2A-3` | команды слоёв: `layers/{bulk-pixels,fill,reference-pixels}`, `layer-center`, `mono`, `recolor`, `free-rotate`, `layer-bake-grid` | 8 | draft |
 | `Q2A-4` | текст, коррекции, эффекты, импорт: `text-grid-raster`, `draw/adjust`, `adjustment-preview`, `effects/convert`, `import/convert`, `logic/cleanup`, `logic/layer-effects`, `logic/flood`, `document` | 9 | draft |
 | `Q2A-5` | счётчик обращений в `validate:cutover` и его предел в `project.config.json` | 2 | draft |
+
+### Границы `Q2A`
+
+`Q2A` переводит только чистые сканы. Циклы, которые читают ячейку и тут же
+пишут её (удаление содержимого выделения, копирование с `cell.slice()`, лифт
+фрагмента, pixel-transform), сохраняют форму ячейки в историю, поэтому их
+владелец — `Q2B`, где запись и так уходит в тайлы.
 
 ### Проверено и не требует изменений
 
