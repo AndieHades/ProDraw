@@ -8,6 +8,7 @@ import { brushStamp, endBrushStroke } from '../../src/systems/draw/brush.js';
 import { beginStroke } from '../../src/systems/draw/stroke.js';
 import { ensurePresetBrush, presetBrush,
   presetShapeId } from '../../src/systems/draw/preset-brush.ts';
+import { restoreSelectedPresets } from '../../src/systems/simple-brush-library.js';
 
 const FILE = 'big_soft_brush.brush';
 const sample = (x, y, pressure) => ({ x, y, pressure, tiltX: 0, tiltY: 0,
@@ -65,6 +66,22 @@ describe('preset brush strokes in production', () => {
     prepare(); beginStroke(); brushStamp(60, 45, false, true, sample(60, 45, 1));
     endBrushStroke();
     expect(painted()).not.toBe(soft);
+  });
+
+  it('decodes a preset restored from the previous session', async () => {
+    S.brushShape.pencil = presetShapeId('big_soft_brush');
+    await restoreSelectedPresets();
+    expect(presetBrush('big_soft_brush')).toBeTruthy();
+    expect(S.brushShape.pencil).toBe(presetShapeId('big_soft_brush'));
+  });
+
+  it('falls back to the hard tip when a restored preset cannot load', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 500 })));
+    S.brushShape.pencil = presetShapeId('texture');
+    S.brushShape.eraser = presetShapeId('texture');
+    await restoreSelectedPresets();
+    expect(S.brushShape.pencil).toBe('round');
+    expect(S.brushShape.eraser).toBe('round');
   });
 
   it('reports an unknown preset instead of throwing', async () => {

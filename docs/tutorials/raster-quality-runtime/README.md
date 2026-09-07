@@ -104,8 +104,8 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 - Current stage: `Q4 — настоящий движок кистей в продакшн-оболочке`
 - Status: `in_progress`
 - Last completed stage: `Q3 — честный ввод пера`
-- Next action: подэтап `Q4-3` — размер и непрозрачность пресета в панели с
-  сохранением выбора
+- Next action: подэтап `Q4-4` — вернуть основной чанк под порог Vite, вынеся
+  движок кистей в ленивый чанк
 - Blockers: none
 - Working paths: `src/systems/draw`, `src/core/brush`, `src/logic/brush`,
   `src/logic/stroke`, `src/core/brush-library`, `src/systems/simple-brush-library.js`,

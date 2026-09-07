@@ -2,7 +2,7 @@ import { S } from '../core/state.js';
 import * as actions from '../core/actions.ts';
 import * as bus from '../core/bus.ts';
 import { $, t, toast } from '../ui/dom/ShellDom.ts';
-import { ensurePresetBrush, presetBrushCatalog,
+import { ensurePresetBrush, presetBrushCatalog, presetIdOf,
   presetShapeId } from './draw/preset-brush.ts';
 
 const SHAPES = [
@@ -57,8 +57,27 @@ function toggle() {
   if (panel.classList.contains('on')) { render(); void loadPresets(); }
 }
 
+// Сохранённый пресет нужно декодировать при запуске: иначе инструмент молча
+// рисовал бы твёрдым отпечатком, хотя в панели выбрана кисть.
+export async function restoreSelectedPresets() {
+  const ids = [...new Set(Object.values(S.brushShape).map(presetIdOf))];
+  for (const id of ids) {
+    if (!id) continue;
+    const brush = await ensurePresetBrush(id,
+      (name) => toast(t('toast.brushLoadFailed', { name })));
+    if (!brush) {
+      for (const tool of Object.keys(S.brushShape)) {
+        if (presetIdOf(S.brushShape[tool]) === id) S.brushShape[tool] = 'round';
+      }
+      save();
+    }
+  }
+  bus.emit('render');
+}
+
 export function mount() {
   try { Object.assign(S.brushShape, JSON.parse(localStorage.getItem(storeKey) || '{}')); } catch {}
+  void restoreSelectedPresets();
   const panel = $('brush-pop'); if (!panel) return;
   panel.replaceChildren(Object.assign(document.createElement('div'), { id: 'brush-list' }));
   actions.registerOrReplace('ui.brushLibrary', toggle);
