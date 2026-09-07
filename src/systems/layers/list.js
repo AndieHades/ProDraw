@@ -2,7 +2,7 @@ import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $, t } from '../../core/shell.ts';
-import { menuGesture } from '../../ui/gestures/ContextGesture.ts';
+import { menuGesture } from '../../core/input/ContextGesture.ts';
 import { folderChain } from '../../core/layers.js';
 import { dragRow } from './drag.js';
 import { selectRange } from './range-select.ts';

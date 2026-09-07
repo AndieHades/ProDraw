@@ -4,7 +4,7 @@
 // классом, состояние пишем на отпускании.
 import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
-import { squelchContextMenu } from '../../ui/gestures/ContextGesture.ts';
+import { squelchContextMenu } from '../../core/input/ContextGesture.ts';
 
 export function rmbSweep(e, el) {
   try { el.setPointerCapture(e.pointerId); } catch (err) {}

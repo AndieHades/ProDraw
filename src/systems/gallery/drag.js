@@ -4,7 +4,7 @@
 // применяем одним ре-рендером на отпускании, чтобы большие галереи не дёргались.
 import { DRAG_THRESHOLD, FOLDER_HOLD_MS } from '../../config/timings.ts';
 import { $ } from '../../core/shell.ts';
-import { dropZone } from '../../ui/dragdrop/DropGap.ts';
+import { dropZone } from '../../core/dragdrop/DropZone.ts';
 
 let clickGuard = false, clickGuardUntil = 0;
 

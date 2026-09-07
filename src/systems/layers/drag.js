@@ -3,7 +3,8 @@
 import { S } from '../../core/state.ts';
 import { $ } from '../../core/shell.ts';
 import { dragGhost } from '../../ui/dragdrop/DragGhost.ts';
-import { dropZone, makeDropGap } from '../../ui/dragdrop/DropGap.ts';
+import { makeDropGap } from '../../ui/dragdrop/DropGap.ts';
+import { dropZone } from '../../core/dragdrop/DropZone.ts';
 import { DROP_GAP_HOLD_MS } from '../../config/drag-drop.ts';
 import { setSquelch } from './list.js';
 import { pinchActive } from './pinch.js';

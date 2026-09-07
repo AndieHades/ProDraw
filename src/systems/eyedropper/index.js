@@ -8,7 +8,7 @@ import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { $ } from '../../core/shell.ts';
-import { copyText } from '../../ui/dom/ShellDom.ts';
+import { copyText } from '../../core/clipboard-text.ts';
 import { setTool } from '../../core/tools.ts';
 import { rgb, rgbToHex } from '../../logic/color.ts';
 import { eventKey } from '../../logic/key-code.ts';

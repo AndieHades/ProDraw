@@ -4,7 +4,7 @@
 import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import { t } from '../../core/shell.ts';
-import { menuGesture } from '../../ui/gestures/ContextGesture.ts';
+import { menuGesture } from '../../core/input/ContextGesture.ts';
 import { rgb } from '../../logic/color.ts';
 import { EYE } from './list.js';
 import { openLctx } from './menu.js';

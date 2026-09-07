@@ -1,5 +1,5 @@
 import { t } from "../../i18n/index.ts";
-import { copyText } from "../dom/ClipboardPresenter.ts";
+import { copyText } from "../../core/clipboard-text.ts";
 import { toast } from "../dom/ToastPresenter.ts";
 
 type Rgb = readonly [number, number, number];

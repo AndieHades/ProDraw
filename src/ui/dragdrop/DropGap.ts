@@ -1,6 +1,7 @@
-import {
-  DROP_CENTER_RATIO, DROP_GAP_RATIO, PHYSICAL_DROP_GAP
-} from "../../config/drag-drop.ts";
+import { DROP_GAP_RATIO, PHYSICAL_DROP_GAP } from "../../config/drag-drop.ts";
+// Зона попадания — чистая геометрия и живёт в `core`; здесь она
+// реэкспортируется, чтобы потребители представления не меняли импорт.
+export { dropZone } from "../../core/dragdrop/DropZone.ts";
 
 export interface DropGapOptions {
   readonly axis?: "x" | "y";
@@ -106,17 +107,4 @@ export function makeDropGap(options: DropGapOptions = {}): DropGap {
     }
   };
   return gap;
-}
-
-export function dropZone(
-  element: Element, x: number, y: number, axis: "x" | "y" = "x",
-  centerRatio = DROP_CENTER_RATIO
-): { readonly after: boolean; readonly zone: "after" | "before" | "center" } {
-  const rect = element.getBoundingClientRect();
-  const size = axis === "y" ? rect.height : rect.width;
-  const position = size > 0 ? (axis === "y" ? y - rect.top : x - rect.left) / size : 0.5;
-  const padding = Math.max(0, Math.min(0.49, (1 - centerRatio) / 2));
-  const after = position >= 0.5;
-  return { zone: position > padding && position < 1 - padding ? "center" :
-    after ? "after" : "before", after };
 }

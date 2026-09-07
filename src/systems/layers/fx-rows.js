@@ -8,7 +8,7 @@ import * as actions from '../../core/actions.ts';
 import { snapshotEffects } from '../../core/history.js';
 import { t } from '../../core/shell.ts';
 import { EYE, layList, layDragSquelch } from './list.js';
-import { onDoubleTap, onContext } from '../../ui/gestures/ContextGesture.ts';
+import { onDoubleTap, onContext } from '../../core/input/ContextGesture.ts';
 import { dragRow } from './drag.js';
 import { selectRange } from './range-select.ts';
 

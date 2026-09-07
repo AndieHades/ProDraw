@@ -1,3 +1,5 @@
+// Копирование текста в буфер обмена: системный API с запасным путём через
+// скрытое поле. Возможность платформы, а не представление.
 export async function copyText(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
