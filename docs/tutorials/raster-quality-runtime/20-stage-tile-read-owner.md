@@ -1,6 +1,6 @@
 # Stage `Q2A`: тайлы — единственный источник чтения
 
-- Status: `draft`
+- Status: `in_progress`
 - Depends on: `Q1`
 - Requirements: `RQ-OWN-01`, `RQ-PERF-01`
 
@@ -9,6 +9,21 @@
 Каждый читатель пикселей берёт данные у `LegacyRasterOwner`/`RasterSurface`
 регионом тайлов. Запись пока остаётся двойной — её снимает `Q2B`. Продукт
 остаётся полностью рабочим.
+
+## Подэтапы
+
+Замер на `asset-editor@c609a5f`: `81` двумерное индексное обращение к пикселям в
+`30` живых модулях. Это не один коммит, поэтому этап делится по владельцам; один
+подэтап — один коммит с фокусными тестами.
+
+| Подэтап | Владелец | Файлов | Статус |
+| --- | --- | ---: | --- |
+| `Q2A-1` | плавающий фрагмент выделения одним draw (`layer-cache`, новый пакер) | 2 | done |
+| `Q2A-1b` | остальной путь кадра: `render/overlays`, `logic/raster`, `logic/sample`, `core/io` | 4 | draft |
+| `Q2A-2` | выделение: `selection/{content,fragment,float,clipboard,model,pixel-transform,full-canvas}` | 7 | draft |
+| `Q2A-3` | команды слоёв: `layers/{bulk-pixels,fill,reference-pixels}`, `layer-center`, `mono`, `recolor`, `free-rotate`, `layer-bake-grid` | 8 | draft |
+| `Q2A-4` | текст, коррекции, эффекты, импорт: `text-grid-raster`, `draw/adjust`, `adjustment-preview`, `effects/convert`, `import/convert`, `logic/cleanup`, `logic/layer-effects`, `logic/flood`, `document` | 9 | draft |
+| `Q2A-5` | счётчик обращений в `validate:cutover` и его предел в `project.config.json` | 2 | draft |
 
 ## Change map
 

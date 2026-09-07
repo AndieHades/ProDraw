@@ -11,6 +11,7 @@ import { materializeEffectSurface } from './effect-surface.js';
 import { clipEffectSurface } from './effect-clip-surface.js';
 import { LegacyCompositeDamageTracker } from './render/LegacyCompositeDamage.ts';
 import { rasterOwnerForLayer } from './raster/legacyRasterOwner.ts';
+import { packFloatFragment } from '../logic/raster/floatFragmentPixels.ts';
 
 let lcs = []; const dirtySet = new Set(), fullDirty = new Set(), dirtyBounds = new Map();
 const revs = [], extCache = [];
@@ -94,16 +95,29 @@ export function layerExtCanvas(i) {
       d[o] = cc[0]; d[o + 1] = cc[1]; d[o + 2] = cc[2]; d[o + 3] = cc.length > 3 ? cc[3] : 255; } });
   const res = { canvas: c, ox: minX, oy: minY, rev: layerRev(i) }; extCache[i] = res; return res; }
 
+// точки «висящего» фрагмента в координатах документа
+function* floatFragmentPoints(f) {
+  if (f.symItems) { for (const it of f.symItems)
+    yield { x: it.ax + it.sgnx * f.dx, y: it.ay + it.sgny * f.dy, cell: it.c }; return; }
+  for (const [key, cell] of f.cells) { const [dx, dy] = parseKey(key);
+    yield { x: f.x + dx, y: f.y + dy, cell }; }
+}
+
 // слой i вместе с «висящим» фрагментом выделения (если фрагмент поднят с него):
-// обтравка и композит видят фрагмент так, будто он уже лежит в слое
+// обтравка и композит видят фрагмент так, будто он уже лежит в слое.
+// Фрагмент кладётся одним drawImage: source-over сохраняется, а стоимость
+// перестаёт быть одним fillRect на пиксель.
 export function layerFloatCanvas(i) {
   const f = S.selFloat; if (!f || (f.li ?? S.cur) !== i) return layerCanvas(i);
   const c = makeCanvas(S.W, S.H);
   const x = c.getContext('2d'); x.drawImage(layerCanvas(i), 0, 0);
-  const put = (xx, yy, cc) => { if (xx >= 0 && yy >= 0 && xx < S.W && yy < S.H) {
-    x.fillStyle = 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',' + (cc.length > 3 ? cc[3] : 255) / 255 + ')'; x.fillRect(xx, yy, 1, 1); } };
-  if (f.symItems) for (const it of f.symItems) put(it.ax + it.sgnx * f.dx, it.ay + it.sgny * f.dy, it.c);
-  else for (const [k, cc] of f.cells) { const [dx, dy] = parseKey(k); put(f.x + dx, f.y + dy, cc); }
+  const packed = packFloatFragment(floatFragmentPoints(f), S.W, S.H);
+  if (!packed) return c;
+  const fragment = makeCanvas(packed.width, packed.height);
+  const fx = fragment.getContext('2d');
+  const image = fx.createImageData(packed.width, packed.height);
+  image.data.set(packed.data); fx.putImageData(image, 0, 0);
+  x.drawImage(fragment, packed.minx, packed.miny);
   return c; }
 
 // слой i, обрезанный по силуэту базового слоя base (обтравочная маска)

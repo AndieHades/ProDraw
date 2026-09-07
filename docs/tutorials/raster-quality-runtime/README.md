@@ -103,15 +103,12 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 - Current stage: `Q2A — тайлы как единственный источник чтения`
 - Status: `in_progress`
 - Last completed stage: `Q1 — исправленная цель cutover`
-- Next action: перевести читателей пикселей (`layer-cache`, `composite`,
-  `raster-grid`, экспорт, эффекты, сериализация галереи, PSD-импорт) на
-  регионное чтение у владельца и убрать `fillRect` на пиксель из
-  `layerFloatCanvas`
+- Next action: подэтап `Q2A-1b` — перевести остаток пути кадра
+  (`render/overlays`, `logic/raster`, `logic/sample`, `core/io`) на регионное
+  чтение у владельца
 - Blockers: none
-- Working paths: `src/core/layer-cache.js`, `src/core/composite.js`,
-  `src/logic/raster-grid.js`, `src/systems/export`, `src/systems/effects`,
-  `src/systems/gallery`, `src/core/psd`, `tools/validate-cutover.mjs`
-- Last checks: `validate:raster-entry`, `validate:cutover`,
-  `validate:cutover-fixtures`, `validate:docs`, `validate:lines`, `check`,
-  `eslint` зелёные; `npm test` код выхода `0`
+- Working paths: `src/core/layer-cache.js`, `src/logic/raster`,
+  `src/systems/render`, `src/systems/selection`, `tools/validate-cutover.mjs`
+- Last checks: `npm run validate` зелёный целиком на `Q2A-1`: `164`/`454`
+  TypeScript и `16`/`57` performance тестов; `Q2A-1` закрыт
 - Last updated: 2026-09-06
