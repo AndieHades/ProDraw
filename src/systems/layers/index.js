@@ -71,8 +71,8 @@ export function syncLayerPanelHeight(allowShrink = false) {
 
 function showLayerPanel() { const pop = $('lay-pop'); pop.classList.add('on'); $('layers').classList.add('on');
   layList(); syncLayerPanelWidth(); syncLayerPanelHeight(); }
-function selectCanvasLayer(index) { switchLayerDuringTransform(() => {
-  selectLayer(S, index); revealLayer(index, showLayerPanel);
+export function selectCanvasLayer(index, renderPanel = showLayerPanel) { switchLayerDuringTransform(() => {
+  selectLayer(S, index); revealLayer(index, renderPanel);
 }); }
 function layersAtCursor(event) { let [x, y] = gridAt(event.clientX, event.clientY);
   if (S.tile?.on) { x = ((x % S.W) + S.W) % S.W; y = ((y % S.H) + S.H) % S.H; }
