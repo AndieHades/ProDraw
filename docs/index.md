@@ -12,6 +12,9 @@
 
 ## Живые планы
 
+- [Raster quality runtime](tutorials/raster-quality-runtime/README.md) —
+  текущий control plane: гейты, тайловый владелец пикселей, ввод пера,
+  кисти и завершение TypeScript-перехода.
 - [Gallery drop import progress](project/gallery-drop-import-progress-plan.md) —
   полоса этапов для импорта, который длится дольше двух секунд.
 - [Gallery memory safety](tutorials/gallery-memory-safety/README.md) — лёгкий

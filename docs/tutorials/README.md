@@ -1,10 +1,14 @@
 # Живые планы
 
+- [`raster-quality-runtime/`](raster-quality-runtime/README.md) — текущий
+  control plane: правдивые гейты, единственный тайловый владелец пикселей,
+  честный ввод пера, рабочие кисти и завершение перехода на TypeScript.
 - [`raster-editor-migration/`](raster-editor-migration/README.md) — активная
   миграция ProDraw на TypeScript, RGBA layers и профессиональные кисти.
 - [`raster-editor-migration/r2-11-owner-cutover/`](raster-editor-migration/r2-11-owner-cutover/README.md)
-  — текущий control plane полного сохранения UI/функций при удалении двойной
-  legacy JS/grid архитектуры.
+  — предшествующий control plane сохранения UI/функций при удалении двойной
+  legacy JS/grid архитектуры; его этапы `C6A`/`C6B` пересматриваются в
+  `raster-quality-runtime`.
 - [`monochrome-effect-png-export/`](monochrome-effect-png-export/README.md) —
   исполняемый parity-срез для неразрушающего монохрома и PNG слоя/папки.
 - [`procreate-brush-parity/`](procreate-brush-parity/README.md) — разбор и план

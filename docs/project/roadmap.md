@@ -54,3 +54,7 @@ acceptance-блокером F5, но не блокирует code cutover.
 перенёс effects history, compact sparse selection и contextual export scopes в
 TypeScript. `C4A` перенёс Transform raster math, оба Crop, remap Undo, Pan-policy
 и live view geometry. Активен `C4B`: creative tools, text и colour.
+
+Текущий control plane исправлений — [`raster-quality-runtime`](../tutorials/raster-quality-runtime/README.md).
+Аудит `asset-editor@6cc56bb` показал, что `RasterEditorApp` не является портом
+продукта, поэтому `C6A`/`C6B` пересматриваются там, а не исполняются буквально.
