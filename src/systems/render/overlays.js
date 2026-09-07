@@ -2,14 +2,38 @@
 // выделение, рамка/маска выделения, подсветка перекраски, рамка кропа, контур
 // кисти. Всё выражается из общего S.
 import { S } from '../../core/state.js';
-import { rgb, eqc, hexToRgb } from '../../logic/color.ts';
+import { rgb, hexToRgb } from '../../logic/color.ts';
 import { bres, rectEdges, rectFill, ellipseEdges,
   ellipseFill } from '../../logic/ShapeGeometry.ts';
 import { symmetryConfig, effVis } from '../../core/layers.js';
 import { mirrorPoints } from '../../logic/symmetry.ts';
 import { clamp01 } from '../../logic/math.ts';
 import { C } from '../../styles/canvas-colors.ts';
-import { layerContentBounds } from '../../core/layer-cache.js';
+import { contentRevision, layerContentBounds } from '../../core/layer-cache.js';
+import { rasterOwnerForLayer } from '../../core/raster/legacyRasterOwner.ts';
+import { visitRegionColorMatches } from '../../logic/raster/matchRegionColors.ts';
+
+// Подсветка перекраски: пиксели читаются регионом у растрового владельца, а не
+// поячеечно, и держатся до следующей правки документа или смены цветов.
+let replaceCache = null;
+function replaceHits(W) {
+  const from = S.replaceMode.from;
+  const colors = Array.isArray(from && from[0]) ? from : [from];
+  const key = JSON.stringify(colors), revision = contentRevision();
+  if (replaceCache && replaceCache.revision === revision && replaceCache.key === key) {
+    return replaceCache.hits;
+  }
+  const hits = new Set();
+  for (let i = 0; i < S.layers.length; i++) {
+    if (!effVis(i)) continue;
+    const bounds = layerContentBounds(i); if (!bounds) continue;
+    const owner = rasterOwnerForLayer(S.layers[i]); if (!owner) continue;
+    visitRegionColorMatches(owner.readRegion(bounds, S.W, S.H), colors,
+      (x, y) => hits.add(y * W + x));
+  }
+  replaceCache = { revision, key, hits };
+  return hits;
+}
 
 function diagSegment(W, H, kind, val) {
   const pts = [], x0 = -0.5, x1 = W - 0.5, y0 = -0.5, y1 = H - 0.5, eps = 1e-6;
@@ -81,13 +105,8 @@ export function drawOverlays(ctx, ox, oy, z) {
   // плавающий фрагмент рисуется в композите слоёв (layerFloatCanvas) — обтравка видит его, швов нет.
   // Ручки активного выделения рисует SVG ants-layer поверх пунктирной рамки.
   if (S.lassoPath && S.lassoPath.pts.length) drawLasso(ctx, ox, oy, z);
-  if (S.replaceMode) { const replaceColors = Array.isArray(S.replaceMode.from && S.replaceMode.from[0]) ? S.replaceMode.from : [S.replaceMode.from];
-    const hits = new Set(); ctx.fillStyle = 'rgba(61,139,253,.5)';
-    for (let i = 0; i < S.layers.length; i++) { if (!effVis(i)) continue;
-      const bounds = layerContentBounds(i); if (!bounds) continue;
-      for (let y = bounds.miny; y <= bounds.maxy; y++) for (let x = bounds.minx; x <= bounds.maxx; x++) {
-        const c = S.layers[i].grid[y][x]; if (c && replaceColors.some((f) => eqc(c, f))) hits.add(y * W + x); } }
-    for (const key of hits) { const x = key % W, y = Math.floor(key / W);
+  if (S.replaceMode) { ctx.fillStyle = 'rgba(61,139,253,.5)';
+    for (const key of replaceHits(W)) { const x = key % W, y = Math.floor(key / W);
       ctx.fillRect(ox + x * z, oy + y * z, z, z); } }
   if (S.cropMode) { const c = S.cropMode, x = ox + c.x0 * z, y = oy + c.y0 * z, w = (c.x1 - c.x0 + 1) * z, h = (c.y1 - c.y0 + 1) * z;
     ctx.fillStyle = 'rgba(0,0,0,.45)';
