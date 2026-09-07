@@ -1,6 +1,9 @@
 // Жёсткие пределы приложения. Менять — здесь.
+import { RASTER_LIMITS } from "./raster.ts";
 export const MAX_LAYERS = Infinity; // слои не ограничиваем искусственным потолком
-export const MAX_SIZE = 4096;    // A4/4K и пользовательские raster-холсты
+
+// Сторона холста ограничена только тем же потолком, что и растровый runtime.
+export const MAX_SIZE = RASTER_LIMITS.maximumSide;
 export const BP_SMAX = 500;      // профессиональный raster-диапазон кисти/ластика, px
 export const BP_SIZE_CURVE = 1.7; // нелинейная шкала: больше точности на малых кистях
 export const ZOOM_MIN = 0.05;    // 5%: большие raster-холсты всегда можно увидеть целиком
@@ -12,4 +15,3 @@ export const GALLERY_PREVIEW_MAX_SIDE = 512; // PNG-превью не повто
 // millions of per-cell history records can freeze an A4 document.
 export const PIXEL_BATCH_SPARSE_LIMIT = 65536;
 export const ROT_MIN_SCALE = 0.15; // минимальный масштаб при свободной трансформации
-export const IMPORT_MAX_SIDE = 2048; // потолок стороны вставляемой картинки

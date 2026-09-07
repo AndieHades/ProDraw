@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { PSD_IMPORT_LIMITS } from "../../src/config/psd-import";
-import { MAX_SIZE } from "../../src/config/limits.ts";
 import { decodePsdDocument } from "../../src/core/psd/decodePsdDocument";
 import { PsdDecodeError } from "../../src/core/psd/PsdDecodeError";
 import { normalizePsdNodes } from "../../src/core/psd/psdNodeNormalizer";
@@ -18,7 +17,7 @@ describe("PSD preflight", () => {
     expect(preflightPsd(psdHeader(4539, 2553))).toMatchObject({
       width: 4539, height: 2553,
     });
-    expect(4539).toBeGreaterThan(MAX_SIZE);
+    expect(4539 * 2553).toBeLessThan(PSD_IMPORT_LIMITS.maximumPixels);
   });
 
   it("rejects invalid signature, depth and canvas limits", () => {

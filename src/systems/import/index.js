@@ -5,7 +5,7 @@ import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
 import { snapshot, restore } from '../../core/history.js';
 import { expandCanvas, placeImageLayer, addImageLayerTop } from '../../core/document.js';
-import { MAX_LAYERS, IMPORT_MAX_SIDE } from '../../config/limits.ts';
+import { MAX_LAYERS } from '../../config/limits.ts';
 import { $, toast, t } from '../../core/shell.ts';
 import { imageData } from '../../core/image.ts';
 import { hasPsdIdentity, isPsdFile } from './psd-file.ts';
@@ -28,9 +28,10 @@ export function insertPixelImage(im) { // вставить как есть в н
 // общий путь для кнопки Import/Photo/File и «Вставить как есть» при drag в редактор
 export function insertImageTop(im, name) {
   if (S.layers.length >= MAX_LAYERS) { toast(t('toast.maxLayers')); return; }
-  const k = Math.min(1, IMPORT_MAX_SIDE / Math.max(im.naturalWidth, im.naturalHeight));
-  const w = Math.max(1, Math.round(im.naturalWidth * k)), h = Math.max(1, Math.round(im.naturalHeight * k));
-  const d = imageData(im, w, h, k < 1).data; snapshot(); addImageLayerTop(w, h, d, name);
+  // Растровый редактор вставляет картинку в её натуральном разрешении: потолка
+  // стороны нет, ассеты бывают и крупнее пяти тысяч пикселей.
+  const w = Math.max(1, im.naturalWidth), h = Math.max(1, im.naturalHeight);
+  const d = imageData(im, w, h, false).data; snapshot(); addImageLayerTop(w, h, d, name);
   bus.emitDoc(); bus.emit('fit'); toast(t('toast.imgImported'));
 }
 

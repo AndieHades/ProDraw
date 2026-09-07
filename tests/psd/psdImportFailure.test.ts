@@ -7,7 +7,7 @@ describe("PSD import failure feedback", () => {
     expect(psdImportFailure(new PsdDecodeError(
       "canvas-too-large", "oversized",
     ))).toMatchObject({ key: "toast.psdCanvasTooLarge",
-      vars: { side: 8192, megapixels: "16.8" } });
+      vars: { side: 8192, megapixels: "50.0" } });
     expect(psdImportFailure(new PsdDecodeError(
       "file-too-large", "oversized",
     ))).toMatchObject({ key: "toast.psdFileTooLarge",
