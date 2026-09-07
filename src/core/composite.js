@@ -9,6 +9,7 @@ import { drawEffectSurface, drawPsdSurface, fullCanvasSurface } from './effect-s
 import { buildCanvasEffectSurface } from './effect-canvas.js';
 import { makeCanvas } from './canvas.js';
 import { compositeGroupLayout } from '../logic/compositeGroupLayout.ts';
+import { createSurfacePool } from './render/surfacePool.ts';
 
 // Цепочка папок кешируется на один проход композита: во время отрисовки
 // дерево не меняется, а раньше её пересчитывали на слой на папку на кадр.
@@ -59,8 +60,10 @@ function isolatedGroups(opt) {
     .filter(Boolean);
 }
 
-function isolatedSurface(folder, live, opt) {
-  const canvas = makeCanvas(S.W, S.H), context = canvas.getContext('2d');
+const surfaces = createSurfacePool(makeCanvas);
+
+function isolatedSurface(canvas, folder, live, opt) {
+  const context = canvas.getContext('2d');
   context.imageSmoothingEnabled = false;
   const chain = new Set(chainOf(folder.id).map((item) => item.id));
   paintStack(context, live, { include: (index) => opt.inc(index) && memberOf(index, folder.id),
@@ -76,7 +79,10 @@ function drawIsolated(ctx, entry, live, opt) {
   const folder = entry.f, mode = folder.blendMode === 'pass through'
     ? 'normal' : folder.blendMode || 'normal';
   const opacity = (folder.opacity ?? 1) * opacityFor(folder.parent, opt.omitOpacity);
-  drawPsdSurface(ctx, isolatedSurface(folder, live, opt), 0, 0, opacity, mode);
+  const canvas = surfaces.borrow(S.W, S.H); // вложенные папки берут свои и
+  try { // возвращают их раньше внешней, поэтому пул работает как стек
+    drawPsdSurface(ctx, isolatedSurface(canvas, folder, live, opt), 0, 0, opacity, mode);
+  } finally { surfaces.release(canvas); }
 }
 
 // фон-слой Background: плоская заливка под всем стеком (если задан цвет и видим)
