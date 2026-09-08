@@ -2,6 +2,7 @@
 // поворот. Клетки за холстом уходят в запас `ext`, чтобы не пропасть.
 import { blank, parseKey, setGridBounds } from "./raster.ts";
 import { createRasterCellInterner } from "./raster-cell-interner.ts";
+import { translatePackedRgba } from "./raster/translatePackedRgba.ts";
 import type { GridBounds } from "./raster-grid.ts";
 
 type Cell = readonly number[];
@@ -72,10 +73,20 @@ export function remapRaster(grid: Grid, ext: RasterExt | null | undefined,
   return { grid: output, ext: outside, bounds };
 }
 
-export const translateRaster = (grid: Grid, ext: RasterExt | null | undefined,
+// Перенос — единственное отображение, сохраняющее строки целиком, поэтому у
+// упакованного растра он идёт срезом байтов и остаётся упакованным. Wrap
+// (Tile Mode) рвёт строки, ему остаётся общий путь.
+export function translateRaster(grid: Grid, ext: RasterExt | null | undefined,
   dx: number, dy: number, width: number, height: number,
-  options?: RemapOptions): RemapResult =>
-  remapRaster(grid, ext, width, height, (x, y) => [x + dx, y + dy], options);
+  options: RemapOptions = {}): RemapResult {
+  if (!options.wrap) {
+    const packed = translatePackedRgba(grid, ext, dx, dy, width, height,
+      !!options.preserveGrid);
+    if (packed) return { grid: packed.grid as unknown as Grid,
+      ext: packed.ext as RasterExt, bounds: packed.bounds };
+  }
+  return remapRaster(grid, ext, width, height, (x, y) => [x + dx, y + dy], options);
+}
 
 export const flipRaster = (grid: Grid, ext: RasterExt | null | undefined,
   width: number, height: number, horizontal: boolean): RemapResult =>
