@@ -3,6 +3,8 @@
 // systems/toolbars.js. `icon` ссылается на ключ ICONS, `key`/`onKey`/`offKey` —
 // на i18n, `action` — на core/actions.
 export const ICONS = {
+  trimSelected: '<svg viewBox="0 0 24 24"><path d="M6 2.5V18h15.5"/><path d="M2.5 6H18v15.5"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>',
+  trimAll: '<svg viewBox="0 0 24 24"><path d="M8 3.5H3.5V8M16 3.5h4.5V8M3.5 16v4.5H8M20.5 16v4.5H16"/><rect x="7" y="7" width="7" height="7" rx="1"/><path d="M10 14v3h7v-7h-3"/></svg>',
   pencil: '<svg viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.6L16.6 4.7a2.05 2.05 0 0 1 2.9 2.9L8.3 18.8l-3.8.7z"/><path d="M14.7 6.6l2.9 2.9"/></svg>',
   line: '<svg viewBox="0 0 24 24"><path d="M6 18 18 6"/></svg>',
   contour: '<svg viewBox="0 0 24 24"><path d="M5 15c1.3-6.5 8.6-10.2 12.6-5.4 3.7 4.4-1.4 9.5-7.2 8.6-2.7-.4-4.6-1.5-5.4-3.2z"/></svg>',
@@ -66,6 +68,10 @@ export const ZOOM_MODES = [
   { mode: 'fit', icon: 'zoomReal', key: 'tool.realSize', action: 'view.realSize' },
   { mode: 'in', icon: 'zoomIn', key: 'tool.zoomIn', action: 'zoom.in' },
   { mode: 'out', icon: 'zoomOut', key: 'tool.zoomOut', action: 'zoom.out' },
+] as const;
+export const TRIM_MODES = [
+  { mode: 'selected', icon: 'trimSelected', key: 'side.trimSelected', action: 'canvas.trimSelected' },
+  { mode: 'all', icon: 'trimAll', key: 'side.fitAllLayers', action: 'canvas.trim' },
 ] as const;
 export const ADJUST_MODES = [
   { mode: 'dodge', icon: 'adjDodge', key: 'adj.dodge' },

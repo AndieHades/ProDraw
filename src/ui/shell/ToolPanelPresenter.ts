@@ -42,7 +42,7 @@ export class ToolPanelPresenter {
       move: () => { if (this.#port.state().rotationActive) {
         this.#port.run("transform.apply");
       } else this.#port.run("transform.enter"); },
-      trimSelected: () => { this.#port.run("canvas.trimSelected"); },
+      trimSelected: () => { this.#port.run(this.#modes.trimConfig().action); },
       select: () => { const state = this.#port.state();
         if (state.tool === "select" || state.selectionActive) this.clearSelection();
         else this.#port.setTool("select"); },

@@ -116,5 +116,6 @@ Trim, текст, анимация, эффекты, Tile Mode), с **реаль�
 - Last checks: `npm run validate` зелёный; `199`/`596` TypeScript и `16`/`57`
   performance тестов. Source JS `184` → `170`, legacy-state JS `141` → `133`,
   индексных чтений `47` → `46`, импортов `src/ui` из систем `47` → `26`.
-  Дефекты приёмки `D1`–`D7` закрыты, `/Applications/ProDraw.app` пересобран
+  Дефекты приёмки `D1`–`D8` закрыты, `/Applications/ProDraw.app` пересобран.
+  Проверки и сдача ремонта обрезки — в [отдельной записи](../../project/trim-performance-repair-plan.md)
 - Last updated: 2026-09-07

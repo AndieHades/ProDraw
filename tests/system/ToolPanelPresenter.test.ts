@@ -8,7 +8,7 @@ const BUTTON_IDS = ["t-pencil", "t-eraser", "t-fill", "t-select", "t-lasso",
   "t-move", "t-adjust", "t-shape", "sym", "flip-h", "img-settings", "center", "zoom",
   "trim-selected"];
 const MENU_IDS = ["shape-choice", "sym-choice", "flip-choice", "center-choice",
-  "zoom-choice", "adjpop"];
+  "zoom-choice", "trim-choice", "adjpop"];
 
 function baseState(): ToolPanelState {
   return { backgroundSelected: false, fillShape: {}, lineMode: "line",
@@ -40,6 +40,15 @@ describe("tool panel active state", () => {
 
     document.getElementById("trim-selected")?.click();
     expect(port.run).toHaveBeenCalledWith("canvas.trimSelected");
+    document.getElementById("trim-selected")?.dispatchEvent(new MouseEvent("contextmenu",
+      { bubbles: true, cancelable: true }));
+    expect(document.getElementById("trim-choice")?.classList.contains("on")).toBe(true);
+    document.querySelector<HTMLButtonElement>('[data-trim-mode="all"]')?.click();
+    expect(port.run).toHaveBeenCalledWith("canvas.trim");
+    expect(document.getElementById("trim-selected")?.dataset.i18nTitle).toBe("side.fitAllLayers");
+    expect(document.querySelector('[data-trim-mode="all"]')?.classList.contains("on")).toBe(true);
+    document.getElementById("trim-selected")?.click();
+    expect(port.run).toHaveBeenLastCalledWith("canvas.trim");
 
     expect(document.getElementById("t-eraser")?.classList.contains("on")).toBe(false);
     expect(document.getElementById("t-move")?.classList.contains("on")).toBe(true);

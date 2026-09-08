@@ -50,6 +50,7 @@ body.gallery-open #sym-choice,
 body.gallery-open #flip-choice,
 body.gallery-open #center-choice,
 body.gallery-open #zoom-choice,
+body.gallery-open #trim-choice,
 body.gallery-open #pal-new-choice,
 body.gallery-open #ovl,
 body.gallery-open #ren-ovl,
@@ -59,4 +60,3 @@ body.gallery-open #pal-ovl {
   visibility: hidden !important;
   pointer-events: none !important;
 }
-

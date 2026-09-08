@@ -5,6 +5,7 @@ import { intersectEffectBounds, translateEffectBounds,
 import { layerCanvas, layerContentBounds, layerExtCanvas } from './layer-cache.js';
 import { applyPsdMasks } from './psd-mask.ts';
 import { S } from './state.ts';
+import { rasterExtBounds } from '../logic/raster/rasterExtRegion.ts';
 
 const documentBounds = () => ({ minx: 0, miny: 0, maxx: S.W - 1, maxy: S.H - 1 });
 
@@ -27,19 +28,10 @@ function cellsBounds(cells) {
   return bounds;
 }
 
-function extBounds(ext) {
-  let bounds = null;
-  for (const key of ext?.keys() || []) {
-    const [x, y] = parseKey(key);
-    bounds = unionEffectBounds(bounds, { minx: x, miny: y, maxx: x, maxy: y });
-  }
-  return bounds;
-}
-
 export function layerEffectSource(index, dx = 0, dy = 0, includeExt = false) {
   const layer = S.layers[index], cells = floatCells(index);
   let sourceBounds = unionEffectBounds(layerContentBounds(index), cellsBounds(cells));
-  if (includeExt) sourceBounds = unionEffectBounds(sourceBounds, extBounds(layer.ext));
+  if (includeExt) sourceBounds = unionEffectBounds(sourceBounds, rasterExtBounds(layer.ext));
   const bounds = intersectEffectBounds(translateEffectBounds(sourceBounds, dx, dy),
     documentBounds());
   const canvas = makeCanvas(bounds ? bounds.maxx - bounds.minx + 1 : 1,
@@ -49,7 +41,7 @@ export function layerEffectSource(index, dx = 0, dy = 0, includeExt = false) {
   const context = canvas.getContext('2d'); context.imageSmoothingEnabled = false;
   context.drawImage(layerCanvas(index), dx - origin.x, dy - origin.y);
   if (includeExt) {
-    const ext = layerExtCanvas(index);
+    const ext = layerExtCanvas(index, translateEffectBounds(documentBounds(), -dx, -dy));
     if (ext) context.drawImage(ext.canvas,
       ext.ox + dx - origin.x, ext.oy + dy - origin.y);
   }

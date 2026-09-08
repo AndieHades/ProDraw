@@ -12,6 +12,8 @@
 
 ## Живые планы
 
+- [Trim performance repair](project/trim-performance-repair-plan.md) — устранение
+  зависания обрезки и последующего автосохранения плотных слоёв.
 - [Raster quality runtime](tutorials/raster-quality-runtime/README.md) —
   текущий control plane: гейты, тайловый владелец пикселей, ввод пера,
   кисти и завершение TypeScript-перехода.

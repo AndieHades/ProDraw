@@ -6,12 +6,13 @@ import { conservativeGridBounds, forgetGridBounds, noteGridBounds, parseKey } fr
 import { layerFxSurface, layerPlainSurface,
   layerRenderEffects } from './effects-render.js';
 import { paintStack } from './composite.js';
-import { makeCanvas, paintCanvas } from './canvas.ts';
+import { makeCanvas } from './canvas.ts';
 import { materializeEffectSurface } from './effect-surface.js';
 import { clipEffectSurface } from './effect-clip-surface.js';
 import { LegacyCompositeDamageTracker } from './render/LegacyCompositeDamage.ts';
 import { rasterOwnerForLayer } from './raster/legacyRasterOwner.ts';
 import { packFloatFragment } from '../logic/raster/floatFragmentPixels.ts';
+import { createRasterExtCanvas } from './render/RasterExtCanvas.ts';
 
 let lcs = []; const dirtySet = new Set(), fullDirty = new Set(), dirtyBounds = new Map();
 const revs = [], extCache = [];
@@ -83,17 +84,12 @@ export function layerCanvas(i) { let c = lcs[i], rebuild = !c;
 // запас ext (то, что за краем холста) слоя i, упакованный в canvas по своим
 // границам + смещение (ox,oy). Нужен для живого превью Move: заехавшее из-за
 // края показываем сразу, а не «обрезанным». null — если запаса нет.
-export function layerExtCanvas(i) {
+export function layerExtCanvas(i, region = null) {
   const L = S.layers[i]; if (!L.ext || !L.ext.size) return null;
-  const hit = extCache[i]; if (hit && hit.rev === layerRev(i)) return hit;
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const k of L.ext.keys()) { const [x, y] = parseKey(k);
-    if (x < minX) minX = x; if (y < minY) minY = y; if (x > maxX) maxX = x; if (y > maxY) maxY = y; }
-  const w = maxX - minX + 1, h = maxY - minY + 1;
-  const c = paintCanvas(w, h, (d) => {
-    for (const [k, cc] of L.ext) { const [px, py] = parseKey(k); const o = ((py - minY) * w + (px - minX)) * 4;
-      d[o] = cc[0]; d[o + 1] = cc[1]; d[o + 2] = cc[2]; d[o + 3] = cc.length > 3 ? cc[3] : 255; } });
-  const res = { canvas: c, ox: minX, oy: minY, rev: layerRev(i) }; extCache[i] = res; return res; }
+  const key = JSON.stringify(region);
+  const hit = extCache[i]; if (hit && hit.rev === layerRev(i) && hit.key === key) return hit;
+  const image = createRasterExtCanvas(L.ext, region); if (!image) return null;
+  const res = { ...image, rev: layerRev(i), key }; extCache[i] = res; return res; }
 
 // точки «висящего» фрагмента в координатах документа
 function* floatFragmentPoints(f) {
@@ -128,7 +124,8 @@ export function clippedCanvas(i, base) { return clippedShift(i, base, 0, 0, 0, 0
 export function clippedShift(i, base, dix, diy, dbx, dby) {
   const source = layerRenderEffects(i).length ? layerFxSurface(i) : layerPlainSurface(i);
   return clipEffectSurface({ source,
-    sourceDx: dix, sourceDy: diy, extra: layerExtCanvas(i),
+    sourceDx: dix, sourceDy: diy, extra: layerExtCanvas(i,
+      { minx: -dix, miny: -diy, maxx: S.W - 1 - dix, maxy: S.H - 1 - diy }),
     mask: layerPlainSurface(base), maskDx: dbx, maskDy: dby,
     documentBounds: { minx: 0, miny: 0, maxx: S.W - 1, maxy: S.H - 1 } }); }
 

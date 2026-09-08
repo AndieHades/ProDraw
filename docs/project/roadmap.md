@@ -56,5 +56,7 @@ TypeScript. `C4A` перенёс Transform raster math, оба Crop, remap Undo,
 и live view geometry. Активен `C4B`: creative tools, text и colour.
 
 Текущий control plane исправлений — [`raster-quality-runtime`](../tutorials/raster-quality-runtime/README.md).
+Приёмка Crop/Trim дополнена [ремонтом производительности и подменю всех слоёв](trim-performance-repair-plan.md):
+отрезанные RGBA хранятся компактно, холст восстанавливается одной командой с Undo.
 Аудит `asset-editor@6cc56bb` показал, что `RasterEditorApp` не является портом
 продукта, поэтому `C6A`/`C6B` пересматриваются там, а не исполняются буквально.

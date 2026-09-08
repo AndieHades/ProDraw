@@ -4,6 +4,7 @@ import { LegacyRasterSurfaceBacking,
 import type { LegacyRasterBounds,
   LegacyRasterRegion } from "./LegacyRasterRegion.ts";
 import { createPackedRgbaGrid } from "../../logic/raster/PackedRgbaGrid.ts";
+import { hydrateRasterExt } from "../../logic/raster/PackedRasterExt.ts";
 
 type LegacyGrid = unknown[][] | { readonly length: number };
 export type LegacyRasterCell = number[] | null;
@@ -105,6 +106,7 @@ export function normalizeLegacyRasterLayer<T extends LayerRecord>(
 ): T {
   if (owners.has(layer)) return layer;
   const mutable = layer as LayerRecord;
+  mutable.ext = hydrateRasterExt(mutable.ext);
   const packed = createPackedRgbaGrid(mutable.rasterRows);
   if (packed) { delete mutable.rasterRows; mutable.grid = packed; }
   const size = { width, height }, descriptor = Object.getOwnPropertyDescriptor(layer, "grid");

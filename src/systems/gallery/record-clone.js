@@ -5,6 +5,7 @@ import { normalizeAnimator } from '../../logic/animation-data.ts';
 import { cloneGrid, sparseGridStats } from '../../logic/raster.ts';
 import { createRasterCellInterner } from '../../logic/raster-cell-interner.ts';
 import { serializePackedRgbaGrid } from '../../logic/raster/PackedRgbaGrid.ts';
+import { serializeRasterExt } from '../../logic/raster/PackedRasterExt.ts';
 
 export function yieldToGalleryIdle() {
   return new Promise((resolve) => {
@@ -78,8 +79,9 @@ export async function cloneLayersIdle(layers, boundsFor, isCurrent,
       isCurrent, yieldWork);
     if (!grid) return null;
     const packed = grid.format === 'rgba-rows-v1';
+    const ext = serializeRasterExt(layers[index].ext);
     output.push(cloneLayerRecord(layers[index], packed
-      ? { grid: [], rasterRows: grid } : { grid }));
+      ? { grid: [], rasterRows: grid, ext } : { grid, ext }));
   }
   return output;
 }

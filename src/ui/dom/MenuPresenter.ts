@@ -4,7 +4,7 @@ const MENU_IDS = [
   "ctx", "lctx", "cctx", "sctx", "trctx", "fxctx", "impmenu", "setmenu",
   "tctx", "rowctx", "brush-plus", "brush-menu", "font-menu", "brush-choice",
   "shape-choice", "sym-choice", "flip-choice", "center-choice", "zoom-choice",
-  "adjust-choice", "adjpop", "pal-new-choice", "ref-ctx", "anim-menu"
+  "adjust-choice", "adjpop", "pal-new-choice", "ref-ctx", "anim-menu", "trim-choice"
 ] as const;
 let menuCloseBound = false;
 

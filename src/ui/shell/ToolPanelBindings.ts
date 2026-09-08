@@ -37,6 +37,7 @@ export function bindToolPanelButtons(callbacks: ToolPanelCallbacks): void {
   bindChoiceMenu("t-shape", "shape-choice", callbacks.showModes);
   element<HTMLButtonElement>("t-move").onclick = callbacks.move;
   element<HTMLButtonElement>("trim-selected").onclick = callbacks.trimSelected;
+  bindChoiceMenu("trim-selected", "trim-choice", callbacks.showModes);
   element<HTMLButtonElement>("t-select").onclick = callbacks.select;
   element<HTMLButtonElement>("t-lasso").onclick = callbacks.lasso;
   element<HTMLButtonElement>("t-fill").onclick = callbacks.fill;

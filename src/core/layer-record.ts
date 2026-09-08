@@ -4,6 +4,7 @@ import { EFFECT_DEFAULTS } from "../config/defaults.ts";
 import { blank, cloneGrid, sparseGridStats } from "../logic/raster.ts";
 import { normalizeLegacyRasterLayer } from "./raster/legacyRasterOwner.ts";
 import { cloneTextSource } from "../logic/text-model.ts";
+import { cloneRasterExt } from "../logic/raster/PackedRasterExt.ts";
 
 export interface LayerEffect {
   id: number; type: string; visible: boolean; opacity?: number;
@@ -53,8 +54,8 @@ export const cloneLayerRecord = (L: LayerRecord,
   name: L.name, opacity: L.opacity, visible: L.visible, fid: L.fid,
   clip: !!L.clip, lock: !!L.lock, alphaLock: !!L.alphaLock,
   reference: !!L.reference, symLock: !!L.symLock,
-  ext: new Map([...(L.ext || [])].map(([key, cell]) =>
-    [key, Array.isArray(cell) ? cell.slice() : cell])),
+  ext: Object.prototype.hasOwnProperty.call(overrides, "ext")
+    ? overrides.ext! : cloneRasterExt(L.ext),
   grid: Object.prototype.hasOwnProperty.call(overrides, "grid")
     ? overrides["grid"] : cloneGrid(L.grid as object),
   effects: cloneFx(L.effects), kind: L.kind || "pixel",

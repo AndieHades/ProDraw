@@ -1,13 +1,13 @@
 import {
   CENTER_MODES, FLIP_MODES, ICONS, LINE_MODES, SHAPE_MODES,
-  SYM_MODES, SYM_TOOLS, ZOOM_MODES
+  SYM_MODES, SYM_TOOLS, TRIM_MODES, ZOOM_MODES
 } from "../../config/toolbar.ts";
 import { t } from "../../i18n/index.ts";
 import type { ShellActionName } from "../../contracts/shellActionCatalog.ts";
 import type { ShapeChoice, SymmetryFlag } from "./ToolPanelTypes.ts";
 
 export interface ToolChoiceCallbacks {
-  readonly action: (group: "center" | "flip" | "zoom", mode: string,
+  readonly action: (group: "center" | "flip" | "zoom" | "trim", mode: string,
     action: ShellActionName) => void;
   readonly shape: (mode: ShapeChoice) => void;
   readonly symmetryFlag: (flag: SymmetryFlag) => void;
@@ -59,10 +59,11 @@ export function buildToolChoices(callbacks: ToolChoiceCallbacks): void {
   buildActionChoices("flip-choice", "flip", FLIP_MODES, callbacks);
   buildActionChoices("center-choice", "center", CENTER_MODES, callbacks);
   buildActionChoices("zoom-choice", "zoom", ZOOM_MODES, callbacks);
+  buildActionChoices("trim-choice", "trim", TRIM_MODES, callbacks);
 }
 
 function buildActionChoices(
-  id: string, group: "center" | "flip" | "zoom",
+  id: string, group: "center" | "flip" | "zoom" | "trim",
   modes: readonly { readonly action: ShellActionName; readonly icon: keyof typeof ICONS;
     readonly key: string; readonly mode: string }[], callbacks: ToolChoiceCallbacks
 ): void {

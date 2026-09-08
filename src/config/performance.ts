@@ -2,6 +2,7 @@ export const PERFORMANCE_BUDGETS = Object.freeze({
   referenceViewport: { width: 1280, height: 720 },
   maximumFilledFixtureBytes: 48 * 1024 * 1024,
   coldCompositeMilliseconds: 500,
+  canvasTrimMilliseconds: 500,
   warmCompositeP95Milliseconds: 16,
   pointerKernelP95Milliseconds: 16,
   largeSoftDabP50Milliseconds: 75,

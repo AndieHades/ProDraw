@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { doUndo } from "../../src/core/history.js";
 import { dirtyAll } from "../../src/core/layer-cache.js";
 import { newLayer, S } from "../../src/core/state.ts";
-import { trimSelectedLayers } from "../../src/systems/trim.js";
+import { trimCanvas, trimSelectedLayers } from "../../src/systems/trim.js";
 
 const rgba = (red) => [red, 2, 3, 255];
 const pixel = (layer, x, y, red) => { layer.grid[y][x] = rgba(red); };
@@ -77,5 +77,23 @@ describe("selected layer canvas trim", () => {
     S.layers = [newLayer("Empty", 12, 10)]; dirtyAll({ preserveGridBounds: true });
     expect(trimSelectedLayers()).toBe(false);
     expect([S.W, S.H]).toEqual([12, 10]); expect(S.undoStack).toHaveLength(0);
+  });
+
+  it("fits all layers after selected trim, including hidden off-canvas content, with Undo", () => {
+    const target = newLayer("Target", 12, 10), hidden = newLayer("Hidden", 12, 10);
+    pixel(target, 4, 3, 60); pixel(target, 6, 5, 61);
+    pixel(hidden, 0, 0, 70); pixel(hidden, 11, 9, 71); hidden.visible = false;
+    S.layers = [target, hidden]; S.cur = 0;
+    expect(trimSelectedLayers()).toBe(true);
+    expect([S.W, S.H]).toEqual([3, 3]);
+    const cropped = hidden.grid, outside = hidden.ext;
+    expect(trimCanvas()).toBe(true);
+    expect([S.W, S.H]).toEqual([12, 10]);
+    expect(hidden.grid[0][0]).toEqual(rgba(70));
+    expect(hidden.grid[9][11]).toEqual(rgba(71));
+    expect(target.grid[3][4]).toEqual(rgba(60));
+    expect(S.undoStack).toHaveLength(2);
+    doUndo(); expect([S.W, S.H]).toEqual([3, 3]);
+    expect(hidden.grid).toBe(cropped); expect(hidden.ext).toBe(outside);
   });
 });

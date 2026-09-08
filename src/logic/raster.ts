@@ -5,6 +5,7 @@ export const parseKey = (k: string): [number, number] => {
 };
 import type { GridBounds } from "./raster-grid.ts";
 import { gridBounds } from "./raster-grid.ts";
+import { rasterExtBounds } from "./raster/rasterExtRegion.ts";
 
 export type RasterCell = number[] | null;
 export { bres, ellipseEdges, ellipseFill, rectEdges,
@@ -45,11 +46,10 @@ export function alphaBounds(data: ArrayLike<number>, W: number, H: number,
 // границы слоя, даже если часть вышла за холст. Координаты ext могут быть < 0.
 export function boundsWithExt(grid: object,
   ext?: Map<string, unknown> | null): GridBounds | null {
-  let b = gridBounds(grid);
-  if (ext) for (const k of ext.keys()) { const [x, y] = parseKey(k);
-    if (!b) b = { minx: x, miny: y, maxx: x, maxy: y };
-    else { if (x < b.minx) b.minx = x; if (x > b.maxx) b.maxx = x; if (y < b.miny) b.miny = y; if (y > b.maxy) b.maxy = y; } }
-  return b;
+  const b = gridBounds(grid), outside = rasterExtBounds(ext);
+  if (!b || !outside) return b ?? outside;
+  return { minx: Math.min(b.minx, outside.minx), miny: Math.min(b.miny, outside.miny),
+    maxx: Math.max(b.maxx, outside.maxx), maxy: Math.max(b.maxy, outside.maxy) };
 }
 
 // сделать сетку симметричной: зеркалим опорную половину на вторую по осям

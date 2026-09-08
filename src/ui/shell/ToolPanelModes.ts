@@ -1,6 +1,6 @@
 import {
   CENTER_MODES, FLIP_MODES, ICONS, LINE_MODES, SHAPE_MODES,
-  SYM_MODES, SYM_TOOLS, ZOOM_MODES
+  SYM_MODES, SYM_TOOLS, TRIM_MODES, ZOOM_MODES
 } from "../../config/toolbar.ts";
 import { t } from "../../i18n/index.ts";
 import type { ShapeChoice, SymmetryFlag, ToolPanelState } from "./ToolPanelTypes.ts";
@@ -23,6 +23,7 @@ export class ToolPanelModes {
   flip = "h";
   center = "center";
   zoom = "fit";
+  trim = "selected";
 
   shapeConfig(): IconMode {
     const shape = this.shape;
@@ -44,6 +45,7 @@ export class ToolPanelModes {
   flipConfig() { return FLIP_MODES.find((item) => item.mode === this.flip) ?? FLIP_MODES[0]; }
   centerConfig() { return CENTER_MODES.find((item) => item.mode === this.center) ?? CENTER_MODES[0]; }
   zoomConfig() { return ZOOM_MODES.find((item) => item.mode === this.zoom) ?? ZOOM_MODES[0]; }
+  trimConfig() { return TRIM_MODES.find((item) => item.mode === this.trim) ?? TRIM_MODES[0]; }
 
   updateShapeFrom(state: ToolPanelState): void {
     if (state.tool === "line") this.shape = { kind: "line", mode: state.lineMode || "line" };
@@ -64,6 +66,7 @@ export class ToolPanelModes {
     setButtonIcon(element("flip-h"), this.flipConfig());
     setButtonIcon(element("center"), this.centerConfig());
     setButtonIcon(element("zoom"), this.zoomConfig());
+    setButtonIcon(element("trim-selected"), this.trimConfig());
     element("sym")?.classList.toggle("on", this.symmetryActive(state));
     this.syncChoices(state);
   }
@@ -83,7 +86,7 @@ export class ToolPanelModes {
         state.symLineMode === button.dataset.symTool);
     });
     for (const [id, field] of [["flip-choice", this.flip], ["center-choice", this.center],
-      ["zoom-choice", this.zoom]] as const) {
+      ["zoom-choice", this.zoom], ["trim-choice", this.trim]] as const) {
       element(id)?.querySelectorAll<HTMLElement>("button").forEach((button) =>
         button.classList.toggle("on", Object.values(button.dataset).includes(field)));
     }

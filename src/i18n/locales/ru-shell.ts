@@ -107,6 +107,7 @@ export const ruShell: LocaleDictionary = {
   "side.crop": "Размер холста (C)",
   "side.trim": "Обрезать",
   "side.trimSelected": "Обрезать слои",
+  "side.fitAllLayers": "Холст по всем слоям",
   "side.center": "Центрировать",
   "side.centerFit": "Подогнать",
   "tool.effects": "Эффекты слоя",
