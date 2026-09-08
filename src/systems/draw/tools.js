@@ -43,14 +43,16 @@ const brush = {
   down({ gx, gy, sample }) { ensureLayer();
     beginStroke(S.tool === 'adjust' && S.layers[S.cur]?.kind === 'pixel');
     qsBegin(gx, gy); stamp(gx, gy, true, sample); last = [gx, gy]; bus.emit('render'); },
-  move({ gx, gy, sample }) {
+  move({ gx, gy, sample, flush = true }) {
     if (qsMove(gx, gy)) { bus.emit('render'); return; } // QuickShape выровнял форму — raw больше не рисуем
     // Пресет-кисть сама держит интервал между дабами, поэтому растровая
     // интерполяция Bresenham для неё не нужна.
-    if (!continueBrushStroke(sample)) {
+    if (!continueBrushStroke(sample, flush)) {
       if (last) line(last[0], last[1], gx, gy); else stamp(gx, gy, true, sample); }
-    last = [gx, gy]; bus.emit('render'); },
-  up() { endBrushStroke(); qsRelease(); S.stroke = false; last = null;
+    last = [gx, gy]; if (flush) bus.emit('render'); },
+  up({ samples = [] } = {}) {
+    if (!S.qsShape) for (const sample of samples) continueBrushStroke(sample, false);
+    endBrushStroke(); qsRelease(); S.stroke = false; last = null;
     if (S.tool === 'pencil' || (S.tool === 'adjust' && S.adjMode === 'colorize')) actions.run('color.used', S.active);
     afterStroke(); bus.emit('render'); }, // удержал → коммитит ровную форму, иначе raw остаётся
   cancel() { const hadStroke = S.stroke; qsRelease();

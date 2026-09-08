@@ -1,25 +1,14 @@
 import type { BrushPreset, CoverageMap, LoadedBrush } from "../../contracts/brush";
+import type { BrushTipTransform } from "../../contracts/brushSampling.ts";
+export type { BrushTipTransform } from "../../contracts/brushSampling.ts";
 import rasterConfig from "../../config/brush-raster.json" with { type: "json" };
-import { sampleCoverage, sampleTile } from "./coverageSampling.ts";
-import { buildCoverageMips, sampleCoverageMips,
-  type CoverageMips } from "./coverageMips.ts";
+import { sampleTile } from "./coverageSampling.ts";
+import { prepareBrushTip } from "./prepareBrushTip.ts";
 import { DEFAULT_GRAIN, DEFAULT_SHAPE } from "../../config/brushDefaults.ts";
 import { adjustGrain, adjustedGrainMean } from "./grainAdjustment.ts";
 
 function shapeOf(brush: BrushPreset | LoadedBrush): CoverageMap | null {
   return "shapeMap" in brush ? brush.shapeMap : null;
-}
-
-export interface BrushTipTransform {
-  // Радиус отпечатка в пикселях холста. Знает его только рендерер даба, а
-  // сэмплеру он нужен дважды: чтобы кромка была не тоньше пикселя и чтобы
-  // выбрать уровень пирамиды карты формы.
-  readonly pixelRadius?: number;
-  readonly rotation?: number;
-  readonly scaleX?: number;
-  readonly scaleY?: number;
-  readonly flipX?: boolean;
-  readonly flipY?: boolean;
 }
 
 export interface BrushTextureTransform {
@@ -34,6 +23,8 @@ export interface BrushCoverageSampler {
   readonly tip: (normalizedX: number, normalizedY: number,
     transform?: BrushTipTransform) => number;
   readonly texture: (x: number, y: number, transform?: BrushTextureTransform) => number;
+  readonly prepareTip: (transform?: BrushTipTransform) => (x: number, y: number) => number;
+  readonly prepareTexture: (transform?: BrushTextureTransform) => (x: number, y: number) => number;
   readonly textured: boolean;
   readonly radialEdge: number | null;
   readonly textureWidth: number;
@@ -63,10 +54,25 @@ export function brushCoverageSampler(
   const physicalWidth = reference * physicalScale * Math.max(0.05, grainSettings.zoom);
   const physicalHeight = reference > 0 && grain
     ? physicalWidth * grain.height / grain.width : 0;
-  let mips: CoverageMips | null = null;
-  const shapeMips = (): CoverageMips | null => {
-    if (!shape) return null;
-    return (mips ??= buildCoverageMips(shape));
+  const prepareTip = (transform: BrushTipTransform = {}) =>
+    prepareBrushTip(shape, shapeSettings, transform);
+  const prepareTexture = (transform?: BrushTextureTransform) => {
+    const movement = grainSettings.behavior === "moving" ? grainSettings.movement : 0;
+    const offsetX = (transform?.offsetX ?? 0) - (transform?.centerX ?? 0) * movement;
+    const offsetY = (transform?.offsetY ?? 0) - (transform?.centerY ?? 0) * movement;
+    const ratio = grain && reference > 0 ? grain.width / reference : 1;
+    const coordinateScale = ratio / (Math.max(0.05, grainSettings.zoom) * physicalScale);
+    const cosine = Math.cos(grainSettings.rotation) * coordinateScale;
+    const sine = Math.sin(grainSettings.rotation) * coordinateScale;
+    const depth = Math.max(grainSettings.minimumDepth, strength * (transform?.depthScale ?? 1));
+    return (x: number, y: number): number => {
+      if (strength <= 0 || !grain) return 1;
+      const sx = x + offsetX, sy = y + offsetY;
+      const value = sampleTile(grain, sx * cosine + sy * sine,
+        -sx * sine + sy * cosine, grainSettings.filtering);
+      return Math.max(0, 1 + (adjustGrain(value, grainSettings.brightness,
+        grainSettings.contrast) - grainMean) * depth);
+    };
   };
   const sampler: BrushCoverageSampler = {
     textured: strength > 0 && Boolean(grain),
@@ -74,52 +80,9 @@ export function brushCoverageSampler(
       ? edge : null,
     textureWidth: Math.round(physicalWidth),
     textureHeight: Math.round(physicalHeight),
-    tip: (normalizedX, normalizedY, transform = {}) => {
-      const angle = shapeSettings.angle + (transform.rotation ?? 0);
-      const cosine = Math.cos(angle), sine = Math.sin(angle);
-      const sourceX = normalizedX * (transform.flipX ? -1 : 1) /
-        Math.max(0.05, transform.scaleX ?? 1);
-      const sourceY = normalizedY * (transform.flipY ? -1 : 1) /
-        Math.max(0.05, transform.scaleY ?? 1);
-      const transformedX = sourceX * cosine + sourceY * sine;
-      const transformedY = (-sourceX * sine + sourceY * cosine) / roundness;
-      if (Math.abs(transformedX) > 1 || Math.abs(transformedY) > 1) return 0;
-      if (shape) {
-        const levels = shapeMips();
-        const pixelRadius = transform.pixelRadius ?? 0;
-        const texelsPerPixel = pixelRadius > 0 ? shape.width / (pixelRadius * 2) : 0;
-        return levels ? sampleCoverageMips(levels, (transformedX + 1) / 2,
-          (transformedY + 1) / 2, texelsPerPixel, shapeSettings.filtering)
-          : sampleCoverage(shape, (transformedX + 1) / 2,
-            (transformedY + 1) / 2, shapeSettings.filtering);
-      }
-      const distance = Math.hypot(transformedX, transformedY);
-      const pixel = transform.pixelRadius ?? 0;
-      const softness = Math.max(edge, pixel > 0 ? 1 / pixel : 0);
-      return distance >= 1 ? 0 : Math.min(1, Math.max(0, (1 - distance) / softness));
-    },
-    texture: (x, y, transform) => {
-      if (strength <= 0) return 1;
-      const centerX = transform?.centerX ?? 0, centerY = transform?.centerY ?? 0;
-      const localX = x - centerX, localY = y - centerY;
-      const moving = grainSettings.behavior === "moving";
-      const movement = moving ? grainSettings.movement : 0;
-      const sourceX = x * (1 - movement) + localX * movement + (transform?.offsetX ?? 0);
-      const sourceY = y * (1 - movement) + localY * movement + (transform?.offsetY ?? 0);
-      const cosine = Math.cos(grainSettings.rotation), sine = Math.sin(grainSettings.rotation);
-      const zoom = Math.max(0.05, grainSettings.zoom);
-      const decodedRatio = grain && reference > 0 ? grain.width / reference : 1;
-      const coordinateScale = zoom * physicalScale;
-      const sampleX = (sourceX * cosine + sourceY * sine) * decodedRatio / coordinateScale;
-      const sampleY = (-sourceX * sine + sourceY * cosine) * decodedRatio / coordinateScale;
-      const sample = grain ? sampleTile(grain, sampleX, sampleY,
-        grainSettings.filtering) : 1;
-      const adjusted = adjustGrain(sample, grainSettings.brightness,
-        grainSettings.contrast);
-      const depth = Math.max(grainSettings.minimumDepth,
-        strength * (transform?.depthScale ?? 1));
-      return Math.max(0, 1 + (adjusted - grainMean) * depth);
-    }
+    prepareTip, prepareTexture,
+    tip: (x, y, transform) => prepareTip(transform)(x, y),
+    texture: (x, y, transform) => prepareTexture(transform)(x, y)
   };
   samplers.set(brush, sampler); return sampler;
 }

@@ -6,20 +6,22 @@ import { strokeRandom } from "../brush/strokeRandom.ts";
 import { StrokeStabilizer } from "./StrokeStabilizer.ts";
 import rasterConfig from "../../config/brush-raster.json" with { type: "json" };
 import { taperResponse } from "./taperResponse.ts";
-import { DEFAULT_SHAPE } from "../../config/brushDefaults.ts";
+import { pressureBrushSize } from "../brush/pressureBrushSize.ts";
+import { StrokeOrientation } from "./StrokeOrientation.ts";
+import { strokeTailPatch, type StrokeTailPatch } from "./strokeTailPatch.ts";
 
 export function rasterDabSpacing(size: number, requested: number): number {
   return Math.max(rasterConfig.dabSpacing.minimumPixels,
-    Math.max(1, size) * rasterConfig.dabSpacing.minimumSizeRatio,
-    Math.max(1, size) * requested);
+    Math.min(rasterConfig.dabSpacing.maximumRasterStep, size * rasterConfig.dabSpacing.coverageStepRatio),
+    size * rasterConfig.dabSpacing.minimumSizeRatio, size * requested);
 }
 
 export class StrokePipeline {
   readonly #brush: BrushPreset | LoadedBrush;
-  readonly #spacing: number;
   readonly #size: number;
   readonly #stabilizer: StrokeStabilizer;
   readonly #maximumSegment: number;
+  readonly #orientation = new StrokeOrientation();
   #last: StrokeSample | null = null;
   #plannedSource: StrokeSample | null = null;
   #travelled = 0;
@@ -35,7 +37,6 @@ export class StrokePipeline {
     maximumSegment = Number.POSITIVE_INFINITY) {
     this.#brush = brush;
     this.#size = Math.max(1, size);
-    this.#spacing = rasterDabSpacing(size, brush.strokePath.spacing);
     this.#stabilizer = new StrokeStabilizer(brush.stabilization, size);
     this.#maximumSegment = maximumSegment;
   }
@@ -63,6 +64,10 @@ export class StrokePipeline {
       return { ...sample, sizeScale: taper.sizeScale,
         opacityScale: taper.opacityScale };
     });
+  }
+
+  tailPatch(): StrokeTailPatch | null {
+    return strokeTailPatch(this.#brush, this.#size, this.#plan, this.completedPlan());
   }
 
   private samples(points: readonly StrokeSample[]): StrokeSample[] {
@@ -97,7 +102,9 @@ export class StrokePipeline {
   private nextSpacing(): number {
     const jitter = (strokeRandom(this.#brush.id, this.#dab, 1) * 2 - 1) *
       this.#brush.strokePath.spacingJitter;
-    return rasterDabSpacing(this.#size, this.#spacing * (1 + jitter) / this.#size);
+    const sample = this.#plan.at(-1);
+    const size = sample ? pressureBrushSize(this.#brush, this.#size, sample) : this.#size;
+    return rasterDabSpacing(size, this.#brush.strokePath.spacing * (1 + jitter));
   }
 
   private sameSample(left: StrokeSample, right: StrokeSample): boolean {
@@ -126,17 +133,7 @@ export class StrokePipeline {
       this.#travelled / (this.#size * 20));
     const dabIndex = this.#dab;
     this.#dab += 1;
-    const pathAngle = Math.atan2(directionY, directionX);
-    const tiltAngle = Math.hypot(sample.tiltX, sample.tiltY) > 0.01
-      ? Math.atan2(sample.tiltY, sample.tiltX) : pathAngle;
-    const shapeInput = this.#brush.shape.inputStyle ?? DEFAULT_SHAPE.inputStyle;
-    const shapeAngle = shapeInput === "touch" ? pathAngle : tiltAngle;
-    // Отпечаток идёт по ходу кисти. Раньше поворот умножался на `rotation`
-    // пресета, а он у большинства кистей нулевой: вытянутый отпечаток ставился
-    // под одним углом, и штрих читался лестницей одинаковых оттисков.
-    // Отказаться от поворота может только сам пресет — `orientToScreen`
-    // держит отпечаток в осях экрана.
-    const rotation = this.#brush.properties.orientToScreen ? 0 : shapeAngle;
+    const rotation = this.#orientation.rotation(this.#brush, sample, previous);
     const planned = { ...sample,
       x: exactPosition ? sample.x : sample.x + directionX * linear - directionY * lateral,
       y: exactPosition ? sample.y : sample.y + directionY * linear + directionX * lateral,

@@ -31,7 +31,7 @@ export function updateHover(canvas: HTMLElement, event: HoverEvent,
   const eyedropper = (S["eyedrop"] as { active?: boolean } | undefined)?.active;
   let cursor = over && eyedropper ? "none" : over ? "crosshair" : "default";
   let handled: string | null = null; // hover глобальных обработчиков имеет побочные эффекты
-  for (const handler of globalHandlers()) {
+  for (const handler of interactive ? globalHandlers() : []) {
     const value = cursorOf(handler.hover?.({ gx: hx, gy: hy, e: event }));
     if (value && !handled) handled = value;
   }

@@ -37,8 +37,8 @@ function presetCoverage(brush: LoadedBrush, path: readonly StrokeSample[],
   const render = (dabs: readonly StrokeSample[]): void => {
     for (const dab of dabs) engine.visitBrushDab(brush, dab, settings, put);
   };
-  for (const sample of path) render(pipeline.push(sample));
-  render(pipeline.finish()); return true;
+  for (const sample of path) pipeline.push(sample);
+  pipeline.finish(); render(pipeline.completedPlan()); return true;
 }
 
 function tipCoverage(path: readonly StrokeSample[], size: number, square: boolean,

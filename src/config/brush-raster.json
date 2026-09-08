@@ -12,7 +12,9 @@
     "integrationGrid": 8
   },
   "dabSpacing": {
-    "minimumPixels": 1,
-    "minimumSizeRatio": 0.01
+    "minimumPixels": 0.25,
+    "minimumSizeRatio": 0.01,
+    "coverageStepRatio": 0.1,
+    "maximumRasterStep": 1
   }
 }

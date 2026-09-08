@@ -52,6 +52,14 @@ target, второй runtime или рост этих пределов.
 Все privileged IPC handlers проходят общий exact-origin/exact-file sender guard,
 а двоичные brush payload передаются как `ArrayBuffer`, без `number[]` amplification.
 
+В живой панели `ui.brushSettings` открывает `LiveBrushSettingsPresenter` через
+composition root `app/registerBrushSettings.ts`. `draw/brush-settings.ts`
+связывает команды с `LiveBrushPreferences`: версия 1 хранит проверенные overrides,
+размер и opacity отдельно для каждого пресета/копии, не копируя bitmap-массивы.
+Поддержанные контролы задаёт `config/liveBrushControls.ts`; сброс возвращает
+архивные настройки. Проверки и ограничения — в
+[ремонте хода пера](project/pen-brush-response-repair-plan.md).
+
 `src/logic/stroke/StrokePipeline.ts` — единая чистая цепочка pressure response →
 stabilization → spacing для документа и Drawing Pad. `DrawingSystem` открывает
 одну `RasterEdit` на жест и направляет её либо в RGBA brush dab, либо в локальный
@@ -62,6 +70,11 @@ Windows Ink не создаёт лишний полный dab, пока перо
 авторский интервал. Recovery bridge объединяет opacity в локальных 32×32 tiles,
 а contour cursor скрыт только во время активного штриха, чтобы тяжёлый dab не
 показывал запоздавший контур в предыдущей координате.
+Production input дополнительно удерживает pointerId, отличает пропущенное
+давление от нулевого после контакта и делает один flush на coalesced-пакет.
+Интервал зависит от фактического размера после pressure/taper. На отпускании
+`strokeTailPatch` восстанавливает исходную область кончика и пересчитывает её
+пересечения; симметрия и Tile Mode используют полный replay ради mapped overlaps.
 
 `DocumentWorkflow` владеет New/Open/Save/Save As, dirty revision и close guard.
 `DocumentRepository` хранит несколько работ и две атомарные recovery-generation

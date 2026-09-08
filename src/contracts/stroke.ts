@@ -26,6 +26,12 @@ export interface BrushRenderSettings {
   readonly size: number;
   readonly opacity: number;
   readonly erase: boolean;
+  readonly bounds?: StrokeBounds;
+}
+
+export interface StrokeBounds {
+  readonly minx: number; readonly miny: number;
+  readonly maxx: number; readonly maxy: number;
 }
 
 export type DrawingTool = "brush" | "smudge" | "eraser";

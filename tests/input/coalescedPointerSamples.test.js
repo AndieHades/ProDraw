@@ -79,4 +79,25 @@ describe('pointer samples reaching the tool', () => {
   it('registers the tool handler it replaced for other suites', () => {
     expect(toolHandler('pencil')).toBeTruthy();
   });
+
+  it('flushes a coalesced batch once and includes release coordinates and pressure', () => {
+    const flushes = [], released = [];
+    registerTool('pencil', { down() {}, move: ({ flush }) => flushes.push(flush),
+      up: ({ samples }) => released.push(...samples) });
+    down(pointer(4, 4));
+    move(pointer(12, 4, [pointer(8, 4), pointer(12, 4)]));
+    up({ ...pointer(19.25, 7.5), pressure: 0 });
+    expect(flushes).toEqual([false, true]);
+    expect(released).toHaveLength(1);
+    expect(released[0]).toMatchObject({ x: 19.25, y: 7.5, pressure: 0, pointerType: 'pen' });
+  });
+
+  it('ignores foreign moves, releases and a second down during an active stroke', () => {
+    down(pointer(4, 4));
+    down({ ...pointer(10, 20), pointerId: 2 });
+    move({ ...pointer(12, 20), pointerId: 2 });
+    up({ ...pointer(12, 20), pointerId: 2 });
+    move(pointer(20, 4));
+    expect(seen).toEqual(['20,4']);
+  });
 });

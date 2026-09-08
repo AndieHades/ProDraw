@@ -1,0 +1,28 @@
+:root { --brush-settings-width: 460px; --brush-settings-height: 80vh; }
+#live-brush-settings {
+  width: min(var(--brush-settings-width), calc(100vw - var(--btn)));
+  max-height: var(--brush-settings-height); box-sizing: border-box;
+  padding: var(--dialog-pad-x); color: var(--txt); background: var(--panel-solid);
+  border: 1px solid var(--line); border-radius: var(--win-radius); box-shadow: var(--win-shadow);
+  font: var(--type-label) var(--font-ui);
+}
+#live-brush-settings[open] { display: flex; flex-direction: column; overflow: hidden; }
+#live-brush-settings .live-brush-controls { overflow-y: auto; min-height: 0; }
+#live-brush-settings h2 { margin: 0; font-size: var(--type-dialog-title); }
+#live-brush-settings p { color: var(--txt2); }
+#live-brush-settings details { padding: var(--gap) 0; border-bottom: 1px solid var(--line); }
+#live-brush-settings summary { cursor: pointer; font-weight: var(--fw-heading); }
+#live-brush-settings label {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--gap);
+  padding-top: var(--gap); align-items: center;
+}
+#live-brush-settings input[type=range], #live-brush-settings select {
+  grid-column: 1 / -1; width: 100%; min-width: 0; margin: 0; box-sizing: border-box;
+}
+#live-brush-settings input { accent-color: var(--accent); }
+#live-brush-settings select, #live-brush-settings button {
+  color: var(--txt); background: var(--row); border: 1px solid var(--line);
+  border-radius: var(--r-sm); padding: var(--gap); min-height: var(--btn-xs);
+}
+#live-brush-settings footer { display: flex; flex-shrink: 0; justify-content: space-between; gap: var(--gap); padding-top: var(--gap); }
+#live-brush-settings footer button { width: auto; white-space: nowrap; }

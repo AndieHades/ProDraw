@@ -7,10 +7,11 @@ type Visitor = (x: number, y: number, opacity: number) => void;
 function integratedTip(sampler: BrushCoverageSampler,
   stamp: DabStampPlan): number {
   const grid = rasterConfig.subpixelDab.integrationGrid;
+  const tip = sampler.prepareTip(stamp);
   let coverage = 0;
   for (let y = 0; y < grid; y += 1) for (let x = 0; x < grid; x += 1) {
-    coverage += sampler.tip((x + 0.5) / grid * 2 - 1,
-      (y + 0.5) / grid * 2 - 1, stamp);
+    coverage += tip((x + 0.5) / grid * 2 - 1,
+      (y + 0.5) / grid * 2 - 1);
   }
   return coverage / (grid * grid);
 }

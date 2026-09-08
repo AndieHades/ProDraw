@@ -47,7 +47,11 @@ export function createCellPainter(erase) {
   const writes = [];
   const opaqueColor = [color[0], color[1], color[2], 255];
   const symmetric = symmetry.x || symmetry.y || symmetry.d1 || symmetry.d2;
-  let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+  const width = S.W, height = S.H, tiled = !!S.tile?.on;
+  const selected = !!(S.sel || S.selMask);
+  let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity, clip = null;
+  const insideClip = (x, y) => !clip || (x >= clip.minx && x <= clip.maxx &&
+    y >= clip.miny && y <= clip.maxy);
   const apply = (x, y, opacity) => {
     const key = y * S.W + x;
     let dst = base.get(key);
@@ -59,15 +63,16 @@ export function createCellPainter(erase) {
     if (erase) { const a1 = ((dst.length > 3 ? dst[3] : 255) / 255) * (1 - opacity);
       value = a1 < .04 ? null : [dst[0], dst[1], dst[2], Math.round(a1 * 255)]; }
     else value = opacity >= 1 ? opaqueColor : blendOver(color, dst, opacity);
+    if (value && value[3] === 0) value = null;
     grid[y][x] = value;
     writes.push(cellWrite(x, y, value));
     if (x < minx) minx = x; if (x > maxx) maxx = x;
     if (y < miny) miny = y; if (y > maxy) maxy = y;
   };
   const paint = (x, y, opacity) => {
-    if (layer.lock) return;
-    if (S.tile && S.tile.on) [x, y] = wrapTilePoint(x, y, S.W, S.H);
-    if (x < 0 || y < 0 || x >= S.W || y >= S.H || !inSel(x, y)) return;
+    if (layer.lock || !insideClip(x, y)) return;
+    if (tiled) [x, y] = wrapTilePoint(x, y, width, height);
+    if (x < 0 || y < 0 || x >= width || y >= height || (selected && !inSel(x, y))) return;
     const amount = Math.max(0, Math.min(1, opacity)); if (amount <= 0) return;
     if (!symmetric) { pending.add(x, y, amount); return; }
     for (const [px, py] of mirrorPoints(x, y, S.W, S.H, false, false, symmetry))
@@ -77,14 +82,16 @@ export function createCellPainter(erase) {
     markDirty(layerIndex, { minx, miny, maxx, maxy });
     minx = Infinity; miny = Infinity; maxx = -Infinity; maxy = -Infinity;
   } };
-  return { paint, reset() {
+  return { paint, localReplay: !symmetric && !S.tile?.on, reset(bounds = null) {
+    clip = bounds;
     for (const [key, cell] of base) { const x = key % S.W, y = Math.floor(key / S.W);
+      if (!insideClip(x, y)) continue;
       writes.push(cellWrite(x, y, cell ? cell.slice() : null));
       if (x < minx) minx = x; if (x > maxx) maxx = x;
       if (y < miny) miny = y; if (y > maxy) maxy = y; }
     for (const write of writes) grid[write.y][write.x] = write.value;
     owner.setPreparedCells(writes); writes.length = 0;
-    base.clear(); pending.clear(); dirty();
+    pending.clear(); dirty();
   }, flush() {
     pending.visitDirty(apply, (minX, minY, maxX, maxY) =>
       owner.prepareRegion(minX, minY, maxX, maxY));

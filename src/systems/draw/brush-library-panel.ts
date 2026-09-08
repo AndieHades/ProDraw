@@ -3,12 +3,15 @@ import { S } from "../../core/state.ts";
 import * as actions from "../../core/actions.ts";
 import * as bus from "../../core/bus.ts";
 import { $, t, toast } from "../../core/shell.ts";
-import { ensurePresetBrush, presetBrush, presetBrushCatalog, presetIdOf,
+import { ensurePresetBrush, presetBrushForShape, presetBrushCatalog, presetIdOf,
   presetShapeId, type PresetBrushEntry } from "./preset-brush.ts";
 import { brushTile, panelInk } from "./brush-tile.ts";
 import { addUserBrush, removeUserBrush, userBrush, userBrushes, userIdOf,
   userShapeId } from "./brush-library-store.ts";
 import { buildBrushPanel } from "./brush-panel-chrome.ts";
+import { liveBrushPreferences } from "../../core/brush/LiveBrushPreferences.ts";
+import { rememberBrushToolControls, restoreBrushToolControls } from
+  "../../core/brush/liveBrushToolControls.ts";
 
 type BrushTool = "pencil" | "eraser";
 const SHAPES = [{ id: "round", key: "brush.round" },
@@ -30,11 +33,13 @@ function save(): void {
 let presets: readonly PresetBrushEntry[] = [];
 
 function choose(shape: string): void {
-  const tool = activeTool(); shapes()[tool] = shape;
+  const tool = activeTool(); rememberBrushToolControls(tool); shapes()[tool] = shape;
   const copy = userBrush(userIdOf(shape));
   if (copy) { // копия несёт свои размер и непрозрачность
     S[sizeKey(tool)] = copy.size; opacities()[tool] = copy.opacity;
   }
+  const brush = presetBrushForShape(shape);
+  if (brush) restoreBrushToolControls(tool, brush, copy ?? undefined);
   save(); render(); bus.emit("tool"); bus.emit("render");
 }
 
@@ -53,23 +58,24 @@ const presetName = (id: string): string =>
 function duplicate(): void {
   const shape = selected(), source = presetIdOf(shape);
   if (!source) { toast(t("toast.brushCopyShape")); return; }
+  rememberBrushToolControls();
   const base = userBrush(userIdOf(shape))?.name ?? presetName(source);
   const copy = addUserBrush({ source, name: t("brush.copyName", { name: base }),
     size: toolSize(), opacity: opacities()[activeTool()] ?? 1 });
-  choose(userShapeId(copy.id));
+  liveBrushPreferences.copy(shape, userShapeId(copy.id)); choose(userShapeId(copy.id));
 }
 
 // Встроенные пресеты поставляются с приложением: удалить можно только копию.
 function remove(): void {
   const id = userIdOf(selected());
   if (!id) { toast(t("toast.brushBuiltin")); return; }
-  removeUserBrush(id); choose("round");
+  const shape = selected(); removeUserBrush(id); choose("round"); liveBrushPreferences.reset(shape);
 }
 
 const libraryTile = (shape: string, label: string,
   ink: readonly [number, number, number], current: string): HTMLButtonElement =>
   brushTile({ key: shape, label, ink, selected: current === shape,
-    brush: presetBrush(presetIdOf(shape)), choose: () => void choosePreset(shape) });
+    brush: presetBrushForShape(shape), choose: () => void choosePreset(shape) });
 
 function render(): void {
   const list = $("brush-list"); if (!list) return;
@@ -84,6 +90,8 @@ function render(): void {
       libraryTile(userShapeId(copy.id), copy.name, ink, current)));
   const trash = $("brush-del");
   if (trash instanceof HTMLButtonElement) trash.disabled = !userIdOf(current);
+  const edit = $("brush-edit");
+  if (edit instanceof HTMLButtonElement) edit.disabled = !presetBrushForShape(current);
 }
 
 // Превью читает декодированную кисть, поэтому библиотека декодируется при
@@ -109,7 +117,14 @@ export async function restoreSelectedPresets(): Promise<void> {
     if (!id) continue;
     const brush = await ensurePresetBrush(id,
       (name) => toast(t("toast.brushLoadFailed", { name })));
-    if (brush) continue;
+    if (brush) {
+      for (const tool of ["pencil", "eraser"] as const) if (presetIdOf(shapes()[tool]) === id) {
+        const shape = shapes()[tool] ?? "round";
+        restoreBrushToolControls(tool, presetBrushForShape(shape) ?? brush,
+          userBrush(userIdOf(shape)) ?? undefined);
+      }
+      continue;
+    }
     for (const tool of Object.keys(shapes())) {
       if (presetIdOf(shapes()[tool]) === id) shapes()[tool] = "round";
     }
@@ -124,8 +139,9 @@ export function mount(): void {
   } catch { /* сохранённый выбор необязателен */ }
   void restoreSelectedPresets();
   const panel = $("brush-pop"); if (!panel) return;
-  buildBrushPanel(panel, { duplicate, remove });
+  const settings = () => actions.run("ui.brushSettings");
+  buildBrushPanel(panel, { duplicate, remove, settings });
   actions.registerOrReplace("ui.brushLibrary", toggle);
   bus.on("tool", () => { if (panel.classList.contains("on")) render(); });
-  bus.on("locale", () => { buildBrushPanel(panel, { duplicate, remove }); render(); });
+  bus.on("locale", () => { buildBrushPanel(panel, { duplicate, remove, settings }); render(); });
 }

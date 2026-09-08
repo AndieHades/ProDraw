@@ -1,6 +1,4 @@
-// Система ввода: мышь/перо и колесо на холсте. Диспетчеризует указатель в
-// обработчики инструментов/режимов (core/canvas-handlers), пан правой кнопкой,
-// зум колесом, Alt — пипетка. Тач-жесты — в ./gestures.js.
+// Pointer routing and ownership; touch gestures live in gestures.js.
 import { S } from '../../core/state.ts';
 import * as bus from '../../core/bus.ts';
 import * as actions from '../../core/actions.ts';
@@ -16,17 +14,15 @@ import { shouldStartCanvasPan } from '../../logic/view/CanvasPanPolicy.ts';
 import { CanvasPanSession } from '../viewport/CanvasPanSession.ts';
 import { zoomLegacyViewAt } from '../../logic/view/LegacyViewGeometry.ts';
 import { actualPointerEvents } from '../../core/input/actualPointerEvents.ts';
-import { strokeSampleFromPointer } from '../../logic/input/strokeSampleFromPointer.ts';
-import { POINTER_INPUT } from '../../config/pointer.ts';
+import { StrokePointerSession } from '../../core/input/StrokePointerSession.ts';
 import { mountGestures } from './gestures.js';
 import { isInsideTileWorkArea } from '../../logic/TileGeometry.ts';
 import { forgetCursor, updateHover } from './hover.ts';
 
 const cv = () => $('cv');
-// Инструмент получает нормализованный сэмпл: давление и наклон пера доходят
-// до него, а мышь и палец получают предсказуемый fallback из config.
-const sampleAt = (rx, ry, source) =>
-  strokeSampleFromPointer(rx, ry, source, POINTER_INPUT);
+const pointerSession = new StrokePointerSession();
+const sampleAt = (rx, ry, source, release = false) =>
+  pointerSession.sample(rx, ry, source, release);
 export const toGrid = (e) => gridAt(e.clientX, e.clientY);
 export const toCanvas = (e) => canvasAt(e.clientX, e.clientY);
 const activeMode = () => (S.cropMode ? modeHandler('crop') : S.rotMode ? modeHandler('transform') : null);
@@ -36,6 +32,7 @@ const inWorkArea = (gx, gy) =>
 const pan = new CanvasPanSession(DRAG_THRESHOLD);
 let drawing = false, activeGlobal = null;
 let activePointerId = null;
+const foreign = (e) => activePointerId != null && e?.pointerId != null && e.pointerId !== activePointerId;
 // Прямоугольник холста кеширует core/viewport на время жеста.
 export const forgetCanvasBounds = () => { forgetCursor(); releaseCanvasBounds(); };
 const hover = (e) => updateHover(cv(), e, !drawing && !pan.active && !activeMode());
@@ -43,6 +40,8 @@ function releaseCapture(e) { const id = e?.pointerId ?? activePointerId;
   if (id == null || (activePointerId != null && id !== activePointerId)) return;
   activePointerId = null; try { cv().releasePointerCapture(id); } catch (error) {} }
 export function down(e) {
+  if (drawing || pan.active || foreign(e)) return;
+  pointerSession.reset();
   holdCanvasBounds();
   if (e.pointerId != null) { activePointerId = e.pointerId; capture(e.pointerId); }
   const [rx, ry] = toCanvas(e), gx = Math.floor(rx), gy = Math.floor(ry);
@@ -61,6 +60,7 @@ export function down(e) {
 }
 
 export function move(e) {
+  if (foreign(e)) return;
   if (e.pointerType !== 'touch') hover(e);
   if (pan.active) { const next = pan.move(e);
     if (next?.moved) { S.view.ox = next.ox; S.view.oy = next.oy; bus.emit('render'); }
@@ -69,29 +69,36 @@ export function move(e) {
   const m = activeMode();
   if (m) { const [gx, gy] = toGrid(e); if (drawing) m.move({ gx, gy, e }); else if (m.hover) m.hover({ gx, gy, e }); return; }
   const h = toolHandler(S.tool);
-  // Перо отдаёт несколько сэмплов на кадр; раньше все, кроме последнего,
-  // терялись и штрих собирался из длинных интерполированных отрезков.
   if (drawing && h && h.move) { const r = canvasBounds();
-    for (const sample of actualPointerEvents(e)) {
+    const samples = actualPointerEvents(e);
+    for (const [index, sample] of samples.entries()) {
       const rx = (sample.clientX - r.left - S.view.ox) / S.view.zoom;
       const ry = (sample.clientY - r.top - S.view.oy) / S.view.zoom;
       h.move({ gx: Math.floor(rx), gy: Math.floor(ry), rx, ry, e: sample,
-        sample: sampleAt(rx, ry, sample) });
+        sample: sampleAt(rx, ry, sample), flush: index === samples.length - 1 });
     } }
   else if (e.pointerType !== 'touch') bus.emit('render'); // перерисовка контура кисти
 }
 
-export function up(e) { try {
+export function up(e) { if (foreign(e)) return; try {
   if (pan.active) { const result = pan.finish(); if (e && !result?.moved && result?.button === 2)
     bus.emit(S.sel && !S.selFloat ? 'selection-menu' : 'canvas-menu', e);
     return; }
   if (activeGlobal) { if (activeGlobal.up) activeGlobal.up({ e }); activeGlobal = null; drawing = false; return; }
   const m = activeMode(); if (m) { if (drawing && m.up) m.up({ e }); drawing = false; return; }
-  const h = toolHandler(S.tool); if (drawing && h && h.up) h.up({ e }); drawing = false;
+  const h = toolHandler(S.tool);
+  if (drawing && h?.up) {
+    const samples = Number.isFinite(e?.clientX) && Number.isFinite(e?.clientY)
+      ? actualPointerEvents(e).map((event) => {
+        const [x, y] = toCanvas(event); return sampleAt(x, y, event, true); }) : [];
+    h.up({ e, samples });
+  }
+  drawing = false;
   } finally { releaseCapture(e); releaseCanvasBounds(); }
 }
 
 export function cancel(e) {
+  if (foreign(e)) return;
   const wasDrawing = drawing, owner = activeGlobal || activeMode() || toolHandler(S.tool);
   drawing = false; activeGlobal = null; pan.cancel();
   try { if (wasDrawing && owner?.cancel) owner.cancel({ e }); }

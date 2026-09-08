@@ -41,7 +41,8 @@ export function visitRadialDab(
   const capacity = width * (maximumY - minimumY + 1);
   const cacheable = radius * 2 >= rasterConfig.radialMaskCache.minimumDiameter &&
     capacity <= rasterConfig.radialMaskCache.maximumPixels;
-  const key = maskKey(sample, radius, edge);
+  const key = maskKey(sample, radius, edge) + ':' + bounds.map((value, index) =>
+    value - Math.floor(index < 2 ? sample.x : sample.y)).join(',');
   if (cacheable && cachedMask?.key === key) {
     replay(cachedMask, sample, opacity, visit); return;
   }

@@ -44,6 +44,7 @@ import * as animation from './systems/animation/index.js';
 import { mountPreservedShellLayout } from './ui/shell/PreservedShellLayout.ts';
 import { mountToolPopoverWindows } from './ui/windows/ToolPopoverWindows.ts';
 import './systems/draw/tools.js';
+import { registerBrushSettings } from './app/registerBrushSettings.ts';
 import './systems/move-tool.js';
 import './systems/selection/input.js';
 import './systems/selection/handles.js';
@@ -63,6 +64,7 @@ import { rendererSmokeRequested, reportRendererSmokeFailure,
 const MOUNTS = [colorPreferences, palette, eraserBar, simpleBrushLibrary, colorPicker, toolbars, grid, symmetryLines, layersUI, fontLibrary, importSys, importEditor, exportSys, documentSave, palManager, tintShade, preview, reference, animation, input, crop, transform, effects, bc, adjust, gallery, newCanvas, settings, panels, selBar, lasso, eyedropper, penButton, status, xMirror, tile, textTool, tooltip];
 
 export function start() {
+  registerBrushSettings();
   detect(); applyTheme(); refreshColors();
   for (const m of MOUNTS) if (m.mount) m.mount();
   mountKeyboard(); mountToolPopoverWindows();

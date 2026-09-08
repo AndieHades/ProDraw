@@ -6,11 +6,13 @@ const ICONS = {
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   duplicate: '<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 5.5h-11v11"/>',
   remove: '<path d="M5.5 7.5h13M10 7.5V5.5h4v2M7.5 7.5l1 12h7l1-12"/>',
+  settings: '<path d="M5 7h14M5 17h14M9 4v6M15 14v6"/>',
 } as const;
 
 export interface BrushPanelActions {
   readonly duplicate: () => void;
   readonly remove: () => void;
+  readonly settings: () => void;
 }
 
 function iconButton(id: string, key: string, icon: string,
@@ -33,7 +35,8 @@ export function buildBrushPanel(panel: HTMLElement, actions: BrushPanelActions):
   const list = document.createElement("div"); list.id = "brush-list";
   const bar = document.createElement("div");
   bar.id = "brush-act"; bar.className = "lay-act";
-  bar.append(iconButton("brush-dup", "brush.duplicate", ICONS.duplicate, actions.duplicate),
+  bar.append(iconButton("brush-edit", "brush.settings", ICONS.settings, actions.settings),
+    iconButton("brush-dup", "brush.duplicate", ICONS.duplicate, actions.duplicate),
     iconButton("brush-del", "brush.delete", ICONS.remove, actions.remove));
   body.append(list, bar); panel.replaceChildren(head, body);
 }

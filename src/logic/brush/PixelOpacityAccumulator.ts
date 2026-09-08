@@ -19,6 +19,8 @@ export class PixelOpacityAccumulator {
   readonly #columns: number;
   #tiles = new Map<number, OpacityTile>();
   #dirtyTiles = new Set<number>();
+  #lastKey = -1;
+  #lastTile: OpacityTile | undefined;
 
   constructor(width: number, side: number) {
     this.#width = width;
@@ -34,7 +36,7 @@ export class PixelOpacityAccumulator {
     const tileX = Math.floor(x / this.#side);
     const tileY = Math.floor(y / this.#side);
     const key = tileY * this.#columns + tileX;
-    let tile = this.#tiles.get(key);
+    let tile = key === this.#lastKey ? this.#lastTile : this.#tiles.get(key);
     if (!tile) {
       tile = { x: tileX * this.#side, y: tileY * this.#side,
         data: new Float64Array(this.#side * this.#side),
@@ -42,6 +44,7 @@ export class PixelOpacityAccumulator {
         minX: this.#side, minY: this.#side, maxX: -1, maxY: -1 };
       this.#tiles.set(key, tile);
     }
+    this.#lastKey = key; this.#lastTile = tile;
     const localX = x - tile.x, localY = y - tile.y;
     const index = localY * this.#side + localX;
     const before = tile.data[index] ?? 0;
@@ -57,10 +60,12 @@ export class PixelOpacityAccumulator {
   drain(visit: OpacityVisitor): void {
     const tiles = this.#tiles;
     this.#tiles = new Map();
+    this.#lastKey = -1; this.#lastTile = undefined;
     this.#dirtyTiles.clear(); this.visitTiles(tiles.values(), visit);
   }
 
-  clear(): void { this.#tiles.clear(); this.#dirtyTiles.clear(); }
+  clear(): void { this.#tiles.clear(); this.#dirtyTiles.clear();
+    this.#lastKey = -1; this.#lastTile = undefined; }
 
   visitDirty(visit: OpacityVisitor, visitTile?: OpacityTileVisitor): void {
     const dirty = [...this.#dirtyTiles]; this.#dirtyTiles.clear();

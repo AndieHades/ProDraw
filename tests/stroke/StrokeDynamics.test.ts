@@ -27,6 +27,8 @@ function run(brush: BrushPreset): readonly StrokeSample[] {
 describe("StrokePipeline brush dynamics", () => {
   it("bounds production .01 spacing to a continuous raster-safe sample count", () => {
     expect(rasterDabSpacing(24, 0.01)).toBe(1);
+    expect(rasterDabSpacing(2, 0.01)).toBe(0.25);
+    expect(rasterDabSpacing(6, 0.01)).toBeCloseTo(0.6);
     expect(rasterDabSpacing(148, 0.01)).toBeCloseTo(1.48);
     const dense = { ...stable, strokePath: { ...stable.strokePath, spacing: 0.01 } };
     const pipeline = new StrokePipeline(dense, 24);
@@ -34,10 +36,11 @@ describe("StrokePipeline brush dynamics", () => {
     const second = { ...input[0]!, x: 40, y: 0, time: 1 };
     const plan = [...pipeline.push(first), ...pipeline.push(second)];
     expect(plan.length).toBeGreaterThanOrEqual(40);
-    expect(plan.length).toBeLessThanOrEqual(42);
+    expect(plan.length).toBeLessThanOrEqual(162);
   });
   it("carries spacing across high-frequency samples", () => {
-    const brush = { ...stable, strokePath: { ...stable.strokePath, spacing: 0.5 } };
+    const brush = { ...stable, dynamics: { ...stable.dynamics, sizeByPressure: 0 },
+      strokePath: { ...stable.strokePath, spacing: 0.5 } };
     const pipeline = new StrokePipeline(brush, 20);
     const points = Array.from({ length: 31 }, (_, index) => ({ ...input[0]!,
       x: index, time: index * (1000 / 240) }));

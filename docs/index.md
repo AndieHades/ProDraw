@@ -12,6 +12,9 @@
 
 ## Живые планы
 
+- [Pen brush response repair](project/pen-brush-response-repair-plan.md) —
+  задержки пера, плавность кончика и рабочие свойства растровых кистей.
+
 - [Trim performance repair](project/trim-performance-repair-plan.md) — устранение
   зависания обрезки и последующего автосохранения плотных слоёв.
 - [Raster quality runtime](tutorials/raster-quality-runtime/README.md) —

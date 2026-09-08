@@ -63,7 +63,9 @@ export function brushStamp(x, y, erase, flush = true, sample = null) {
   const preset = presetBrushForShape(S.brushShape[tool]);
   const ready = preset && (presetStrokeActive() || beginPresetStroke(preset,
     active.painter, { size: toolSize(tool),
-      opacity: S.brushOpacity[tool], erase }, documentSpan()));
+      opacity: S.brushOpacity[tool], erase,
+      ...(S.tile?.on ? {} : { bounds: { minx: 0, miny: 0, maxx: S.W - 1, maxy: S.H - 1 } }) },
+    documentSpan()));
   if (ready) pushPresetSample(sample ?? centred(x, y));
   else dragTip(sample ? sample.x : x + .5, sample ? sample.y : y + .5, tool);
   if (flush) active.painter.flush();
@@ -72,11 +74,11 @@ export function brushStamp(x, y, erase, flush = true, sample = null) {
 
 // Продолжение хода: интервал пресета держит StrokePipeline, твёрдый отпечаток —
 // субпиксельный путь от предыдущего сэмпла.
-export function continueBrushStroke(sample) {
-  if (presetStrokeActive()) { pushPresetSample(sample); active?.painter.flush(); return true; }
+export function continueBrushStroke(sample, flush = true) {
+  if (presetStrokeActive()) { pushPresetSample(sample); if (flush) active?.painter.flush(); return true; }
   if (!active || !sample) return false;
   dragTip(sample.x, sample.y, active.erase ? 'eraser' : 'pencil');
-  active.painter.flush(); return true;
+  if (flush) active.painter.flush(); return true;
 }
 
 export function flushBrushStroke() { active?.painter.flush(); }

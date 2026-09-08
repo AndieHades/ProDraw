@@ -29,7 +29,7 @@ export const SHELL_ACTION_NAMES = [
   "tool.lasso", "tool.line", "tool.move",
   "tool.pencil", "tool.rect", "tool.select", "tool.text", "transform.apply",
   "transform.cancel", "transform.enter", "transform.enterTargets",
-  "ui.animation", "ui.brushLibrary", "ui.fontLibrary",
+  "ui.animation", "ui.brushLibrary", "ui.brushSettings", "ui.fontLibrary",
   "ui.layers", "view.fit", "view.realSize",
   "view.tile", "zoom.in", "zoom.out"
 ] as const;

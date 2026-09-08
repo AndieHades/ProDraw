@@ -12,8 +12,7 @@ const flat = (overrides: Partial<BrushPreset["shape"]> = {},
   stabilization: { streamlineAmount: 0, streamlinePressure: 0,
     stabilizationAmount: 0, motionFilteringAmount: 0, motionFilteringExpression: 0 },
   taper: { ...source.taper, start: 0, end: 0, pressure: 0 },
-  // Вытянутый отпечаток с нулевым `rotation` — случай, где раньше поворот терялся.
-  shape: { ...source.shape, roundness: 0.25, rotation: 0, relativeToStroke: false,
+  shape: { ...source.shape, roundness: 0.25, rotation: 1, relativeToStroke: false,
     inputStyle: "touch", ...overrides },
   properties: { ...source.properties, ...properties } });
 
@@ -39,11 +38,16 @@ describe("dab orientation", () => {
     expect(settled(along(flat({}, { orientToScreen: true }), 0, 20))).toBe(0);
   });
 
+  it("honors zero and inverse rotation instead of always following the path", () => {
+    expect(settled(along(flat({ rotation: 0 }), 0, 20))).toBe(0);
+    expect(settled(along(flat({ rotation: -1 }), 0, 20))).toBeCloseTo(-Math.PI / 2);
+  });
+
   it("follows stylus azimuth when the preset asks for it", () => {
     const brush = flat({ inputStyle: "azimuth" });
     const pipeline = new StrokePipeline(brush, 20);
     for (let step = 0; step <= 4; step++) pipeline.push({ x: 10 + step * 20, y: 10,
-      pressure: 0.6, tiltX: 0, tiltY: 40, time: step * 8 });
+      pressure: 0.6, tiltX: 0, tiltY: 40, time: step * 8, pointerType: "pen" });
     pipeline.finish();
     expect(settled(pipeline.completedPlan())).toBeCloseTo(Math.PI / 2, 5);
   });

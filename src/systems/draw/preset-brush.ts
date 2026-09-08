@@ -3,6 +3,7 @@
 // Ошибка одной кисти изолируется: вызывающий продолжает твёрдым отпечатком.
 import type { BrushPreset, LoadedBrush } from "../../contracts/brush.ts";
 import { userBrush, userIdOf } from "./brush-library-store.ts";
+import { liveBrushPreferences } from "../../core/brush/LiveBrushPreferences.ts";
 
 // Рендерер даба и планировщик хода нужны только тому, кто выбрал пресет,
 // поэтому они грузятся вместе с кистью и не лежат в основном чанке.
@@ -48,8 +49,10 @@ export async function presetBrushCatalog(): Promise<readonly PresetBrushEntry[]>
 export const presetBrush = (id: string | null): LoadedBrush | null =>
   (id && decoded.get(id)) || null;
 
-export const presetBrushForShape = (shape: unknown): LoadedBrush | null =>
-  presetBrush(presetIdOf(shape));
+export const presetBrushForShape = (shape: unknown): LoadedBrush | null => {
+  const source = presetBrush(presetIdOf(shape));
+  return source && typeof shape === "string" ? liveBrushPreferences.brush(shape, source) : null;
+};
 
 export async function ensurePresetBrush(id: string,
   onFailure?: (name: string) => void): Promise<LoadedBrush | null> {

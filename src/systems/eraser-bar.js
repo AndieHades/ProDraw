@@ -3,6 +3,7 @@ import * as bus from '../core/bus.ts';
 import * as actions from '../core/actions.ts';
 import { doUndo, doRedo } from '../core/history.js';
 import { SimpleDrawBarPresenter } from '../ui/shell/EraserBarPresenter.ts';
+import { rememberBrushToolControls } from '../core/brush/liveBrushToolControls.ts';
 
 const sizeForTool = () => S.tool === 'eraser' ? S.eraserSize : S.pencilSize;
 const setSizeForTool = (size) => {
@@ -18,7 +19,7 @@ const presenter = new SimpleDrawBarPresenter({
   setSize: setSizeForTool,
   opacity: opacityForTool,
   setOpacity: setOpacityForTool,
-  changed: () => { bus.emit('render'); },
+  changed: () => { rememberBrushToolControls(); bus.emit('render'); },
   undo: doUndo, redo: doRedo,
   subscribe: (event, listener) => { bus.on(event, listener); },
 });
