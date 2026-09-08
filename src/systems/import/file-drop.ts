@@ -23,26 +23,20 @@ export function firstDroppedFile(transfer: DataTransfer | null): File | null {
   return null;
 }
 
-export function bindFileDrop(target: Window, show: (visible: boolean) => void,
-  onFile: (file: File) => void): void {
-  let depth = 0;
-  target.addEventListener("pxh:drop-reset", () => { depth = 0; show(false); });
-  target.addEventListener("dragover", (event) => {
-    if (!isFileDrag(event.dataTransfer)) return;
+// Подсказки-оверлея над окном больше нет, и обработчик намеренно не трогает
+// разметку: отсутствующий узел не должен съедать брошенный файл.
+export function bindFileDrop(target: Window, onFile: (file: File) => void): void {
+  const accept = (event: DragEvent): boolean => {
+    if (!isFileDrag(event.dataTransfer)) return false;
     event.preventDefault();
-    if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
-  });
-  target.addEventListener("dragenter", (event) => {
-    if (!isFileDrag(event.dataTransfer)) return;
-    event.preventDefault(); depth++; show(true);
-  });
-  target.addEventListener("dragleave", () => {
-    depth = Math.max(0, depth - 1);
-    if (!depth) show(false);
+    return true;
+  };
+  target.addEventListener("dragenter", (event) => { accept(event); });
+  target.addEventListener("dragover", (event) => {
+    if (accept(event) && event.dataTransfer) event.dataTransfer.dropEffect = "copy";
   });
   target.addEventListener("drop", (event) => {
-    if (!isFileDrag(event.dataTransfer)) return;
-    event.preventDefault(); depth = 0; show(false);
+    if (!accept(event)) return;
     const file = firstDroppedFile(event.dataTransfer);
     if (file) onFile(file);
   });

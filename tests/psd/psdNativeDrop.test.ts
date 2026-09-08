@@ -14,14 +14,13 @@ function fire(type: string, dataTransfer: Transfer): Event {
 
 describe("native PSD file drop", () => {
   it("accepts the public.file-url type exposed by macOS Finder", () => {
-    const show = vi.fn(), onFile = vi.fn(); bindFileDrop(window, show, onFile);
+    const onFile = vi.fn(); bindFileDrop(window, onFile);
     const entering = fire("dragenter", transfer(["public.file-url"]));
     const dragging = fire("dragover", transfer(["public.file-url"]));
     const psd = new File(["8BPS"], "drawing.psd");
     const dropped = fire("drop", transfer(["public.file-url"], [psd]));
     expect([entering.defaultPrevented, dragging.defaultPrevented,
       dropped.defaultPrevented]).toEqual([true, true, true]);
-    expect(show.mock.calls).toEqual([[true], [false]]);
     expect(onFile).toHaveBeenCalledWith(psd);
   });
 });

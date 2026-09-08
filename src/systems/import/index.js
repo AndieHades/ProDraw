@@ -73,6 +73,5 @@ export async function dropImage(file, locationFor = droppedFileLocation, depende
 
 export function mount() {
   // кнопка импорта редактора и хоткей живут в ./editor.js (единый путь Import)
-  bindFileDrop(window, (on) => $('dropmask').classList.toggle('on', on),
-    (file) => void dropImage(file));
+  bindFileDrop(window, (file) => void dropImage(file));
 }
