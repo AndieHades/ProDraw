@@ -6,6 +6,7 @@ import { PsdDecodeError } from "./PsdDecodeError.ts";
 import { inferPsdStackOrder } from "../../logic/psd/inferStackOrder.ts";
 import { countPsdNodes, normalizePsdNodes } from "./psdNodeNormalizer.ts";
 import { normalizeBitmap } from "./psdPixels.ts";
+import { initializePsdImageData } from "./initializePsdImageData.ts";
 
 function documentDpi(value: ReturnType<typeof readPsd>): number {
   const resolution = value.imageResources?.resolutionInfo;
@@ -19,6 +20,7 @@ function documentDpi(value: ReturnType<typeof readPsd>): number {
 export function decodePsdDocument(buffer: ArrayBuffer): PsdImportedDocument {
   preflightPsd(buffer);
   try {
+    initializePsdImageData();
     let decodedBytes = 0;
     const reserve = (bytes: number): void => {
       decodedBytes += bytes;

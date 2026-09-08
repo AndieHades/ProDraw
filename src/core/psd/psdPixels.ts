@@ -27,6 +27,10 @@ export function normalizeBitmap(
   if (maxX < minX || maxY < minY) return undefined;
   const width = maxX - minX + 1, height = maxY - minY + 1;
   reserve(width * height * 4);
+  if (minX === 0 && minY === 0 && width === image.width && height === image.height &&
+    image.data instanceof Uint8ClampedArray && image.data.length === pixels * 4) {
+    return { left, top, width, height, rgba: image.data };
+  }
   const rgba = new Uint8ClampedArray(width * height * 4);
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
     const source = ((y + minY) * image.width + x + minX) * 4;
