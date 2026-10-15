@@ -1,7 +1,7 @@
-type Rgba = [number, number, number, number];
+import { packedImageGrid } from "./raster/packedImageRecord.ts";
 
 interface ImportedImageState {
-  readonly layers: Array<{ name: string; grid: Array<Array<Rgba | undefined>> }>;
+  readonly layers: Array<{ name: string; grid: unknown }>;
   sourceFormat: string | null;
   sourceLocation: string | null;
 }
@@ -14,11 +14,7 @@ export function applyImportedImage(
   const layer = state.layers[0];
   if (!layer) throw new Error("Imported image document has no editable layer");
   layer.name = name;
-  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
-    const offset = (y * width + x) * 4, alpha = data[offset + 3] ?? 0;
-    if (!alpha) continue;
-    layer.grid[y]![x] = [data[offset]!, data[offset + 1]!, data[offset + 2]!, alpha];
-  }
+  layer.grid = packedImageGrid(width, height, data);
   state.sourceFormat = sourceFormat;
   state.sourceLocation = sourceLocation;
 }

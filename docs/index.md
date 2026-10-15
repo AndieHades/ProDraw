@@ -12,6 +12,8 @@
 
 ## Живые планы
 
+- [Large photo import](project/large-photo-import-plan.md) — фото 12+ МП
+  открываются и вставляются упакованными RGBA-строками без объекта на пиксель.
 - [Photo view sampling](project/photo-view-sampling-plan.md) — сглаженный
   мелкий зум фотографий, прямой порядок слоёв PSD и свёрнутые папки.
 - [Pen brush response repair](project/pen-brush-response-repair-plan.md) —

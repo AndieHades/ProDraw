@@ -12,6 +12,7 @@ import { t } from '../i18n/index.ts';
 import { ZOOM_MIN, ZOOM_MAX } from '../config/limits.ts';
 import { expandStoredFrames, cropStoredFrames } from './animation-canvas.js';
 import { resizeLegacyView } from '../logic/view/LegacyViewGeometry.ts';
+import { placePackedImage } from '../logic/raster/packedImageRecord.ts';
 
 function keepCanvasScreenSize(oldW, oldH, newW, newH) {
   Object.assign(S.view, resizeLegacyView(S.view, oldW, oldH, newW, newH,
@@ -73,13 +74,13 @@ export function placeImageLayer(w, h, d) {
 }
 
 // вставить RGBA-картинку w×h САМЫМ ВЕРХНИМ слоем (конец массива), по центру холста;
-// то, что не влезло, хранится в ext (реальные границы) — не разрушаем, Trim откроет
+// то, что не влезло, хранится в ext (реальные границы) — не разрушаем, Trim откроет.
+// Пиксели идут упакованными строками с точной альфой: фото 12 МП не становится
+// миллионами массивов в grid и ключей в ext.
 export function addImageLayerTop(w, h, d, name) {
   const nl = newLayer(name || t('layer.imageName'), S.W, S.H); nl.fid = null;
-  const ox = (S.W - w) >> 1, oy = (S.H - h) >> 1;
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const o = (y * w + x) * 4; if (d[o + 3] < 8) continue;
-    const px = ox + x, py = oy + y, c = [d[o], d[o + 1], d[o + 2], d[o + 3]];
-    if (px >= 0 && py >= 0 && px < S.W && py < S.H) nl.grid[py][px] = c; else nl.ext.set(px + ',' + py, c); }
+  const placed = placePackedImage(w, h, d, (S.W - w) >> 1, (S.H - h) >> 1, S.W, S.H);
+  nl.grid = placed.grid; nl.ext = placed.ext;
   S.layers.push(nl); S.cur = S.layers.length - 1; S.marked.clear(); dirtyAll(); return nl;
 }
 
