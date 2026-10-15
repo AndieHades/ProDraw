@@ -15,6 +15,8 @@ import { contentGeneration, contentRevision,
   takeCompositeDamage } from '../../core/layer-cache.js';
 import { LegacyCompositeCache } from '../../core/render/LegacyCompositeCache.ts';
 import { isIncrementalCompositeSafe } from '../../core/render/LegacyCompositeDamage.ts';
+import { ViewportMipChain } from '../../core/render/ViewportMipChain.ts';
+import { viewportMipLevel } from '../../logic/view/viewportMip.ts';
 import { drawGrid, gridStroke } from './grid-lines.ts';
 import { recentredViewOffset } from '../../logic/view/viewportResize.ts';
 import { drawOverlays } from './overlays.js';
@@ -25,6 +27,7 @@ import { mountLegacyViewportLifecycle } from '../viewport/LegacyViewportLifecycl
 const cv = $('cv'), ctx = cv.getContext('2d');
 const buf = makeCanvas(1, 1); // композит слой+эффекты в пиксельном масштабе (размер ставится по кадру)
 const compositeCache = new LegacyCompositeCache();
+const mipChain = new ViewportMipChain(); // мелкий зум: уменьшение не сильнее 2× за шаг
 const ZOOM_STEP = 0.5;
 let renderFrame = null;
 // Ресайз окна сохраняет масштаб и панораму: точка документа под центром
@@ -75,13 +78,15 @@ export function render() {
     if (partial) repaintCompositeRegion(bx, damage.bounds);
     else { bx.clearRect(0, 0, W, H);
       paintStack(bx, true, { bg: true }); } // эффекты/папки/live preview → полный fallback
-    compositeCache.commit(candidate);
+    compositeCache.commit(candidate); mipChain.invalidate(partial ? damage.bounds : null);
   }
   bus.emit('composite-ready', { canvas: buf, width: W, height: H });
   ctx.save(); ctx.beginPath(); ctx.rect(bx0, by0, bw, bh); ctx.clip(); // итог клипуется блоком тайлов
   ctx.imageSmoothingEnabled = shouldSmoothViewportScale(z);
   if (ctx.imageSmoothingEnabled) ctx.imageSmoothingQuality = 'high';
-  for (const j of rng) for (const i of rng) ctx.drawImage(buf, ox + i * tw, oy + j * th, tw, th);
+  const mip = mipChain.source(buf, W, H, viewportMipLevel(z * dpr));
+  for (const j of rng) for (const i of rng) ctx.drawImage(mip.image, 0, 0, mip.width,
+    mip.height, ox + i * tw, oy + j * th, tw, th);
   ctx.restore(); ctx.imageSmoothingEnabled = false;
   if (tile) { ctx.save(); ctx.globalAlpha = .6; ctx.strokeStyle = C.accent; ctx.lineWidth = 1; ctx.strokeRect(ox + .5, oy + .5, tw - 1, th - 1); ctx.restore(); } // рамка исходного тайла
   if (z >= 7) drawGrid(ctx, 1, 1, C.grid, W, H, ox, oy, z); // обычная попиксельная сетка
