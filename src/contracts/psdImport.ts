@@ -58,13 +58,11 @@ export interface PsdImportGroup extends PsdNodeBase {
 
 export type PsdImportNode = PsdImportLayer | PsdImportGroup;
 
-export type PsdStackOrder = "top-first" | "bottom-first";
-
 export interface PsdImportedDocument {
   readonly width: number;
   readonly height: number;
   readonly dpi: number;
-  readonly stackOrder: PsdStackOrder;
+  // Bottom-first, like PSD layer records and ag-psd `children`.
   readonly children: readonly PsdImportNode[];
   readonly composite?: PsdImportBitmap;
   readonly warnings: readonly string[];

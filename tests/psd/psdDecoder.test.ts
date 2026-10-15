@@ -33,8 +33,7 @@ describe("PSD preflight", () => {
 describe.each([false, true])("structured PSD decode (compress=%s)", (compress) => {
   it("keeps groups, alpha, masks, locks, blend metadata and effects", () => {
     const decoded = decodePsdDocument(structuredPsd(compress));
-    expect(decoded).toMatchObject({ width: 3, height: 2, dpi: 300,
-      stackOrder: "top-first", warnings: [] });
+    expect(decoded).toMatchObject({ width: 3, height: 2, dpi: 300, warnings: [] });
     const group = decoded.children[0];
     expect(group).toMatchObject({ kind: "group", name: "Group Ю", opened: false,
       blendMode: "pass through" });

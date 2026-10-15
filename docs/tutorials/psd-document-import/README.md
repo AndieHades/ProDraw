@@ -21,7 +21,7 @@ Authority: PSD dropped or opened anywhere must create a new gallery document
 - Last checks: exact `Items (1).psd` packaged gallery drop reached decoding,
   saved, reopened a 4539x2553 document and reported 50 imported layers;
   focused route/session tests and packaged smoke passed
-- Last updated: 2026-08-30
+- Last updated: 2026-10-15
 
 ## Outcome
 
@@ -74,14 +74,23 @@ they are never replaced with an empty placeholder.
 ## PSD5 Regression Repair
 
 The physical `Assets.psd` fixture exposed three gaps hidden by the one-sibling
-automated fixtures. Some producers store the decoded tree bottom-first despite
-the decoder's documented top-first convention, so direction is now inferred
-against the embedded composite before conversion to ProDraw's bottom-first
-runtime stack. Persisted sparse grids now derive width from every materialized
-row and tolerate empty rows inside content bounds. A new PSD record receives its
-gallery preview from the embedded composite; older records with a missing
-preview are regenerated on the next gallery save instead of being treated as
-already complete.
+automated fixtures. Its stack-direction inference was later replaced (see
+Stack Order Repair below). Persisted sparse grids now derive width from every
+materialized row and tolerate empty rows inside content bounds. A new PSD record
+receives its gallery preview from the embedded composite; older records with a
+missing preview are regenerated on the next gallery save instead of being
+treated as already complete.
+
+## Stack Order Repair
+
+PSD layer records are stored bottom-first, and ag-psd builds `children` in that
+same order for every producer. The PSD5 composite-based direction guess assumed
+a top-first default and fell back to it whenever both directions rendered the
+same pixels — always the case for asset sheets whose sprites never overlap — so
+such files opened reversed. The decoder contract is now bottom-first without a
+guess, and the gallery record maps it directly to the runtime stack. Imported
+folders open collapsed regardless of the open/closed flag stored in the PSD.
+`tests/psd/psdStackOrder.test.js` covers separated sprites in nested folders.
 
 ## Large Sparse Layer Repair
 

@@ -53,12 +53,13 @@ success is reported, and reopen produces the same layer metadata and pixels.
 
 ## PSD5 Repair Evidence
 
-- `Assets.psd`: 56/56 layer bitmaps decoded; bottom-first producer order was
-  inferred from its embedded composite and shown top-first in the layer panel.
+- `Assets.psd`: 56/56 layer bitmaps decoded and shown top-first in the layer
+  panel. Since the stack order repair the bottom-first decoded order is used
+  directly instead of being inferred from the embedded composite.
 - Live browser: full character rendered, gallery preview decoded as `235x512`,
   and `PSD -> Gallery -> new 800x600 -> Gallery -> reopen` completed without
   console errors.
-- Automated coverage: stack direction inference, bottom-first runtime mapping,
+- Automated coverage: bottom-first order of separated sprites and nested folders,
   persisted empty-leading/intermediate rows and composite-derived preview.
 
 ## Large Sparse Layer Evidence

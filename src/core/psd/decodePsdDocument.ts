@@ -3,7 +3,6 @@ import { PSD_IMPORT_LIMITS } from "../../config/psd-import.ts";
 import type { PsdImportedDocument } from "../../contracts/psdImport.ts";
 import { preflightPsd } from "../../logic/psd/preflightPsd.ts";
 import { PsdDecodeError } from "./PsdDecodeError.ts";
-import { inferPsdStackOrder } from "../../logic/psd/inferStackOrder.ts";
 import { countPsdNodes, normalizePsdNodes } from "./psdNodeNormalizer.ts";
 import { normalizeBitmap } from "./psdPixels.ts";
 import { initializePsdImageData } from "./initializePsdImageData.ts";
@@ -39,8 +38,7 @@ export function decodePsdDocument(buffer: ArrayBuffer): PsdImportedDocument {
     const children = normalizePsdNodes(decoded.children ?? [], warnings, reserve);
     const composite = normalizeBitmap(getCompositeImageData(decoded), 0, 0, false, reserve);
     return { width: decoded.width, height: decoded.height, dpi: documentDpi(decoded),
-      stackOrder: inferPsdStackOrder(children, composite), children,
-      ...(composite ? { composite } : {}),
+      children, ...(composite ? { composite } : {}),
       warnings: [...new Set(warnings)] };
   } catch (error) {
     if (error instanceof PsdDecodeError) throw error;

@@ -14,9 +14,11 @@
    on import would make the layer look correct once but violate editability.
 6. Compatibility is explicit. No unsupported effect or blend mode is silently
    renamed to a supported one.
-7. Do not trust a single producer stack convention. Compare both decoded tree
-   directions with the embedded composite and fall back to the decoder's
-   documented top-first order only when evidence is insufficient.
+7. Decoded children are bottom-first. PSD stores layer records bottom-first
+   and ag-psd keeps that order for every producer, so the importer maps it
+   directly. The former composite-based direction guess was removed: sprites
+   that never overlap gave it no evidence and fell back to a reversed stack.
+8. Imported folders open collapsed regardless of the PSD's open/closed flag.
 
 ## Risks and Mitigations
 

@@ -45,9 +45,9 @@ function rasterLayer(node, width, height, fid, warnings, cells) {
 
 function documentTree(document, warnings) {
   const layers = [], folders = [], cells = createRasterCellInterner(); let folderSeq = 0;
+  // Декодер отдаёт узлы снизу вверх — как runtime-стек слоёв.
   const walk = (nodes, parent) => {
-    const bottomFirst = document.stackOrder === 'bottom-first' ? nodes : [...nodes].reverse();
-    for (const node of bottomFirst) {
+    for (const node of nodes) {
       if (['height', 'linear height'].includes(node.blendMode)) {
         warnings.add(`blend.${node.blendMode}.approximate`);
       }
@@ -55,8 +55,9 @@ function documentTree(document, warnings) {
         layers.push(rasterLayer(node, document.width, document.height,
           parent, warnings, cells));
       } else {
+        // Папки открываются свёрнутыми независимо от состояния в PSD.
         const folder = { id: ++folderSeq, parent, name: node.name,
-          open: node.opened, visible: node.visible, opacity: node.opacity,
+          open: false, visible: node.visible, opacity: node.opacity,
           blendMode: node.blendMode, symLock: false,
           effects: runtimePsdEffects(node.effects, warnings),
           psdEffects: copyEffects(node.effects) };
