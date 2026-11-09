@@ -13,10 +13,10 @@ const element = <T extends HTMLElement>(id: string): T => {
   return found as T;
 };
 
+// blur фиксирует значение поля, затем Enter всплывает к окну и применяет кадр.
 function commitOnEnter(input: HTMLInputElement): void {
   input.addEventListener("keydown", (event) => {
-    if (event.key !== "Enter") return;
-    event.preventDefault(); event.stopPropagation(); input.blur();
+    if (event.key === "Enter") input.blur();
   });
 }
 

@@ -26,12 +26,13 @@ const sampleAt = (rx, ry, source, release = false) =>
 export const toGrid = (e) => gridAt(e.clientX, e.clientY);
 export const toCanvas = (e) => canvasAt(e.clientX, e.clientY);
 const activeMode = () => (S.cropMode ? modeHandler('crop') : S.rotMode ? modeHandler('transform') : null);
+// Режим, завершённый посреди своего жеста (Enter), не отдаёт остаток указателя инструменту.
+const gestureTool = () => (modeGesture ? null : toolHandler(S.tool));
 const capture = (id) => { try { cv().setPointerCapture(id); } catch (e) {} };
 const inWorkArea = (gx, gy) =>
   isInsideTileWorkArea(gx, gy, S.W, S.H, !!(S.tile && S.tile.on));
 const pan = new CanvasPanSession(DRAG_THRESHOLD);
-let drawing = false, activeGlobal = null;
-let activePointerId = null;
+let drawing = false, activeGlobal = null, activePointerId = null, modeGesture = false;
 const foreign = (e) => activePointerId != null && e?.pointerId != null && e.pointerId !== activePointerId;
 // Прямоугольник холста кеширует core/viewport на время жеста.
 export const forgetCanvasBounds = () => { forgetCursor(); releaseCanvasBounds(); };
@@ -52,7 +53,7 @@ export function down(e) {
     modeActive: !!m, modeHit: !!modeHit, insideWorkArea: inWorkArea(gx, gy) })) {
     pan.begin(e, S.view); return; }
   if (e.pointerType === 'mouse' && e.button && !(S.cropMode && e.button === 2)) return;
-  if (m) { m.down({ gx, gy, rx, ry, e }); drawing = true; return; }
+  if (m) { m.down({ gx, gy, rx, ry, e }); drawing = modeGesture = true; return; }
   for (const gh of globalHandlers()) if (gh.down && gh.down({ gx, gy, rx, ry, e })) { activeGlobal = gh; drawing = true; return; }
   if (S.sel && S.tool !== 'select' && S.tool !== 'lasso' && !selHit(gx, gy)) { actions.run('select.none'); return; } // лассо строит контур поверх существующего выделения (add/subtract/intersect)
   const h = toolHandler(S.tool); if (h && h.down) {
@@ -68,7 +69,7 @@ export function move(e) {
   if (activeGlobal) { const [gx, gy] = toGrid(e); if (activeGlobal.move) activeGlobal.move({ gx, gy, e }); return; }
   const m = activeMode();
   if (m) { const [gx, gy] = toGrid(e); if (drawing) m.move({ gx, gy, e }); else if (m.hover) m.hover({ gx, gy, e }); return; }
-  const h = toolHandler(S.tool);
+  const h = gestureTool();
   if (drawing && h && h.move) { const r = canvasBounds();
     const samples = actualPointerEvents(e);
     for (const [index, sample] of samples.entries()) {
@@ -85,22 +86,22 @@ export function up(e) { if (foreign(e)) return; try {
     bus.emit(S.sel && !S.selFloat ? 'selection-menu' : 'canvas-menu', e);
     return; }
   if (activeGlobal) { if (activeGlobal.up) activeGlobal.up({ e }); activeGlobal = null; drawing = false; return; }
-  const m = activeMode(); if (m) { if (drawing && m.up) m.up({ e }); drawing = false; return; }
-  const h = toolHandler(S.tool);
+  const m = activeMode(); if (m) { if (drawing && m.up) m.up({ e }); drawing = modeGesture = false; return; }
+  const h = gestureTool();
   if (drawing && h?.up) {
     const samples = Number.isFinite(e?.clientX) && Number.isFinite(e?.clientY)
       ? actualPointerEvents(e).map((event) => {
         const [x, y] = toCanvas(event); return sampleAt(x, y, event, true); }) : [];
     h.up({ e, samples });
   }
-  drawing = false;
+  drawing = modeGesture = false;
   } finally { releaseCapture(e); releaseCanvasBounds(); }
 }
 
 export function cancel(e) {
   if (foreign(e)) return;
-  const wasDrawing = drawing, owner = activeGlobal || activeMode() || toolHandler(S.tool);
-  drawing = false; activeGlobal = null; pan.cancel();
+  const wasDrawing = drawing, owner = activeGlobal || activeMode() || gestureTool();
+  drawing = modeGesture = false; activeGlobal = null; pan.cancel();
   try { if (wasDrawing && owner?.cancel) owner.cancel({ e }); }
   finally { releaseCapture(e); releaseCanvasBounds(); bus.emit('render'); }
 }

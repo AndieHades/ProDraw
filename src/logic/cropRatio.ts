@@ -10,9 +10,10 @@ export function cropRatioDimensions(
   width: number, height: number, ratio: number, preferWidth: boolean, maximum: number
 ): { readonly height: number; readonly width: number } {
   width = clampRound(width, 1, maximum); height = clampRound(height, 1, maximum);
-  if (preferWidth) height = clampRound(width / ratio, 1, maximum);
-  else width = clampRound(height * ratio, 1, maximum);
-  return { width, height };
+  if (preferWidth) height = width / ratio; else width = height * ratio;
+  const scale = Math.min(1, maximum / width, maximum / height);
+  return { width: clampRound(width * scale, 1, maximum),
+    height: clampRound(height * scale, 1, maximum) };
 }
 
 export function cropRatioCells(

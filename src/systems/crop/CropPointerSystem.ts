@@ -1,5 +1,7 @@
 import { cropCursor, cropHitTest, type CropHitZone } from "../../logic/cropHitTest.ts";
 import { lockCellCropRatio, lockCropRatio, type CropRect } from "../../logic/cropRatio.ts";
+import { resizeCropEdges, type CropPoint } from "../../logic/cropResize.ts";
+import { cropSize } from "./CropSession.ts";
 
 interface CropState extends CropRect { idx: number; idy: number }
 interface EdgeDrag extends CropRect, CropHitZone {
@@ -54,8 +56,8 @@ export class CropPointerSystem {
     }
     if (!zone.inside) { this.#drag = null; return; }
     const point = this.canvasPoint(event);
-    this.#drag = event.button === 2 ? { kind: "move", x0: crop.x0, y0: crop.y0,
-      x1: crop.x1, y1: crop.y1, ...point } : { kind: "image", ...point };
+    this.#drag = event.button === 2 ? { kind: "image", ...point } : { kind: "move",
+      x0: crop.x0, y0: crop.y0, x1: crop.x1, y1: crop.y1, ...point };
   }
 
   move(event: PointerEvent): void {
@@ -65,11 +67,11 @@ export class CropPointerSystem {
     const point = this.canvasPoint(event);
     if (drag.kind === "move") this.moveFrame(crop, drag, point);
     else if (drag.kind === "image") this.moveImage(crop, drag, point);
-    else this.resize(crop, drag, point, event.shiftKey);
+    else this.resize(crop, drag, point, event);
     this.#port.syncInputs(); this.#port.render();
   }
 
-  private canvasPoint(event: PointerEvent): { gx: number; gy: number } {
+  private canvasPoint(event: PointerEvent): CropPoint {
     const rect = this.#port.canvas().getBoundingClientRect(), view = this.#port.view();
     return { gx: (event.clientX - rect.left - view.ox) / view.zoom,
       gy: (event.clientY - rect.top - view.oy) / view.zoom };
@@ -80,33 +82,32 @@ export class CropPointerSystem {
       this.#port.canvas().getBoundingClientRect(), this.#port.view(), crop);
   }
 
-  private moveFrame(crop: CropState, drag: MoveDrag, point: { gx: number; gy: number }): void {
+  private moveFrame(crop: CropState, drag: MoveDrag, point: CropPoint): void {
     const dx = Math.round(point.gx - drag.gx), dy = Math.round(point.gy - drag.gy);
     crop.x0 = drag.x0 + dx; crop.x1 = drag.x1 + dx;
     crop.y0 = drag.y0 + dy; crop.y1 = drag.y1 + dy;
   }
 
-  private moveImage(crop: CropState, drag: ImageDrag, point: { gx: number; gy: number }): void {
+  private moveImage(crop: CropState, drag: ImageDrag, point: CropPoint): void {
     const dx = Math.round(point.gx - drag.gx), dy = Math.round(point.gy - drag.gy);
     if (!dx && !dy) return;
     crop.idx += dx; crop.idy += dy; drag.gx += dx; drag.gy += dy;
   }
 
-  private resize(crop: CropState, drag: EdgeDrag,
-    point: { gx: number; gy: number }, shift: boolean): void {
-    const symmetric = this.#port.symmetric() || shift;
-    if (drag.l) { crop.x0 = Math.min(crop.x1, Math.round(point.gx));
-      if (symmetric) crop.x1 = Math.round(2 * drag.cx - crop.x0); }
-    if (drag.r) { crop.x1 = Math.max(crop.x0, Math.round(point.gx) - 1);
-      if (symmetric) crop.x0 = Math.round(2 * drag.cx - crop.x1); }
-    if (drag.t) { crop.y0 = Math.min(crop.y1, Math.round(point.gy));
-      if (symmetric) crop.y1 = Math.round(2 * drag.cy - crop.y0); }
-    if (drag.b) { crop.y1 = Math.max(crop.y0, Math.round(point.gy) - 1);
-      if (symmetric) crop.y0 = Math.round(2 * drag.cy - crop.y1); }
-    if (this.#port.linked()) lockCropRatio(crop, drag, symmetric,
-      this.#port.ratio(), this.#port.maximum);
+  private resize(crop: CropState, drag: EdgeDrag, point: CropPoint, event: PointerEvent): void {
+    const symmetric = this.#port.symmetric() || event.altKey;
+    const ratio = this.lockedRatio(drag, event.shiftKey);
+    Object.assign(crop, resizeCropEdges(drag, point, symmetric));
+    if (ratio !== null) lockCropRatio(crop, drag, symmetric, ratio, this.#port.maximum);
     this.limit(crop, drag);
-    if (this.#port.cells()) this.snapCells(crop, drag, symmetric);
+    if (this.#port.cells()) this.snapCells(crop, drag, symmetric, ratio);
+  }
+
+  private lockedRatio(drag: EdgeDrag, shift: boolean): number | null {
+    if (this.#port.linked()) return this.#port.ratio();
+    if (!shift) return null;
+    const { width, height } = cropSize(drag);
+    return width / height;
   }
 
   private limit(crop: CropState, drag: EdgeDrag): void {
@@ -119,7 +120,8 @@ export class CropPointerSystem {
     }
   }
 
-  private snapCells(crop: CropState, drag: EdgeDrag, symmetric: boolean): void {
+  private snapCells(crop: CropState, drag: EdgeDrag, symmetric: boolean,
+    ratio: number | null): void {
     const { width, height } = this.#port.cellSize();
     if (drag.l) crop.x0 = Math.round(crop.x0 / width) * width;
     if (drag.r) crop.x1 = Math.round((crop.x1 + 1) / width) * width - 1;
@@ -127,7 +129,7 @@ export class CropPointerSystem {
     if (drag.b) crop.y1 = Math.round((crop.y1 + 1) / height) * height - 1;
     if (crop.x1 < crop.x0) crop.x1 = crop.x0 + width - 1;
     if (crop.y1 < crop.y0) crop.y1 = crop.y0 + height - 1;
-    if (this.#port.linked()) lockCellCropRatio(crop, drag, symmetric,
-      this.#port.ratio(), width, height, this.#port.maximum);
+    if (ratio !== null) lockCellCropRatio(crop, drag, symmetric,
+      ratio, width, height, this.#port.maximum);
   }
 }

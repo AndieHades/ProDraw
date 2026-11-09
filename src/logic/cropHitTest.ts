@@ -15,10 +15,13 @@ export function cropHitTest(
   const right = view.ox + (crop.x1 + 1) * view.zoom;
   const top = view.oy + crop.y0 * view.zoom;
   const bottom = view.oy + (crop.y1 + 1) * view.zoom;
-  const nearLeft = Math.abs(x - left) < tolerance;
-  const nearRight = Math.abs(x - right) < tolerance;
-  const nearTop = Math.abs(y - top) < tolerance;
-  const nearBottom = Math.abs(y - bottom) < tolerance;
+  // Внутренняя зона граней ограничена, чтобы малую рамку можно было перетаскивать.
+  const insetX = Math.min(tolerance, (right - left) / 4);
+  const insetY = Math.min(tolerance, (bottom - top) / 4);
+  const nearLeft = x > left - tolerance && x < left + insetX;
+  const nearRight = x > right - insetX && x < right + tolerance;
+  const nearTop = y > top - tolerance && y < top + insetY;
+  const nearBottom = y > bottom - insetY && y < bottom + tolerance;
   const inX = x > left - tolerance && x < right + tolerance;
   const inY = y > top - tolerance && y < bottom + tolerance;
   return { l: nearLeft && inY, r: nearRight && inY, t: nearTop && inX,

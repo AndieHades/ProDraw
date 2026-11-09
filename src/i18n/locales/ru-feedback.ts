@@ -20,7 +20,7 @@ export const ruFeedback: LocaleDictionary = {
   "toast.noTransformUndo": "В трансформации нечего отменять",
   "toast.redone": "Возвращено",
   "toast.selInverted": "Выделение инвертировано",
-  "toast.cropHint": "Грани наружу — расширить · ЛКМ внутри — сдвиг рисунка · ПКМ внутри — сдвиг рамки · ✓/Enter",
+  "toast.cropHint": "Грани наружу — расширить · Shift — пропорции · ЛКМ внутри — сдвиг рамки · ПКМ внутри — сдвиг рисунка · ✓/Enter",
   "toast.monoAll": "Изображение в монохроме",
   "toast.invertAll": "Инверсия: выделено всё → ничего",
   "toast.imgToLayer": "Картинка на новом слое",
