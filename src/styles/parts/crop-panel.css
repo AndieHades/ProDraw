@@ -1,0 +1,31 @@
+/* ---- Панель «Размер холста» (режим кропа) ----
+   Стили панели жили в tilemap-dialog.css и ушли вместе с ним (20f946f): без них
+   поля размера и Отмена/Применить оказывались за холстом. */
+#cropbar.crop-panel { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  transform: translateX(-50%); z-index: 16; width: min(420px, calc(100vw - 24px)); display: none;
+  grid-template-rows: auto auto; overflow: hidden;
+  background: var(--panel); backdrop-filter: blur(14px); border: 1px solid var(--line);
+  border-radius: var(--win-radius); box-shadow: var(--win-shadow); }
+#cropbar.crop-panel.on { display: grid; }
+.crop-head { padding: 14px 18px 8px; text-align: center; cursor: grab; touch-action: none;
+  user-select: none; -webkit-user-select: none; }
+.crop-head:active { cursor: grabbing; }
+.crop-head h3 { margin: 0; color: var(--txt2); font-size: var(--win-title); line-height: 1.2;
+  font-weight: var(--fw-heading); }
+.crop-custom { padding: 12px 18px 16px; border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel-solid) 42%, transparent); }
+.crop-custom h4 { margin: 0 0 8px; color: var(--txt); font-size: var(--type-body);
+  font-weight: var(--fw-heading); }
+.crop-grid-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; gap: 10px; }
+.crop-grid-fields label { display: grid; gap: 6px; }
+.crop-grid-fields span { color: var(--txt); font-size: var(--type-label); font-weight: var(--fw-ui); }
+.crop-grid-fields input { width: 100%; height: var(--btn-sm); box-sizing: border-box; padding: 0 10px;
+  color: var(--txt); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+  outline: none; font: inherit; font-size: var(--type-label); font-weight: var(--fw-ui); }
+.crop-px { display: block; margin-top: 8px; color: var(--txt2); font-size: var(--type-caption); white-space: nowrap; }
+.crop-actions { margin-top: 12px; }
+
+@media (max-width: 460px) {
+  #cropbar.crop-panel { left: 12px; right: 12px; width: auto; transform: none; }
+  .crop-custom { padding-left: 14px; padding-right: 14px; }
+}
