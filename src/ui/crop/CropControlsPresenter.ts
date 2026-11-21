@@ -4,6 +4,7 @@ export interface CropControlsPort {
   readonly bindCanvasMode: () => void;
   readonly cancel: () => void;
   readonly dimensionInput: (dimension: "h" | "w", commit: boolean) => void;
+  readonly fit: () => void;
   readonly toggle: () => void;
 }
 
@@ -24,6 +25,7 @@ export function mountCropControls(port: CropControlsPort): void {
   element<HTMLButtonElement>("crop").onclick = port.toggle;
   element<HTMLButtonElement>("crop-ok").onclick = port.apply;
   element<HTMLButtonElement>("crop-cancel").onclick = port.cancel;
+  element<HTMLButtonElement>("crop-fit").onclick = port.fit;
   for (const dimension of ["w", "h"] as const) {
     const input = element<HTMLInputElement>(`crop-${dimension}`);
     input.addEventListener("input", () => port.dimensionInput(dimension, false));

@@ -7,6 +7,10 @@ export interface CropMode extends SelectionRect {
 }
 
 export interface CropSize { readonly width: number; readonly height: number }
+export interface ContentBounds {
+  readonly minx: number; readonly miny: number;
+  readonly maxx: number; readonly maxy: number;
+}
 
 export const cropSize = (crop: SelectionRect): CropSize => ({
   width: crop.x1 - crop.x0 + 1, height: crop.y1 - crop.y0 + 1
@@ -27,6 +31,13 @@ export function placeCropSize(crop: CropMode, width: number,
   crop.y0 = Math.round(centerY - (height - 1) / 2);
   crop.x1 = crop.x0 + width - 1; crop.y1 = crop.y0 + height - 1;
   return previous.width !== width || previous.height !== height;
+}
+
+// Рамка по охвату документа. Кадр живёт в координатах вида, где рисунок
+// сдвинут на idx/idy (ПКМ внутри рамки), поэтому сдвиг прибавляется.
+export function fitCropFrame(crop: CropMode, bounds: ContentBounds): void {
+  crop.x0 = bounds.minx + crop.idx; crop.y0 = bounds.miny + crop.idy;
+  crop.x1 = bounds.maxx + crop.idx; crop.y1 = bounds.maxy + crop.idy;
 }
 
 export const appliedCropRect = (crop: CropMode): SelectionRect => ({

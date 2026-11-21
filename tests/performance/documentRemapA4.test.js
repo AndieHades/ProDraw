@@ -62,7 +62,9 @@ describe('sparse A4 document remaps', () => {
 
   it('trims sparse A4 content with the same bounded remap', () => {
     const observed = reset(); trimCanvas();
-    expect([S.W, S.H]).toEqual([21, 21]); expect(observed.rowReads()).toBe(2);
+    // both content rows are read once to tell art from erase residue and once
+    // by the remap; the empty A4 rows are never read
+    expect([S.W, S.H]).toEqual([21, 21]); expect(observed.rowReads()).toBe(4);
     expect(S.layers[0].grid[0][0]).toEqual(rgba(10));
     expect(S.layers[0].grid[20][20]).toEqual(rgba(20)); expectSparse();
   });

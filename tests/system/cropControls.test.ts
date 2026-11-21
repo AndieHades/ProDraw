@@ -8,10 +8,12 @@ describe("Crop controls keyboard", () => {
 
   beforeAll(() => {
     document.body.innerHTML = '<button id="crop"></button><button id="crop-ok"></button>' +
-      '<button id="crop-cancel"></button><input id="crop-w"><input id="crop-h">';
+      '<button id="crop-cancel"></button><button id="crop-fit"></button>' +
+      '<input id="crop-w"><input id="crop-h">';
     mountCropControls({
       active: () => active, apply: () => calls.push("apply"),
-      cancel: () => calls.push("cancel"), toggle: vi.fn(), bindCanvasMode: vi.fn(),
+      cancel: () => calls.push("cancel"), fit: () => calls.push("fit"),
+      toggle: vi.fn(), bindCanvasMode: vi.fn(),
       dimensionInput: (_dimension, commit) => { if (commit) calls.push("commit"); }
     });
   });
@@ -30,6 +32,11 @@ describe("Crop controls keyboard", () => {
     input.focus(); press(input);
     expect(calls).toEqual(["commit", "apply"]);
     expect(document.activeElement).not.toBe(input);
+  });
+
+  it("fits the frame to content from its button without applying", () => {
+    (document.getElementById("crop-fit") as HTMLButtonElement).click();
+    expect(calls).toEqual(["fit"]);
   });
 
   it("ignores Enter when Crop is not active", () => {

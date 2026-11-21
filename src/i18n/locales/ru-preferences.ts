@@ -54,6 +54,8 @@ export const ruPreferences: LocaleDictionary = {
   "palette.dropNew": "Создать новую",
   "crop.canvasSize": "Размер холста",
   "crop.custom": "Свой",
+  "crop.fitContent": "По содержимому",
+  "crop.fitContentHint": "Рамка по рисунку без крошечных полупрозрачных остатков вокруг",
   "crop.center": "От центра (Shift)",
   "crop.apply": "Применить кроп (Enter)",
   "crop.cancel": "Отмена (Esc)",

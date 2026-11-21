@@ -7,13 +7,15 @@ import { $, toast, t } from '../core/shell.ts';
 import { commitNumericField, isNumericLiteral, numericFieldValue,
   setNumericField } from '../core/numeric-field.ts';
 import { applyCropRect } from '../core/document.js';
+import { activeTimelineBounds } from '../core/animation-canvas.js';
+import { contentFitBoundsFor } from '../core/canvas-bounds.js';
 import { registerMode } from '../core/canvas-handlers.ts';
 import { MAX_SIZE } from '../config/limits.ts';
 import { clampRound } from '../logic/math.ts';
 import { mountCropControls } from '../ui/crop/CropControlsPresenter.ts';
 import { CropPointerSystem } from './crop/CropPointerSystem.ts';
 import { appliedCropRect, createCropMode, cropChangesDocument,
-  cropSize as measureCrop, placeCropSize } from './crop/CropSession.ts';
+  cropSize as measureCrop, fitCropFrame, placeCropSize } from './crop/CropSession.ts';
 import { setTool } from '../core/tools.ts';
 
 let mounted = false;
@@ -62,6 +64,15 @@ export function cancelCrop() {
   bus.emit('render');
 }
 
+// рамка по рисунку без крошечных полупрозрачных остатков стирания вокруг него;
+// Apply затем делает один общий сдвиг, как при ручной рамке
+export function fitCropToContent() {
+  if (!S.cropMode) return;
+  const bounds = activeTimelineBounds(contentFitBoundsFor, () => contentFitBoundsFor());
+  if (!bounds) { toast(t('toast.canvasEmpty')); return; }
+  fitCropFrame(S.cropMode, bounds); syncInputs(); bus.emit('render');
+}
+
 export function applyCrop() {
   if (!S.cropMode) return;
   const crop = S.cropMode; cancelCrop();
@@ -81,7 +92,7 @@ export function mount() {
   if (mounted) return;
   mounted = true;
   mountCropControls({ active: () => !!S.cropMode, toggle: toggleCrop,
-    apply: applyCrop, cancel: cancelCrop, dimensionInput,
+    apply: applyCrop, cancel: cancelCrop, fit: fitCropToContent, dimensionInput,
     bindCanvasMode: () => registerMode('crop', { hit: ({ e }) => cropPointer.hit(e),
       down: ({ e }) => cropPointer.down(e),
       move: ({ e }) => cropPointer.move(e), up: () => cropPointer.end(),

@@ -1,6 +1,6 @@
 /* ---- Панель «Размер холста» (режим кропа) ----
    Стили панели жили в tilemap-dialog.css и ушли вместе с ним (20f946f): без них
-   поля размера и Отмена/Применить оказывались за холстом. */
+   поля размера, «По содержимому» и Отмена/Применить оказывались за холстом. */
 #cropbar.crop-panel { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
   transform: translateX(-50%); z-index: 16; width: min(420px, calc(100vw - 24px)); display: none;
   grid-template-rows: auto auto; overflow: hidden;
@@ -23,6 +23,7 @@
   color: var(--txt); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
   outline: none; font: inherit; font-size: var(--type-label); font-weight: var(--fw-ui); }
 .crop-px { display: block; margin-top: 8px; color: var(--txt2); font-size: var(--type-caption); white-space: nowrap; }
+.crop-fit { width: 100%; margin-top: 12px; }
 .crop-actions { margin-top: 12px; }
 
 @media (max-width: 460px) {

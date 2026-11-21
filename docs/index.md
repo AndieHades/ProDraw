@@ -19,6 +19,8 @@
 - [Pen brush response repair](project/pen-brush-response-repair-plan.md) —
   задержки пера, плавность кончика и рабочие свойства растровых кистей.
 
+- [Content fit residue](project/content-fit-residue-plan.md) — обрезка и кроп
+  «По содержимому» не держатся за крошечные полупрозрачные остатки стирания.
 - [Trim performance repair](project/trim-performance-repair-plan.md) — устранение
   зависания обрезки и последующего автосохранения плотных слоёв.
 - [Raster quality runtime](tutorials/raster-quality-runtime/README.md) —

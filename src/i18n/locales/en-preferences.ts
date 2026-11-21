@@ -54,6 +54,8 @@ export const enPreferences: LocaleDictionary = {
   "palette.dropNew": "Create new",
   "crop.canvasSize": "Canvas size",
   "crop.custom": "Custom",
+  "crop.fitContent": "Fit to content",
+  "crop.fitContentHint": "Frame the artwork, ignoring tiny translucent leftovers around it",
   "crop.center": "From center (Shift)",
   "crop.apply": "Apply crop (Enter)",
   "crop.cancel": "Cancel (Esc)",
