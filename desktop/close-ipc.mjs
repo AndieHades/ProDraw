@@ -1,40 +1,35 @@
 import channels from "./ipc-channels.cjs";
 import { onTrusted } from "./trusted-ipc.mjs";
+import { createCloseHandshake } from "./close-handshake.mjs";
+import { confirmInWindow } from "./confirm-dialog.mjs";
 
-const pending = new Map();
+const handshakes = new Map();
 
 export function registerCloseIpc() {
-  onTrusted(channels.closeDecision, (event, allow) => {
-    const request = pending.get(event.sender.id);
-    if (!request) return;
-    pending.delete(event.sender.id);
-    clearTimeout(request.timer);
-    request.finish(Boolean(allow));
-  });
+  onTrusted(channels.closeAck, (event) => handshakes.get(event.sender.id)?.acknowledge());
+  onTrusted(channels.closeDecision, (event, decision) =>
+    handshakes.get(event.sender.id)?.decide(decision));
 }
 
-export function attachCloseHandshake(window, timeoutMs = 5_000) {
-  let approved = false;
-  const webContentsId = window.webContents.id;
+export function attachCloseHandshake(window, limits) {
+  const contents = window.webContents, webContentsId = contents.id;
+  const handshake = createCloseHandshake({
+    send: () => contents.send(channels.closeRequest),
+    // destroy() skips beforeunload, so an approved close cannot be held up
+    // by a renderer that stopped responding.
+    destroy: () => { if (!window.isDestroyed()) window.destroy(); },
+    rendererGone: () => contents.isDestroyed() || contents.isCrashed(),
+    confirm: (prompt) => confirmInWindow(window, prompt),
+    setTimer: (callback, ms) => setTimeout(callback, ms),
+    clearTimer: (timer) => clearTimeout(timer)
+  }, limits);
+  handshakes.set(webContentsId, handshake);
   window.on("close", (event) => {
-    if (approved || window.isDestroyed()) return;
     event.preventDefault();
-    if (pending.has(webContentsId)) return;
-    const finish = (allow) => {
-      if (!allow || window.isDestroyed()) return;
-      approved = true;
-      window.close();
-    };
-    const timer = setTimeout(() => {
-      pending.delete(webContentsId);
-      finish(true);
-    }, timeoutMs);
-    pending.set(webContentsId, { finish, timer });
-    window.webContents.send(channels.closeRequest);
+    handshake.request();
   });
   window.on("closed", () => {
-    const request = pending.get(webContentsId);
-    if (request) clearTimeout(request.timer);
-    pending.delete(webContentsId);
+    handshake.dispose();
+    handshakes.delete(webContentsId);
   });
 }

@@ -35,6 +35,13 @@ export interface ConfirmDiscardRequest {
   readonly cancelLabel: string;
 }
 
+// Ответ renderer на запрос закрытия окна. `ask` — сохранить не удалось,
+// и оболочка спрашивает пользователя вместо молчаливого отказа.
+export type CloseDecision =
+  | { readonly action: "close" }
+  | { readonly action: "stay" }
+  | { readonly action: "ask"; readonly prompt: ConfirmDiscardRequest };
+
 export interface DesktopFileTreeBridge {
   begin(suggestedName: string): Promise<{ readonly token: string } | null>;
   ensureDirectory(token: string, relativePath: readonly string[]): Promise<boolean>;
@@ -73,5 +80,5 @@ export interface DesktopBridge {
   writeBinary(location: string, bytes: ArrayBuffer): Promise<boolean>;
   confirmDiscard(request: ConfirmDiscardRequest): Promise<boolean>;
   onCloseRequested(listener: () => void): () => void;
-  resolveCloseRequest(allow: boolean): void;
+  resolveCloseRequest(decision: CloseDecision): void;
 }

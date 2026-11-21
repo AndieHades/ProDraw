@@ -9,6 +9,7 @@ module.exports = Object.freeze({
   exportTreeCommit: "prodraw:export-tree:commit",
   exportTreeAbort: "prodraw:export-tree:abort",
   closeRequest: "prodraw:window:close-request",
+  closeAck: "prodraw:window:close-ack",
   closeDecision: "prodraw:window:close-decision",
   brushSeed: "prodraw:brush:seed",
   brushList: "prodraw:brush:list",

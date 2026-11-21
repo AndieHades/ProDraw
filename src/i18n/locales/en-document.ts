@@ -110,4 +110,8 @@ export const enDocument: LocaleDictionary = {
   "label.palette": "Palette",
   "label.paletteN": "Palette · {n}",
   "label.layers": "Layers",
+  "close.saveFailedTitle": "Work was not saved",
+  "close.saveFailedMessage": "The latest changes could not be saved. Close ProDraw without them?",
+  "close.discardAndClose": "Close without saving",
+  "close.keepOpen": "Keep open",
 };

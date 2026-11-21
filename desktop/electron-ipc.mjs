@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { app, BrowserWindow, dialog } from "electron";
 import { atomicWriteFile } from "./atomic-file.mjs";
+import { confirmInWindow } from "./confirm-dialog.mjs";
 import channels from "./ipc-channels.cjs";
 import { handleTrusted } from "./trusted-ipc.mjs";
 import { writableDocumentLocation } from "./writable-document-location.mjs";
@@ -54,14 +55,8 @@ export function registerFileIpc() {
     return true;
   });
 
-  handleTrusted(channels.fileConfirmDiscard, async (event, request) => {
-    const result = await dialog.showMessageBox(parentWindow(event), {
-      type: "warning", title: String(request.title), message: String(request.message),
-      buttons: [String(request.confirmLabel), String(request.cancelLabel)],
-      defaultId: 1, cancelId: 1, noLink: true
-    });
-    return result.response === 0;
-  });
+  handleTrusted(channels.fileConfirmDiscard, (event, request) =>
+    confirmInWindow(parentWindow(event), request));
 }
 
 export const fileChannels = { open: channels.fileOpen, save: channels.fileSave };

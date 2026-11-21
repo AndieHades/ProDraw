@@ -110,4 +110,8 @@ export const ruDocument: LocaleDictionary = {
   "label.palette": "Палитра",
   "label.paletteN": "Палитра · {n}",
   "label.layers": "Слои",
+  "close.saveFailedTitle": "Работа не сохранилась",
+  "close.saveFailedMessage": "Не удалось сохранить последние изменения. Закрыть ProDraw без них?",
+  "close.discardAndClose": "Закрыть без сохранения",
+  "close.keepOpen": "Не закрывать",
 };

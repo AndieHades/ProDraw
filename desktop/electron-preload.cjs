@@ -11,6 +11,7 @@ const channels = {
   exportTreeCommit: "prodraw:export-tree:commit",
   exportTreeAbort: "prodraw:export-tree:abort",
   closeRequest: "prodraw:window:close-request",
+  closeAck: "prodraw:window:close-ack",
   closeDecision: "prodraw:window:close-decision",
   brushSeed: "prodraw:brush:seed",
   brushList: "prodraw:brush:list",
@@ -66,12 +67,13 @@ contextBridge.exposeInMainWorld("prodrawDesktop", {
     abort: (token) => ipcRenderer.invoke(channels.exportTreeAbort, token)
   },
   onCloseRequested(listener) {
-    const handler = () => listener();
+    // The ack proves the renderer thread is alive, so the shell may wait for the save.
+    const handler = () => { ipcRenderer.send(channels.closeAck); listener(); };
     ipcRenderer.on(channels.closeRequest, handler);
     return () => ipcRenderer.removeListener(channels.closeRequest, handler);
   },
-  resolveCloseRequest(allow) {
-    ipcRenderer.send(channels.closeDecision, Boolean(allow));
+  resolveCloseRequest(decision) {
+    ipcRenderer.send(channels.closeDecision, decision);
   },
   brushStorage: {
     ensureSeeded(setName, files) {

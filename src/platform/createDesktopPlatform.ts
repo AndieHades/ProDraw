@@ -45,8 +45,9 @@ export function createDesktopPlatform(
     confirmDiscard: (request) => bridge.confirmDiscard(request),
     onCloseRequested(handler) {
       return bridge.onCloseRequested(() => {
-        void handler().then((allow) => bridge.resolveCloseRequest(allow),
-          () => bridge.resolveCloseRequest(false));
+        void handler().then(
+          (allow) => bridge.resolveCloseRequest({ action: allow ? "close" : "stay" }),
+          () => bridge.resolveCloseRequest({ action: "close" }));
       });
     }
   };

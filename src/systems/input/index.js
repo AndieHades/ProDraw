@@ -81,12 +81,13 @@ export function move(e) {
   else if (e.pointerType !== 'touch') bus.emit('render'); // перерисовка контура кисти
 }
 
-export function up(e) { if (foreign(e)) return; try {
+// Жест освобождается и при исключении обработчика, иначе холст навсегда занят.
+export function up(e) { if (foreign(e)) return; const global = activeGlobal; activeGlobal = null; try {
   if (pan.active) { const result = pan.finish(); if (e && !result?.moved && result?.button === 2)
     bus.emit(S.sel && !S.selFloat ? 'selection-menu' : 'canvas-menu', e);
     return; }
-  if (activeGlobal) { if (activeGlobal.up) activeGlobal.up({ e }); activeGlobal = null; drawing = false; return; }
-  const m = activeMode(); if (m) { if (drawing && m.up) m.up({ e }); drawing = modeGesture = false; return; }
+  if (global) { if (global.up) global.up({ e }); return; }
+  const m = activeMode(); if (m) { if (drawing && m.up) m.up({ e }); return; }
   const h = gestureTool();
   if (drawing && h?.up) {
     const samples = Number.isFinite(e?.clientX) && Number.isFinite(e?.clientY)
@@ -94,8 +95,7 @@ export function up(e) { if (foreign(e)) return; try {
         const [x, y] = toCanvas(event); return sampleAt(x, y, event, true); }) : [];
     h.up({ e, samples });
   }
-  drawing = modeGesture = false;
-  } finally { releaseCapture(e); releaseCanvasBounds(); }
+  } finally { drawing = modeGesture = false; releaseCapture(e); releaseCanvasBounds(); }
 }
 
 export function cancel(e) {

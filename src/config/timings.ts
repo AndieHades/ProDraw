@@ -14,3 +14,5 @@ export const AUTOSAVE_DELAY_MS = 800; // пауза после изменени�
 export const AUTOSAVE_STROKE_RETRY_MS = 100; // не клонировать большой холст внутри штриха
 export const AUTOSAVE_IDLE_TIMEOUT_MS = 500; // крайний срок idle-слота для записи
 export const AUTOSAVE_CLONE_YIELD_ROWS = 8; // строки между уступками event loop
+export const CLOSE_SAVE_TIMEOUT_MS = 20_000; // сохранение при закрытии окна; дальше решает пользователь
+export const CLOSE_SAVE_ATTEMPTS = 3; // повтор, если документ изменился посреди записи

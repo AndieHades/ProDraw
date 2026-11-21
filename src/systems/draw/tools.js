@@ -50,11 +50,13 @@ const brush = {
     if (!continueBrushStroke(sample, flush)) {
       if (last) line(last[0], last[1], gx, gy); else stamp(gx, gy, true, sample); }
     last = [gx, gy]; if (flush) bus.emit('render'); },
-  up({ samples = [] } = {}) {
-    if (!S.qsShape) for (const sample of samples) continueBrushStroke(sample, false);
-    endBrushStroke(); qsRelease(); S.stroke = false; last = null;
-    if (S.tool === 'pencil' || (S.tool === 'adjust' && S.adjMode === 'colorize')) actions.run('color.used', S.active);
-    afterStroke(); bus.emit('render'); }, // удержал → коммитит ровную форму, иначе raw остаётся
+  up({ samples = [] } = {}) { let failure = null;
+    try { if (!S.qsShape) for (const sample of samples) continueBrushStroke(sample, false);
+      endBrushStroke(); } catch (error) { failure = error; }
+    // Сбой кисти не оставляет ход открытым: нарисованное фиксируется шагом истории.
+    qsRelease(); S.stroke = false; last = null;
+    if (!failure && (S.tool === 'pencil' || (S.tool === 'adjust' && S.adjMode === 'colorize'))) actions.run('color.used', S.active);
+    afterStroke(); bus.emit('render'); if (failure) throw failure; }, // удержал → коммитит ровную форму, иначе raw остаётся
   cancel() { const hadStroke = S.stroke; qsRelease();
     if (hadStroke) { S.stroke = true; cancelStroke(); }
     last = null; bus.emit('render'); },
